@@ -285,6 +285,24 @@ public class DataDefinitionValidationException extends RuntimeException {
 
 	}
 
+	public static class MustSetValidFieldType
+		extends DataDefinitionValidationException {
+
+		public MustSetValidFieldType(String fieldType) {
+			super(
+				String.format("Invalid type set for field type %s", fieldType));
+
+			_fieldType = fieldType;
+		}
+
+		public String getFieldType() {
+			return _fieldType;
+		}
+
+		private final String _fieldType;
+
+	}
+
 	public static class MustSetValidIndexType
 		extends DataDefinitionValidationException {
 
