@@ -39,6 +39,7 @@ import com.liferay.dynamic.data.mapping.util.DDMBeanTranslatorUtil;
 import com.liferay.dynamic.data.mapping.util.DDMIndexer;
 import com.liferay.osgi.util.service.OSGiServiceUtil;
 import com.liferay.petra.string.CharPool;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.model.BaseModel;
@@ -431,12 +432,14 @@ public abstract class TestOrderHelper {
 
 		testOrderByDDMField(
 			new String[] {
-				"a" + dummyText, "D" + dummyText, "c" + dummyText,
-				"B" + dummyText
+				StringBundler.concat(
+					"a", dummyText, "D", dummyText, "c", dummyText, "B",
+					dummyText)
 			},
 			new String[] {
-				"a" + dummyText, "B" + dummyText, "c" + dummyText,
-				"D" + dummyText
+				StringBundler.concat(
+					"a", dummyText, "B", dummyText, "c", dummyText, "D",
+					dummyText)
 			},
 			FieldConstants.STRING, indexType, DDMFormFieldType.TEXT);
 	}
