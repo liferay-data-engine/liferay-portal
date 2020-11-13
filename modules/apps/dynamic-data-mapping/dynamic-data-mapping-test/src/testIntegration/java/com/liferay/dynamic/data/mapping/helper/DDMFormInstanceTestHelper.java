@@ -112,7 +112,7 @@ public class DDMFormInstanceTestHelper {
 				PortalUtil.getClassNameId(DDMFormInstance.class), _group);
 
 		DDMStructure ddmStructure = ddmStructureTestHelper.addStructure(
-			ddmForm, StorageType.JSON.toString());
+			ddmForm, StorageType.DEFAULT.toString());
 
 		return addDDMFormInstance(ddmStructure);
 	}
