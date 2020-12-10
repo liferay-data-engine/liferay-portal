@@ -54,6 +54,10 @@ const RichText = ({
 						onChange({}, data);
 					}
 				}}
+				onInstanceReady={({editor}) => {
+					editor.setData(currentValue);
+					setCurrentValue(currentValue);
+				}}
 				readOnly={readOnly}
 			/>
 

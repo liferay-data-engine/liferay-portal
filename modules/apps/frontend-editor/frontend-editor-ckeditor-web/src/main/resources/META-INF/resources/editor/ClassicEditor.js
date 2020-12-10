@@ -26,6 +26,7 @@ const ClassicEditor = ({
 	name,
 	onChange,
 	onChangeMethodName,
+	onInstanceReady,
 	title,
 	...otherProps
 }) => {
@@ -138,9 +139,11 @@ const ClassicEditor = ({
 							}
 						});
 
-						editor.on('instanceReady', () => {
-							editor.setData(contents);
-						});
+						if (!onInstanceReady) {
+							editor.on('instanceReady', () => {
+								editor.setData(contents);
+							});
+						}
 					});
 				}}
 				onChange={onChangeCallback}
