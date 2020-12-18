@@ -55,20 +55,29 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.model.ColorScheme;
+import com.liferay.portal.kernel.model.Company;
+import com.liferay.portal.kernel.model.Theme;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.ThemeLocalService;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.ColorSchemeFactoryUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleThreadLocal;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.odata.entity.EntityModel;
+import com.liferay.portal.util.PrefsPropsUtil;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
 import com.liferay.portal.vulcan.resource.EntityModelResource;
@@ -258,6 +267,8 @@ public class DataLayoutResourceImpl
 			LocaleThreadLocal.setThemeDisplayLocale(
 				contextAcceptLanguage.getPreferredLocale());
 		}
+
+		_initThemeDisplay(dataLayoutRenderingContext);
 
 		Map<String, Object> ddmFormTemplateContext =
 			_ddmFormTemplateContextFactory.create(
@@ -475,6 +486,48 @@ public class DataLayoutResourceImpl
 			"$[\"pages\"][*][\"rows\"][*][\"columns\"][*][\"fieldNames\"][*]");
 	}
 
+	private void _initThemeDisplay(
+			DataLayoutRenderingContext dataLayoutRenderingContext)
+		throws Exception {
+
+		Company company = (Company)contextHttpServletRequest.getAttribute(
+			WebKeys.COMPANY);
+
+		String themeId = PrefsPropsUtil.getString(
+			company.getCompanyId(),
+			PropsKeys.CONTROL_PANEL_LAYOUT_REGULAR_THEME_ID);
+
+		Theme theme = _themeLocalService.getTheme(
+			company.getCompanyId(), themeId);
+
+		String colorSchemeId =
+			ColorSchemeFactoryUtil.getDefaultRegularColorSchemeId();
+
+		ColorScheme colorScheme = _themeLocalService.getColorScheme(
+			company.getCompanyId(), theme.getThemeId(), colorSchemeId);
+
+		ThemeDisplay themeDisplay = new ThemeDisplay();
+
+		themeDisplay.setPortalURL(
+			_portal.getPortalURL(contextHttpServletRequest));
+		themeDisplay.setServerName(
+			_portal.getForwardedHost(contextHttpServletRequest));
+		themeDisplay.setServerPort(
+			_portal.getForwardedPort(contextHttpServletRequest));
+
+		themeDisplay.setCompany(company);
+		themeDisplay.setLocale(LocaleThreadLocal.getThemeDisplayLocale());
+		themeDisplay.setLookAndFeel(theme, colorScheme);
+		themeDisplay.setRequest(contextHttpServletRequest);
+		themeDisplay.setScopeGroupId(
+			dataLayoutRenderingContext.getScopeGroupId());
+		themeDisplay.setSiteGroupId(
+			dataLayoutRenderingContext.getSiteGroupId());
+
+		contextHttpServletRequest.setAttribute(
+			WebKeys.THEME_DISPLAY, themeDisplay);
+	}
+
 	private DataLayoutValidationException _toDataLayoutValidationException(
 		DDMFormLayoutValidationException ddmFormLayoutValidationException) {
 
@@ -661,5 +714,8 @@ public class DataLayoutResourceImpl
 
 	@Reference
 	private SPIDDMFormRuleConverter _spiDDMFormRuleConverter;
+
+	@Reference
+	private ThemeLocalService _themeLocalService;
 
 }
