@@ -12,7 +12,7 @@
  * details.
  */
 
-package com.liferay.data.engine.rest.internal.dto.v2_0.util;
+package com.liferay.data.engine.rest.dto.v2_0.util;
 
 import com.google.gson.Gson;
 
