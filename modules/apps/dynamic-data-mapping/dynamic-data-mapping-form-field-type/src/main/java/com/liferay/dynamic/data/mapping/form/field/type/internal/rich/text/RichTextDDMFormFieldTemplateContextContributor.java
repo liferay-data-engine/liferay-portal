@@ -76,8 +76,6 @@ public class RichTextDDMFormFieldTemplateContextContributor
 			EditorConfigurationFactoryUtil.getEditorConfiguration(
 				StringPool.BLANK, ddmFormFieldType, "ckeditor_classic",
 				HashMapBuilder.<String, Object>put(
-					"liferay-ui:input-editor:allowBrowseDocuments", true
-				).put(
 					"liferay-ui:input-editor:name",
 					ddmFormFieldRenderingContext.getName()
 				).build(),
