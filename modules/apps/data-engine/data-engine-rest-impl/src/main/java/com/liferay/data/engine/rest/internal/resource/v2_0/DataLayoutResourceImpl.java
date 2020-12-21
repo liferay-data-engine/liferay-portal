@@ -55,7 +55,6 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.language.LanguageUtil;
-import com.liferay.portal.kernel.model.ColorScheme;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Theme;
 import com.liferay.portal.kernel.search.Field;
@@ -490,39 +489,37 @@ public class DataLayoutResourceImpl
 			DataLayoutRenderingContext dataLayoutRenderingContext)
 		throws Exception {
 
+		ThemeDisplay themeDisplay = new ThemeDisplay();
+
 		Company company = (Company)contextHttpServletRequest.getAttribute(
 			WebKeys.COMPANY);
 
-		String themeId = PrefsPropsUtil.getString(
-			company.getCompanyId(),
-			PropsKeys.CONTROL_PANEL_LAYOUT_REGULAR_THEME_ID);
+		themeDisplay.setCompany(company);
 
-		Theme theme = _themeLocalService.getTheme(
-			company.getCompanyId(), themeId);
-
-		String colorSchemeId =
-			ColorSchemeFactoryUtil.getDefaultRegularColorSchemeId();
-
-		ColorScheme colorScheme = _themeLocalService.getColorScheme(
-			company.getCompanyId(), theme.getThemeId(), colorSchemeId);
-
-		ThemeDisplay themeDisplay = new ThemeDisplay();
-
+		themeDisplay.setLocale(LocaleThreadLocal.getThemeDisplayLocale());
 		themeDisplay.setPortalURL(
 			_portal.getPortalURL(contextHttpServletRequest));
+		themeDisplay.setRequest(contextHttpServletRequest);
+		themeDisplay.setScopeGroupId(
+			dataLayoutRenderingContext.getScopeGroupId());
 		themeDisplay.setServerName(
 			_portal.getForwardedHost(contextHttpServletRequest));
 		themeDisplay.setServerPort(
 			_portal.getForwardedPort(contextHttpServletRequest));
-
-		themeDisplay.setCompany(company);
-		themeDisplay.setLocale(LocaleThreadLocal.getThemeDisplayLocale());
-		themeDisplay.setLookAndFeel(theme, colorScheme);
-		themeDisplay.setRequest(contextHttpServletRequest);
-		themeDisplay.setScopeGroupId(
-			dataLayoutRenderingContext.getScopeGroupId());
 		themeDisplay.setSiteGroupId(
 			dataLayoutRenderingContext.getSiteGroupId());
+
+		Theme theme = _themeLocalService.getTheme(
+			company.getCompanyId(),
+			PrefsPropsUtil.getString(
+				company.getCompanyId(),
+				PropsKeys.CONTROL_PANEL_LAYOUT_REGULAR_THEME_ID));
+
+		themeDisplay.setLookAndFeel(
+			theme,
+			_themeLocalService.getColorScheme(
+				company.getCompanyId(), theme.getThemeId(),
+				ColorSchemeFactoryUtil.getDefaultRegularColorSchemeId()));
 
 		contextHttpServletRequest.setAttribute(
 			WebKeys.THEME_DISPLAY, themeDisplay);
