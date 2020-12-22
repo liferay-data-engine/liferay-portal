@@ -136,17 +136,17 @@ public class DocumentLibraryDDMFormFieldTemplateContextContributor
 		if (themeDisplay != null) {
 			if (!themeDisplay.isSignedIn()) {
 				parameters.put(
-						"guestUploadURL",
-						getGuestUploadURL(
-								ddmFormFieldRenderingContext, folderId,
-								httpServletRequest));
+					"guestUploadURL",
+					getGuestUploadURL(
+						ddmFormFieldRenderingContext, folderId,
+						httpServletRequest));
 			}
 			else {
 				parameters.put(
-						"itemSelectorURL",
-						getItemSelectorURL(
-								ddmFormFieldRenderingContext, folderId,
-								httpServletRequest));
+					"itemSelectorURL",
+					getItemSelectorURL(
+						ddmFormFieldRenderingContext, folderId,
+						httpServletRequest));
 			}
 		}
 
