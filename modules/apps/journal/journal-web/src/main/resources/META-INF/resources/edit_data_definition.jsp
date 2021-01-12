@@ -110,13 +110,6 @@ editDDMStructureURL.setParameter("mvcPath", "/edit_data_definition.jsp");
 						namespace="<%= liferayPortletResponse.getNamespace() %>"
 						singlePage="<%= true %>"
 					/>
-
-					<liferay-frontend:component
-						componentId='<%= liferayPortletResponse.getNamespace() + "dataEngineLayoutBuilderLanguageProxy" %>'
-						context="<%= journalEditDDMStructuresDisplayContext.getComponentContext() %>"
-						module="js/dataEngineLayoutBuilderLanguageProxy.es"
-						servletContext="<%= application %>"
-					/>
 				</div>
 			</div>
 		</clay:container-fluid>

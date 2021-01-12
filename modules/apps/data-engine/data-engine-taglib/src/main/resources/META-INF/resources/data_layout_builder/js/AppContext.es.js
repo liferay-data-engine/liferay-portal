@@ -74,7 +74,7 @@ const initialState = {
 	},
 	dataLayoutId: 0,
 	editingDataDefinitionId: 0,
-	editingLanguageId: themeDisplay.getLanguageId(),
+	editingLanguageId: themeDisplay.getDefaultLanguageId(),
 	fieldSets: [],
 	fieldTypes: [],
 	focusedCustomObjectField: {},
