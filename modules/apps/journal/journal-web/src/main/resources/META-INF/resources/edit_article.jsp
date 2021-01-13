@@ -245,6 +245,7 @@ JournalEditArticleDisplayContext journalEditArticleDisplayContext = new JournalE
 					containerId='<%= liferayPortletResponse.getNamespace() + "dataEngineLayoutRenderer" %>'
 					dataDefinitionId="<%= ddmStructure.getStructureId() %>"
 					dataRecordValues="<%= journalEditArticleDisplayContext.getValues(ddmStructure) %>"
+					disableAutofocus="<%= true %>"
 					namespace="<%= liferayPortletResponse.getNamespace() %>"
 				/>
 
