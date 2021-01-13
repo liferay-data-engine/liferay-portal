@@ -83,6 +83,8 @@ public class DataLayoutRendererImpl implements DataLayoutRenderer {
 				dataLayoutRendererContext.getDataRecordValues(), ddmForm,
 				null));
 		ddmFormRenderingContext.setDDMStructureLayoutId(dataLayoutId);
+		ddmFormRenderingContext.setDisabledAutofocus(
+			dataLayoutRendererContext.isDisableAutofocus());
 		ddmFormRenderingContext.setGroupId(groupId);
 		ddmFormRenderingContext.setHttpServletRequest(
 			dataLayoutRendererContext.getHttpServletRequest());

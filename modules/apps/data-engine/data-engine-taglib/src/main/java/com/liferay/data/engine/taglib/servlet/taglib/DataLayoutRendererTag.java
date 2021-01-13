@@ -66,6 +66,8 @@ public class DataLayoutRendererTag extends BaseDataLayoutRendererTag {
 					getDataRecordValues());
 			}
 
+			dataLayoutRendererContext.setDisabledAutofocus(
+				getDisableAutofocus());
 			dataLayoutRendererContext.setHttpServletRequest(httpServletRequest);
 			dataLayoutRendererContext.setHttpServletResponse(
 				PortalUtil.getHttpServletResponse(

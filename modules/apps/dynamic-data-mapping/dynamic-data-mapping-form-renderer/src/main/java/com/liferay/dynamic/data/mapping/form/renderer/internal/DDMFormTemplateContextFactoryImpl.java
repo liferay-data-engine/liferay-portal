@@ -157,6 +157,8 @@ public class DDMFormTemplateContextFactoryImpl
 			"defaultSiteLanguageId",
 			LanguageUtil.getLanguageId(LocaleUtil.getSiteDefault()));
 		templateContext.put(
+			"disableAutofocus", ddmFormRenderingContext.isDisableAutofocus());
+		templateContext.put(
 			"editingLanguageId", LanguageUtil.getLanguageId(locale));
 		templateContext.put(
 			"evaluatorURL", getDDMFormContextProviderServletURL());

@@ -85,6 +85,10 @@ public class DDMFormRenderingContext {
 		return _submitLabel;
 	}
 
+	public boolean isDisableAutofocus() {
+		return _disableAutofocus;
+	}
+
 	public boolean isReadOnly() {
 		return _readOnly;
 	}
@@ -127,6 +131,14 @@ public class DDMFormRenderingContext {
 
 	public void setDDMStructureLayoutId(long ddmStructureLayoutId) {
 		_ddmStructureLayoutId = ddmStructureLayoutId;
+	}
+
+	public void setDisableAutofocus(boolean disableAutofocus) {
+		_properties.put("disableAutofocus", disableAutofocus);
+	}
+
+	public void setDisabledAutofocus(boolean disableAutofocus) {
+		_disableAutofocus = disableAutofocus;
 	}
 
 	public void setGroupId(long groupId) {
@@ -193,6 +205,7 @@ public class DDMFormRenderingContext {
 	private String _containerId;
 	private DDMFormValues _ddmFormValues;
 	private long _ddmStructureLayoutId;
+	private boolean _disableAutofocus;
 	private long _groupId;
 	private HttpServletRequest _httpServletRequest;
 	private HttpServletResponse _httpServletResponse;

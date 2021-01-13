@@ -44,6 +44,10 @@ public class DataLayoutRendererContext {
 		return _portletNamespace;
 	}
 
+	public boolean isDisableAutofocus() {
+		return _disableAutofocus;
+	}
+
 	public boolean isReadOnly() {
 		return _readOnly;
 	}
@@ -54,6 +58,10 @@ public class DataLayoutRendererContext {
 
 	public void setDataRecordValues(Map<String, Object> dataRecordValues) {
 		_dataRecordValues = dataRecordValues;
+	}
+
+	public void setDisabledAutofocus(boolean disableAutofocus) {
+		_disableAutofocus = disableAutofocus;
 	}
 
 	public void setHttpServletRequest(HttpServletRequest httpServletRequest) {
@@ -76,6 +84,7 @@ public class DataLayoutRendererContext {
 
 	private String _containerId;
 	private Map<String, Object> _dataRecordValues;
+	private boolean _disableAutofocus;
 	private HttpServletRequest _httpServletRequest;
 	private HttpServletResponse _httpServletResponse;
 	private String _portletNamespace;
