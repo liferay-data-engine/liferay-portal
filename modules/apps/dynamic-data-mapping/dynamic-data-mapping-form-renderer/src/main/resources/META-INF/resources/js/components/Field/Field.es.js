@@ -181,7 +181,7 @@ const getRootParentField = (field, {root}) => {
 
 export const Field = ({field, ...otherProps}) => {
 	const parentField = useContext(ParentFieldContext);
-	const {fieldTypes} = usePage();
+	const {disableAutofocus, fieldTypes} = usePage();
 	const [hasError, setHasError] = useState();
 
 	if (!fieldTypes) {
@@ -213,9 +213,11 @@ export const Field = ({field, ...otherProps}) => {
 		);
 	}
 
+	const Wrapper = disableAutofocus ? React.Fragment : AutoFocus;
+
 	return (
 		<ErrorBoundary onError={setHasError}>
-			<AutoFocus>
+			<Wrapper>
 				<div className="ddm-field" data-field-name={field.fieldName}>
 					<Suspense fallback={<ClayLoadingIndicator />}>
 						<ParentFieldContext.Provider
@@ -229,7 +231,7 @@ export const Field = ({field, ...otherProps}) => {
 						</ParentFieldContext.Provider>
 					</Suspense>
 				</div>
-			</AutoFocus>
+			</Wrapper>
 		</ErrorBoundary>
 	);
 };
