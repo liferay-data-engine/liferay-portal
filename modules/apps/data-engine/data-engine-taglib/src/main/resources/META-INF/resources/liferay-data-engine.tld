@@ -100,6 +100,12 @@
 			<type>java.util.Map</type>
 		</attribute>
 		<attribute>
+			<name>disableAutofocus</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<type>boolean</type>
+		</attribute>
+		<attribute>
 			<name>namespace</name>
 			<required>true</required>
 			<rtexprvalue>true</rtexprvalue>
