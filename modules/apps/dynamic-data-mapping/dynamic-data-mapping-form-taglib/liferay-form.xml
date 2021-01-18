@@ -79,6 +79,13 @@
 				<required>false</required>
 			</attribute>
 			<attribute>
+				<defaultValue>true</defaultValue>
+				<name>enableAutoFocus</name>
+				<required>false</required>
+				<rtexprvalue>true</rtexprvalue>
+				<type>boolean</type>
+			</attribute>
+			<attribute>
 				<name>namespace</name>
 				<inputType>java.lang.String</inputType>
 				<outputType>java.lang.String</outputType>
