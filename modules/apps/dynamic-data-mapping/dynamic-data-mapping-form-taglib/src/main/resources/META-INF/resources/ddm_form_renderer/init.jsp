@@ -23,6 +23,7 @@ java.lang.Long ddmFormInstanceId = GetterUtil.getLong(String.valueOf(request.get
 java.lang.Long ddmFormInstanceRecordId = GetterUtil.getLong(String.valueOf(request.getAttribute("liferay-form:ddm-form-renderer:ddmFormInstanceRecordId")));
 java.lang.Long ddmFormInstanceRecordVersionId = GetterUtil.getLong(String.valueOf(request.getAttribute("liferay-form:ddm-form-renderer:ddmFormInstanceRecordVersionId")));
 java.lang.Long ddmFormInstanceVersionId = GetterUtil.getLong(String.valueOf(request.getAttribute("liferay-form:ddm-form-renderer:ddmFormInstanceVersionId")));
+boolean enableAutoFocus = GetterUtil.getBoolean(String.valueOf(request.getAttribute("liferay-form:ddm-form-renderer:enableAutoFocus")), true);
 java.lang.String namespace = GetterUtil.getString((java.lang.String)request.getAttribute("liferay-form:ddm-form-renderer:namespace"));
 boolean showFormBasicInfo = GetterUtil.getBoolean(String.valueOf(request.getAttribute("liferay-form:ddm-form-renderer:showFormBasicInfo")), true);
 boolean showSubmitButton = GetterUtil.getBoolean(String.valueOf(request.getAttribute("liferay-form:ddm-form-renderer:showSubmitButton")), true);
@@ -30,5 +31,3 @@ Map<String, Object> dynamicAttributes = (Map<String, Object>)request.getAttribut
 %>
 
 <%@ include file="/ddm_form_renderer/init-ext.jspf" %>
-
-<%@ taglib uri="http://liferay.com/tld/clay" prefix="clay" %>

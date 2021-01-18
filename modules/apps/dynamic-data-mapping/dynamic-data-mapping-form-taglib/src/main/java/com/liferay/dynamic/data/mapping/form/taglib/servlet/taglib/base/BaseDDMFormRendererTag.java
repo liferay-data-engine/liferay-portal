@@ -50,6 +50,10 @@ public abstract class BaseDDMFormRendererTag extends com.liferay.taglib.util.Inc
 		return _ddmFormInstanceVersionId;
 	}
 
+	public boolean getEnableAutoFocus() {
+		return _enableAutoFocus;
+	}
+
 	public java.lang.String getNamespace() {
 		return _namespace;
 	}
@@ -76,6 +80,10 @@ public abstract class BaseDDMFormRendererTag extends com.liferay.taglib.util.Inc
 
 	public void setDdmFormInstanceVersionId(java.lang.Long ddmFormInstanceVersionId) {
 		_ddmFormInstanceVersionId = ddmFormInstanceVersionId;
+	}
+
+	public void setEnableAutoFocus(boolean enableAutoFocus) {
+		_enableAutoFocus = enableAutoFocus;
 	}
 
 	public void setNamespace(java.lang.String namespace) {
@@ -105,6 +113,7 @@ public abstract class BaseDDMFormRendererTag extends com.liferay.taglib.util.Inc
 		_ddmFormInstanceRecordId = null;
 		_ddmFormInstanceRecordVersionId = null;
 		_ddmFormInstanceVersionId = null;
+		_enableAutoFocus = true;
 		_namespace = null;
 		_showFormBasicInfo = true;
 		_showSubmitButton = true;
@@ -121,6 +130,7 @@ public abstract class BaseDDMFormRendererTag extends com.liferay.taglib.util.Inc
 		setNamespacedAttribute(request, "ddmFormInstanceRecordId", _ddmFormInstanceRecordId);
 		setNamespacedAttribute(request, "ddmFormInstanceRecordVersionId", _ddmFormInstanceRecordVersionId);
 		setNamespacedAttribute(request, "ddmFormInstanceVersionId", _ddmFormInstanceVersionId);
+		setNamespacedAttribute(request, "enableAutoFocus", _enableAutoFocus);
 		setNamespacedAttribute(request, "namespace", _namespace);
 		setNamespacedAttribute(request, "showFormBasicInfo", _showFormBasicInfo);
 		setNamespacedAttribute(request, "showSubmitButton", _showSubmitButton);
@@ -135,6 +145,7 @@ public abstract class BaseDDMFormRendererTag extends com.liferay.taglib.util.Inc
 	private java.lang.Long _ddmFormInstanceRecordId = null;
 	private java.lang.Long _ddmFormInstanceRecordVersionId = null;
 	private java.lang.Long _ddmFormInstanceVersionId = null;
+	private boolean _enableAutoFocus = true;
 	private java.lang.String _namespace = null;
 	private boolean _showFormBasicInfo = true;
 	private boolean _showSubmitButton = true;
