@@ -223,6 +223,8 @@ public class DDMFormDisplayContext {
 		DDMFormRenderingContext ddmFormRenderingContext =
 			createDDMFormRenderingContext(ddmForm);
 
+		ddmFormRenderingContext.setEnableAutofocus(true);
+
 		ddmFormRenderingContext.setGroupId(ddmFormInstance.getGroupId());
 
 		DDMFormInstanceRecordVersion ddmFormInstanceRecordVersion = null;
