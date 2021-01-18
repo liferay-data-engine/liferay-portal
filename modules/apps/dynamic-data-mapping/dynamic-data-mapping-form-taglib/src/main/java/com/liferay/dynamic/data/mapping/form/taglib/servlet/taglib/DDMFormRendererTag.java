@@ -100,6 +100,8 @@ public class DDMFormRendererTag extends BaseDDMFormRendererTag {
 		ddmFormRenderingContext.setContainerId(
 			"form_" + StringUtil.randomString());
 
+		ddmFormRenderingContext.setEnableAutofocus(getEnableAutoFocus());
+
 		ddmFormRenderingContext.setGroupId(ddmFormInstance.getGroupId());
 
 		ddmFormRenderingContext.setHttpServletRequest(request);
