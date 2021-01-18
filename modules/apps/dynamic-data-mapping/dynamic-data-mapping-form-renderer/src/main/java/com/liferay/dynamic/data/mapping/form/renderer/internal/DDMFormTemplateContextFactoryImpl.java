@@ -162,6 +162,8 @@ public class DDMFormTemplateContextFactoryImpl
 		templateContext.put(
 			"editingLanguageId", LanguageUtil.getLanguageId(locale));
 		templateContext.put(
+			"enableAutofocus", ddmFormRenderingContext.isEnableAutofocus());
+		templateContext.put(
 			"evaluatorURL", getDDMFormContextProviderServletURL());
 		templateContext.put("groupId", ddmFormRenderingContext.getGroupId());
 		templateContext.put(
