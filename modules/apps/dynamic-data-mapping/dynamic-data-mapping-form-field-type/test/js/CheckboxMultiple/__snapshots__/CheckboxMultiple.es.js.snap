@@ -19,7 +19,7 @@ exports[`Field Checkbox Multiple has a helptext 1`] = `
           <input
             class="toggle-switch-check"
             type="checkbox"
-            value="option1"
+            value=""
           />
           <span
             aria-hidden="true"
@@ -45,7 +45,7 @@ exports[`Field Checkbox Multiple has a helptext 1`] = `
           <input
             class="toggle-switch-check"
             type="checkbox"
-            value="option2"
+            value=""
           />
           <span
             aria-hidden="true"
@@ -99,7 +99,7 @@ exports[`Field Checkbox Multiple has a key 1`] = `
           <input
             class="toggle-switch-check"
             type="checkbox"
-            value="option1"
+            value=""
           />
           <span
             aria-hidden="true"
@@ -125,7 +125,7 @@ exports[`Field Checkbox Multiple has a key 1`] = `
           <input
             class="toggle-switch-check"
             type="checkbox"
-            value="option2"
+            value=""
           />
           <span
             aria-hidden="true"
@@ -172,7 +172,7 @@ exports[`Field Checkbox Multiple has a label 1`] = `
           <input
             class="toggle-switch-check"
             type="checkbox"
-            value="option1"
+            value=""
           />
           <span
             aria-hidden="true"
@@ -198,7 +198,7 @@ exports[`Field Checkbox Multiple has a label 1`] = `
           <input
             class="toggle-switch-check"
             type="checkbox"
-            value="option2"
+            value=""
           />
           <span
             aria-hidden="true"
@@ -246,7 +246,7 @@ exports[`Field Checkbox Multiple has a predefined Value 1`] = `
           <input
             class="toggle-switch-check"
             type="checkbox"
-            value="option1"
+            value=""
           />
           <span
             aria-hidden="true"
@@ -272,7 +272,7 @@ exports[`Field Checkbox Multiple has a predefined Value 1`] = `
           <input
             class="toggle-switch-check"
             type="checkbox"
-            value="option2"
+            value=""
           />
           <span
             aria-hidden="true"
@@ -314,7 +314,7 @@ exports[`Field Checkbox Multiple has a spritemap 1`] = `
           <input
             class="toggle-switch-check"
             type="checkbox"
-            value="option1"
+            value=""
           />
           <span
             aria-hidden="true"
@@ -340,7 +340,7 @@ exports[`Field Checkbox Multiple has a spritemap 1`] = `
           <input
             class="toggle-switch-check"
             type="checkbox"
-            value="option2"
+            value=""
           />
           <span
             aria-hidden="true"
@@ -380,6 +380,7 @@ exports[`Field Checkbox Multiple has a value 1`] = `
           class="simple-toggle-switch toggle-switch"
         >
           <input
+            checked=""
             class="toggle-switch-check"
             type="checkbox"
             value="option1"
@@ -395,33 +396,7 @@ exports[`Field Checkbox Multiple has a value 1`] = `
           <span
             class="toggle-switch-label"
           >
-            Option 1
-          </span>
-        </label>
-      </div>
-      <div
-        class="lfr-ddm-form-field-checkbox-switch"
-      >
-        <label
-          class="simple-toggle-switch toggle-switch"
-        >
-          <input
-            class="toggle-switch-check"
-            type="checkbox"
-            value="option2"
-          />
-          <span
-            aria-hidden="true"
-            class="toggle-switch-bar"
-          >
-            <span
-              class="toggle-switch-handle"
-            />
-          </span>
-          <span
-            class="toggle-switch-label"
-          >
-            Option 2
+            option1
           </span>
         </label>
       </div>
@@ -450,7 +425,7 @@ exports[`Field Checkbox Multiple has an id 1`] = `
           <input
             class="toggle-switch-check"
             type="checkbox"
-            value="option1"
+            value=""
           />
           <span
             aria-hidden="true"
@@ -476,7 +451,7 @@ exports[`Field Checkbox Multiple has an id 1`] = `
           <input
             class="toggle-switch-check"
             type="checkbox"
-            value="option2"
+            value=""
           />
           <span
             aria-hidden="true"
@@ -519,7 +494,7 @@ exports[`Field Checkbox Multiple is not editable 1`] = `
             class="toggle-switch-check"
             disabled=""
             type="checkbox"
-            value="option1"
+            value=""
           />
           <span
             aria-hidden="true"
@@ -546,7 +521,7 @@ exports[`Field Checkbox Multiple is not editable 1`] = `
             class="toggle-switch-check"
             disabled=""
             type="checkbox"
-            value="option2"
+            value=""
           />
           <span
             aria-hidden="true"
@@ -588,7 +563,7 @@ exports[`Field Checkbox Multiple is not required 1`] = `
           <input
             class="toggle-switch-check"
             type="checkbox"
-            value="option1"
+            value=""
           />
           <span
             aria-hidden="true"
@@ -614,7 +589,7 @@ exports[`Field Checkbox Multiple is not required 1`] = `
           <input
             class="toggle-switch-check"
             type="checkbox"
-            value="option2"
+            value=""
           />
           <span
             aria-hidden="true"
@@ -656,7 +631,7 @@ exports[`Field Checkbox Multiple is shown as a switcher 1`] = `
           <input
             class="toggle-switch-check"
             type="checkbox"
-            value="option1"
+            value=""
           />
           <span
             aria-hidden="true"
@@ -682,7 +657,7 @@ exports[`Field Checkbox Multiple is shown as a switcher 1`] = `
           <input
             class="toggle-switch-check"
             type="checkbox"
-            value="option2"
+            value=""
           />
           <span
             aria-hidden="true"
@@ -722,7 +697,7 @@ exports[`Field Checkbox Multiple is shown as checkbox 1`] = `
           <input
             class="custom-control-input"
             type="checkbox"
-            value="option1"
+            value=""
           />
           <span
             class="custom-control-label"
@@ -742,7 +717,7 @@ exports[`Field Checkbox Multiple is shown as checkbox 1`] = `
           <input
             class="custom-control-input"
             type="checkbox"
-            value="option2"
+            value=""
           />
           <span
             class="custom-control-label"
@@ -785,7 +760,7 @@ exports[`Field Checkbox Multiple renders Label if showLabel is true 1`] = `
           <input
             class="toggle-switch-check"
             type="checkbox"
-            value="option1"
+            value=""
           />
           <span
             aria-hidden="true"
@@ -811,7 +786,7 @@ exports[`Field Checkbox Multiple renders Label if showLabel is true 1`] = `
           <input
             class="toggle-switch-check"
             type="checkbox"
-            value="option2"
+            value=""
           />
           <span
             aria-hidden="true"
