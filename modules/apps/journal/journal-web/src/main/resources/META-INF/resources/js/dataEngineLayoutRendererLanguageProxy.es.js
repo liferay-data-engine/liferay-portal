@@ -57,10 +57,28 @@ function switchLanguage(
 	languageId,
 	{preserveValue = false} = {}
 ) {
+	const container = document.querySelector('.article-content-content')
+		.parentElement;
+
+	const height = container.clientHeight;
+	const scrollTop = container.scrollTop;
+
+	const resizeObserver = new ResizeObserver((entries) => {
+		if (entries[0]?.target?.clientHeight >= height) {
+			container.scrollTop = scrollTop;
+
+			resizeObserver.disconnect();
+		}
+	});
+
 	if (dataEngineReactComponentRef?.current) {
-		dataEngineReactComponentRef.current.updateEditingLanguageId({
-			editingLanguageId: languageId,
-			preserveValue,
-		});
+		dataEngineReactComponentRef.current
+			.updateEditingLanguageId({
+				editingLanguageId: languageId,
+				preserveValue,
+			})
+			.then(() => {
+				resizeObserver.observe(container);
+			});
 	}
 }
