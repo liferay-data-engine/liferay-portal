@@ -194,7 +194,7 @@ export default function pageLanguageUpdate({
 			prevEditingLanguageId,
 		});
 
-		fetch(
+		return fetch(
 			`/o/data-engine/v2.0/data-layouts/${ddmStructureLayoutId}/context`,
 			{
 				body: JSON.stringify({
