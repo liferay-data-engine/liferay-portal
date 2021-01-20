@@ -56,7 +56,9 @@ const Radio = ({
 			<div className="ddm-radio" onBlur={onBlur} onFocus={onFocus}>
 				{options.map((option) => (
 					<ClayRadio
-						checked={currentValue === option.value}
+						checked={
+							currentValue && currentValue === option.reference
+						}
 						disabled={disabled}
 						inline={inline}
 						key={option.value}
@@ -67,7 +69,7 @@ const Radio = ({
 
 							onChange(event);
 						}}
-						value={option.value}
+						value={option.reference}
 					/>
 				))}
 			</div>

@@ -64,12 +64,10 @@ const CheckboxMultiple = ({
 	onChange,
 	onFocus,
 	options,
-	predefinedValue,
 	value: initialValue,
 }) => {
-	const [value, setValue] = useState(initialValue);
+	const [value, setValue] = useState(initialValue || []);
 
-	const displayValues = value && value.length > 0 ? value : predefinedValue;
 	const Toggle = isSwitcher ? Switcher : ClayCheckbox;
 
 	const handleChange = (event) => {
@@ -90,7 +88,7 @@ const CheckboxMultiple = ({
 		<div className="lfr-ddm-checkbox-multiple">
 			{options.map((option) => (
 				<Toggle
-					checked={displayValues.includes(option.value)}
+					checked={initialValue.includes(option.reference)}
 					disabled={disabled}
 					inline={inline}
 					key={option.value}
@@ -99,7 +97,7 @@ const CheckboxMultiple = ({
 					onBlur={onBlur}
 					onChange={handleChange}
 					onFocus={onFocus}
-					value={option.value}
+					value={option.reference}
 				/>
 			))}
 		</div>
