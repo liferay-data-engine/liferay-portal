@@ -197,7 +197,13 @@ describe('Field Checkbox Multiple', () => {
 
 	it('has a value', () => {
 		const {container} = render(
-			<CheckboxMultipleWithProvider spritemap={spritemap} value={true} />
+			<CheckboxMultipleWithProvider
+				options={[
+					{label: 'option1', reference: 'option1', value: 'option1'},
+				]}
+				spritemap={spritemap}
+				value={['option1']}
+			/>
 		);
 
 		act(() => {
