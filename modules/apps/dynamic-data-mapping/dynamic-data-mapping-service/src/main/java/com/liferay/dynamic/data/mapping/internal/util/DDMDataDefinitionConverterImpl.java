@@ -24,6 +24,9 @@ import com.liferay.dynamic.data.mapping.util.DDMDataDefinitionConverter;
 import com.liferay.dynamic.data.mapping.util.DDMFormDeserializeUtil;
 import com.liferay.dynamic.data.mapping.util.DDMFormSerializeUtil;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.json.JSONArray;
+import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -73,8 +76,6 @@ public class DDMDataDefinitionConverterImpl
 
 		return new DDMFormField(name, "fieldset") {
 			{
-				setDataType("string");
-				setIndexType("keyword");
 				setLabel(
 					new LocalizedValue() {
 						{
@@ -82,27 +83,14 @@ public class DDMDataDefinitionConverterImpl
 						}
 					});
 				setLocalizable(false);
-				setReadOnly(false);
-				setPredefinedValue(
-					new LocalizedValue() {
-						{
-							addString(defaultLocale, StringPool.BLANK);
-						}
-					});
+				setNestedDDMFormFields(nestedDDMFormFields);
 				setProperty("ddmStructureId", StringPool.BLANK);
 				setProperty("ddmStructureLayoutId", StringPool.BLANK);
-				setProperty("upgradedStructure", true);
+				setProperty("upgradedStructure", false);
+				setReadOnly(false);
 				setRepeatable(repeatable);
 				setRequired(false);
 				setShowLabel(false);
-				setNestedDDMFormFields(nestedDDMFormFields);
-				setTip(
-					new LocalizedValue() {
-						{
-							addString(defaultLocale, StringPool.BLANK);
-						}
-					});
-				setVisibilityExpression(StringPool.BLANK);
 			}
 		};
 	}
@@ -121,6 +109,26 @@ public class DDMDataDefinitionConverterImpl
 		}
 
 		return ddmFormFieldOptions;
+	}
+
+	private String _getDDMFormFieldsRows(DDMFormField fieldSetDDMFormField) {
+		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
+
+		for (DDMFormField ddmFormField :
+				fieldSetDDMFormField.getNestedDDMFormFields()) {
+
+			jsonArray.put(
+				JSONUtil.put(
+					"columns",
+					JSONUtil.putAll(
+						JSONUtil.put(
+							"fields", JSONUtil.putAll(ddmFormField.getName())
+						).put(
+							"size", 12
+						))));
+		}
+
+		return jsonArray.toJSONString();
 	}
 
 	private LocalizedValue _getEmptyLocalizedValue(Locale defaultLocale) {
@@ -342,6 +350,9 @@ public class DDMDataDefinitionConverterImpl
 				ddmFormField.getNestedDDMFormFields(),
 				ddmForm.getDefaultLocale(), newDDMForm, fieldSetDDMFormField);
 
+			fieldSetDDMFormField.setProperty(
+				"rows", _getDDMFormFieldsRows(fieldSetDDMFormField));
+
 			ddmFormField.setNestedDDMFormFields(Collections.emptyList());
 			ddmFormField.setRepeatable(false);
 
@@ -369,6 +380,9 @@ public class DDMDataDefinitionConverterImpl
 			_upgradeNestedFields(
 				ddmFormField.getNestedDDMFormFields(), defaultLocale,
 				newDDMForm, fieldSetDDMFormField);
+
+			fieldSetDDMFormField.setProperty(
+				"rows", _getDDMFormFieldsRows(fieldSetDDMFormField));
 
 			ddmFormField.setNestedDDMFormFields(Collections.emptyList());
 			ddmFormField.setRepeatable(false);
