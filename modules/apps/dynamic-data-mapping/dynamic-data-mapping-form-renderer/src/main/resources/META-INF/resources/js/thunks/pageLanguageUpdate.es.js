@@ -59,7 +59,9 @@ const formatDataRecord = (languageId, pages, preserveValue) => {
 
 		if (localizable) {
 			const edited =
-				!!localizedValue?.[languageId] ||
+				(Array.isArray(localizedValue?.[languageId])
+					? localizedValue[languageId].length
+					: !!localizedValue?.[languageId]) ||
 				(localizedValueEdited && localizedValueEdited[languageId]);
 
 			let availableLanguageIds;
