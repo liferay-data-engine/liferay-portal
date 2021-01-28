@@ -166,17 +166,22 @@ public class DataStorageUtil {
 		else {
 			Value value = ddmFormFieldValue.getValue();
 
-			if (ddmFormField.isLocalizable() && !ddmFormField.isTransient()) {
-				values.put(
-					dataRecordValueKey,
-					_toLocalizedMap(
-						ddmFormField.getType(), (LocalizedValue)value));
+			if (value == null) {
+				values.put(dataRecordValueKey, null);
 			}
 			else {
-				values.put(
-					dataRecordValueKey,
-					GetterUtil.getString(
-						value.getString(value.getDefaultLocale())));
+				if (ddmFormField.isLocalizable() && !ddmFormField.isTransient()) {
+					values.put(
+						dataRecordValueKey,
+						_toLocalizedMap(
+							ddmFormField.getType(), (LocalizedValue)value));
+				}
+				else {
+					values.put(
+						dataRecordValueKey,
+						GetterUtil.getString(
+							value.getString(value.getDefaultLocale())));
+				}
 			}
 		}
 	}
