@@ -318,13 +318,18 @@ export const FieldValuePreview = ({
 		displayType,
 		userLanguageId
 	);
-	const value = dataRecordValues[fieldName];
 
-	if (dataDefinitionField.localizable) {
-		return (
-			<Renderer value={value ? value[defaultLanguageId] : undefined} />
-		);
-	}
+	const dataRecordValuesKeys = Object.keys(dataRecordValues);
+
+	const value = dataRecordValuesKeys
+		.filter((key) => key.includes(fieldName))
+		.map((key) => {
+			if (typeof dataRecordValues[key] == 'object') {
+				return dataRecordValues[key][defaultLanguageId];
+			}
+
+			return dataRecordValues[key];
+		});
 
 	return <Renderer value={value} />;
 };
