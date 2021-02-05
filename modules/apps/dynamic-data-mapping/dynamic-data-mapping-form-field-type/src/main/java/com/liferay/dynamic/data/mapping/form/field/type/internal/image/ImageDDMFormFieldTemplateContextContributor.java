@@ -25,6 +25,8 @@ import com.liferay.item.selector.criteria.DownloadFileEntryItemSelectorReturnTyp
 import com.liferay.item.selector.criteria.FileEntryItemSelectorReturnType;
 import com.liferay.item.selector.criteria.image.criterion.ImageItemSelectorCriterion;
 import com.liferay.journal.item.selector.criterion.JournalItemSelectorCriterion;
+import com.liferay.journal.model.JournalArticle;
+import com.liferay.journal.service.JournalArticleLocalService;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
@@ -34,6 +36,7 @@ import com.liferay.portal.kernel.portlet.RequestBackedPortletURLFactoryUtil;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.util.Map;
@@ -92,8 +95,15 @@ public class ImageDDMFormFieldTemplateContextContributor
 			return null;
 		}
 
+		String articleId = ParamUtil.getString(httpServletRequest, "articleId");
+		long groupId = ParamUtil.getLong(httpServletRequest, "groupId");
+
+		long resourcePrimaryKey = _getResourcePrimaryKey(articleId, groupId);
+
+		long folderId = ParamUtil.getLong(httpServletRequest, "folderId");
+
 		JournalItemSelectorCriterion journalItemSelectorCriterion =
-			new JournalItemSelectorCriterion();
+			new JournalItemSelectorCriterion(resourcePrimaryKey, folderId);
 
 		journalItemSelectorCriterion.setDesiredItemSelectorReturnTypes(
 			new FileEntryItemSelectorReturnType());
@@ -146,6 +156,17 @@ public class ImageDDMFormFieldTemplateContextContributor
 		return value;
 	}
 
+	private long _getResourcePrimaryKey(String articleId, long groupId) {
+		JournalArticle journalArticle =
+			_journalArticleLocalService.fetchArticle(groupId, articleId);
+
+		if (journalArticle != null) {
+			return journalArticle.getResourcePrimKey();
+		}
+
+		return 0L;
+	}
+
 	private static final Log _log = LogFactoryUtil.getLog(
 		ImageDDMFormFieldTemplateContextContributor.class);
 
@@ -157,6 +178,9 @@ public class ImageDDMFormFieldTemplateContextContributor
 
 	@Reference
 	private ItemSelector _itemSelector;
+
+	@Reference
+	private JournalArticleLocalService _journalArticleLocalService;
 
 	@Reference
 	private JSONFactory _jsonFactory;
