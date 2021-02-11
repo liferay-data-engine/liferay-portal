@@ -25,6 +25,8 @@ import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
 import com.liferay.dynamic.data.mapping.util.DDMFormFieldParameterNameUtil;
 import com.liferay.dynamic.data.mapping.util.DDMFormValuesFactoryUtil;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
@@ -114,24 +116,45 @@ public class DefaultMapToDDMFormValuesConverterStrategy
 							for (Map.Entry<String, Object> localizedValue :
 									localizedValues.entrySet()) {
 
-								value.addString(
-									LocaleUtil.fromLanguageId(
-										localizedValue.getKey()),
-									String.valueOf(
-										localizedValues.get(
-											localizedValue.getKey())));
+								if (localizedValue.getValue() instanceof Map) {
+									JSONObject jsonObject =
+										JSONFactoryUtil.createJSONObject(
+											(Map)localizedValue.getValue());
+
+									value.addString(
+										LocaleUtil.fromLanguageId(
+											localizedValue.getKey()),
+										jsonObject.toJSONString());
+								}
+								else {
+									value.addString(
+										LocaleUtil.fromLanguageId(
+											localizedValue.getKey()),
+										String.valueOf(
+											localizedValues.get(
+												localizedValue.getKey())));
+								}
 							}
 						}
 						else {
-							value.addString(
-								locale,
-								String.valueOf(
-									GetterUtil.getObject(
-										localizedValues.get(
-											LocaleUtil.toLanguageId(locale)),
-										localizedValues.get(
-											LocaleUtil.toLanguageId(
-												defaultLocale)))));
+							Object objectValue = GetterUtil.getObject(
+								localizedValues.get(
+									LocaleUtil.toLanguageId(locale)),
+								localizedValues.get(
+									LocaleUtil.toLanguageId(defaultLocale)));
+
+							if (objectValue instanceof Map) {
+								JSONObject jsonObject =
+									JSONFactoryUtil.createJSONObject(
+										(Map)objectValue);
+
+								value.addString(
+									locale, jsonObject.toJSONString());
+							}
+							else {
+								value.addString(
+									locale, String.valueOf(objectValue));
+							}
 						}
 					}
 					else {
