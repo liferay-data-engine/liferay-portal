@@ -104,8 +104,13 @@ const ModalContent = ({
 		};
 
 		if (fieldSet) {
+			const nextFielSet = {
+				...fieldSet,
+				name,
+			};
+
 			propagateFieldSet({
-				fieldSet,
+				fieldSet: nextFielSet,
 				modal: {
 					actionMessage: Liferay.Language.get('propagate'),
 					fieldSetMessage: Liferay.Language.get(

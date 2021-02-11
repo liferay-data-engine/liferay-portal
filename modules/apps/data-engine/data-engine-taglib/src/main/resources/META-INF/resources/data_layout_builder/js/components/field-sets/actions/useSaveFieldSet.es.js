@@ -114,37 +114,39 @@ export default ({
 										dataLayoutPages
 									),
 								},
+								{
+									name: 'label',
+									value: name,
+								},
 							],
 						});
 					}
-					else {
-						dispatch({
-							payload: {
-								dataDefinition: {
-									...dataDefinition,
-									dataDefinitionFields: dataDefinition.dataDefinitionFields.map(
-										(field) => {
-											const {
-												customProperties: {
-													ddmStructureId,
-												},
-											} = field;
 
-											if (ddmStructureId == fieldSet.id) {
-												return {
-													...field,
-													nestedDataDefinitionFields: dataDefinitionFields,
-												};
-											}
+					dispatch({
+						payload: {
+							dataDefinition: {
+								...dataDefinition,
+								dataDefinitionFields: dataDefinition.dataDefinitionFields.map(
+									(field) => {
+										const {
+											customProperties: {ddmStructureId},
+										} = field;
 
-											return field;
+										if (ddmStructureId == fieldSet.id) {
+											return {
+												...field,
+												label: name,
+												nestedDataDefinitionFields: dataDefinitionFields,
+											};
 										}
-									),
-								},
+
+										return field;
+									}
+								),
 							},
-							type: UPDATE_DATA_DEFINITION,
-						});
-					}
+						},
+						type: UPDATE_DATA_DEFINITION,
+					});
 				}
 
 				return Promise.resolve();
