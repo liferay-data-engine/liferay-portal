@@ -148,8 +148,6 @@ export default ({
 						type: UPDATE_DATA_DEFINITION,
 					});
 				}
-
-				return Promise.resolve();
 			})
 			.then(() => {
 				dispatch({
@@ -166,8 +164,6 @@ export default ({
 				});
 
 				successToast(Liferay.Language.get('fieldset-saved'));
-
-				return Promise.resolve();
 			})
 			.catch(({message}) => errorToast(message));
 	};
