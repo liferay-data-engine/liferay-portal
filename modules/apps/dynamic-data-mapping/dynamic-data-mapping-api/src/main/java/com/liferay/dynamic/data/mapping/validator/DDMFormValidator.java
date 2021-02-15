@@ -22,6 +22,11 @@ import com.liferay.dynamic.data.mapping.model.DDMForm;
  */
 public interface DDMFormValidator {
 
+	/**
+	 * @deprecated As of Cavanaugh (7.4.x), replaced by {@link
+	 #validate(DDMForm ddmForm, boolean allowInvalidAvailableLocalesForProperty)}
+	 */
+	@Deprecated
 	public void validate(DDMForm ddmForm)
 		throws DDMFormFieldValueValidationException, DDMFormValidationException;
 

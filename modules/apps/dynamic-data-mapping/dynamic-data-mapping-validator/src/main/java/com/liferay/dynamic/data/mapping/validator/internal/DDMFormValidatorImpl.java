@@ -77,6 +77,11 @@ import org.osgi.service.component.annotations.Reference;
 @Component(immediate = true, service = DDMFormValidator.class)
 public class DDMFormValidatorImpl implements DDMFormValidator {
 
+	/**
+	 * @deprecated As of Cavanaugh (7.4.x), replaced by {@link
+	 #validate(DDMForm ddmForm, boolean allowInvalidAvailableLocalesForProperty)}
+	 */
+	@Deprecated
 	@Override
 	public void validate(DDMForm ddmForm)
 		throws DDMFormFieldValueValidationException,
