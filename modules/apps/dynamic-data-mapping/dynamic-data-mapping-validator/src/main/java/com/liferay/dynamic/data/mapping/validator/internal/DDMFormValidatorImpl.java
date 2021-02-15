@@ -111,6 +111,7 @@ public class DDMFormValidatorImpl implements DDMFormValidator {
 
 		validateDDMFormFields(
 			ddmFormFields, new HashSet<String>(), ddmForm.getAvailableLocales(),
+			allowInvalidAvailableLocalesForProperty,
 			ddmForm.getDefaultLocale());
 	}
 
@@ -283,7 +284,9 @@ public class DDMFormValidatorImpl implements DDMFormValidator {
 
 	protected void validateDDMFormFields(
 			List<DDMFormField> ddmFormFields, Set<String> ddmFormFieldNames,
-			Set<Locale> ddmFormAvailableLocales, Locale ddmFormDefaultLocale)
+			Set<Locale> ddmFormAvailableLocales,
+			boolean allowInvalidAvailableLocalesForProperty,
+			Locale ddmFormDefaultLocale)
 		throws DDMFormFieldValueValidationException,
 			   DDMFormValidationException {
 
@@ -298,12 +301,12 @@ public class DDMFormValidatorImpl implements DDMFormValidator {
 				ddmFormField, ddmFormAvailableLocales, ddmFormDefaultLocale);
 
 			validateOptionalDDMFormFieldLocalizedProperty(
-				ddmFormField, "label", ddmFormAvailableLocales,
-				ddmFormDefaultLocale);
+				ddmFormField, "label", allowInvalidAvailableLocalesForProperty,
+				ddmFormAvailableLocales, ddmFormDefaultLocale);
 
 			validateOptionalDDMFormFieldLocalizedProperty(
-				ddmFormField, "tip", ddmFormAvailableLocales,
-				ddmFormDefaultLocale);
+				ddmFormField, "tip", allowInvalidAvailableLocalesForProperty,
+				ddmFormAvailableLocales, ddmFormDefaultLocale);
 
 			validateDDMFormFieldValidationExpression(
 				ddmFormField, ddmFormAvailableLocales);
@@ -311,7 +314,8 @@ public class DDMFormValidatorImpl implements DDMFormValidator {
 
 			validateDDMFormFields(
 				ddmFormField.getNestedDDMFormFields(), ddmFormFieldNames,
-				ddmFormAvailableLocales, ddmFormDefaultLocale);
+				ddmFormAvailableLocales,
+				allowInvalidAvailableLocalesForProperty, ddmFormDefaultLocale);
 		}
 	}
 
@@ -436,6 +440,7 @@ public class DDMFormValidatorImpl implements DDMFormValidator {
 
 	protected void validateOptionalDDMFormFieldLocalizedProperty(
 			DDMFormField ddmFormField, String propertyName,
+			boolean allowInvalidAvailableLocalesForProperty,
 			Set<Locale> ddmFormAvailableLocales, Locale ddmFormDefaultLocale)
 		throws DDMFormValidationException {
 
@@ -449,9 +454,22 @@ public class DDMFormValidatorImpl implements DDMFormValidator {
 			return;
 		}
 
-		validateDDMFormFieldPropertyValue(
-			ddmFormField.getName(), propertyName, propertyValue,
-			ddmFormAvailableLocales, ddmFormDefaultLocale);
+		try {
+			validateDDMFormFieldPropertyValue(
+				ddmFormField.getName(), propertyName, propertyValue,
+				ddmFormAvailableLocales, ddmFormDefaultLocale);
+		}
+		catch (DDMFormValidationException ddmFormValidationException) {
+			if ((ddmFormValidationException instanceof
+					DDMFormValidationException.
+						MustSetValidAvailableLocalesForProperty) &&
+				allowInvalidAvailableLocalesForProperty) {
+
+				return;
+			}
+
+			throw ddmFormValidationException;
+		}
 	}
 
 	private void _validateDDMFormFieldNames(List<DDMFormField> ddmFormFields)

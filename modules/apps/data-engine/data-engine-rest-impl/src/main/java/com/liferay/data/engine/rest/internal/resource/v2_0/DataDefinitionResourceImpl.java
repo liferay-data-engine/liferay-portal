@@ -1487,21 +1487,15 @@ public class DataDefinitionResourceImpl
 						defaultLocale.getDisplayName());
 			}
 
-			_ddmFormValidator.validate(ddmForm);
+			_ddmFormValidator.validate(
+				ddmForm,
+				dataDefinitionContentType.
+					allowInvalidAvailableLocalesForProperty());
 		}
 		catch (DDMFormValidationException ddmFormValidationException) {
 			if ((ddmFormValidationException instanceof
 					DDMFormValidationException.MustSetFieldsForForm) &&
 				dataDefinitionContentType.allowEmptyDataDefinition()) {
-
-				return;
-			}
-
-			if ((ddmFormValidationException instanceof
-					DDMFormValidationException.
-						MustSetValidAvailableLocalesForProperty) &&
-				dataDefinitionContentType.
-					allowInvalidAvailableLocalesForProperty()) {
 
 				return;
 			}
