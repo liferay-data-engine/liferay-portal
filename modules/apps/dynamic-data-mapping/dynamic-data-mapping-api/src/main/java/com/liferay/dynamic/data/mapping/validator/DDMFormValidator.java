@@ -25,4 +25,8 @@ public interface DDMFormValidator {
 	public void validate(DDMForm ddmForm)
 		throws DDMFormFieldValueValidationException, DDMFormValidationException;
 
+	public void validate(
+			DDMForm ddmForm, boolean allowInvalidAvailableLocalesForProperty)
+		throws DDMFormFieldValueValidationException, DDMFormValidationException;
+
 }

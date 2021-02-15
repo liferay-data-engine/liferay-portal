@@ -82,6 +82,15 @@ public class DDMFormValidatorImpl implements DDMFormValidator {
 		throws DDMFormFieldValueValidationException,
 			   DDMFormValidationException {
 
+		validate(ddmForm, false);
+	}
+
+	@Override
+	public void validate(
+			DDMForm ddmForm, boolean allowInvalidAvailableLocalesForProperty)
+		throws DDMFormFieldValueValidationException,
+			   DDMFormValidationException {
+
 		DDMFormRuleValidatorUtil.validateDDMFormRules(
 			_ddmExpressionFactory, ddmForm.getDDMFormRules());
 
