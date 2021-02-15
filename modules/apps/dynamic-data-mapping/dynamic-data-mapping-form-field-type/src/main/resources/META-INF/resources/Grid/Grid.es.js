@@ -129,6 +129,21 @@ const Grid = ({
 	</div>
 );
 
+function getValue(value) {
+	if (!value || value === '') {
+		return {};
+	}
+
+	if (value && typeof value === 'string') {
+		try {
+			return JSON.parse(value);
+		}
+		catch (error) {}
+	}
+
+	return value;
+}
+
 const Main = ({
 	columns,
 	name,
@@ -140,7 +155,7 @@ const Main = ({
 	value = {},
 	...otherProps
 }) => {
-	const [state, setState] = useSyncValue(value, false);
+	const [state, setState] = useSyncValue(getValue(value), false);
 
 	return (
 		<FieldBase name={name} readOnly={readOnly} {...otherProps}>
