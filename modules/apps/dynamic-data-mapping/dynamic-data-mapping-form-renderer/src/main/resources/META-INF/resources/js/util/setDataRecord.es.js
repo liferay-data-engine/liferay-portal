@@ -36,7 +36,7 @@ export default (
 		return;
 	}
 
-	let _value = value;
+	let _value = JSON.stringify(value);
 
 	if (!visible) {
 		_value = '';
@@ -53,7 +53,9 @@ export default (
 			.filter(
 				(languageId) =>
 					!localizedValueEdited?.[languageId] &&
-					localizedValue[languageId] === ''
+					(localizedValue[languageId] === '' ||
+						localizedValue[languageId] === '[]' ||
+						localizedValue[languageId] === '{}')
 			)
 			.forEach((languageId) => {
 				delete localizedValue[languageId];
