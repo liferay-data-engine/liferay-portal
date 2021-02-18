@@ -190,9 +190,19 @@ public class DDMFormTemplateContextFactoryImpl
 		templateContext.put(
 			"ddmStructureLayoutId",
 			ddmFormRenderingContext.getDDMStructureLayoutId());
-		templateContext.put(
-			"defaultLanguageId",
-			LanguageUtil.getLanguageId(ddmForm.getDefaultLocale()));
+
+		String defaultLanguageIdProperty =
+			(String)ddmFormRenderingContext.getProperty("defaultLanguageId");
+
+		if (Validator.isNotNull(defaultLanguageIdProperty)) {
+			templateContext.put("defaultLanguageId", defaultLanguageIdProperty);
+		}
+		else {
+			templateContext.put(
+				"defaultLanguageId",
+				LanguageUtil.getLanguageId(ddmForm.getDefaultLocale()));
+		}
+
 		templateContext.put(
 			"defaultSiteLanguageId",
 			LanguageUtil.getLanguageId(LocaleUtil.getSiteDefault()));
