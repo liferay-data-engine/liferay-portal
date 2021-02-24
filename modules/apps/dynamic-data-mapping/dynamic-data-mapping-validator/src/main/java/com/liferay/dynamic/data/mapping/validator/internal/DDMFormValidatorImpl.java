@@ -244,9 +244,12 @@ public class DDMFormValidatorImpl implements DDMFormValidator {
 			LocalizedValue localizedValue = ddmFormFieldOptions.getOptionLabels(
 				optionValue);
 
-			validateDDMFormFieldPropertyValue(
-				ddmFormField.getName(), propertyName, localizedValue,
-				ddmFormAvailableLocales, ddmFormDefaultLocale);
+			if (!ddmFormDefaultLocale.equals(
+					localizedValue.getDefaultLocale())) {
+
+				throw new MustSetValidDefaultLocaleForProperty(
+					ddmFormField.getName(), propertyName);
+			}
 		}
 	}
 
