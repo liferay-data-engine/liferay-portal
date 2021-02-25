@@ -19,6 +19,7 @@ import createNumberMask from 'text-mask-addons/dist/createNumberMask';
 import vanillaTextMask from 'vanilla-text-mask';
 
 import {FieldBase} from '../FieldBase/ReactFieldBase.es';
+const LANGUAGES_REPLACED = ['ar_SA'];
 
 const getMaskConfig = (dataType, symbols) => {
 	let config = {
@@ -40,7 +41,7 @@ const getMaskConfig = (dataType, symbols) => {
 	return config;
 };
 
-const getValue = (dataType, symbols, value) => {
+const getValue = (dataType, symbols, value, languageId) => {
 	let newValue = typeof value === 'number' ? `${value}` : value;
 
 	let decimalSymbol = symbols.decimalSymbol;
@@ -49,7 +50,11 @@ const getValue = (dataType, symbols, value) => {
 		decimalSymbol = ',';
 	}
 
-	if (dataType === 'integer' && newValue) {
+	if (
+		dataType === 'integer' &&
+		newValue &&
+		!LANGUAGES_REPLACED.includes(languageId)
+	) {
 		newValue = String(Math.round(newValue.replace(decimalSymbol, '.')));
 	}
 
@@ -83,7 +88,7 @@ const Numeric = ({
 					? localizedValue[editingLanguageId]
 					: localizedValue[defaultLanguageId];
 
-			newValue = getValue(dataType, symbols, newValue);
+			newValue = getValue(dataType, symbols, newValue, editingLanguageId);
 
 			setCurrentValue(newValue);
 		}
@@ -101,7 +106,12 @@ const Numeric = ({
 		let maskInstance = null;
 
 		if (inputRef.current) {
-			const newValue = getValue(dataType, symbols, value);
+			const newValue = getValue(
+				dataType,
+				symbols,
+				value,
+				editingLanguageId
+			);
 
 			const mask = createNumberMask(getMaskConfig(dataType, symbols));
 
