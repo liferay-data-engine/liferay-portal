@@ -33,6 +33,7 @@ import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMTemplateLocalService;
 import com.liferay.dynamic.data.mapping.storage.StorageType;
 import com.liferay.dynamic.data.mapping.util.DDM;
+import com.liferay.dynamic.data.mapping.util.DDMDataDefinitionConverter;
 import com.liferay.dynamic.data.mapping.util.DefaultDDMStructureHelper;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.language.Language;
@@ -130,8 +131,13 @@ public class DefaultDDMStructureHelperImpl
 			ddmStructure = _ddmStructureLocalService.addStructure(
 				userId, groupId,
 				DDMStructureConstants.DEFAULT_PARENT_STRUCTURE_ID, classNameId,
-				ddmStructureKey, nameMap, descriptionMap, ddmForm,
-				ddmFormLayout, StorageType.DEFAULT.toString(),
+				ddmStructureKey, nameMap, descriptionMap,
+				_ddmDataDefinitionConverter.convertDDMFormDataDefinition(
+					ddmForm, DDMStructureConstants.DEFAULT_PARENT_STRUCTURE_ID,
+					0),
+				_ddmDataDefinitionConverter.convertDDMFormLayoutDataDefinition(
+					ddmForm, ddmFormLayout),
+				StorageType.DEFAULT.toString(),
 				DDMStructureConstants.TYPE_DEFAULT, serviceContext);
 
 			Element templateElement = structureElement.element("template");
@@ -352,6 +358,10 @@ public class DefaultDDMStructureHelperImpl
 	}
 
 	private DDM _ddm;
+
+	@Reference
+	private DDMDataDefinitionConverter _ddmDataDefinitionConverter;
+
 	private DDMStructureLocalService _ddmStructureLocalService;
 	private DDMTemplateLocalService _ddmTemplateLocalService;
 
