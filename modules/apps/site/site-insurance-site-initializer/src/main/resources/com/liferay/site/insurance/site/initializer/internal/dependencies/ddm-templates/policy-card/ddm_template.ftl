@@ -17,11 +17,11 @@
 <a class="card-link" href="${friendlyURLs[themeDisplay.getLanguageId()]!""}">
 	<div class="policy-card product-card">
 		<div class="policy-type">
-			${PolicyName.PolicyType.getData()}
+			${PolicyNameFieldSet.PolicyType.getData()}
 		</div>
 
 		<div class="policy-name">
-			${PolicyName.getData()}
+			${PolicyNameFieldSet.PolicyName.getData()}
 		</div>
 
 		<div>
@@ -33,9 +33,9 @@
 		</div>
 
 		<div class="product-card-status">
-			<#if Status.StatusImage.getData()?? && Status.StatusImage.getData() != "">
-				<img alt="${Status.StatusImage.getAttribute("alt")}" data-fileentryid="${Status.StatusImage.getAttribute("fileEntryId")}" src="${Status.StatusImage.getData()}" />
-			</#if>${Status.getData()}
+			<#if StatusFieldSet.StatusImage.getData()?? && StatusFieldSet.StatusImage.getData() != "">
+				<img alt="${StatusFieldSet.StatusImage.getAttribute("alt")}" data-fileentryid="${StatusFieldSet.StatusImage.getAttribute("fileEntryId")}" src="${StatusFieldSet.StatusImage.getData()}" />
+			</#if>${StatusFieldSet.Status.getData()}
 		</div>
 	</div>
 </a>
