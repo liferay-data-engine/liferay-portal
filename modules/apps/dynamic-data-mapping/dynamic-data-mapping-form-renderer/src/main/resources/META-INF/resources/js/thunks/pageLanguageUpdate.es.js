@@ -19,11 +19,13 @@ import {EVENT_TYPES} from '../actions/eventTypes.es';
 import setDataRecord from '../util/setDataRecord.es';
 
 const formatFieldValue = ({dataType, symbols, value}) => {
+	const newValue = value ?? '';
+
 	if (dataType === 'double') {
-		return String(value).replace(symbols.decimalSymbol, '.');
+		return String(newValue).replace(symbols.decimalSymbol, '.');
 	}
 
-	return value;
+	return newValue;
 };
 
 const formatDataRecord = (languageId, pages, preserveValue) => {
