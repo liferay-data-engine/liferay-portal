@@ -140,7 +140,7 @@ public class JournalConverterImpl implements JournalConverter {
 
 		Map<String, List<Element>> dynamicElementElementsMap = new HashMap<>();
 
-		_initDynamicElements(dynamicElementElementsMap, rootElement);
+		_initDynamicElements(ddmFields, dynamicElementElementsMap, rootElement);
 
 		for (DDMFormField ddmFormField : ddmStructure.getDDMFormFields(true)) {
 			addDDMFields(
@@ -174,15 +174,6 @@ public class JournalConverterImpl implements JournalConverter {
 			ddmFormField.getName());
 
 		if (dynamicElementElements == null) {
-			if (Objects.equals(
-					ddmFormField.getType(),
-					DDMFormFieldTypeConstants.FIELDSET)) {
-
-				updateFieldsDisplay(
-					ddmFields, ddmFormField.getName(),
-					String.valueOf(ddmStructure.getStructureId()));
-			}
-
 			return;
 		}
 
@@ -206,10 +197,6 @@ public class JournalConverterImpl implements JournalConverter {
 					ddmFields.put(ddmField);
 				}
 			}
-
-			updateFieldsDisplay(
-				ddmFields, ddmFormField.getName(),
-				dynamicElementElement.attributeValue("instance-id"));
 		}
 	}
 
@@ -656,11 +643,16 @@ public class JournalConverterImpl implements JournalConverter {
 	}
 
 	private void _initDynamicElements(
-		Map<String, List<Element>> dynamicElementElementsMap,
+		Fields ddmFields, Map<String, List<Element>> dynamicElementElementsMap,
 		Element rootElement) {
 
 		for (Element dynamicElement : rootElement.elements("dynamic-element")) {
-			_initDynamicElements(dynamicElementElementsMap, dynamicElement);
+			updateFieldsDisplay(
+				ddmFields, dynamicElement.attributeValue("name"),
+				dynamicElement.attributeValue("instance-id"));
+
+			_initDynamicElements(
+				ddmFields, dynamicElementElementsMap, dynamicElement);
 
 			List<Element> dynamicElementElements =
 				dynamicElementElementsMap.computeIfAbsent(
