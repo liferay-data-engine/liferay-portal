@@ -212,7 +212,7 @@ describe('Field Numeric', () => {
 
 		const input = container.querySelector('input');
 
-		fireEvent.change(input, {target: {value: '2'}});
+		fireEvent.keyUp(input, {target: {value: '2'}});
 
 		act(() => {
 			jest.runAllTimers();
@@ -249,7 +249,7 @@ describe('Field Numeric', () => {
 
 		const input = container.querySelector('input');
 
-		fireEvent.change(input, {
+		fireEvent.keyUp(input, {
 			target: {
 				value: '3.0',
 			},
