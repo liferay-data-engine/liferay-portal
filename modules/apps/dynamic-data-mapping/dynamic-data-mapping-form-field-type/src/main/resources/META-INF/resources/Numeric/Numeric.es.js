@@ -152,7 +152,7 @@ const Numeric = ({
 			dir={Liferay.Language.direction[editingLanguageId]}
 			disabled={disabled}
 			lang={editingLanguageId}
-			onChange={(event) => {
+			onKeyUp={(event) => {
 				const {value: newValue} = event.target;
 
 				if (
