@@ -156,8 +156,9 @@ const Numeric = ({
 				const {value: newValue} = event.target;
 
 				if (
-					dataType === 'integer' &&
-					newValue.substr(-1) === symbols.decimalSymbol
+					newValue === '-_' ||
+					(dataType === 'integer' &&
+						newValue.substr(-1) === symbols.decimalSymbol)
 				) {
 					return;
 				}
