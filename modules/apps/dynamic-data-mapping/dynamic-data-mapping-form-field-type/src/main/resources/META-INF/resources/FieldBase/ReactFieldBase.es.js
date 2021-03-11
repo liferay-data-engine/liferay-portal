@@ -109,6 +109,7 @@ function FieldBase({
 	const fieldDetailsId = name + '_fieldDetails';
 	const dispatch = useForm();
 	const hasError = displayErrors && errorMessage && !valid;
+	const inputEditedName = name + '_edited';
 	const localizedValueArray = useMemo(() => {
 		const languageValues = [];
 
@@ -117,7 +118,7 @@ function FieldBase({
 		}
 
 		Object.keys(localizedValue).forEach((key) => {
-			if (key !== editingLanguageId && localizedValue[key] !== '') {
+			if (key !== editingLanguageId) {
 				languageValues.push({
 					name: name.replace(editingLanguageId, key),
 					value: localizedValue[key],
@@ -276,6 +277,13 @@ function FieldBase({
 						}
 					/>
 				))}
+
+			<input
+				key={inputEditedName}
+				name={inputEditedName}
+				type="hidden"
+				value={localizedValue[editingLanguageId] !== undefined}
+			/>
 
 			{typeof tip === 'string' && (
 				<span aria-hidden="true" className="form-text">
