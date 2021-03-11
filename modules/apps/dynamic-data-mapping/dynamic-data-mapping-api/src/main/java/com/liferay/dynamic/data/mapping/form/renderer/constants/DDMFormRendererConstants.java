@@ -21,6 +21,8 @@ import com.liferay.petra.string.StringPool;
  */
 public class DDMFormRendererConstants {
 
+	public static final String DDM_FORM_FIELD_EDITED_SUFFIX = "_edited";
+
 	public static final String DDM_FORM_FIELD_LANGUAGE_ID_SEPARATOR =
 		StringPool.DOUBLE_DOLLAR;
 
