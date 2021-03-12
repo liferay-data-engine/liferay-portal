@@ -98,8 +98,9 @@ const Numeric = ({
 	const [currentValue, setCurrentValue] = useState(value);
 	const inputRef = useRef(null);
 
+	const [defaultSymbols] = useState(symbols);
+
 	const prevEditingLanguageId = usePrevious(editingLanguageId);
-	const prevSymbols = usePrevious(symbols);
 
 	useEffect(() => {
 		if (prevEditingLanguageId !== editingLanguageId && localizable) {
@@ -107,7 +108,7 @@ const Numeric = ({
 				localizedValue[editingLanguageId] !== undefined
 					? localizedValue[editingLanguageId]
 					: getGenericValue(
-							prevSymbols,
+							defaultSymbols,
 							localizedValue[defaultLanguageId]
 					  );
 
@@ -122,7 +123,7 @@ const Numeric = ({
 		localizable,
 		localizedValue,
 		prevEditingLanguageId,
-		prevSymbols,
+		defaultSymbols,
 		setCurrentValue,
 	]);
 
