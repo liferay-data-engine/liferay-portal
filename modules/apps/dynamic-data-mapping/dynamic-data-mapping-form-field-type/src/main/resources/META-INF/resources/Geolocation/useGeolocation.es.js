@@ -106,6 +106,14 @@ export const useGeolocation = ({
 		onChange(newValue);
 	};
 
+	const parseJSONValue = (value) => {
+		if (typeof value === 'string') {
+			return JSON.parse(value);
+		}
+
+		return value;
+	};
+
 	const registerMapBase = (MapProvide, mapConfig) => {
 		componentInstance.current = new MapProvide(mapConfig);
 
@@ -123,16 +131,13 @@ export const useGeolocation = ({
 
 	useEffect(() => {
 		if (!disabled || viewMode) {
-			const mapConfig = {...MAP_CONFIG};
-			mapConfig.boundingBox = `#map_${instanceId}`;
+			const mapConfig = {
+				...MAP_CONFIG,
+				boundingBox: `#map_${instanceId}`,
+			};
 
 			if (value) {
-				if (typeof value === 'string') {
-					mapConfig.position.location = JSON.parse(value);
-				}
-				else {
-					mapConfig.position.location = value;
-				}
+				mapConfig.position.location = parseJSONValue(value);
 			}
 
 			switch (mapProviderKey) {
@@ -160,4 +165,12 @@ export const useGeolocation = ({
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
+
+	useEffect(() => {
+		const map = Liferay.component(name);
+
+		if (value && map) {
+			map.setCenter(parseJSONValue(value));
+		}
+	}, [name, value]);
 };

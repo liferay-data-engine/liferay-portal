@@ -33,6 +33,7 @@ class NoRender extends React.Component {
 
 const Geolocation = ({
 	disabled,
+	editingLanguageId,
 	googleMapsAPIKey,
 	instanceId,
 	mapProviderKey,
@@ -47,7 +48,7 @@ const Geolocation = ({
 		googleMapsAPIKey,
 		instanceId,
 		mapProviderKey,
-		name,
+		name: name.substr(0, name.lastIndexOf(editingLanguageId)),
 		onChange,
 		value,
 		viewMode,
@@ -85,6 +86,8 @@ const Geolocation = ({
 };
 
 const Main = ({
+	defaultLanguageId,
+	editingLanguageId,
 	googleMapsAPIKey,
 	instanceId,
 	mapProviderKey = MAP_PROVIDER.openStreetMap,
@@ -98,6 +101,9 @@ const Main = ({
 	<FieldBase name={name} readOnly={readOnly} {...otherProps}>
 		<Geolocation
 			disabled={readOnly}
+			editingLanguageId={
+				editingLanguageId ? editingLanguageId : defaultLanguageId
+			}
 			googleMapsAPIKey={googleMapsAPIKey}
 			instanceId={instanceId}
 			mapProviderKey={mapProviderKey}
