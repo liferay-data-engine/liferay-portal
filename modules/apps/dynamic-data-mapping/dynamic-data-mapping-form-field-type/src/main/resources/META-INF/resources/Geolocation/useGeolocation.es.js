@@ -33,7 +33,7 @@ const MAP_CONFIG = {
 		CONTROLS.ZOOM,
 	],
 	geolocation: true,
-	position: {location: {lat: 0, lng: 0}},
+	position: {location: {}},
 };
 
 const setupMapOpenStreetMaps = (callback) => {
@@ -138,6 +138,9 @@ export const useGeolocation = ({
 
 			if (value) {
 				mapConfig.position.location = parseJSONValue(value);
+			}
+			else {
+				mapConfig.position.location = {lat: 0, lng: 0};
 			}
 
 			switch (mapProviderKey) {
