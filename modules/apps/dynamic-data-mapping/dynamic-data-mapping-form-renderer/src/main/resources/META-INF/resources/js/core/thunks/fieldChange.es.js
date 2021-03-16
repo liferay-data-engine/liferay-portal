@@ -15,15 +15,28 @@
 import {evaluate, mergePages} from '../../util/evaluation.es';
 import {PagesVisitor} from '../../util/visitors.es';
 import {EVENT_TYPES} from '../actions/eventTypes.es';
+import {parseName} from '../util/repeatable.es';
 
 let REVALIDATE_UPDATES = [];
 
-const getEditedPages = ({editingLanguageId, name, pages, value}) => {
+const getEditedPages = ({editingLanguageId, pages, parsedName, value}) => {
 	const pageVisitor = new PagesVisitor(pages);
 
 	return pageVisitor.mapFields(
 		(field) => {
-			if (field.name === name) {
+			const {
+				fieldName,
+				instanceId,
+				portletNamespace,
+				repeatedIndex,
+			} = parseName(field.name);
+
+			if (
+				fieldName === parsedName.fieldName &&
+				instanceId === parsedName.instanceId &&
+				portletNamespace === parsedName.portletNamespace &&
+				repeatedIndex === parsedName.repeatedIndex
+			) {
 				return {
 					...field,
 					localizedValue: {
@@ -62,8 +75,8 @@ export default function fieldChange({
 
 		const editedPages = getEditedPages({
 			editingLanguageId,
-			name: fieldInstance.name,
 			pages,
+			parsedName: parseName(fieldInstance.name),
 			value,
 		});
 
