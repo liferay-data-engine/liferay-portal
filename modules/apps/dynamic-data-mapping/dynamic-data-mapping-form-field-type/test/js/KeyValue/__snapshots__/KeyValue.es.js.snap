@@ -20,6 +20,11 @@ exports[`KeyValue has a helptext 1`] = `
         type="text"
         value=""
       />
+      <input
+        name="keyValueLabelkeyValue_edited"
+        type="hidden"
+        value="false"
+      />
       
     </div>
     <div
@@ -38,6 +43,11 @@ exports[`KeyValue has a helptext 1`] = `
         value=""
       />
     </div>
+    <input
+      name="keyValue_edited"
+      type="hidden"
+      value="false"
+    />
     <span
       aria-hidden="true"
       class="form-text"
@@ -80,6 +90,11 @@ exports[`KeyValue has a label 1`] = `
         type="text"
         value=""
       />
+      <input
+        name="keyValueLabelkeyValue_edited"
+        type="hidden"
+        value="false"
+      />
       
     </div>
     <div
@@ -98,6 +113,11 @@ exports[`KeyValue has a label 1`] = `
         value=""
       />
     </div>
+    <input
+      name="keyValue_edited"
+      type="hidden"
+      value="false"
+    />
     <span
       class="sr-only"
       id="keyValue_fieldDetails"
@@ -130,6 +150,11 @@ exports[`KeyValue has a predefined Value 1`] = `
         type="text"
         value=""
       />
+      <input
+        name="keyValueLabelkeyValue_edited"
+        type="hidden"
+        value="false"
+      />
       
     </div>
     <div
@@ -148,6 +173,11 @@ exports[`KeyValue has a predefined Value 1`] = `
         value=""
       />
     </div>
+    <input
+      name="keyValue_edited"
+      type="hidden"
+      value="false"
+    />
     
   </div>
 </div>
@@ -173,6 +203,11 @@ exports[`KeyValue has a value 1`] = `
         type="text"
         value="value"
       />
+      <input
+        name="keyValueLabelkeyValue_edited"
+        type="hidden"
+        value="false"
+      />
       
     </div>
     <div
@@ -191,6 +226,11 @@ exports[`KeyValue has a value 1`] = `
         value=""
       />
     </div>
+    <input
+      name="keyValue_edited"
+      type="hidden"
+      value="false"
+    />
     
   </div>
 </div>
@@ -216,6 +256,11 @@ exports[`KeyValue has an id 1`] = `
         type="text"
         value=""
       />
+      <input
+        name="keyValueLabelkeyValue_edited"
+        type="hidden"
+        value="false"
+      />
       
     </div>
     <div
@@ -234,6 +279,11 @@ exports[`KeyValue has an id 1`] = `
         value=""
       />
     </div>
+    <input
+      name="keyValue_edited"
+      type="hidden"
+      value="false"
+    />
     
   </div>
 </div>
@@ -260,6 +310,11 @@ exports[`KeyValue is not editable 1`] = `
         type="text"
         value=""
       />
+      <input
+        name="keyValueLabelkeyValue_edited"
+        type="hidden"
+        value="false"
+      />
       
     </div>
     <div
@@ -278,6 +333,11 @@ exports[`KeyValue is not editable 1`] = `
         value=""
       />
     </div>
+    <input
+      name="keyValue_edited"
+      type="hidden"
+      value="false"
+    />
     
   </div>
 </div>
@@ -303,6 +363,11 @@ exports[`KeyValue is not required 1`] = `
         type="text"
         value=""
       />
+      <input
+        name="keyValueLabelkeyValue_edited"
+        type="hidden"
+        value="false"
+      />
       
     </div>
     <div
@@ -321,6 +386,11 @@ exports[`KeyValue is not required 1`] = `
         value=""
       />
     </div>
+    <input
+      name="keyValue_edited"
+      type="hidden"
+      value="false"
+    />
     
   </div>
 </div>
@@ -351,6 +421,11 @@ exports[`KeyValue renders Label if showLabel is true 1`] = `
         type="text"
         value=""
       />
+      <input
+        name="keyValueLabelkeyValue_edited"
+        type="hidden"
+        value="false"
+      />
       
     </div>
     <div
@@ -369,6 +444,11 @@ exports[`KeyValue renders Label if showLabel is true 1`] = `
         value=""
       />
     </div>
+    <input
+      name="keyValue_edited"
+      type="hidden"
+      value="false"
+    />
     <span
       class="sr-only"
       id="keyValue_fieldDetails"
@@ -400,6 +480,11 @@ exports[`KeyValue renders component with a key 1`] = `
         type="text"
         value=""
       />
+      <input
+        name="keyValueLabelkeyValue_edited"
+        type="hidden"
+        value="false"
+      />
       
     </div>
     <div
@@ -418,6 +503,11 @@ exports[`KeyValue renders component with a key 1`] = `
         value=""
       />
     </div>
+    <input
+      name="keyValue_edited"
+      type="hidden"
+      value="false"
+    />
     
   </div>
 </div>

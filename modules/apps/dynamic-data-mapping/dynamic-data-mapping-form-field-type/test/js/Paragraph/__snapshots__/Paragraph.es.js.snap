@@ -16,6 +16,11 @@ exports[`Field Paragraph has a key 1`] = `
         class="liferay-ddm-form-field-paragraph-text"
       />
     </div>
+    <input
+      name="textField_edited"
+      type="hidden"
+      value="false"
+    />
     
   </div>
 </div>
@@ -42,6 +47,11 @@ exports[`Field Paragraph has a label 1`] = `
         class="liferay-ddm-form-field-paragraph-text"
       />
     </div>
+    <input
+      name="textField_edited"
+      type="hidden"
+      value="false"
+    />
     <span
       class="sr-only"
       id="textField_fieldDetails"
@@ -69,6 +79,11 @@ exports[`Field Paragraph has a placeholder 1`] = `
         class="liferay-ddm-form-field-paragraph-text"
       />
     </div>
+    <input
+      name="textField_edited"
+      type="hidden"
+      value="false"
+    />
     
   </div>
 </div>
@@ -90,6 +105,11 @@ exports[`Field Paragraph has a value 1`] = `
         class="liferay-ddm-form-field-paragraph-text"
       />
     </div>
+    <input
+      name="textField_edited"
+      type="hidden"
+      value="false"
+    />
     
   </div>
 </div>
@@ -111,6 +131,11 @@ exports[`Field Paragraph has an id 1`] = `
         class="liferay-ddm-form-field-paragraph-text"
       />
     </div>
+    <input
+      name="textField_edited"
+      type="hidden"
+      value="false"
+    />
     
   </div>
 </div>
@@ -132,6 +157,11 @@ exports[`Field Paragraph is not required 1`] = `
         class="liferay-ddm-form-field-paragraph-text"
       />
     </div>
+    <input
+      name="textField_edited"
+      type="hidden"
+      value="false"
+    />
     
   </div>
 </div>
@@ -153,6 +183,11 @@ exports[`Field Paragraph is readOnly 1`] = `
         class="liferay-ddm-form-field-paragraph-text"
       />
     </div>
+    <input
+      name="textField_edited"
+      type="hidden"
+      value="false"
+    />
     
   </div>
 </div>
@@ -179,6 +214,11 @@ exports[`Field Paragraph renders Label if showLabel is true 1`] = `
         class="liferay-ddm-form-field-paragraph-text"
       />
     </div>
+    <input
+      name="textField_edited"
+      type="hidden"
+      value="false"
+    />
     <span
       class="sr-only"
       id="textField_fieldDetails"

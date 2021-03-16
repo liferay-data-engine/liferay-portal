@@ -63,6 +63,11 @@ exports[`Field Checkbox Multiple has a helptext 1`] = `
         </label>
       </div>
     </div>
+    <input
+      name="undefined_edited"
+      type="hidden"
+      value="false"
+    />
     <span
       aria-hidden="true"
       class="form-text"
@@ -143,6 +148,11 @@ exports[`Field Checkbox Multiple has a key 1`] = `
         </label>
       </div>
     </div>
+    <input
+      name="undefined_edited"
+      type="hidden"
+      value="false"
+    />
     
   </div>
 </div>
@@ -216,6 +226,11 @@ exports[`Field Checkbox Multiple has a label 1`] = `
         </label>
       </div>
     </div>
+    <input
+      name="undefined_edited"
+      type="hidden"
+      value="false"
+    />
     <span
       class="sr-only"
       id="undefined_fieldDetails"
@@ -290,6 +305,11 @@ exports[`Field Checkbox Multiple has a predefined Value 1`] = `
         </label>
       </div>
     </div>
+    <input
+      name="undefined_edited"
+      type="hidden"
+      value="false"
+    />
     
   </div>
 </div>
@@ -358,6 +378,11 @@ exports[`Field Checkbox Multiple has a spritemap 1`] = `
         </label>
       </div>
     </div>
+    <input
+      name="undefined_edited"
+      type="hidden"
+      value="false"
+    />
     
   </div>
 </div>
@@ -426,6 +451,11 @@ exports[`Field Checkbox Multiple has a value 1`] = `
         </label>
       </div>
     </div>
+    <input
+      name="undefined_edited"
+      type="hidden"
+      value="false"
+    />
     
   </div>
 </div>
@@ -494,6 +524,11 @@ exports[`Field Checkbox Multiple has an id 1`] = `
         </label>
       </div>
     </div>
+    <input
+      name="undefined_edited"
+      type="hidden"
+      value="false"
+    />
     
   </div>
 </div>
@@ -564,6 +599,11 @@ exports[`Field Checkbox Multiple is not editable 1`] = `
         </label>
       </div>
     </div>
+    <input
+      name="undefined_edited"
+      type="hidden"
+      value="false"
+    />
     
   </div>
 </div>
@@ -632,6 +672,11 @@ exports[`Field Checkbox Multiple is not required 1`] = `
         </label>
       </div>
     </div>
+    <input
+      name="undefined_edited"
+      type="hidden"
+      value="false"
+    />
     
   </div>
 </div>
@@ -700,6 +745,11 @@ exports[`Field Checkbox Multiple is shown as a switcher 1`] = `
         </label>
       </div>
     </div>
+    <input
+      name="undefined_edited"
+      type="hidden"
+      value="false"
+    />
     
   </div>
 </div>
@@ -756,6 +806,11 @@ exports[`Field Checkbox Multiple is shown as checkbox 1`] = `
         </label>
       </div>
     </div>
+    <input
+      name="undefined_edited"
+      type="hidden"
+      value="false"
+    />
     
   </div>
 </div>
@@ -829,6 +884,11 @@ exports[`Field Checkbox Multiple renders Label if showLabel is true 1`] = `
         </label>
       </div>
     </div>
+    <input
+      name="undefined_edited"
+      type="hidden"
+      value="false"
+    />
     <span
       class="sr-only"
       id="undefined_fieldDetails"
