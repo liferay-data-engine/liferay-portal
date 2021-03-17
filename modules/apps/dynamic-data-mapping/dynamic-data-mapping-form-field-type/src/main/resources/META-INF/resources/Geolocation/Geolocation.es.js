@@ -87,7 +87,7 @@ const Geolocation = ({
 
 const Main = ({
 	defaultLanguageId,
-	editingLanguageId,
+	editingLanguageId = defaultLanguageId,
 	googleMapsAPIKey,
 	instanceId,
 	mapProviderKey = MAP_PROVIDER.openStreetMap,
@@ -101,9 +101,7 @@ const Main = ({
 	<FieldBase name={name} readOnly={readOnly} {...otherProps}>
 		<Geolocation
 			disabled={readOnly}
-			editingLanguageId={
-				editingLanguageId ? editingLanguageId : defaultLanguageId
-			}
+			editingLanguageId={editingLanguageId}
 			googleMapsAPIKey={googleMapsAPIKey}
 			instanceId={instanceId}
 			mapProviderKey={mapProviderKey}
