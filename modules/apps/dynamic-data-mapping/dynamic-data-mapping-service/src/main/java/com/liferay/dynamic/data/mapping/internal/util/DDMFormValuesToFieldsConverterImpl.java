@@ -189,9 +189,14 @@ public class DDMFormValuesToFieldsConverterImpl
 	protected void setDDMFieldUnlocalizedValue(
 		Field ddmField, String type, Value value, Locale defaultLocale) {
 
+		String valueString = null;
+
+		if (value != null) {
+			valueString = value.getString(LocaleUtil.ROOT);
+		}
+
 		Serializable serializable = FieldConstants.getSerializable(
-			defaultLocale, LocaleUtil.ROOT, type,
-			value.getString(LocaleUtil.ROOT));
+			defaultLocale, LocaleUtil.ROOT, type, valueString);
 
 		ddmField.addValue(defaultLocale, serializable);
 	}
@@ -199,7 +204,7 @@ public class DDMFormValuesToFieldsConverterImpl
 	protected void setDDMFieldValue(
 		Field ddmField, String type, Value value, Locale defaultLocale) {
 
-		if (value.isLocalized()) {
+		if ((value != null) && value.isLocalized()) {
 			setDDMFieldLocalizedValue(ddmField, type, value);
 		}
 		else {
