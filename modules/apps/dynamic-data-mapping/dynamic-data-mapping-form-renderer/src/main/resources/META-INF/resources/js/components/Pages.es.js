@@ -40,6 +40,8 @@ const Pages = React.forwardRef(
 			focusedField,
 			pages = [],
 			paginationMode = 'wizard',
+			persistDefaultValues,
+			portletNamespace,
 			readOnly,
 			submitLabel = Liferay.Language.get('submit'),
 			view,
@@ -67,6 +69,13 @@ const Pages = React.forwardRef(
 				className={classNames({sheet: view === 'fieldSets'})}
 				ref={containerElementRef}
 			>
+				<input
+					key={portletNamespace + 'persistDefaultValues'}
+					name={portletNamespace + 'persistDefaultValues'}
+					type="hidden"
+					value={persistDefaultValues}
+				/>
+
 				<div
 					className={classNames(
 						'lfr-ddm-form-container position-relative',
@@ -90,6 +99,7 @@ const Pages = React.forwardRef(
 								pageIndex={index}
 								pages={pages}
 								paginationMode={paginationMode}
+								portletNamespace={portletNamespace}
 								readOnly={readOnly}
 								submitLabel={submitLabel}
 								total={pages.length}
