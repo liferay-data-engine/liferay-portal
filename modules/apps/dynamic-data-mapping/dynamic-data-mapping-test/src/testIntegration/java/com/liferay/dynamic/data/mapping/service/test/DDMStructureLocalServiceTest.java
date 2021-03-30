@@ -73,7 +73,6 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -513,7 +512,7 @@ public class DDMStructureLocalServiceTest extends BaseDDMServiceTestCase {
 			WorkflowConstants.STATUS_APPROVED, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, new StructureIdComparator(true));
 
-		Assert.assertEquals(2, structures.size());
+		Assert.assertEquals(structures.toString(), 2, structures.size());
 		Assert.assertEquals("Events", getStructureName(structures.get(0)));
 		Assert.assertEquals("Event", getStructureName(structures.get(1)));
 	}
