@@ -26,6 +26,7 @@ export default (
 
 	if (
 		dataType === 'date' &&
+		value &&
 		value.indexOf('_') === -1 &&
 		value !== '' &&
 		nextEditingLanguageId !== prevEditingLanguageId &&
