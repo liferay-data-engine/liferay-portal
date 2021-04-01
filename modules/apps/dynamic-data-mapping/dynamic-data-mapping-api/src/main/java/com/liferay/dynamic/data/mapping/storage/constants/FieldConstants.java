@@ -23,8 +23,6 @@ import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
 
-import java.math.BigDecimal;
-
 import java.text.NumberFormat;
 import java.text.ParseException;
 
@@ -106,9 +104,14 @@ public class FieldConstants {
 			}
 
 			try {
-				Number number = numberFormat.parse(GetterUtil.getString(value));
+				String number = String.valueOf(
+					numberFormat.parse(GetterUtil.getString(value)));
 
-				serializable = getSerializable(type, number.toString());
+				if (number.matches(_SCIENTIFIC_NOTATION_PATTERN)) {
+					return value;
+				}
+
+				serializable = getSerializable(type, number);
 			}
 			catch (ParseException parseException) {
 				if (_log.isDebugEnabled()) {
@@ -179,8 +182,28 @@ public class FieldConstants {
 			return value;
 		}
 
-		if (isNumericType(type) && Validator.isNull(value)) {
-			return StringPool.BLANK;
+		if (isNumericType(type)) {
+			if (Validator.isNull(value)) {
+				return StringPool.BLANK;
+			}
+
+			NumberFormat numberFormat = NumberFormat.getInstance(
+				LocaleUtil.ROOT);
+
+			try {
+				String number = String.valueOf(numberFormat.parse(value));
+
+				if (number.matches(_SCIENTIFIC_NOTATION_PATTERN)) {
+					return value;
+				}
+			}
+			catch (ParseException parseException) {
+				if (_log.isDebugEnabled()) {
+					_log.debug(parseException, parseException);
+				}
+
+				return value;
+			}
 		}
 
 		if (type.equals(BOOLEAN)) {
@@ -190,10 +213,6 @@ public class FieldConstants {
 			return value;
 		}
 		else if (type.equals(DOUBLE)) {
-			if (value.matches(_SCIENTIFIC_NOTATION_PATTERN)) {
-				return new BigDecimal(value.trim());
-			}
-
 			return GetterUtil.getDouble(value);
 		}
 		else if (type.equals(FLOAT)) {
