@@ -16,7 +16,6 @@ package com.liferay.dynamic.data.mapping.util;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.text.NumberFormat;
 
 import java.util.Locale;
 
@@ -26,13 +25,8 @@ import java.util.Locale;
 public class NumberUtil {
 
 	public static int getDecimalSeparatorIndex(Locale locale, String value) {
-		NumberFormat numberFormat = NumberFormat.getInstance(locale);
-
-		if (!(numberFormat instanceof DecimalFormat)) {
-			return -1;
-		}
-
-		DecimalFormat decimalFormat = (DecimalFormat)numberFormat;
+		DecimalFormat decimalFormat = NumericDDMFormFieldUtil.getNumberFormat(
+			locale);
 
 		DecimalFormatSymbols decimalFormatSymbols =
 			decimalFormat.getDecimalFormatSymbols();
