@@ -171,6 +171,9 @@ public class DataDefinitionResourceImpl
 			_deDataDefinitionFieldLinkLocalService.
 				getDEDataDefinitionFieldLinks(dataDefinitionId);
 
+		Stream<DEDataDefinitionFieldLink> stream =
+			deDataDefinitionFieldLinks.stream();
+
 		DDMStructure ddmStructure = _ddmStructureLocalService.getDDMStructure(
 			dataDefinitionId);
 
@@ -184,7 +187,11 @@ public class DataDefinitionResourceImpl
 		if ((ddmStructureLinks.size() > 1) ||
 			(!dataDefinitionContentType.
 				allowReferencedDataDefinitionDeletion() &&
-			 (deDataDefinitionFieldLinks.size() > 1))) {
+			 (stream.filter(
+				 deDataDefinitionFieldLink -> StringUtil.equals(
+					deDataDefinitionFieldLink.getClassName(),
+					DDMStructure.class.getName())
+			 ).count() > 0))) {
 
 			throw new RequiredStructureException.
 				MustNotDeleteStructureReferencedByStructureLinks(
