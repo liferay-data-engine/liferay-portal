@@ -273,6 +273,15 @@ public class DDMFormTestUtil {
 			name, label, "text", "string", localizable, repeatable, required);
 	}
 
+	public static DDMFormField createValidationDDMFormField(
+		String dataType, String label, boolean localizable, String name,
+		boolean repeatable, boolean required, String tip) {
+
+		return createDDMFormField(
+			name, label, "validation", dataType, localizable, repeatable,
+			required, tip, null, null, null, null);
+	}
+
 	public static void setIndexTypeProperty(
 		DDMForm ddmForm, String indexTypeValue) {
 
