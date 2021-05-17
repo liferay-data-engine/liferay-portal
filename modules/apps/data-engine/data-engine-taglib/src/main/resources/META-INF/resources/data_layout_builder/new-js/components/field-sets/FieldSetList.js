@@ -15,7 +15,6 @@
 import ClayButton from '@clayui/button';
 import {
 	EVENT_TYPES,
-	PagesVisitor,
 	useConfig,
 	useForm,
 	useFormState,
@@ -65,21 +64,25 @@ export default function FieldSetList({searchTerm}) {
 		pages,
 	} = useFormState();
 
+	const {dataDefinition} = useFormState({schema: ['dataDefinition']});
+
 	const {allowInvalidAvailableLocalesForProperty, fieldTypes} = useConfig();
 	const dispatch = useForm();
 
 	const filteredFieldsets = getFilteredFieldsets(fieldSets, searchTerm);
 
 	useEffect(() => {
-		const fieldsInuse = new Set();
-
-		new PagesVisitor(pages).mapFields((field) => {
-			if (field.type === 'fieldset') {
-				fieldsInuse.add(field.ddmStructureId);
+		const fieldSetIdsInuse = new Set();
+		dataDefinition.dataDefinitionFields.forEach(
+			({customProperties: {ddmStructureId}, fieldType}) => {
+				if (fieldType === 'fieldset') {
+					fieldSetIdsInuse.add(parseInt(ddmStructureId, 10));
+				}
 			}
-		});
-		setFieldSetsInUse(fieldsInuse);
-	}, [pages]);
+		);
+
+		setFieldSetsInUse(fieldSetIdsInuse);
+	}, [dataDefinition.dataDefinitionFields]);
 
 	const toggleFieldSet = (fieldSet) => {
 		setModalState(({isVisible}) => ({
