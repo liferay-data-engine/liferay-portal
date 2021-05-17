@@ -34,7 +34,7 @@ import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 			actions = {
 				"setOptions('predefinedValue', getValue('options'))",
 				"setRequired('options', true)",
-				"setVisible('errorMessage', getValue('required'))",
+				"setVisible('errorMessage', false)",
 				"setVisible('validation', false)"
 			},
 			condition = "TRUE"
