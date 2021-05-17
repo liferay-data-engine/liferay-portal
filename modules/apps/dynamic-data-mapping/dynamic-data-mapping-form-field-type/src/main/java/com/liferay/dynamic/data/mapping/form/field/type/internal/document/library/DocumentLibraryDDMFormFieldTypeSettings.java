@@ -31,6 +31,7 @@ import com.liferay.dynamic.data.mapping.form.field.type.DefaultDDMFormFieldTypeS
 		@DDMFormRule(
 			actions = {
 				"setVisible('dataType', false)",
+				"setVisible('errorMessage', getValue('required'))",
 				"setVisible('predefinedValue', false)",
 				"setVisible('validation', false)"
 			},
@@ -49,7 +50,8 @@ import com.liferay.dynamic.data.mapping.form.field.type.DefaultDDMFormFieldTypeS
 						@DDMFormLayoutColumn(
 							size = 12,
 							value = {
-								"label", "tip", "required", "allowGuestUsers"
+								"label", "tip", "required", "errorMessage",
+								"allowGuestUsers"
 							}
 						)
 					}
