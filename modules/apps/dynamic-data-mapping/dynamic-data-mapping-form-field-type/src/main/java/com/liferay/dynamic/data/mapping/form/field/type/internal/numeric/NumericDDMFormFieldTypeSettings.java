@@ -44,7 +44,7 @@ import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 				"setVisible('confirmationErrorMessage', getValue('requireConfirmation'))",
 				"setVisible('confirmationLabel', getValue('requireConfirmation'))",
 				"setVisible('direction', getValue('requireConfirmation'))",
-				"setVisible('errorMessage', getValue('required'))",
+				"setVisible('errorMessage', false)",
 				"setVisible('inputMaskFormat', getValue('inputMask'))",
 				"setVisible('tooltip', false)"
 			},
