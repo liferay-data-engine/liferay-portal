@@ -43,6 +43,7 @@ import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 				"setRequired('options', contains(getValue('dataSourceType'), \"manual\") OR isEmpty(getValue('dataSourceType')))",
 				"setVisible('ddmDataProviderInstanceId', contains(getValue('dataSourceType'), \"data-provider\"))",
 				"setVisible('ddmDataProviderInstanceOutput', contains(getValue('dataSourceType'), \"data-provider\"))",
+				"setVisible('errorMessage', getValue('required'))",
 				"setVisible('options', contains(getValue('dataSourceType'), \"manual\") OR isEmpty(getValue('dataSourceType')))",
 				"setVisible('predefinedValue', contains(getValue('dataSourceType'), \"manual\"))",
 				"setVisible('validation', false)"
@@ -69,8 +70,9 @@ import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 						@DDMFormLayoutColumn(
 							size = 12,
 							value = {
-								"label", "tip", "required", "dataSourceType",
-								"options", "ddmDataProviderInstanceId",
+								"label", "tip", "required", "errorMessage",
+								"dataSourceType", "options",
+								"ddmDataProviderInstanceId",
 								"ddmDataProviderInstanceOutput"
 							}
 						)

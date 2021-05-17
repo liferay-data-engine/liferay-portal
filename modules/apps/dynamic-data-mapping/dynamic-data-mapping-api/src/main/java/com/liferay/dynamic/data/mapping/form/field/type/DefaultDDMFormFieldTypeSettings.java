@@ -67,6 +67,15 @@ import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 public interface DefaultDDMFormFieldTypeSettings
 	extends DDMFormFieldTypeSettings {
 
+	@DDMFormField(
+		label = "%error-message",
+		properties = {
+			"placeholder=%this-field-is-required", "visualProperty=true"
+		},
+		type = "text"
+	)
+	public LocalizedValue errorMessage();
+
 	@DDMFormField(visibilityExpression = "FALSE")
 	public String fieldNamespace();
 
