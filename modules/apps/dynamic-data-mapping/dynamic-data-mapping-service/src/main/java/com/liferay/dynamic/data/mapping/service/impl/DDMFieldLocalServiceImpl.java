@@ -67,6 +67,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.osgi.service.component.annotations.Component;
@@ -138,13 +139,29 @@ public class DDMFieldLocalServiceImpl extends DDMFieldLocalServiceBaseImpl {
 		List<DDMField> ddmFields = ddmFieldPersistence.findByStorageId(
 			storageId);
 
-		if (ddmFields.isEmpty()) {
+		Stream<DDMField> ddmFieldsStream = ddmFields.stream();
+
+		Map<String, DDMFormField> ddmFormFieldsMap =
+			ddmForm.getDDMFormFieldsMap(true);
+
+		List<DDMField> ddmFieldsFiltered = ddmFieldsStream.filter(
+			ddmField -> {
+				String ddmFieldName = ddmField.getFieldName();
+
+				return ddmFormFieldsMap.containsKey(ddmFieldName) ||
+					   ddmFieldName.equals(StringPool.BLANK);
+			}
+		).collect(
+			Collectors.toList()
+		);
+
+		if (ddmFieldsFiltered.isEmpty()) {
 			return null;
 		}
 
 		Map<Long, DDMFieldInfo> ddmFieldInfoMap = new LinkedHashMap<>();
 
-		for (DDMField ddmField : ddmFields) {
+		for (DDMField ddmField : ddmFieldsFiltered) {
 			if (ddmField.getParentFieldId() == 0) {
 				ddmFieldInfoMap.put(
 					ddmField.getFieldId(),
@@ -166,8 +183,22 @@ public class DDMFieldLocalServiceImpl extends DDMFieldLocalServiceBaseImpl {
 			}
 		}
 
+		List<DDMFieldAttribute> ddmFieldAttributeInfoList =
+			_ddmFieldAttributePersistence.findByStorageId(storageId);
+
+		Stream<DDMFieldAttribute> ddmFieldAttributeInfoStream =
+			ddmFieldAttributeInfoList.stream();
+
+		List<DDMFieldAttribute> ddmFieldAttributesInfoFiltered =
+			ddmFieldAttributeInfoStream.filter(
+				ddmFieldAttribute -> ddmFieldInfoMap.containsKey(
+					ddmFieldAttribute.getFieldId())
+			).collect(
+				Collectors.toList()
+			);
+
 		for (DDMFieldAttribute ddmFieldAttribute :
-				_ddmFieldAttributePersistence.findByStorageId(storageId)) {
+				ddmFieldAttributesInfoFiltered) {
 
 			DDMFieldInfo ddmFieldInfo = ddmFieldInfoMap.get(
 				ddmFieldAttribute.getFieldId());
