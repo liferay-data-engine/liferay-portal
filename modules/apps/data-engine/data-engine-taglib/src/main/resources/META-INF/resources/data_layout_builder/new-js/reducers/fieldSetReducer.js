@@ -19,7 +19,11 @@ import {
 	SettingsContext,
 } from 'dynamic-data-mapping-form-builder';
 
-import {getDDMFormField} from '../../js/utils/dataConverter.es';
+import {
+	getDDMFormField,
+	getDefaultDataLayout,
+	getFieldSetDDMForm,
+} from '../../js/utils/dataConverter.es';
 import {normalizeDataLayoutRows} from '../../js/utils/normalizers.es';
 import {EVENT_TYPES} from '../eventTypes';
 
@@ -33,31 +37,48 @@ export default (state, action, config) => {
 		}
 		case EVENT_TYPES.FIELD_SET.ADD: {
 			const {
-				fieldSet,
-				indexes,
-				parentFieldName,
-				properties,
-				rows,
-				useFieldName,
-			} = action.payload;
-			const {
-				availableLanguageIds,
-				defaultLanguageId,
-				editingLanguageId,
-				pages,
-			} = state;
-			const {
+				allowInvalidAvailableLocalesForProperty,
 				fieldTypes,
 				generateFieldNameUsingFieldLabel,
 				getFieldNameGenerator,
 			} = config;
+
+			const {activePage, editingLanguageId, pages} = state;
+
+			const {
+				indexes = {
+					columnIndex: 0,
+					pageIndex: activePage,
+					rowIndex: pages[activePage].rows.length,
+				},
+				fieldSet,
+				parentFieldName,
+				properties,
+				useFieldName,
+			} = action.payload;
+
+			const {availableLanguageIds, defaultLanguageId} = fieldSet;
+
+			const fieldSetDDMForm = getFieldSetDDMForm({
+				allowInvalidAvailableLocalesForProperty,
+				availableLanguageIds,
+				editingLanguageId,
+				fieldSet,
+				fieldTypes,
+			});
+
+			const {dataLayoutPages} =
+				fieldSet.defaultDataLayout || getDefaultDataLayout(fieldSet);
+
+			const rows =
+				fieldSet.id && normalizeDataLayoutRows(dataLayoutPages);
 
 			const fieldNameGenerator = getFieldNameGenerator(
 				pages,
 				generateFieldNameUsingFieldLabel
 			);
 
-			const visitor = new PagesVisitor(fieldSet.pages);
+			const visitor = new PagesVisitor(fieldSetDDMForm.pages);
 			const nestedFields = [];
 
 			const props = {
@@ -95,12 +116,12 @@ export default (state, action, config) => {
 				});
 			}
 
-			if (fieldSet.id) {
+			if (fieldSetDDMForm.id) {
 				fieldSetField = SettingsContext.updateField(
 					props,
 					fieldSetField,
 					'ddmStructureId',
-					fieldSet.id
+					fieldSetDDMForm.id
 				);
 			}
 
@@ -117,7 +138,7 @@ export default (state, action, config) => {
 				props,
 				fieldSetField,
 				'label',
-				fieldSet.localizedTitle
+				fieldSetDDMForm.localizedTitle
 			);
 
 			return FieldSupport.addField({

@@ -16,40 +16,7 @@ import {PagesVisitor} from 'data-engine-js-components-web';
 import {FieldSupport} from 'dynamic-data-mapping-form-builder';
 
 import {getDataDefinitionField as getDataDefinitionFieldUtils} from './dataDefinition.es';
-import {
-	normalizeDataDefinition,
-	normalizeDataLayout,
-	normalizeDataLayoutRows,
-} from './normalizers.es';
-
-export function getDataDefinitionFieldSet({
-	allowInvalidAvailableLocalesForProperty,
-	availableLanguageIds = [],
-	defaultLanguageId,
-	editingLanguageId,
-	fieldSet,
-	fieldTypes,
-}) {
-	if (!availableLanguageIds.includes(defaultLanguageId)) {
-		availableLanguageIds = [...availableLanguageIds, defaultLanguageId];
-	}
-
-	const {dataLayoutPages} =
-		fieldSet.defaultDataLayout || getDefaultDataLayout(fieldSet);
-
-	const fieldSetDDMForm = getFieldSetDDMForm({
-		allowInvalidAvailableLocalesForProperty,
-		availableLanguageIds,
-		editingLanguageId,
-		fieldSet,
-		fieldTypes,
-	});
-
-	return {
-		fieldSet: fieldSetDDMForm,
-		rows: fieldSet.id && normalizeDataLayoutRows(dataLayoutPages),
-	};
-}
+import {normalizeDataDefinition, normalizeDataLayout} from './normalizers.es';
 
 export function getDDMFormField({
 	dataDefinition,
