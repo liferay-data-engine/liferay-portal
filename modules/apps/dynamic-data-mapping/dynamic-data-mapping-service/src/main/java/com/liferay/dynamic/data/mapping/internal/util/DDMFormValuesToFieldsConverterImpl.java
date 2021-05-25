@@ -33,6 +33,8 @@ import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -53,11 +55,13 @@ public class DDMFormValuesToFieldsConverterImpl
 
 		Map<String, DDMFormField> ddmFormFieldsMap =
 			ddmStructure.getFullHierarchyDDMFormFieldsMap(true);
+
+		List<DDMFormFieldValue> ddmFormFieldValues = _filterDDMFormFieldValues(
+			ddmFormValues.getDDMFormFieldValues(), ddmFormFieldsMap);
+
 		Fields ddmFields = createDDMFields(ddmStructure);
 
-		for (DDMFormFieldValue ddmFormFieldValue :
-				ddmFormValues.getDDMFormFieldValues()) {
-
+		for (DDMFormFieldValue ddmFormFieldValue : ddmFormFieldValues) {
 			_addMissingRepeatedDDMFormFieldValues(
 				ddmFormFieldValue.getDDMFormField(),
 				ddmFormValues.getDefaultLocale(),
@@ -250,6 +254,39 @@ public class DDMFormValuesToFieldsConverterImpl
 				availableLocales, nestedDDMFormFieldValue,
 				repeatableAncestor || ddmFormField.isRepeatable());
 		}
+	}
+
+	private List<DDMFormFieldValue> _filterDDMFormFieldValues(
+		List<DDMFormFieldValue> ddmFormFieldValues,
+		Map<String, DDMFormField> ddmFormFieldsMap) {
+
+		List<DDMFormFieldValue> ddmFormFieldValueFiltered = new ArrayList<>();
+
+		for (DDMFormFieldValue ddmFormFieldValue : ddmFormFieldValues) {
+			List<DDMFormFieldValue> nestedDDMFormFieldValues =
+				ddmFormFieldValue.getNestedDDMFormFieldValues();
+
+			List<DDMFormFieldValue> nestedDDMFormFieldValuesFiltered;
+
+			if (!nestedDDMFormFieldValues.isEmpty()) {
+				nestedDDMFormFieldValuesFiltered = _filterDDMFormFieldValues(
+					nestedDDMFormFieldValues, ddmFormFieldsMap);
+				nestedDDMFormFieldValues.clear();
+				nestedDDMFormFieldValues.addAll(
+					nestedDDMFormFieldValuesFiltered);
+			}
+
+			if (ddmFormFieldsMap.containsKey(ddmFormFieldValue.getName()) &&
+				!ddmFormFieldValueFiltered.contains(ddmFormFieldValue)) {
+
+				ddmFormFieldValueFiltered.add(ddmFormFieldValue);
+			}
+			else {
+				ddmFormFieldValueFiltered.remove(ddmFormFieldValue);
+			}
+		}
+
+		return ddmFormFieldValueFiltered;
 	}
 
 }
