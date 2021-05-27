@@ -74,7 +74,8 @@ const getValue = (dataType, symbols, value = '') => {
 		newValue = newValue.replace(decimalSymbol, '.');
 
 		if (!isNaN(Number(newValue)) && newValue.indexOf('.') !== -1) {
-			newValue = String(Math.round(newValue.replace(decimalSymbol, '.')));
+			decimalSymbol = '.';
+			newValue = String(newValue.replace(decimalSymbol, ''));
 		}
 	}
 
@@ -188,6 +189,16 @@ const Numeric = ({
 					setCurrentValue(newValue);
 					onChange(event);
 				}
+			}}
+			onPaste={(event) => {
+				const clipboardData = (
+					event.originalEvent || event
+				).clipboardData.getData('text/plain');
+
+				const newValue = getValue(dataType, symbols, clipboardData);
+
+				setCurrentValue(newValue);
+				event.preventDefault();
 			}}
 			ref={inputRef}
 			type="text"
