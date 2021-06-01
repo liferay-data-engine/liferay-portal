@@ -278,7 +278,7 @@ describe('Field Numeric', () => {
 
 		const input = container.querySelector('input');
 
-		expect(input.value).toBe('4');
+		expect(input.value).toBe('38');
 	});
 
 	it('round up value when changing from decimal to integer when symbol of language is comma', () => {
@@ -296,7 +296,7 @@ describe('Field Numeric', () => {
 			jest.runAllTimers();
 		});
 
-		expect(container.querySelector('input').value).toBe('23');
+		expect(container.querySelector('input').value).toBe('2282');
 	});
 
 	describe('Confirmation Field', () => {
@@ -341,7 +341,7 @@ describe('Field Numeric', () => {
 				'numericFieldconfirmationField'
 			);
 
-			expect(confirmationField.value).toBe('23');
+			expect(confirmationField.value).toBe('2282');
 		});
 	});
 });
