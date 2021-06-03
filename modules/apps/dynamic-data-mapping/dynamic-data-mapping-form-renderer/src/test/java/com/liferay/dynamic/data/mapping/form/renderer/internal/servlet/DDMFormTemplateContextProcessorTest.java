@@ -216,6 +216,8 @@ public class DDMFormTemplateContextProcessorTest extends PowerMockito {
 							"value", "OptionValue2"
 						))
 				).put(
+					"requiredErrorMessage", "Custom required error message."
+				).put(
 					"showAsSwitcher", false
 				).put(
 					"type", "checkbox_multiple"
@@ -256,6 +258,15 @@ public class DDMFormTemplateContextProcessorTest extends PowerMockito {
 			"MultipleSelection12345678", ddmFormField.getName());
 		Assert.assertEquals(true, ddmFormField.getProperty("inline"));
 		Assert.assertEquals(false, ddmFormField.getProperty("showAsSwitcher"));
+
+		LocalizedValue expectedLocalizedValue = new LocalizedValue();
+
+		expectedLocalizedValue.addString(
+			LocaleUtil.US, "Custom required error message.");
+
+		Assert.assertEquals(
+			expectedLocalizedValue, ddmFormField.getRequiredErrorMessage());
+
 		Assert.assertEquals("checkbox_multiple", ddmFormField.getType());
 	}
 
@@ -286,6 +297,8 @@ public class DDMFormTemplateContextProcessorTest extends PowerMockito {
 					"repeatable", true
 				).put(
 					"required", false
+				).put(
+					"requiredErrorMessage", "Custom required error message."
 				).put(
 					"tooltip", "Tooltip"
 				).put(
@@ -349,6 +362,15 @@ public class DDMFormTemplateContextProcessorTest extends PowerMockito {
 		Assert.assertEquals(
 			_getLocalizedValue("Tooltip"), ddmFormField.getProperty("tooltip"));
 		Assert.assertEquals(false, ddmFormField.getProperty("valid"));
+
+		LocalizedValue expectedLocalizedValue = new LocalizedValue();
+
+		expectedLocalizedValue.addString(
+			LocaleUtil.US, "Custom required error message.");
+
+		Assert.assertEquals(
+			expectedLocalizedValue, ddmFormField.getRequiredErrorMessage());
+
 		Assert.assertEquals("text", ddmFormField.getType());
 		Assert.assertEquals("", ddmFormField.getVisibilityExpression());
 		Assert.assertEquals(true, ddmFormField.isLocalizable());
@@ -378,6 +400,8 @@ public class DDMFormTemplateContextProcessorTest extends PowerMockito {
 				).put(
 					"maximumSubmissionLimitReached", false
 				).put(
+					"requiredErrorMessage", "Custom required error message."
+				).put(
 					"type", "document_library"
 				));
 
@@ -391,6 +415,15 @@ public class DDMFormTemplateContextProcessorTest extends PowerMockito {
 		Assert.assertEquals(
 			false, ddmFormField.getProperty("maximumSubmissionLimitReached"));
 		Assert.assertEquals(true, ddmFormField.getProperty("valid"));
+
+		LocalizedValue expectedLocalizedValue = new LocalizedValue();
+
+		expectedLocalizedValue.addString(
+			LocaleUtil.US, "Custom required error message.");
+
+		Assert.assertEquals(
+			expectedLocalizedValue, ddmFormField.getRequiredErrorMessage());
+
 		Assert.assertEquals("document_library", ddmFormField.getType());
 		Assert.assertEquals(false, ddmFormField.isLocalizable());
 		Assert.assertEquals(false, ddmFormField.isReadOnly());
