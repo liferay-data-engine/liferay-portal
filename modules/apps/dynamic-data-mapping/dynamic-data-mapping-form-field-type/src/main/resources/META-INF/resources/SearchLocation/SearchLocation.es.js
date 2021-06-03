@@ -17,6 +17,10 @@ import React, {useMemo, useState} from 'react';
 
 import Component from './SearchLocationField.es';
 
+const getClassNameBasedOnLayout = (layout) => {
+	return layout?.includes('two-columns') ? 'col-md-6' : 'col-md-12';
+};
+
 function transformValues({
 	addressValue,
 	cityValue,
@@ -57,6 +61,7 @@ const Main = ({
 	addressValue = '',
 	cityValue = '',
 	countryValue = '',
+	layout,
 	name,
 	onChange,
 	postalCodeValue = '',
@@ -97,8 +102,8 @@ const Main = ({
 
 	return (
 		<div>
-			<div>
-				<div>
+			<div className="row">
+				<div className="col-md-12">
 					<Component
 						label="Search Location"
 						onChange={(event) => {
@@ -113,7 +118,7 @@ const Main = ({
 						{...otherProps}
 					/>
 				</div>
-				<div>
+				<div className="col-md-12">
 					<Component
 						label="Address"
 						onChange={(event) => {
@@ -129,8 +134,8 @@ const Main = ({
 					/>
 				</div>
 			</div>
-			<div>
-				<div>
+			<div className="row">
+				<div className={getClassNameBasedOnLayout(layout)}>
 					<Component
 						label="City"
 						onChange={(event) => {
@@ -145,7 +150,7 @@ const Main = ({
 						{...otherProps}
 					/>
 				</div>
-				<div>
+				<div className={getClassNameBasedOnLayout(layout)}>
 					<Component
 						label="State"
 						onChange={(event) => {
@@ -160,7 +165,7 @@ const Main = ({
 						{...otherProps}
 					/>
 				</div>
-				<div>
+				<div className={getClassNameBasedOnLayout(layout)}>
 					<Component
 						label="Postal Code"
 						onChange={(event) => {
@@ -175,7 +180,7 @@ const Main = ({
 						{...otherProps}
 					/>
 				</div>
-				<div>
+				<div className={getClassNameBasedOnLayout(layout)}>
 					<Component
 						label="Country"
 						onChange={(event) => {
