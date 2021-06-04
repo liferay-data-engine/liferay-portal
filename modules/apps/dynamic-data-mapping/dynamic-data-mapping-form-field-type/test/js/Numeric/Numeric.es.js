@@ -262,7 +262,7 @@ describe('Field Numeric', () => {
 		expect(input.value).toBe('3.0');
 	});
 
-	it('check field value is rounded when fieldType is integer but it receives a double', () => {
+	it('check field value is without dot when fieldType is integer but it receives a double', () => {
 		const {container} = render(
 			<NumericWithProvider
 				{...defaultNumericConfig}
@@ -278,10 +278,10 @@ describe('Field Numeric', () => {
 
 		const input = container.querySelector('input');
 
-		expect(input.value).toBe('4');
+		expect(input.value).toBe('38');
 	});
 
-	it('round up value when changing from decimal to integer when symbol of language is comma', () => {
+	it('check if remove comma symbol from value when changing from decimal to integer when symbol of language is comma', () => {
 		const {container} = render(
 			<NumericWithProvider
 				{...defaultNumericConfig}
@@ -296,7 +296,7 @@ describe('Field Numeric', () => {
 			jest.runAllTimers();
 		});
 
-		expect(container.querySelector('input').value).toBe('23');
+		expect(container.querySelector('input').value).toBe('2282');
 	});
 
 	describe('Confirmation Field', () => {
@@ -322,7 +322,7 @@ describe('Field Numeric', () => {
 			expect(confirmationField.value).toBe('22.82');
 		});
 
-		it('rounds the confirmation value if the data type is Integer', () => {
+		it('check if remove the dot symbol for the result value if the data type is Integer but it receives a double', () => {
 			render(
 				<NumericWithProvider
 					{...defaultNumericConfig}
@@ -341,7 +341,7 @@ describe('Field Numeric', () => {
 				'numericFieldconfirmationField'
 			);
 
-			expect(confirmationField.value).toBe('23');
+			expect(confirmationField.value).toBe('2282');
 		});
 	});
 });
