@@ -86,9 +86,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.Spliterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -550,7 +552,7 @@ public class DataLayoutTaglibUtil {
 					fieldTypesJSONArray.put(jsonObject);
 
 					if (searchableFieldsDisabled) {
-						_setSearchableFieldsDisabled(jsonObject);
+						_setFieldIndexTypeNone(jsonObject);
 					}
 				}
 			}
@@ -576,6 +578,10 @@ public class DataLayoutTaglibUtil {
 
 	private String _getFunctionsURL() {
 		return _ddmFormBuilderSettingsRetrieverHelper.getDDMFunctionsURL();
+	}
+
+	private Spliterator<JSONObject> _getSpliterator(JSONArray jsonArray) {
+		return jsonArray.spliterator();
 	}
 
 	private boolean _hasJavascriptModule(String name) {
@@ -617,39 +623,41 @@ public class DataLayoutTaglibUtil {
 		return _npmResolver.resolveModuleName(ddmFormFieldType.getModuleName());
 	}
 
-	private void _setSearchableFieldsDisabled(JSONObject jsonObject) {
+	private void _setFieldIndexTypeNone(JSONObject jsonObject) {
 		JSONObject settingsContextJSONObject = jsonObject.getJSONObject(
 			"settingsContext");
 
-		JSONArray pagesJSONArray = settingsContextJSONObject.getJSONArray(
-			"pages");
+		Stream<JSONObject> stream1 = StreamSupport.stream(
+			_getSpliterator(settingsContextJSONObject.getJSONArray("pages")),
+			true);
 
-		JSONObject pageJSONObject = pagesJSONArray.getJSONObject(1);
+		Optional<JSONObject> optional = stream1.flatMap(
+			pageJSONObject -> {
+				Stream<JSONObject> stream2 = StreamSupport.stream(
+					_getSpliterator(pageJSONObject.getJSONArray("rows")), true);
 
-		JSONArray rowsJSONArray = pageJSONObject.getJSONArray("rows");
+				return stream2.flatMap(
+					rowJSONObject -> {
+						Stream<JSONObject> stream3 = StreamSupport.stream(
+							_getSpliterator(
+								rowJSONObject.getJSONArray("columns")),
+							true);
 
-		JSONObject rowJSONObject = rowsJSONArray.getJSONObject(0);
-
-		JSONArray columnsJSONArray = rowJSONObject.getJSONArray("columns");
-
-		JSONObject columnJSONObject = columnsJSONArray.getJSONObject(0);
-
-		JSONArray fieldsJSONArray = columnJSONObject.getJSONArray("fields");
-
-		if (fieldsJSONArray != null) {
-			for (int i = 0; i < fieldsJSONArray.length(); i++) {
-				JSONObject fieldJSONObject = fieldsJSONArray.getJSONObject(i);
-
-				if (Objects.equals(
-						fieldJSONObject.getString("fieldName"), _INDEX_TYPE)) {
-
-					fieldJSONObject.put("value", "none");
-				}
+						return stream3.flatMap(
+							columnJSONObject -> StreamSupport.stream(
+								_getSpliterator(
+									columnJSONObject.getJSONArray("fields")),
+								true));
+					});
 			}
-		}
-	}
+		).filter(
+			fieldJSONObject -> Objects.equals(
+				fieldJSONObject.getString("fieldName"), "indexType")
+		).findFirst();
 
-	private static final String _INDEX_TYPE = "indexType";
+		optional.ifPresent(
+			fieldJSONObject -> fieldJSONObject.put("value", "none"));
+	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		DataLayoutTaglibUtil.class);
