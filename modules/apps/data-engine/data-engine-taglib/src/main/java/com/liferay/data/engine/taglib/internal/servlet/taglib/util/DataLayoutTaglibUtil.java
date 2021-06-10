@@ -234,11 +234,12 @@ public class DataLayoutTaglibUtil {
 	}
 
 	public static JSONArray getFieldTypesJSONArray(
-			HttpServletRequest httpServletRequest, Set<String> scopes)
+			HttpServletRequest httpServletRequest, Set<String> scopes,
+			boolean searchableFieldsDisabled)
 		throws Exception {
 
 		return _dataLayoutTaglibUtil._getFieldTypesJSONArray(
-			httpServletRequest, scopes);
+			httpServletRequest, scopes, searchableFieldsDisabled);
 	}
 
 	public static String renderDataLayout(
@@ -510,7 +511,8 @@ public class DataLayoutTaglibUtil {
 	}
 
 	private JSONArray _getFieldTypesJSONArray(
-			HttpServletRequest httpServletRequest, Set<String> scopes)
+			HttpServletRequest httpServletRequest, Set<String> scopes,
+			boolean searchableFieldsDisabled)
 		throws Exception {
 
 		JSONArray fieldTypesJSONArray = _jsonFactory.createJSONArray();
@@ -546,6 +548,10 @@ public class DataLayoutTaglibUtil {
 
 				if (anyMatch) {
 					fieldTypesJSONArray.put(jsonObject);
+
+					if (searchableFieldsDisabled) {
+						_setSearchableFieldsDisabled(jsonObject);
+					}
 				}
 			}
 
@@ -610,6 +616,40 @@ public class DataLayoutTaglibUtil {
 
 		return _npmResolver.resolveModuleName(ddmFormFieldType.getModuleName());
 	}
+
+	private void _setSearchableFieldsDisabled(JSONObject jsonObject) {
+		JSONObject settingsContextJSONObject = jsonObject.getJSONObject(
+			"settingsContext");
+
+		JSONArray pagesJSONArray = settingsContextJSONObject.getJSONArray(
+			"pages");
+
+		JSONObject pageJSONObject = pagesJSONArray.getJSONObject(1);
+
+		JSONArray rowsJSONArray = pageJSONObject.getJSONArray("rows");
+
+		JSONObject rowJSONObject = rowsJSONArray.getJSONObject(0);
+
+		JSONArray columnsJSONArray = rowJSONObject.getJSONArray("columns");
+
+		JSONObject columnJSONObject = columnsJSONArray.getJSONObject(0);
+
+		JSONArray fieldsJSONArray = columnJSONObject.getJSONArray("fields");
+
+		if (fieldsJSONArray != null) {
+			for (int i = 0; i < fieldsJSONArray.length(); i++) {
+				JSONObject fieldJSONObject = fieldsJSONArray.getJSONObject(i);
+
+				if (Objects.equals(
+						fieldJSONObject.getString("fieldName"), _INDEX_TYPE)) {
+
+					fieldJSONObject.put("value", "none");
+				}
+			}
+		}
+	}
+
+	private static final String _INDEX_TYPE = "indexType";
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		DataLayoutTaglibUtil.class);
