@@ -47,9 +47,9 @@ const RichText = ({
 
 			editor.config.contentsLanguage = editingLanguageId;
 
-			editor.setData(editor.getData());
+			setCurrentValue(value);
 		}
-	}, [editingLanguageId, editorRef]);
+	}, [editingLanguageId, editorRef, setCurrentValue, value]);
 
 	return (
 		<FieldBase
@@ -62,7 +62,6 @@ const RichText = ({
 		>
 			<ClassicEditor
 				contents={currentValue}
-				data={currentValue}
 				editorConfig={editorConfig}
 				name={name}
 				onChange={(data) => {
@@ -76,19 +75,12 @@ const RichText = ({
 						CKEDITOR.instances[name]?.resetUndo();
 					}
 				}}
-				onMode={({editor}) => {
-					if (editor.mode === 'source') {
-						editor.on('afterSetData', ({data}) => {
-							const {dataValue} = data;
+				onSetData={({data}) => {
+					const {dataValue} = data;
 
-							setCurrentValue(dataValue);
+					setCurrentValue(dataValue);
 
-							onChange({}, dataValue);
-						});
-					}
-					else {
-						editor.removeListener('afterSetData');
-					}
+					onChange({}, dataValue);
 				}}
 				readOnly={readOnly}
 				ref={editorRef}
