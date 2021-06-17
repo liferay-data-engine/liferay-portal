@@ -16,7 +16,6 @@ import {ClassicEditor} from 'frontend-editor-ckeditor-web';
 import React, {useEffect, useRef, useState} from 'react';
 
 import {FieldBase} from '../FieldBase/ReactFieldBase.es';
-import {useSyncValue} from '../hooks/useSyncValue.es';
 
 const RichText = ({
 	editingLanguageId,
@@ -30,7 +29,7 @@ const RichText = ({
 	visible,
 	...otherProps
 }) => {
-	const [currentValue, setCurrentValue] = useSyncValue(
+	const [currentValue, setCurrentValue] = useState(
 		value ? value : predefinedValue
 	);
 
