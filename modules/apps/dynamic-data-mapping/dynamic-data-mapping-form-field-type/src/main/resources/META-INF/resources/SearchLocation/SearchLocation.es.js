@@ -172,7 +172,7 @@ const Main = ({
 			/>
 			<div className="row">
 				{availableVisibleFields.length > 0 &&
-					availableVisibleFields.map((visibleField) => {
+					availableVisibleFields.map((visibleField, index) => {
 						if (currentVisibleFields.includes(visibleField)) {
 							const visibleFieldName = name + '#' + visibleField;
 							const className = getClassNameBasedOnLayout(
@@ -181,7 +181,7 @@ const Main = ({
 							);
 
 							return (
-								<div className={className}>
+								<div className={className} key={index}>
 									<Field
 										{...otherProps}
 										disabled={readOnly}
