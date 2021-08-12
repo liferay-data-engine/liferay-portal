@@ -32,6 +32,7 @@ import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 		@DDMFormRule(
 			actions = {
 				"setVisible('dataType', FALSE)",
+				"setVisible('descriptionRequired', getValue('required') and displayImageFieldDescriptionRequired())",
 				"setVisible('requiredErrorMessage', getValue('required'))"
 			},
 			condition = "TRUE"
@@ -50,7 +51,7 @@ import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 							size = 12,
 							value = {
 								"label", "tip", "required",
-								"requiredErrorMessage"
+								"descriptionRequired", "requiredErrorMessage"
 							}
 						)
 					}
@@ -84,6 +85,12 @@ public interface ImageDDMFormFieldTypeSettings
 	@DDMFormField(predefinedValue = "image", required = true)
 	@Override
 	public String dataType();
+
+	@DDMFormField(
+		label = "%description-required", predefinedValue = "true",
+		properties = {"showAsSwitcher=true", "visualProperty=true"}
+	)
+	public boolean descriptionRequired();
 
 	@DDMFormField(
 		label = "%searchable", optionLabels = {"%disable", "%keyword", "%text"},
