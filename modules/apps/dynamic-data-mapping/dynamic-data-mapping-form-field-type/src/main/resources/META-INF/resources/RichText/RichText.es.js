@@ -17,6 +17,21 @@ import React, {useEffect, useRef, useState} from 'react';
 
 import {FieldBase} from '../FieldBase/ReactFieldBase.es';
 
+const getCurrentValue = ({predefinedValue, previousPredefinedValue, value}) => {
+	let currentValue = value;
+
+	if (predefinedValue) {
+		currentValue = predefinedValue;
+
+		previousPredefinedValue.current = predefinedValue;
+	}
+	else if (previousPredefinedValue.current) {
+		currentValue = '';
+	}
+
+	return currentValue;
+};
+
 const RichText = ({
 	editingLanguageId,
 	editorConfig,
@@ -46,7 +61,13 @@ const RichText = ({
 		}
 	}, [editingLanguageId, editorRef]);
 
-	const currentValue = value ?? predefinedValue;
+	const previousPredefinedValue = useRef(predefinedValue);
+
+	const currentValue = getCurrentValue({
+		predefinedValue,
+		previousPredefinedValue,
+		value,
+	});
 
 	return (
 		<FieldBase
