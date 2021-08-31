@@ -100,16 +100,14 @@ public class AlloyEditorCreoleConfigContributor
 
 		String removePlugins = jsonObject.getString("removePlugins");
 
-		StringBundler sb = new StringBundler(4);
-
-		sb.append("ae_dragresize,ae_tableresize,bidi,div,font,forms,");
-		sb.append("indentblock,justify,keystrokes,maximize,newpage,pagebreak,");
-		sb.append("preview,print,save,showblocks,smiley,stylescombo,");
-		sb.append("templates,video");
-
 		jsonObject.put(
 			"removePlugins",
-			StringBundler.concat(removePlugins, ",", sb.toString())
+			StringBundler.concat(
+				removePlugins,
+				",ae_dragresize,ae_tableresize,bidi,div,font,forms,",
+				"indentblock,justify,keystrokes,maximize,newpage,pagebreak,",
+				"preview,print,save,showblocks,smiley,stylescombo,templates,",
+				"video")
 		).put(
 			"toolbars", getToolbarsJSONObject(themeDisplay.getLocale())
 		);
@@ -118,17 +116,16 @@ public class AlloyEditorCreoleConfigContributor
 	protected JSONObject getStyleFormatJSONObject(
 		String styleFormatName, String element, int type) {
 
-		JSONObject jsonObject = JSONUtil.put("name", styleFormatName);
-
-		jsonObject.put(
+		return JSONUtil.put(
+			"name", styleFormatName
+		).put(
 			"style",
 			JSONUtil.put(
 				"element", element
 			).put(
 				"type", type
-			));
-
-		return jsonObject;
+			)
+		);
 	}
 
 	protected JSONArray getStyleFormatsJSONArray(Locale locale) {

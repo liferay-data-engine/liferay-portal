@@ -16,6 +16,8 @@ package com.liferay.headless.admin.batch.planner.resource.v1_0;
 
 import com.liferay.headless.admin.batch.planner.dto.v1_0.Plan;
 import com.liferay.portal.kernel.service.GroupLocalService;
+import com.liferay.portal.kernel.service.ResourceActionLocalService;
+import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
 import com.liferay.portal.vulcan.pagination.Page;
@@ -28,7 +30,6 @@ import javax.annotation.Generated;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.osgi.annotation.versioning.ProviderType;
@@ -51,13 +52,13 @@ public interface PlanResource {
 
 	public Page<Plan> getPlansPage(Pagination pagination) throws Exception;
 
-	public Plan postPlan(String fieldNameMapping, Plan plan) throws Exception;
+	public Plan postPlan(Plan plan) throws Exception;
 
-	public Response deletePlan(Long id) throws Exception;
+	public void deletePlan(Long planId) throws Exception;
 
-	public Plan getPlan(Long id) throws Exception;
+	public Plan getPlan(Long planId) throws Exception;
 
-	public Response patchPlan(Long id, Plan plan) throws Exception;
+	public Plan patchPlan(Long planId, Plan plan) throws Exception;
 
 	public default void setContextAcceptLanguage(
 		AcceptLanguage contextAcceptLanguage) {
@@ -82,6 +83,12 @@ public interface PlanResource {
 
 	public void setGroupLocalService(GroupLocalService groupLocalService);
 
+	public void setResourceActionLocalService(
+		ResourceActionLocalService resourceActionLocalService);
+
+	public void setResourcePermissionLocalService(
+		ResourcePermissionLocalService resourcePermissionLocalService);
+
 	public void setRoleLocalService(RoleLocalService roleLocalService);
 
 	public static class FactoryHolder {
@@ -99,6 +106,9 @@ public interface PlanResource {
 
 		public Builder httpServletRequest(
 			HttpServletRequest httpServletRequest);
+
+		public Builder httpServletResponse(
+			HttpServletResponse httpServletResponse);
 
 		public Builder preferredLocale(Locale preferredLocale);
 

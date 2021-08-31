@@ -15,8 +15,10 @@
 package com.liferay.portal.workflow.metrics.search.index;
 
 import com.liferay.portal.search.document.Document;
+import com.liferay.portal.workflow.metrics.model.Assignment;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -27,7 +29,7 @@ public interface TaskWorkflowMetricsIndexer {
 
 	public Document addTask(
 		Map<Locale, String> assetTitleMap, Map<Locale, String> assetTypeMap,
-		Long[] assigneeIds, String assigneeType, String className, long classPK,
+		List<Assignment> assignments, String className, long classPK,
 		long companyId, boolean completed, Date completionDate,
 		Long completionUserId, Date createDate, boolean instanceCompleted,
 		Date instanceCompletionDate, long instanceId, Date modifiedDate,
@@ -42,7 +44,7 @@ public interface TaskWorkflowMetricsIndexer {
 
 	public Document updateTask(
 		Map<Locale, String> assetTitleMap, Map<Locale, String> assetTypeMap,
-		Long[] assigneeIds, String assigneeType, long companyId,
-		Date modifiedDate, long taskId, long userId);
+		List<Assignment> assignments, long companyId, Date modifiedDate,
+		long taskId, long userId);
 
 }

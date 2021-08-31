@@ -330,16 +330,12 @@ public class DDMFormFieldTemplateContextFactory {
 	protected String getAffixedDDMFormFieldParameterName(
 		String ddmFormFieldParameterName) {
 
-		StringBundler sb = new StringBundler(5);
-
-		sb.append(_ddmFormRenderingContext.getPortletNamespace());
-		sb.append(DDMFormRendererConstants.DDM_FORM_FIELD_NAME_PREFIX);
-		sb.append(ddmFormFieldParameterName);
-		sb.append(
-			DDMFormRendererConstants.DDM_FORM_FIELD_LANGUAGE_ID_SEPARATOR);
-		sb.append(LocaleUtil.toLanguageId(_locale));
-
-		return sb.toString();
+		return StringBundler.concat(
+			_ddmFormRenderingContext.getPortletNamespace(),
+			DDMFormRendererConstants.DDM_FORM_FIELD_NAME_PREFIX,
+			ddmFormFieldParameterName,
+			DDMFormRendererConstants.DDM_FORM_FIELD_LANGUAGE_ID_SEPARATOR,
+			LocaleUtil.toLanguageId(_locale));
 	}
 
 	protected Map<String, Object> getChangedProperties(
@@ -724,7 +720,7 @@ public class DDMFormFieldTemplateContextFactory {
 		Map<String, Object> changedProperties,
 		Map<String, Object> ddmFormFieldTemplateContext, Value value) {
 
-		if (Validator.isNotNull(changedProperties.get("value"))) {
+		if (changedProperties.get("value") != null) {
 			ddmFormFieldTemplateContext.put(
 				"value", changedProperties.get("value"));
 

@@ -14,6 +14,9 @@
 
 package com.liferay.taglib.aui.base;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 
@@ -31,6 +34,10 @@ public abstract class BaseInputTag extends com.liferay.taglib.BaseValidatorTagSu
 		setAttributeNamespace(_ATTRIBUTE_NAMESPACE);
 
 		return super.doStartTag();
+	}
+
+	public List<String> getActiveLanguageIds() {
+		return _activeLanguageIds;
 	}
 
 	public boolean getAutoFocus() {
@@ -239,6 +246,18 @@ public abstract class BaseInputTag extends com.liferay.taglib.BaseValidatorTagSu
 
 	public java.lang.String getWrapperCssClass() {
 		return _wrapperCssClass;
+	}
+
+	public boolean isAdminMode() {
+		return _adminMode;
+	}
+
+	public void setActiveLanguageIds(List<String> activeLanguageIds) {
+		_activeLanguageIds = activeLanguageIds;
+	}
+
+	public void setAdminMode(boolean adminMode) {
+		_adminMode = adminMode;
 	}
 
 	public void setAutoFocus(boolean autoFocus) {
@@ -453,6 +472,8 @@ public abstract class BaseInputTag extends com.liferay.taglib.BaseValidatorTagSu
 	protected void cleanUp() {
 		super.cleanUp();
 
+		_activeLanguageIds = new ArrayList<>();
+		_adminMode = false;
 		_autoFocus = false;
 		_autoSize = false;
 		_bean = null;
@@ -514,6 +535,8 @@ public abstract class BaseInputTag extends com.liferay.taglib.BaseValidatorTagSu
 
 	@Override
 	protected void setAttributes(HttpServletRequest request) {
+		setNamespacedAttribute(request, "activeLanguageIds", _activeLanguageIds);
+		setNamespacedAttribute(request, "adminMode", _adminMode);
 		setNamespacedAttribute(request, "autoFocus", _autoFocus);
 		setNamespacedAttribute(request, "autoSize", _autoSize);
 		setNamespacedAttribute(request, "bean", _bean);
@@ -573,6 +596,8 @@ public abstract class BaseInputTag extends com.liferay.taglib.BaseValidatorTagSu
 	private static final String _PAGE =
 		"/html/taglib/aui/input/page.jsp";
 
+	private List<String> _activeLanguageIds = new ArrayList<>();
+	private boolean _adminMode = false;
 	private boolean _autoFocus = false;
 	private boolean _autoSize = false;
 	private java.lang.Object _bean = null;

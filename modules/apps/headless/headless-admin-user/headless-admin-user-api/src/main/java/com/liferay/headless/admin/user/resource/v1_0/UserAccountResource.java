@@ -18,6 +18,8 @@ import com.liferay.headless.admin.user.dto.v1_0.UserAccount;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.search.filter.Filter;
 import com.liferay.portal.kernel.service.GroupLocalService;
+import com.liferay.portal.kernel.service.ResourceActionLocalService;
+import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
 import com.liferay.portal.vulcan.pagination.Page;
@@ -50,6 +52,18 @@ public interface UserAccountResource {
 	public static Builder builder() {
 		return FactoryHolder.factory.create();
 	}
+
+	public void
+			deleteAccountByExternalReferenceCodeUserAccountByExternalReferenceCode(
+				String accountExternalReferenceCode,
+				String userAccountExternalReferenceCode)
+		throws Exception;
+
+	public void
+			postAccountByExternalReferenceCodeUserAccountByExternalReferenceCode(
+				String accountExternalReferenceCode,
+				String userAccountExternalReferenceCode)
+		throws Exception;
 
 	public Page<UserAccount> getAccountUserAccountsByExternalReferenceCodePage(
 			String externalReferenceCode, String search, Filter filter,
@@ -93,15 +107,15 @@ public interface UserAccountResource {
 			Long accountId, String[] strings)
 		throws Exception;
 
-	public void postAccountUserAccountsByEmailAddress(
-			Long accountId, String[] strings)
+	public Page<UserAccount> postAccountUserAccountsByEmailAddress(
+			Long accountId, String accountRoleIds, String[] strings)
 		throws Exception;
 
 	public void deleteAccountUserAccountByEmailAddress(
 			Long accountId, String emailAddress)
 		throws Exception;
 
-	public void postAccountUserAccountByEmailAddress(
+	public UserAccount postAccountUserAccountByEmailAddress(
 			Long accountId, String emailAddress)
 		throws Exception;
 
@@ -180,6 +194,12 @@ public interface UserAccountResource {
 
 	public void setGroupLocalService(GroupLocalService groupLocalService);
 
+	public void setResourceActionLocalService(
+		ResourceActionLocalService resourceActionLocalService);
+
+	public void setResourcePermissionLocalService(
+		ResourcePermissionLocalService resourcePermissionLocalService);
+
 	public void setRoleLocalService(RoleLocalService roleLocalService);
 
 	public static class FactoryHolder {
@@ -197,6 +217,9 @@ public interface UserAccountResource {
 
 		public Builder httpServletRequest(
 			HttpServletRequest httpServletRequest);
+
+		public Builder httpServletResponse(
+			HttpServletResponse httpServletResponse);
 
 		public Builder preferredLocale(Locale preferredLocale);
 

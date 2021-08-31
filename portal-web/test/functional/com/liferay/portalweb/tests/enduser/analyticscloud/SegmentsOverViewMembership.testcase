@@ -2,9 +2,11 @@
 definition {
 
 	property analytics.cloud.enabled = "true";
-	property minimum.slave.ram = "32";
+	property custom.properties = "jsonws.web.service.paths.excludes=";
+	property minimum.slave.ram = "24";
 	property portal.release = "false";
 	property portal.upstream = "true";
+	property slave.label = "slave-1";
 	property testray.main.component.name = "Analytics Cloud";
 
 	setUp {
@@ -15,6 +17,23 @@ definition {
 		TestCase.setUpPortalInstance();
 
 		ACUtils.launchDXP();
+
+		task ("Add a new site with a public widget page") {
+			ACUtils.addSiteAndPage();
+		}
+
+		task ("Add a new user") {
+			JSONUser.addUser(
+				userEmailAddress = "userea@liferay.com",
+				userFirstName = "userfn",
+				userLastName = "userln",
+				userScreenName = "usersn");
+
+			JSONUser.setFirstPassword(
+				agreeToTermsAndAnswerReminderQuery = "true",
+				requireReset = "false",
+				userEmailAddress = "userea@liferay.com");
+		}
 	}
 
 	tearDown {
@@ -30,21 +49,176 @@ definition {
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8490 | Test Summary: Order a Dynamic Segment's Membership Preview Modal"
-	@ignore = "true"
 	@priority = "3"
-	test OrderDynamicSegmentMembershipPreview.feature {
+	test OrderDynamicSegmentMembershipPreview {
+		property portal.upstream = "quarantine";
 
-		// TODO LRAC-8490 PENDING IMPLEMENTATION
+		// AC Refactor: members are not appearing
+		// AC Refactor ticket: LRAC-8767
 
+		task ("Add 3 new users") {
+			for (var n : list "1,2,3") {
+				JSONUser.addUser(
+					userEmailAddress = "user${n}@liferay.com",
+					userFirstName = "user${n}",
+					userLastName = "user${n}",
+					userScreenName = "user${n}");
+
+				JSONUser.setFirstPassword(
+					agreeToTermsAndAnswerReminderQuery = "true",
+					requireReset = "false",
+					userEmailAddress = "user${n}@liferay.com");
+			}
+		}
+
+		task ("Sync the Contact Data") {
+			ACDXPSettings.syncNewContactData();
+		}
+
+		task ("Get site assigned property name") {
+			var propertyName = ACDXPSettings.getAssignedPropertyName(siteName = "Site Name");
+		}
+
+		task ("View the page as different users") {
+			for (var username : list "userea,user1") {
+				if ("${username}" == "userea") {
+					var fullName = "userfn userln";
+				}
+
+				else {
+					var fullName = "${username} ${username}";
+				}
+
+				User.logoutAndLoginPG(
+					userLoginEmailAddress = "${username}@liferay.com",
+					userLoginFullName = "${fullName}");
+
+				Navigator.gotoSitePage(
+					pageName = "AC Page",
+					siteName = "Site Name");
+			}
+		}
+
+		task ("Switch to new property in AC") {
+			ACUtils.launchAC();
+
+			ACProperties.switchProperty(propertyName = "${propertyName}");
+		}
+
+		task ("Add a new dynamic segment") {
+			ACNavigation.goToSegments();
+
+			ACSegments.createDynamicSegment();
+
+			ACSegments.nameSegment(segmentName = "Dynamic Segment Test");
+		}
+
+		task ("Add a criteria") {
+			ACSegments.goToSidebarAttributes(criterion = "Individual Attributes");
+
+			ACSegments.addSegmentField(segmentField = "givenName");
+
+			ACSegments.selectOperator(operator = "contains");
+
+			ACSegments.editTextCriterion(textInput = "user");
+		}
+
+		task ("View members in Preview mode and order by name descending") {
+			ACSegments.previewSegmentMembership();
+
+			ACSegments.filterKnownSegmentMembersList();
+
+			for (var username : list "userfn userln,user1 user1,user2 user2,user3 user3") {
+				ACSegments.viewKnownSegmentMembersSpecificOrder(username = "${username}");
+
+				// Fails here due to LRAC-8722, needs refactor after bug is fixed
+
+			}
+
+			Click.mouseDownMouseUp(locator1 = "Modal#CLOSE_BUTTON");
+		}
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8486 | Test Summary: Membership card exists and shows members added"
-	@ignore = "true"
 	@priority = "5"
 	test ViewMembershipCardExistsShowsMembersAdded {
+		property portal.upstream = "quarantine";
 
-		// TODO LRAC-8486 PENDING IMPLEMENTATION
+		// AC Refactor: members are not appearing
+		// AC Refactor ticket: LRAC-8818
 
+		var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
+
+		task ("Add a new user in DXP") {
+			JSONUser.addUser(
+				userEmailAddress = "user1@liferay.com",
+				userFirstName = "user1",
+				userLastName = "user1",
+				userScreenName = "user1");
+
+			JSONUser.setFirstPassword(
+				agreeToTermsAndAnswerReminderQuery = "true",
+				requireReset = "false",
+				userEmailAddress = "user1@liferay.com");
+		}
+
+		task ("Sync the Contact Data") {
+			ACDXPSettings.syncNewContactData();
+		}
+
+		task ("Sign in as new user and view the site page") {
+			User.logoutAndLoginPG(
+				userLoginEmailAddress = "user1@liferay.com",
+				userLoginFullName = "user1 user1");
+
+			Navigator.gotoSitePage(
+				pageName = "AC Page",
+				siteName = "Site Name");
+		}
+
+		task ("Close sessions") {
+			ACUtils.closeAllSessionsAndWait();
+		}
+
+		task ("Switch to new property in AC") {
+			ACUtils.launchAC();
+
+			ACProperties.switchProperty(propertyName = "${propertyName}");
+		}
+
+		task ("Add a new dynamic segment") {
+			ACNavigation.goToSegments();
+
+			ACSegments.createDynamicSegment();
+
+			ACSegments.nameSegment(segmentName = "Dynamic Segment Test");
+
+			ACSegments.goToSidebarAttributes(criterion = "Individual Attributes");
+
+			ACSegments.addSegmentField(segmentField = "givenName");
+
+			ACSegments.selectOperator(operator = "contains");
+
+			ACSegments.editTextCriterion(textInput = "user");
+
+			ACSegments.saveSegment();
+		}
+
+		task ("Assert Membership card exists") {
+			AssertTextPresent(
+				locator1 = "ACSegments#SEGMENT_MEMBERSHIP_CARD",
+				value1 = "Segment Membership");
+		}
+
+		task ("Show members added") {
+			ACSegments.viewSegmentMembershipLegendNumbers(
+				anonymousNumber = "0",
+				knownNumber = "1",
+				totalNumber = "1");
+
+			// Fails here due to members not showing in segments
+
+		}
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8489 | Test Summary: Points on membership card can be hovered for more details"

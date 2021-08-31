@@ -37,13 +37,14 @@ import com.liferay.portal.configuration.metatype.annotations.ExtendedObjectClass
 public interface CASConfiguration {
 
 	@Meta.AD(
-		deflt = "false", description = "enabled-help", name = "enabled",
+		deflt = "false", description = "enabled-help[cas]", name = "enabled",
 		required = false
 	)
 	public boolean enabled();
 
 	@Meta.AD(
-		deflt = "false", description = "import-from-ldap-help",
+		deflt = "false",
+		description = "a-user-may-be-authenticated-by-cas-and-not-yet-exist-in-the-portal",
 		name = "import-from-ldap", required = false
 	)
 	public boolean importFromLDAP();

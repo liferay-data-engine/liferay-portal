@@ -25,9 +25,14 @@ import com.liferay.object.internal.security.permission.resource.ObjectEntryModel
 import com.liferay.object.internal.security.permission.resource.ObjectEntryPortletResourcePermissionLogic;
 import com.liferay.object.internal.workflow.ObjectEntryWorkflowHandler;
 import com.liferay.object.model.ObjectDefinition;
+import com.liferay.object.scope.ObjectScopeProviderRegistry;
 import com.liferay.object.service.ObjectEntryLocalService;
 import com.liferay.object.service.ObjectFieldLocalService;
 import com.liferay.petra.reflect.ReflectionUtil;
+import com.liferay.portal.kernel.messaging.Destination;
+import com.liferay.portal.kernel.messaging.DestinationConfiguration;
+import com.liferay.portal.kernel.messaging.DestinationFactory;
+import com.liferay.portal.kernel.messaging.MessageBus;
 import com.liferay.portal.kernel.security.permission.ResourceActions;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.security.permission.resource.PortletResourcePermission;
@@ -57,22 +62,27 @@ import org.osgi.framework.ServiceRegistration;
 public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 
 	public ObjectDefinitionDeployerImpl(
-		BundleContext bundleContext,
+		BundleContext bundleContext, DestinationFactory destinationFactory,
 		DynamicQueryBatchIndexingActionableFactory
 			dynamicQueryBatchIndexingActionableFactory,
+		MessageBus messageBus,
 		ModelSearchRegistrarHelper modelSearchRegistrarHelper,
 		ObjectEntryLocalService objectEntryLocalService,
 		ObjectFieldLocalService objectFieldLocalService,
+		ObjectScopeProviderRegistry objectScopeProviderRegistry,
 		PersistedModelLocalServiceRegistry persistedModelLocalServiceRegistry,
 		ResourceActions resourceActions,
 		ModelPreFilterContributor workflowStatusModelPreFilterContributor) {
 
 		_bundleContext = bundleContext;
+		_destinationFactory = destinationFactory;
 		_dynamicQueryBatchIndexingActionableFactory =
 			dynamicQueryBatchIndexingActionableFactory;
+		_messageBus = messageBus;
 		_modelSearchRegistrarHelper = modelSearchRegistrarHelper;
 		_objectEntryLocalService = objectEntryLocalService;
 		_objectFieldLocalService = objectFieldLocalService;
+		_objectScopeProviderRegistry = objectScopeProviderRegistry;
 		_persistedModelLocalServiceRegistry =
 			persistedModelLocalServiceRegistry;
 		_resourceActions = resourceActions;
@@ -93,6 +103,10 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 			return ReflectionUtil.throwException(exception);
 		}
 
+		Destination destination = _destinationFactory.createDestination(
+			new DestinationConfiguration(
+				DestinationConfiguration.DESTINATION_TYPE_SERIAL,
+				objectDefinition.getDestinationName()));
 		ObjectEntryModelIndexerWriterContributor
 			objectEntryModelIndexerWriterContributor =
 				new ObjectEntryModelIndexerWriterContributor(
@@ -105,9 +119,15 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 
 		return Arrays.asList(
 			_bundleContext.registerService(
+				Destination.class, destination,
+				HashMapDictionaryBuilder.<String, Object>put(
+					"destination.name", destination.getName()
+				).build()),
+			_bundleContext.registerService(
 				InfoCollectionProvider.class,
 				new ObjectEntrySingleFormVariationInfoCollectionProvider(
-					objectDefinition, _objectEntryLocalService),
+					objectDefinition, _objectEntryLocalService,
+					_objectFieldLocalService, _objectScopeProviderRegistry),
 				null),
 			_bundleContext.registerService(
 				KeywordQueryContributor.class,
@@ -170,6 +190,13 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 
 	@Override
 	public void undeploy(ObjectDefinition objectDefinition) {
+		Destination destination = _messageBus.getDestination(
+			objectDefinition.getDestinationName());
+
+		if (destination != null) {
+			destination.destroy();
+		}
+
 		_persistedModelLocalServiceRegistry.unregister(
 			objectDefinition.getClassName());
 	}
@@ -195,11 +222,14 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 	}
 
 	private final BundleContext _bundleContext;
+	private final DestinationFactory _destinationFactory;
 	private final DynamicQueryBatchIndexingActionableFactory
 		_dynamicQueryBatchIndexingActionableFactory;
+	private final MessageBus _messageBus;
 	private final ModelSearchRegistrarHelper _modelSearchRegistrarHelper;
 	private final ObjectEntryLocalService _objectEntryLocalService;
 	private final ObjectFieldLocalService _objectFieldLocalService;
+	private final ObjectScopeProviderRegistry _objectScopeProviderRegistry;
 	private final PersistedModelLocalServiceRegistry
 		_persistedModelLocalServiceRegistry;
 	private final ResourceActions _resourceActions;

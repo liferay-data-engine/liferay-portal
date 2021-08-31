@@ -14,6 +14,7 @@
 
 package com.liferay.fragment.util.configuration;
 
+import com.liferay.fragment.constants.FragmentConfigurationFieldDataType;
 import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONObject;
 
@@ -32,6 +33,10 @@ public interface FragmentEntryConfigurationParser {
 
 	public JSONObject getConfigurationDefaultValuesJSONObject(
 		String configuration);
+
+	public Object getConfigurationFieldValue(
+		String editableValues, String fieldName,
+		FragmentConfigurationFieldDataType fragmentConfigurationFieldDataType);
 
 	/**
 	 * @deprecated As of Cavanaugh (7.4.x), replaced by {@link

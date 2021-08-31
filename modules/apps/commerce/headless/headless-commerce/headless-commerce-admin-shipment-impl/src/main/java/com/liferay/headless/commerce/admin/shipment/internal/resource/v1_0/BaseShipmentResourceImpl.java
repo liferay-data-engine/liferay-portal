@@ -16,6 +16,7 @@ package com.liferay.headless.commerce.admin.shipment.internal.resource.v1_0;
 
 import com.liferay.headless.commerce.admin.shipment.dto.v1_0.Shipment;
 import com.liferay.headless.commerce.admin.shipment.resource.v1_0.ShipmentResource;
+import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.portal.kernel.model.GroupedModel;
 import com.liferay.portal.kernel.search.Sort;
@@ -329,8 +330,11 @@ public abstract class BaseShipmentResourceImpl
 			Map<String, Serializable> parameters)
 		throws Exception {
 
+		UnsafeConsumer<Shipment, Exception> shipmentUnsafeConsumer =
+			shipment -> postShipment(shipment);
+
 		for (Shipment shipment : shipments) {
-			postShipment(shipment);
+			shipmentUnsafeConsumer.accept(shipment);
 		}
 	}
 
@@ -432,6 +436,18 @@ public abstract class BaseShipmentResourceImpl
 
 	public void setGroupLocalService(GroupLocalService groupLocalService) {
 		this.groupLocalService = groupLocalService;
+	}
+
+	public void setResourceActionLocalService(
+		ResourceActionLocalService resourceActionLocalService) {
+
+		this.resourceActionLocalService = resourceActionLocalService;
+	}
+
+	public void setResourcePermissionLocalService(
+		ResourcePermissionLocalService resourcePermissionLocalService) {
+
+		this.resourcePermissionLocalService = resourcePermissionLocalService;
 	}
 
 	public void setRoleLocalService(RoleLocalService roleLocalService) {

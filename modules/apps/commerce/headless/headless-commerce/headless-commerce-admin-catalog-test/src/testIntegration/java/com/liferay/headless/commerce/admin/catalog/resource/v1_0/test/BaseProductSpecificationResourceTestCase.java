@@ -33,7 +33,6 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
-import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
@@ -427,6 +426,14 @@ public abstract class BaseProductSpecificationResourceTestCase {
 		for (String additionalAssertFieldName :
 				getAdditionalAssertFieldNames()) {
 
+			if (Objects.equals("label", additionalAssertFieldName)) {
+				if (productSpecification.getLabel() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
 			if (Objects.equals("optionCategoryId", additionalAssertFieldName)) {
 				if (productSpecification.getOptionCategoryId() == null) {
 					valid = false;
@@ -573,6 +580,17 @@ public abstract class BaseProductSpecificationResourceTestCase {
 				if (!Objects.deepEquals(
 						productSpecification1.getId(),
 						productSpecification2.getId())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("label", additionalAssertFieldName)) {
+				if (!equals(
+						(Map)productSpecification1.getLabel(),
+						(Map)productSpecification2.getLabel())) {
 
 					return false;
 				}
@@ -743,6 +761,11 @@ public abstract class BaseProductSpecificationResourceTestCase {
 		sb.append(" ");
 
 		if (entityFieldName.equals("id")) {
+			throw new IllegalArgumentException(
+				"Invalid entity field " + entityFieldName);
+		}
+
+		if (entityFieldName.equals("label")) {
 			throw new IllegalArgumentException(
 				"Invalid entity field " + entityFieldName);
 		}
@@ -929,8 +952,8 @@ public abstract class BaseProductSpecificationResourceTestCase {
 
 	}
 
-	private static final Log _log = LogFactoryUtil.getLog(
-		BaseProductSpecificationResourceTestCase.class);
+	private static final com.liferay.portal.kernel.log.Log _log =
+		LogFactoryUtil.getLog(BaseProductSpecificationResourceTestCase.class);
 
 	private static BeanUtilsBean _beanUtilsBean = new BeanUtilsBean() {
 

@@ -37,6 +37,7 @@ import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.document.library.kernel.model.DLVersionNumberIncrease;
 import com.liferay.document.library.kernel.store.DLStoreUtil;
 import com.liferay.document.library.kernel.util.DL;
+import com.liferay.document.library.kernel.util.DLAppHelperThreadLocal;
 import com.liferay.document.library.kernel.util.DLUtil;
 import com.liferay.document.library.kernel.util.DLValidatorUtil;
 import com.liferay.document.library.kernel.util.comparator.RepositoryModelModifiedDateComparator;
@@ -550,9 +551,7 @@ public class DLFileEntryLocalServiceImpl
 	}
 
 	@Override
-	public void convertExtraSettings(final String[] keys)
-		throws PortalException {
-
+	public void convertExtraSettings(String[] keys) throws PortalException {
 		int total = dlFileEntryFinder.countByExtraSettings();
 
 		IntervalActionProcessor<Void> intervalActionProcessor =
@@ -659,11 +658,10 @@ public class DLFileEntryLocalServiceImpl
 
 	@Override
 	public void deleteFileEntries(
-			long groupId, final long folderId,
-			final boolean includeTrashedEntries)
+			long groupId, long folderId, boolean includeTrashedEntries)
 		throws PortalException {
 
-		final RepositoryEventTrigger repositoryEventTrigger =
+		RepositoryEventTrigger repositoryEventTrigger =
 			getFolderRepositoryEventTrigger(groupId, folderId);
 
 		ActionableDynamicQuery actionableDynamicQuery =
@@ -928,12 +926,12 @@ public class DLFileEntryLocalServiceImpl
 	public void deleteRepositoryFileEntries(long repositoryId)
 		throws PortalException {
 
-		final RepositoryEventTrigger repositoryEventTrigger =
+		RepositoryEventTrigger repositoryEventTrigger =
 			RepositoryUtil.getRepositoryEventTrigger(repositoryId);
 
 		int total = dlFileEntryPersistence.countByRepositoryId(repositoryId);
 
-		final IntervalActionProcessor<Void> intervalActionProcessor =
+		IntervalActionProcessor<Void> intervalActionProcessor =
 			new IntervalActionProcessor<>(total);
 
 		intervalActionProcessor.setPerformIntervalActionMethod(
@@ -965,16 +963,15 @@ public class DLFileEntryLocalServiceImpl
 
 	@Override
 	public void deleteRepositoryFileEntries(
-			final long repositoryId, final long folderId,
-			final boolean includeTrashedEntries)
+			long repositoryId, long folderId, boolean includeTrashedEntries)
 		throws PortalException {
 
-		final RepositoryEventTrigger repositoryEventTrigger =
+		RepositoryEventTrigger repositoryEventTrigger =
 			RepositoryUtil.getRepositoryEventTrigger(repositoryId);
 
 		int total = dlFileEntryPersistence.countByR_F(repositoryId, folderId);
 
-		final IntervalActionProcessor<Void> intervalActionProcessor =
+		IntervalActionProcessor<Void> intervalActionProcessor =
 			new IntervalActionProcessor<>(total);
 
 		intervalActionProcessor.setPerformIntervalActionMethod(
@@ -1591,18 +1588,12 @@ public class DLFileEntryLocalServiceImpl
 		}
 
 		String sourceFileName = dlFileVersion.getFileName();
-		String extension = dlFileVersion.getExtension();
-		String mimeType = dlFileVersion.getMimeType();
-		String title = dlFileVersion.getTitle();
-		String description = dlFileVersion.getDescription();
 		String changeLog = LanguageUtil.format(
 			serviceContext.getLocale(), "reverted-to-x", version, false);
 		DLVersionNumberIncrease dlVersionNumberIncrease =
 			DLVersionNumberIncrease.MAJOR;
-		String extraSettings = dlFileVersion.getExtraSettings();
 		Map<String, DDMFormValues> ddmFormValuesMap = null;
 		InputStream inputStream = getFileAsStream(fileEntryId, version, false);
-		long size = dlFileVersion.getSize();
 
 		serviceContext.setCommand(Constants.REVERT);
 
@@ -1613,9 +1604,11 @@ public class DLFileEntryLocalServiceImpl
 			dlFileVersion.getFileEntryTypeId(), dlFileEntry);
 
 		updateFileEntry(
-			userId, fileEntryId, sourceFileName, extension, mimeType, title,
-			description, changeLog, dlVersionNumberIncrease, extraSettings,
-			fileEntryTypeId, ddmFormValuesMap, null, inputStream, size,
+			userId, fileEntryId, sourceFileName, dlFileVersion.getExtension(),
+			dlFileVersion.getMimeType(), dlFileVersion.getTitle(),
+			dlFileVersion.getDescription(), changeLog, dlVersionNumberIncrease,
+			dlFileVersion.getExtraSettings(), fileEntryTypeId, ddmFormValuesMap,
+			null, inputStream, dlFileVersion.getSize(),
 			dlFileVersion.getExpirationDate(), dlFileVersion.getReviewDate(),
 			serviceContext);
 
@@ -1679,8 +1672,7 @@ public class DLFileEntryLocalServiceImpl
 	}
 
 	@Override
-	public void setTreePaths(
-			final long folderId, final String treePath, final boolean reindex)
+	public void setTreePaths(long folderId, String treePath, boolean reindex)
 		throws PortalException {
 
 		if (treePath == null) {
@@ -2711,6 +2703,10 @@ public class DLFileEntryLocalServiceImpl
 
 	protected void validateFileExtension(String fileName, String extension)
 		throws PortalException {
+
+		if (!DLAppHelperThreadLocal.isEnabled()) {
+			return;
+		}
 
 		DLValidatorUtil.validateFileExtension(fileName);
 

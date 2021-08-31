@@ -284,19 +284,12 @@ public class ScreensAssetEntryServiceImpl
 	}
 
 	protected String getFileEntryPreviewURL(FileEntry fileEntry) {
-		StringBundler sb = new StringBundler(9);
-
-		sb.append(_portal.getPathContext());
-		sb.append("/documents/");
-		sb.append(fileEntry.getRepositoryId());
-		sb.append(StringPool.SLASH);
-		sb.append(fileEntry.getFolderId());
-		sb.append(StringPool.SLASH);
-		sb.append(URLCodec.encodeURL(HtmlUtil.unescape(fileEntry.getTitle())));
-		sb.append(StringPool.SLASH);
-		sb.append(fileEntry.getUuid());
-
-		return sb.toString();
+		return StringBundler.concat(
+			_portal.getPathContext(), "/documents/",
+			fileEntry.getRepositoryId(), StringPool.SLASH,
+			fileEntry.getFolderId(), StringPool.SLASH,
+			URLCodec.encodeURL(HtmlUtil.unescape(fileEntry.getTitle())),
+			StringPool.SLASH, fileEntry.getUuid());
 	}
 
 	protected JSONObject getJournalArticleJSONObject(AssetEntry assetEntry)
@@ -325,16 +318,15 @@ public class ScreensAssetEntryServiceImpl
 				journalArticleResource.getArticleId());
 		}
 
+		JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
+			JSONFactoryUtil.looseSerialize(journalArticle));
+
 		JSONObject journalArticleJSONObject = JSONUtil.put(
 			"DDMStructure",
 			JSONFactoryUtil.createJSONObject(
 				JSONFactoryUtil.looseSerialize(
-					journalArticle.getDDMStructure())));
-
-		JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
-			JSONFactoryUtil.looseSerialize(journalArticle));
-
-		journalArticleJSONObject.put(
+					journalArticle.getDDMStructure()))
+		).put(
 			"modelAttributes", jsonObject
 		).put(
 			"modelValues", jsonObject.getString("content")

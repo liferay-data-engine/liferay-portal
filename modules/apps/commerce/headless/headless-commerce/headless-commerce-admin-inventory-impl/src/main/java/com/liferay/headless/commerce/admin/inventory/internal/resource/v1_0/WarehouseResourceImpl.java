@@ -69,7 +69,7 @@ public class WarehouseResourceImpl
 
 		if (commerceInventoryWarehouse == null) {
 			throw new NoSuchInventoryWarehouseException(
-				"Unable to find Warehouse with externalReferenceCode: " +
+				"Unable to find warehouse with external reference code " +
 					externalReferenceCode);
 		}
 
@@ -108,7 +108,7 @@ public class WarehouseResourceImpl
 
 		if (commerceInventoryWarehouse == null) {
 			throw new NoSuchInventoryWarehouseException(
-				"Unable to find Warehouse with externalReferenceCode: " +
+				"Unable to find warehouse with external reference code " +
 					externalReferenceCode);
 		}
 
@@ -166,7 +166,7 @@ public class WarehouseResourceImpl
 
 		if (commerceInventoryWarehouse == null) {
 			throw new NoSuchInventoryWarehouseException(
-				"Unable to find Warehouse with externalReferenceCode: " +
+				"Unable to find warehouse with external reference code " +
 					externalReferenceCode);
 		}
 
@@ -249,7 +249,6 @@ public class WarehouseResourceImpl
 			for (WarehouseItem warehouseItem : warehouseItems) {
 				_commerceInventoryWarehouseItemService.
 					addOrUpdateCommerceInventoryWarehouseItem(
-						contextUser.getUserId(),
 						commerceInventoryWarehouse.
 							getCommerceInventoryWarehouseId(),
 						warehouseItem.getSku(), warehouseItem.getQuantity());

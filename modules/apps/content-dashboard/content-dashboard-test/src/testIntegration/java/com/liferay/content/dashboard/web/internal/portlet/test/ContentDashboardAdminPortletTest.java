@@ -19,6 +19,8 @@ import com.liferay.asset.kernel.model.AssetCategory;
 import com.liferay.asset.kernel.model.AssetVocabulary;
 import com.liferay.asset.kernel.service.AssetCategoryLocalService;
 import com.liferay.asset.kernel.service.AssetVocabularyLocalService;
+import com.liferay.document.library.kernel.model.DLFolderConstants;
+import com.liferay.document.library.kernel.service.DLAppLocalServiceUtil;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.model.DDMTemplate;
 import com.liferay.dynamic.data.mapping.test.util.DDMStructureTestUtil;
@@ -38,6 +40,7 @@ import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 import com.liferay.portal.kernel.portlet.bridges.mvc.constants.MVCRenderConstants;
+import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionCheckerFactoryUtil;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
@@ -61,6 +64,7 @@ import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.MimeTypesUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
@@ -601,6 +605,43 @@ public class ContentDashboardAdminPortletTest {
 			GroupTestUtil.deleteGroup(group);
 			_userLocalService.deleteUser(user);
 		}
+	}
+
+	@Test
+	public void testGetSearchContainerWithFileExtension() throws Exception {
+		JournalTestUtil.addArticle(
+			_group.getGroupId(), 0,
+			ServiceContextTestUtil.getServiceContext(
+				_group.getGroupId(), _user.getUserId(), new String[] {"tag2"}));
+
+		FileEntry gifFileEntry = _addFileEntry("gif");
+		FileEntry jpgFileEntry = _addFileEntry("jpg");
+
+		_addFileEntry("png");
+
+		MockLiferayPortletRenderRequest mockLiferayPortletRenderRequest =
+			_getMockLiferayPortletRenderRequest();
+
+		mockLiferayPortletRenderRequest.setParameter(
+			"fileExtension", new String[] {"jpg", "gif"});
+
+		SearchContainer<Object> searchContainer = _getSearchContainer(
+			mockLiferayPortletRenderRequest);
+
+		Assert.assertEquals(2, searchContainer.getTotal());
+
+		List<Object> results = searchContainer.getResults();
+
+		Assert.assertEquals(
+			jpgFileEntry.getFileName(),
+			ReflectionTestUtil.invoke(
+				results.get(0), "getTitle", new Class<?>[] {Locale.class},
+				LocaleUtil.US));
+		Assert.assertEquals(
+			gifFileEntry.getFileName(),
+			ReflectionTestUtil.invoke(
+				results.get(1), "getTitle", new Class<?>[] {Locale.class},
+				LocaleUtil.US));
 	}
 
 	@Test
@@ -1430,6 +1471,16 @@ public class ContentDashboardAdminPortletTest {
 			_assetCategoryLocalService.deleteAssetCategory(assetCategory);
 			_assetCategoryLocalService.deleteAssetCategory(childAssetCategory);
 		}
+	}
+
+	private FileEntry _addFileEntry(String fileExtension) throws Exception {
+		return DLAppLocalServiceUtil.addFileEntry(
+			RandomTestUtil.randomString(), _user.getUserId(),
+			_group.getGroupId(), DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+			RandomTestUtil.randomString() + "." + fileExtension,
+			MimeTypesUtil.getExtensionContentType(fileExtension), new byte[0],
+			null, null,
+			ServiceContextTestUtil.getServiceContext(_group.getGroupId()));
 	}
 
 	private String _getAuditGraphTitle(

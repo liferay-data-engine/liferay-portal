@@ -90,8 +90,6 @@ paths:
                                 items:
                                     $ref: "#/components/schemas/ObjectEntry"
                                 type: array
-                    description:
-                        ""
             tags: ["ObjectEntry"]
         post:
             operationId: postObjectEntry
@@ -112,8 +110,65 @@ paths:
                         application/xml:
                             schema:
                                 $ref: "#/components/schemas/ObjectEntry"
-                    description:
-                        ""
+            tags: ["ObjectEntry"]
+    "/object-entries/by-external-reference-code/{externalReferenceCode}":
+        delete:
+            operationId: deleteObjectEntryByExternalReferenceCode
+            parameters:
+                - in: path
+                  name: externalReferenceCode
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                204:
+                    content:
+                        application/json: {}
+                        application/xml: {}
+            tags: ["ObjectEntry"]
+        get:
+            operationId: getObjectEntryByExternalReferenceCode
+            parameters:
+                - in: path
+                  name: externalReferenceCode
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ObjectEntry"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/ObjectEntry"
+            tags: ["ObjectEntry"]
+        put:
+            operationId: putObjectEntryByExternalReferenceCode
+            parameters:
+                - in: path
+                  name: externalReferenceCode
+                  required: true
+                  schema:
+                      type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/ObjectEntry"
+                    application/xml:
+                        schema:
+                            $ref: "#/components/schemas/ObjectEntry"
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ObjectEntry"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/ObjectEntry"
             tags: ["ObjectEntry"]
     "/sites/{siteId}/object-entries/by-external-reference-code/{externalReferenceCode}":
         delete:
@@ -136,8 +191,6 @@ paths:
                     content:
                         application/json: {}
                         application/xml: {}
-                    description:
-                        ""
             tags: ["ObjectEntry"]
         get:
             operationId: getSiteObjectEntryByExternalReferenceCode
@@ -163,8 +216,6 @@ paths:
                         application/xml:
                             schema:
                                 $ref: "#/components/schemas/ObjectEntry"
-                    description:
-                        ""
             tags: ["ObjectEntry"]
         put:
             operationId: putSiteObjectEntryByExternalReferenceCode
@@ -198,8 +249,6 @@ paths:
                         application/xml:
                             schema:
                                 $ref: "#/components/schemas/ObjectEntry"
-                    description:
-                        ""
             tags: ["ObjectEntry"]
     "/{objectEntryId}":
         delete:
@@ -216,8 +265,6 @@ paths:
                     content:
                         application/json: {}
                         application/xml: {}
-                    description:
-                        ""
             tags: ["ObjectEntry"]
         get:
             operationId: getObjectEntry
@@ -237,8 +284,33 @@ paths:
                         application/xml:
                             schema:
                                 $ref: "#/components/schemas/ObjectEntry"
-                    description:
-                        ""
+            tags: ["ObjectEntry"]
+        patch:
+            operationId: patchObjectEntry
+            parameters:
+                - in: path
+                  name: objectEntryId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/ObjectEntry"
+                    application/xml:
+                        schema:
+                            $ref: "#/components/schemas/ObjectEntry"
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ObjectEntry"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/ObjectEntry"
             tags: ["ObjectEntry"]
         put:
             operationId: putObjectEntry
@@ -266,6 +338,4 @@ paths:
                         application/xml:
                             schema:
                                 $ref: "#/components/schemas/ObjectEntry"
-                    description:
-                        ""
             tags: ["ObjectEntry"]

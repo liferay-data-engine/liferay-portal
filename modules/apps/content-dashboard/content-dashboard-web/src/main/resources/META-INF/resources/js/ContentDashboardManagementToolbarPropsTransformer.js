@@ -96,6 +96,7 @@ export default function propsTransformer({portletNamespace, ...otherProps}) {
 	const selectContentDashboardItemSubtype = (itemData) => {
 		openSelectionModal({
 			buttonAddLabel: Liferay.Language.get('select'),
+			height: '70vh',
 			multiple: true,
 			onSelect: (selectedItems) => {
 				let redirectURL = itemData?.redirectURL;
@@ -112,8 +113,33 @@ export default function propsTransformer({portletNamespace, ...otherProps}) {
 				navigate(redirectURL);
 			},
 			selectEventName: `${portletNamespace}selectedContentDashboardItemSubtype`,
+			size: 'md',
 			title: itemData?.dialogTitle,
 			url: itemData?.selectContentDashboardItemSubtypeURL,
+		});
+	};
+
+	const selectFileExtension = (itemData) => {
+		openSelectionModal({
+			buttonAddLabel: Liferay.Language.get('select'),
+			height: '70vh',
+			multiple: true,
+			onSelect: (selectedItems) => {
+				let redirectURL = itemData?.redirectURL;
+
+				selectedItems.forEach((item) => {
+					redirectURL = addParams(
+						`${portletNamespace}fileExtension=${item}`,
+						redirectURL
+					);
+				});
+
+				navigate(redirectURL);
+			},
+			selectEventName: `${portletNamespace}selectedFileExtension`,
+			size: 'md',
+			title: itemData?.dialogTitle,
+			url: itemData?.selectFileExtensionURL,
 		});
 	};
 
@@ -155,6 +181,9 @@ export default function propsTransformer({portletNamespace, ...otherProps}) {
 			}
 			else if (action === 'selectScope') {
 				selectScope(data);
+			}
+			else if (action === 'selectFileExtension') {
+				selectFileExtension(data);
 			}
 		},
 	};

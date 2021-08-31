@@ -17,6 +17,7 @@ package com.liferay.headless.commerce.admin.pricing.internal.resource.v1_0;
 import com.liferay.commerce.account.service.CommerceAccountGroupService;
 import com.liferay.commerce.currency.model.CommerceCurrency;
 import com.liferay.commerce.currency.service.CommerceCurrencyService;
+import com.liferay.commerce.price.list.constants.CommercePriceListConstants;
 import com.liferay.commerce.price.list.exception.NoSuchPriceListException;
 import com.liferay.commerce.price.list.model.CommercePriceEntry;
 import com.liferay.commerce.price.list.model.CommercePriceList;
@@ -100,7 +101,7 @@ public class PriceListResourceImpl
 
 		if (commercePriceList == null) {
 			throw new NoSuchPriceListException(
-				"Unable to find Price List with externalReferenceCode: " +
+				"Unable to find price list with external reference code " +
 					externalReferenceCode);
 		}
 
@@ -135,7 +136,7 @@ public class PriceListResourceImpl
 
 		if (commercePriceList == null) {
 			throw new NoSuchPriceListException(
-				"Unable to find Price List with externalReferenceCode: " +
+				"Unable to find price list with external reference code " +
 					externalReferenceCode);
 		}
 
@@ -190,7 +191,7 @@ public class PriceListResourceImpl
 
 		if (commercePriceList == null) {
 			throw new NoSuchPriceListException(
-				"Unable to find Price List with externalReferenceCode: " +
+				"Unable to find price list with external reference code " +
 					externalReferenceCode);
 		}
 
@@ -237,8 +238,10 @@ public class PriceListResourceImpl
 		CommercePriceList commercePriceList =
 			_commercePriceListService.addOrUpdateCommercePriceList(
 				priceList.getExternalReferenceCode(),
-				commerceCatalog.getGroupId(), contextUser.getUserId(), 0L,
-				commerceCurrency.getCommerceCurrencyId(), priceList.getName(),
+				commerceCatalog.getGroupId(), 0L,
+				commerceCurrency.getCommerceCurrencyId(), true,
+				CommercePriceListConstants.TYPE_PRICE_LIST, 0, false,
+				priceList.getName(),
 				GetterUtil.get(priceList.getPriority(), 0D),
 				displayDateConfig.getMonth(), displayDateConfig.getDay(),
 				displayDateConfig.getYear(), displayDateConfig.getHour(),
@@ -364,7 +367,7 @@ public class PriceListResourceImpl
 
 		commercePriceList = _commercePriceListService.updateCommercePriceList(
 			commercePriceList.getCommercePriceListId(),
-			commerceCurrency.getCommerceCurrencyId(),
+			commerceCurrency.getCommerceCurrencyId(), true, 0,
 			GetterUtil.get(priceList.getName(), commercePriceList.getName()),
 			GetterUtil.get(
 				priceList.getPriority(), commercePriceList.getPriority()),

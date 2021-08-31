@@ -353,7 +353,7 @@ public class DLAdminManagementToolbarDisplayContext
 				String label = String.format(
 					"%s: %s",
 					LanguageUtil.get(_httpServletRequest, "document-type"),
-					fileEntryTypeName);
+					HtmlUtil.escape(fileEntryTypeName));
 
 				labelItem.setLabel(label);
 			}
@@ -625,7 +625,7 @@ public class DLAdminManagementToolbarDisplayContext
 
 	private List<DropdownItem> _getFilterNavigationDropdownItems() {
 		long fileEntryTypeId = _getFileEntryTypeId();
-		final String navigation = ParamUtil.getString(
+		String navigation = ParamUtil.getString(
 			_httpServletRequest, "navigation", "home");
 
 		return DropdownItemListBuilder.add(

@@ -16,10 +16,11 @@ package com.liferay.object.admin.rest.resource.v1_0;
 
 import com.liferay.object.admin.rest.dto.v1_0.ObjectField;
 import com.liferay.portal.kernel.service.GroupLocalService;
+import com.liferay.portal.kernel.service.ResourceActionLocalService;
+import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
 import com.liferay.portal.vulcan.pagination.Page;
-import com.liferay.portal.vulcan.pagination.Pagination;
 
 import java.util.Locale;
 
@@ -50,7 +51,7 @@ public interface ObjectFieldResource {
 	}
 
 	public Page<ObjectField> getObjectDefinitionObjectFieldsPage(
-			Long objectDefinitionId, Pagination pagination)
+			Long objectDefinitionId)
 		throws Exception;
 
 	public ObjectField postObjectDefinitionObjectField(
@@ -62,6 +63,10 @@ public interface ObjectFieldResource {
 		throws Exception;
 
 	public ObjectField getObjectField(Long objectFieldId) throws Exception;
+
+	public ObjectField patchObjectField(
+			Long objectFieldId, ObjectField objectField)
+		throws Exception;
 
 	public ObjectField putObjectField(
 			Long objectFieldId, ObjectField objectField)
@@ -93,6 +98,12 @@ public interface ObjectFieldResource {
 
 	public void setGroupLocalService(GroupLocalService groupLocalService);
 
+	public void setResourceActionLocalService(
+		ResourceActionLocalService resourceActionLocalService);
+
+	public void setResourcePermissionLocalService(
+		ResourcePermissionLocalService resourcePermissionLocalService);
+
 	public void setRoleLocalService(RoleLocalService roleLocalService);
 
 	public static class FactoryHolder {
@@ -110,6 +121,9 @@ public interface ObjectFieldResource {
 
 		public Builder httpServletRequest(
 			HttpServletRequest httpServletRequest);
+
+		public Builder httpServletResponse(
+			HttpServletResponse httpServletResponse);
 
 		public Builder preferredLocale(Locale preferredLocale);
 

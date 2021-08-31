@@ -121,7 +121,7 @@ const DiagramHeader = ({
 
 						<ClayDropDown.Caption>
 							<ClayForm>
-								<ClayForm.Group className="form-group-sm">
+								<ClayForm.Group small>
 									<label htmlFor="slider">
 										{Liferay.Language.get('custom-radius')}
 									</label>
@@ -149,14 +149,6 @@ const DiagramHeader = ({
 					</ClayDropDown>
 				</div>
 			)}
-
-			<ClayButton
-				aria-label={Liferay.Language.get('auto-mapping')}
-				className="auto-mapping my-auto pull-right"
-				displayType="secondary"
-			>
-				{Liferay.Language.get('auto-mapping')}
-			</ClayButton>
 		</div>
 	);
 };

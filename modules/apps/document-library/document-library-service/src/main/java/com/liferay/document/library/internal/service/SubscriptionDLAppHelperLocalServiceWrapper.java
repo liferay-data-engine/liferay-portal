@@ -253,6 +253,8 @@ public class SubscriptionDLAppHelperLocalServiceWrapper
 		subscriptionSender.setScopeGroupId(fileVersion.getGroupId());
 		subscriptionSender.setServiceContext(serviceContext);
 
+		subscriptionSender.addAssetEntryPersistedSubscribers(
+			DLFileEntry.class.getName(), dlFileEntry.getPrimaryKey());
 		subscriptionSender.addPersistedSubscribers(
 			DLFolder.class.getName(), fileVersion.getGroupId());
 

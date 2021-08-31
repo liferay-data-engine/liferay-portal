@@ -2,21 +2,28 @@
 definition {
 
 	property analytics.cloud.enabled = "true";
-	property minimum.slave.ram = "32";
+	property minimum.slave.ram = "24";
 	property portal.release = "false";
 	property portal.upstream = "true";
+	property slave.label = "slave-1";
 	property testray.main.component.name = "Analytics Cloud";
 
 	setUp {
-		ACUtils.launchAC();
+		task ("Copy the token from AC") {
+			ACUtils.launchAC();
 
-		ACSettings.takeTokenFromAnalyticsCloud();
+			ACSettings.takeTokenFromAnalyticsCloud();
+		}
 
-		TestCase.setUpPortalInstance();
+		task ("Set up instance and sign in DXP") {
+			TestCase.setUpPortalInstance();
 
-		ACUtils.launchDXP();
+			ACUtils.launchDXP();
+		}
 
-		ACUtils.addSiteAndPage();
+		task ("Connect the DXP to AC") {
+			ACDXPSettings.connectDXPtoAnalyticsCloud();
+		}
 	}
 
 	tearDown {
@@ -34,16 +41,35 @@ definition {
 		ACUtils.tearDownAC();
 	}
 
+	@description = "Automation ID: LRAC-8890 | Test Summary: Able to change retention period"
+	@ignore = "true"
+	@priority = "4"
+	test CanChangeRetentionPeriod {
+
+		// TODO LRAC-8890 CanChangeRetentionPeriod
+
+	}
+
 	@description = "Automation ID: LRAC-8119 | Test Summary: Create Access Request"
 	@priority = "5"
 	test CanCreateAccessRequest {
+		task ("Get site assigned property name") {
+			var propertyName = ACDXPSettings.getAssignedPropertyName(siteName = "Liferay DXP");
+		}
+
+		task ("Switch the property in AC") {
+			ACUtils.launchAC();
+
+			ACProperties.switchProperty(propertyName = "${propertyName}");
+		}
+
 		task ("Create Access Request") {
 			ACUtils.launchAC();
 
 			ACNavigation.goToSettings();
 
 			ACSettings.createRequestLogByEmail(
-				emailAdresses = "Alton.Jacobi@gmail.com",
+				emailAdresses = "test@liferay.com",
 				jobTypes = "Access");
 		}
 
@@ -52,10 +78,10 @@ definition {
 
 			ACSettings.goToDataControlAndPrivacy();
 
-			Click(locator1 = "ACDataControlAndPrivacy#RESQUEST_LOG");
+			Click(locator1 = "ACDataControlAndPrivacy#REQUEST_LOG");
 
 			ACSettings.assertRequestLog(
-				emailAdresses = "Alton.Jacobi@gmail.com",
+				emailAdresses = "test@liferay.com",
 				jobType = "Access");
 		}
 	}
@@ -63,13 +89,23 @@ definition {
 	@description = "Automation ID: LRAC-8117 | Test Summary: Create Delete Request"
 	@priority = "5"
 	test CanCreateDeleteRequest {
+		task ("Get site assigned property name") {
+			var propertyName = ACDXPSettings.getAssignedPropertyName(siteName = "Liferay DXP");
+		}
+
+		task ("Switch the property in AC") {
+			ACUtils.launchAC();
+
+			ACProperties.switchProperty(propertyName = "${propertyName}");
+		}
+
 		task ("Create Delete Request") {
 			ACUtils.launchAC();
 
 			ACNavigation.goToSettings();
 
 			ACSettings.createRequestLogByEmail(
-				emailAdresses = "Adelina.Kohler@hotmail.com",
+				emailAdresses = "test@liferay.com",
 				jobTypes = "Delete");
 		}
 
@@ -78,20 +114,62 @@ definition {
 
 			ACSettings.goToDataControlAndPrivacy();
 
-			Click(locator1 = "ACDataControlAndPrivacy#RESQUEST_LOG");
+			Click(locator1 = "ACDataControlAndPrivacy#REQUEST_LOG");
 
 			ACSettings.assertRequestLog(
-				emailAdresses = "Adelina.Kohler@hotmail.com",
+				emailAdresses = "test@liferay.com",
 				jobType = "Delete");
 		}
 	}
 
 	@description = "Automation ID: LRAC-8109 | Test Summary: Create Suppress Request"
-	@ignore = "true"
 	@priority = "5"
 	test CanCreateSuppressRequest {
+		task ("Get site assigned property name") {
+			var propertyName = ACDXPSettings.getAssignedPropertyName(siteName = "Liferay DXP");
+		}
 
-		// TODO LRAC-8109 CanCreateSuppressRequest
+		task ("Switch the property in AC") {
+			ACUtils.launchAC();
+
+			ACProperties.switchProperty(propertyName = "${propertyName}");
+		}
+		task ("Go to settings and create a suppress request") {
+			ACNavigation.goToSettings();
+
+			ACSettings.createRequestLogByEmail(
+				emailAdresses = "test@liferay.com",
+				jobTypes = "Suppress");
+		}
+
+		task ("Assert that the suppress request was created") {
+			ACSettings.goToProperties();
+
+			ACSettings.goToDataControlAndPrivacy();
+
+			Click(locator1 = "ACDataControlAndPrivacy#REQUEST_LOG");
+
+			ACSettings.assertRequestLog(
+				emailAdresses = "test@liferay.com",
+				jobType = "Suppress");
+		}
+	}
+
+	@description = "Automation ID: LRAC-8893 | Test Summary: Able to unsuppress user"
+	@ignore = "true"
+	@priority = "3"
+	test CanUnsuppressUser {
+
+		// TODO LRAC-8893 CanUnsuppressUser
+
+	}
+
+	@description = "Automation ID: LRAC-8892 | Test Summary: Suppressed user appears in Suppressed User List"
+	@ignore = "true"
+	@priority = "5"
+	test SuppressedUserAppearsInSuppressedUserList {
+
+		// TODO LRAC-8892 SuppressedUserAppearsInSuppressedUserList
 
 	}
 

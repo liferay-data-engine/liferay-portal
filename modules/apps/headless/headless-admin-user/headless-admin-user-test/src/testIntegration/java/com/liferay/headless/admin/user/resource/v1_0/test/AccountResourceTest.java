@@ -330,7 +330,7 @@ public class AccountResourceTest extends BaseAccountResourceTestCase {
 
 	@Override
 	protected String[] getAdditionalAssertFieldNames() {
-		return new String[] {"name"};
+		return new String[] {"name", "type"};
 	}
 
 	@Override
@@ -339,6 +339,8 @@ public class AccountResourceTest extends BaseAccountResourceTestCase {
 
 		account.setParentAccountId(AccountConstants.ACCOUNT_ENTRY_ID_DEFAULT);
 		account.setStatus(WorkflowConstants.STATUS_APPROVED);
+		account.setType(
+			Account.Type.create(AccountConstants.ACCOUNT_ENTRY_TYPE_BUSINESS));
 
 		return account;
 	}
@@ -376,6 +378,29 @@ public class AccountResourceTest extends BaseAccountResourceTestCase {
 		throws Exception {
 
 		return _postAccount(account);
+	}
+
+	@Override
+	protected Account testGetOrganizationAccountsPage_addAccount(
+			String organizationId, Account account)
+		throws Exception {
+
+		Account putAccount = accountResource.putAccountByExternalReferenceCode(
+			account.getExternalReferenceCode(), account);
+
+		accountResource.postOrganizationAccounts(
+			Long.valueOf(organizationId), new Long[] {putAccount.getId()});
+
+		return putAccount;
+	}
+
+	@Override
+	protected String testGetOrganizationAccountsPage_getOrganizationId()
+		throws Exception {
+
+		Organization organization = OrganizationTestUtil.addOrganization();
+
+		return String.valueOf(organization.getOrganizationId());
 	}
 
 	@Override

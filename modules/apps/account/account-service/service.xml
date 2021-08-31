@@ -111,10 +111,10 @@
 
 		<!-- Finder methods -->
 
-		<finder name="AEI" return-type="Collection">
+		<finder name="AccountEntryId" return-type="Collection">
 			<finder-column name="accountEntryId" />
 		</finder>
-		<finder name="AUI" return-type="Collection">
+		<finder name="AccountUserId" return-type="Collection">
 			<finder-column name="accountUserId" />
 		</finder>
 		<finder name="AEI_AUI" return-type="AccountEntryUserRel">
@@ -246,6 +246,7 @@
 		<exception>AccountEntryType</exception>
 		<exception>AccountEntryUserRelEmailAddress</exception>
 		<exception>DefaultAccountGroup</exception>
+		<exception>DuplicateAccountEntryExternalReferenceCode</exception>
 		<exception>DuplicateAccountEntryId</exception>
 		<exception>DuplicateAccountEntryOrganizationRel</exception>
 		<exception>DuplicateAccountEntryUserRel</exception>

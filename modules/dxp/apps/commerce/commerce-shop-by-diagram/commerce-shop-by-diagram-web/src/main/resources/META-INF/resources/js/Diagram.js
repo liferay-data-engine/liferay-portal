@@ -10,14 +10,23 @@
  */
 
 import {ClayIconSpriteContext} from '@clayui/icon';
+import {fetch} from 'frontend-js-web';
 import PropTypes from 'prop-types';
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 
+import AdminTooltip from './AdminTooltip';
 import DiagramFooter from './DiagramFooter';
 import DiagramHeader from './DiagramHeader';
 import ImagePins from './ImagePins';
 
 import '../css/diagram.scss';
+const PRODUCTS = 'products';
+const PINS = 'pins';
+
+const HEADERS = new Headers({
+	Accept: 'application/json',
+	'Content-Type': 'application/json',
+});
 
 const Diagram = ({
 	enablePanZoom,
@@ -28,15 +37,19 @@ const Diagram = ({
 	namespace,
 	navigationController,
 	newPinSettings,
-	pins,
+	pinsEndpoint,
+	productId,
 	spritemap,
 	zoomController,
 }) => {
+	const [imageState] = useState(imageURL);
+	const [pinClickHandler, setPinClickHandler] = useState(false);
 	const [addPinHandler, setAddPinHandler] = useState(false);
 	const [removePinHandler, setRemovePinHandler] = useState({
 		handler: false,
 		pin: null,
 	});
+	const [skus, setSkus] = useState([]);
 	const [diagramSizes, setDiagramSizes] = useState({k: 1, x: 0, y: 0});
 	const [resetZoom, setResetZoom] = useState(false);
 	const [zoomInHandler, setZoomInHandler] = useState(false);
@@ -44,7 +57,7 @@ const Diagram = ({
 	const [changedScale, setChangedScale] = useState(false);
 	const [scale, setScale] = useState(1);
 	const [selectedOption, setSelectedOption] = useState(1);
-	const [cPins, setCpins] = useState(pins);
+	const [cPins, setCpins] = useState([]);
 	const [showTooltip, setShowTooltip] = useState({
 		details: {
 			cx: 0,
@@ -62,33 +75,102 @@ const Diagram = ({
 		radius: newPinSettings.defaultRadius,
 	});
 
-	useEffect(() => {
-		if (!showTooltip.tooltip) {
-			const newCPinState = cPins.map((element) => {
-				if (element.id === showTooltip.details.id) {
-					return {
-						cx: cPins[element.id].cx,
-						cy: cPins[element.id].cy,
-						draggable: cPins[element.id].draggable,
-						fill: cPins[element.id].fill,
-						id: showTooltip.details.id,
-						label: showTooltip.details.label,
-						linked_to_sku: showTooltip.details.linked_to_sku,
-						quantity: showTooltip.details.quantity,
-						r: cPins[element.id].r,
-						sku: showTooltip.details.sku,
-					};
-				}
-				else {
-					return element;
-				}
-			});
-			setCpins(newCPinState);
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [showTooltip, setShowTooltip]);
+	const loadPins = useCallback(
+		() =>
+			fetch(`${pinsEndpoint}${PRODUCTS}/${productId}/${PINS}`, {
+				HEADERS,
+			})
+				.then((response) => response.json())
+				.then((jsonResponse) => {
+					const loadedPins = jsonResponse.items.map((item) => ({
+						cx: item.positionX,
+						cy: item.positionY,
+						id: item.id,
+						label: item.number,
+					}));
 
-	return imageURL !== '' ? (
+					setCpins(loadedPins);
+				}),
+		[pinsEndpoint, productId]
+	);
+
+	const deletePin = (node) => {
+		fetch(`${pinsEndpoint}${PINS}/${node.id}`, {
+			HEADERS,
+			method: 'DELETE',
+		});
+	};
+
+	const updatePin = (node) => {
+		if (node.id) {
+			fetch(`${pinsEndpoint}${PINS}/${node.id}`, {
+				HEADERS,
+				body: JSON.stringify(node),
+				method: 'PATCH',
+			});
+		}
+		else {
+			fetch(`${pinsEndpoint}${PRODUCTS}/${productId}/${PINS}`, {
+				HEADERS,
+				body: JSON.stringify(node),
+				method: 'POST',
+			});
+		}
+	};
+
+	const searchSkus = (query, linkedValue) => {
+		if (linkedValue === 'sku') {
+			let queryParam = '';
+
+			if (query) {
+				queryParam = `?search=${query}`;
+			}
+
+			return fetch(`${pinsEndpoint}skus/${queryParam}`, {
+				HEADERS,
+			})
+				.then((response) => response.json())
+				.then((jsonResponse) => {
+					setSkus(jsonResponse.items);
+				});
+		}
+		else if (linkedValue === 'diagram') {
+			let queryParam = '';
+
+			if (query) {
+				queryParam = `?filter=productType eq ${linkedValue}`;
+			}
+
+			return fetch(`${pinsEndpoint}products/${queryParam}`, {
+				HEADERS,
+			})
+				.then((response) => response.json())
+				.then((jsonResponse) => {
+					setSkus(jsonResponse.items);
+				});
+		}
+	};
+
+	const pinClickAction = (updatedPin) => {
+		setShowTooltip({
+			details: {
+				cx: updatedPin.cx,
+				cy: updatedPin.cy,
+				id: updatedPin.id,
+				label: updatedPin.label || '',
+				linked_to_sku: updatedPin.linked_to_sku || '',
+				quantity: updatedPin.quantity || 0,
+				sku: updatedPin.sku,
+			},
+			tooltip: true,
+		});
+	};
+
+	useEffect(() => {
+		loadPins();
+	}, [pinsEndpoint, productId, loadPins]);
+
+	return imageState ? (
 		<div className="diagram mx-auto">
 			<ClayIconSpriteContext.Provider value={spritemap}>
 				<DiagramHeader
@@ -114,26 +196,47 @@ const Diagram = ({
 					isAdmin={isAdmin}
 					namespace={namespace}
 					navigationController={navigationController}
+					pinClickAction={pinClickAction}
+					pinClickHandler={pinClickHandler}
+					pinsEndpoint={pinsEndpoint}
+					productId={productId}
 					removePinHandler={removePinHandler}
 					resetZoom={resetZoom}
 					scale={scale}
+					searchSkus={searchSkus}
 					selectedOption={selectedOption}
 					setAddPinHandler={setAddPinHandler}
 					setChangedScale={setChangedScale}
 					setCpins={setCpins}
 					setDiagramSizes={setDiagramSizes}
+					setPinClickHandler={setPinClickHandler}
 					setRemovePinHandler={setRemovePinHandler}
 					setResetZoom={setResetZoom}
 					setScale={setScale}
 					setSelectedOption={setSelectedOption}
-					setShowTooltip={setShowTooltip}
 					setZoomInHandler={setZoomInHandler}
 					setZoomOutHandler={setZoomOutHandler}
 					showTooltip={showTooltip}
 					zoomController={zoomController}
 					zoomInHandler={zoomInHandler}
 					zoomOutHandler={zoomOutHandler}
-				/>
+				>
+					{showTooltip.tooltip && (
+						<AdminTooltip
+							deletePin={deletePin}
+							namespace={namespace}
+							pinsEndpoint={pinsEndpoint}
+							removePinHandler={removePinHandler}
+							searchSkus={searchSkus}
+							setRemovePinHandler={setRemovePinHandler}
+							setShowTooltip={setShowTooltip}
+							setSkus={setSkus}
+							showTooltip={showTooltip}
+							skus={skus}
+							updatePin={updatePin}
+						/>
+					)}
+				</ImagePins>
 
 				<DiagramFooter
 					changedScale={changedScale}
@@ -166,6 +269,7 @@ Diagram.defaultProps = {
 		height: '300px',
 		width: '100%',
 	},
+	isAdmin: true,
 	navigationController: {
 		dragStep: 10,
 		enable: true,
@@ -199,6 +303,18 @@ Diagram.defaultProps = {
 		defaultRadius: 15,
 	},
 	pins: [],
+	showTooltip: {
+		details: {
+			cx: null,
+			cy: null,
+			id: null,
+			label: null,
+			linked_to_sku: 'sku',
+			quantity: null,
+			sku: '',
+		},
+		tooltip: false,
+	},
 	spritemap: './assets/clay/icons.svg',
 	zoomController: {
 		enable: true,
@@ -226,6 +342,7 @@ Diagram.propTypes = {
 			sku: PropTypes.string,
 		})
 	),
+	deletePin: PropTypes.func,
 	enablePanZoom: PropTypes.bool,
 	enableResetZoom: PropTypes.bool,
 	imageSettings: PropTypes.shape({
@@ -254,6 +371,9 @@ Diagram.propTypes = {
 		}),
 		defaultRadius: PropTypes.number,
 	}),
+	pinClickAction: PropTypes.func,
+	productId: PropTypes.number,
+	searchSkus: PropTypes.func,
 	setPins: PropTypes.func,
 	showTooltip: PropTypes.shape({
 		details: PropTypes.shape({
@@ -268,6 +388,7 @@ Diagram.propTypes = {
 		tooltip: PropTypes.bool,
 	}),
 	spritemap: PropTypes.string,
+	updatePin: PropTypes.func,
 	zoomController: PropTypes.shape({
 		enable: PropTypes.bool,
 		position: PropTypes.shape({

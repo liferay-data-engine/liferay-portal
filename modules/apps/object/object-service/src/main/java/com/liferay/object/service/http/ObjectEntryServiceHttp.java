@@ -177,6 +177,46 @@ public class ObjectEntryServiceHttp {
 		}
 	}
 
+	public static com.liferay.object.model.ObjectEntry fetchObjectEntry(
+			HttpPrincipal httpPrincipal, long objectEntryId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		try {
+			MethodKey methodKey = new MethodKey(
+				ObjectEntryServiceUtil.class, "fetchObjectEntry",
+				_fetchObjectEntryParameterTypes3);
+
+			MethodHandler methodHandler = new MethodHandler(
+				methodKey, objectEntryId);
+
+			Object returnObj = null;
+
+			try {
+				returnObj = TunnelUtil.invoke(httpPrincipal, methodHandler);
+			}
+			catch (Exception exception) {
+				if (exception instanceof
+						com.liferay.portal.kernel.exception.PortalException) {
+
+					throw (com.liferay.portal.kernel.exception.PortalException)
+						exception;
+				}
+
+				throw new com.liferay.portal.kernel.exception.SystemException(
+					exception);
+			}
+
+			return (com.liferay.object.model.ObjectEntry)returnObj;
+		}
+		catch (com.liferay.portal.kernel.exception.SystemException
+					systemException) {
+
+			_log.error(systemException, systemException);
+
+			throw systemException;
+		}
+	}
+
 	public static com.liferay.object.model.ObjectEntry getObjectEntry(
 			HttpPrincipal httpPrincipal, long objectEntryId)
 		throws com.liferay.portal.kernel.exception.PortalException {
@@ -184,10 +224,52 @@ public class ObjectEntryServiceHttp {
 		try {
 			MethodKey methodKey = new MethodKey(
 				ObjectEntryServiceUtil.class, "getObjectEntry",
-				_getObjectEntryParameterTypes3);
+				_getObjectEntryParameterTypes4);
 
 			MethodHandler methodHandler = new MethodHandler(
 				methodKey, objectEntryId);
+
+			Object returnObj = null;
+
+			try {
+				returnObj = TunnelUtil.invoke(httpPrincipal, methodHandler);
+			}
+			catch (Exception exception) {
+				if (exception instanceof
+						com.liferay.portal.kernel.exception.PortalException) {
+
+					throw (com.liferay.portal.kernel.exception.PortalException)
+						exception;
+				}
+
+				throw new com.liferay.portal.kernel.exception.SystemException(
+					exception);
+			}
+
+			return (com.liferay.object.model.ObjectEntry)returnObj;
+		}
+		catch (com.liferay.portal.kernel.exception.SystemException
+					systemException) {
+
+			_log.error(systemException, systemException);
+
+			throw systemException;
+		}
+	}
+
+	public static com.liferay.object.model.ObjectEntry updateObjectEntry(
+			HttpPrincipal httpPrincipal, long objectEntryId,
+			java.util.Map<String, java.io.Serializable> values,
+			com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		try {
+			MethodKey methodKey = new MethodKey(
+				ObjectEntryServiceUtil.class, "updateObjectEntry",
+				_updateObjectEntryParameterTypes5);
+
+			MethodHandler methodHandler = new MethodHandler(
+				methodKey, objectEntryId, values, serviceContext);
 
 			Object returnObj = null;
 
@@ -232,7 +314,14 @@ public class ObjectEntryServiceHttp {
 		};
 	private static final Class<?>[] _deleteObjectEntryParameterTypes2 =
 		new Class[] {long.class};
-	private static final Class<?>[] _getObjectEntryParameterTypes3 =
+	private static final Class<?>[] _fetchObjectEntryParameterTypes3 =
 		new Class[] {long.class};
+	private static final Class<?>[] _getObjectEntryParameterTypes4 =
+		new Class[] {long.class};
+	private static final Class<?>[] _updateObjectEntryParameterTypes5 =
+		new Class[] {
+			long.class, java.util.Map.class,
+			com.liferay.portal.kernel.service.ServiceContext.class
+		};
 
 }

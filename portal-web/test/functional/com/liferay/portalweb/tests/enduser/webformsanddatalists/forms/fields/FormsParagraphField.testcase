@@ -37,13 +37,7 @@ definition {
 		property test.name.skip.portal.instance = "FormsParagraphField#CanBeAddedWithoutAffectingNavigation";
 		property testray.component.names = "Training";
 
-		Navigator.openURL();
-
-		ProductMenu.gotoPortlet(
-			category = "Content & Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName();
 
@@ -402,11 +396,7 @@ definition {
 	test CanBeCreated {
 		property forms.functional = "true";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -433,11 +423,7 @@ definition {
 	test CanBeDeleted {
 		property forms.functional = "true";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -473,11 +459,7 @@ definition {
 	test CanBeDuplicated {
 		property forms.functional = "true";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -540,11 +522,7 @@ definition {
 	test CanBeEdited {
 		property forms.functional = "true";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -581,11 +559,7 @@ definition {
 	test CanBeSubmitted {
 		property forms.functional = "true";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -636,11 +610,7 @@ definition {
 	test CanDeleteATableUsingBackspace {
 		property forms.functional = "false";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -691,11 +661,7 @@ definition {
 		property forms.functional = "true";
 		property test.name.skip.portal.instance = "FormsParagraphField#CanEditFormattingStyle";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -765,11 +731,7 @@ definition {
 	test CannotBeSavedOrPublishedWithoutBodyText {
 		property forms.functional = "true";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -785,9 +747,7 @@ definition {
 
 		Alert.viewErrorMessage(errorMessage = "Setting (Body Text) of field Paragraph is invalid.");
 
-		Click(locator1 = "Icon#BACK");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -799,9 +759,7 @@ definition {
 
 		Alert.viewErrorMessage(errorMessage = "Setting (Body Text) of field Paragraph is invalid.");
 
-		Click(locator1 = "Icon#BACK");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -828,11 +786,7 @@ definition {
 		property forms.functional = "true";
 		property test.name.skip.portal.instance = "FormsParagraphField#CanSupportALinkToAURL";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -840,22 +794,11 @@ definition {
 			fieldPositionNumber = "0",
 			fieldType = "Paragraph");
 
-		Click(
-			key_titleName = "Link",
-			locator1 = "FormFields#TOOLBAR_ANY_ITEM_BUTTON");
+		FormFields.addParagraphLinkToAURL(paragraphLink = "www.liferay.com");
 
-		Type(
-			fieldLabel = "URL",
-			locator1 = "FormFields#PARAGRAPH_LINK_TEXT_INPUT",
-			value1 = "www.liferay.com");
+		Form.save();
 
-		Click(locator1 = "CKEditor#OK_BUTTON");
-
-		Click(locator1 = "Button#SAVE");
-
-		Alert.viewSuccessMessage();
-
-		Click(locator1 = "Icon#BACK");
+		FormsAdminNavigator.gotoBack();
 
 		FormsAdminNavigator.gotoEditFormByName(formName = "Form 1");
 
@@ -870,11 +813,7 @@ definition {
 		property forms.functional = "true";
 		property test.name.skip.portal.instance = "FormsParagraphField#CanSupportBulletedLists";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -925,11 +864,7 @@ definition {
 	test CanSupportHTML {
 		property forms.functional = "true";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -964,11 +899,7 @@ definition {
 		property forms.functional = "true";
 		property test.name.skip.portal.instance = "FormsParagraphField#CanSupportImages";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -1003,11 +934,7 @@ definition {
 		property forms.functional = "true";
 		property test.name.skip.portal.instance = "FormsParagraphField#CanSupportNumberedLists";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -1059,11 +986,7 @@ definition {
 		property forms.functional = "true";
 		property test.name.skip.portal.instance = "FormsParagraphField#CanSupportTables";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -1100,11 +1023,7 @@ definition {
 		property forms.functional = "true";
 		property test.name.skip.portal.instance = "FormsParagraphField#CanSupportVideos";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -1151,11 +1070,7 @@ definition {
 		property forms.functional = "true";
 		property test.name.skip.portal.instance = "FormsParagraphField#CanUndoAndRedo";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -1205,11 +1120,7 @@ definition {
 	test ReferenceCanBeEdited {
 		property forms.functional = "true";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -1240,11 +1151,7 @@ definition {
 		property forms.functional = "true";
 		property test.name.skip.portal.instance = "FormsParagraphField#TextCanBeBoldedItalicizedAndUnderlined";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -1298,11 +1205,7 @@ definition {
 	test TitleCanBeEdited {
 		property forms.functional = "true";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 

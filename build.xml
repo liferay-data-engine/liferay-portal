@@ -568,28 +568,6 @@ message.
 		</DTDDoc>
 	</target>
 
-	<target name="generate-configuration-env">
-		<pathconvert pathsep="," property="configuration.java.files">
-			<fileset
-				dir="modules"
-				excludes=""
-				includes="**/apps/**/configuration/*Configuration.java"
-			>
-			</fileset>
-		</pathconvert>
-
-		<java
-			classname="com.liferay.portal.tools.ConfigurationEnvBuilder"
-			classpathref="project.classpath"
-			dir="${project.dir}/modules"
-			fork="${fork.mode}"
-			newenvironment="true"
-		>
-			<arg value="configuration.java.files=${configuration.java.files}" />
-			<arg value="output.file=${project.dir}/modules/configuration-env.txt" />
-		</java>
-	</target>
-
 	<target name="install-portal-snapshots">
 		<ant dir="portal-impl" inheritAll="false" target="install-portal-snapshot" />
 		<ant dir="portal-kernel" inheritAll="false" target="install-portal-snapshot" />
@@ -1258,6 +1236,29 @@ print AdminControl.invoke(appManager, 'startApplication', 'liferay-portal')
 			git add --all
 			git checkout HEAD -- .gitignore
 		</execute>
+	</target>
+
+	<target name="update-portal-osgi-configuration-properties">
+		<pathconvert pathsep="," property="configuration.java.files">
+			<fileset
+				dir="modules"
+				excludes=""
+				includes="**/apps/**/configuration/*Configuration.java"
+			>
+			</fileset>
+		</pathconvert>
+
+		<java
+			classname="com.liferay.portal.tools.ConfigurationEnvBuilder"
+			classpathref="project.classpath"
+			dir="${project.dir}/modules"
+			fork="${fork.mode}"
+			newenvironment="true"
+		>
+			<arg value="configuration.java.files=${configuration.java.files}" />
+			<arg value="output.file=${project.dir}/portal-impl/src/portal-osgi-configuration.properties" />
+			<jvmarg if:true="${jvm.debug}" line="${jpda.settings}" />
+		</java>
 	</target>
 
 	<target name="validate-xml">

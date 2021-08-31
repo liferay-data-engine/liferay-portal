@@ -70,7 +70,7 @@ public abstract class BaseLogResourceImpl implements LogResource {
 	@Override
 	@Parameters(
 		value = {
-			@Parameter(in = ParameterIn.PATH, name = "id"),
+			@Parameter(in = ParameterIn.PATH, name = "planId"),
 			@Parameter(in = ParameterIn.QUERY, name = "page"),
 			@Parameter(in = ParameterIn.QUERY, name = "pageSize")
 		}
@@ -79,7 +79,7 @@ public abstract class BaseLogResourceImpl implements LogResource {
 	@Produces({"application/json", "application/xml"})
 	@Tags(value = {@Tag(name = "Log")})
 	public Page<Log> getPlanLogsPage(
-			@NotNull @Parameter(hidden = true) @PathParam("id") Long id,
+			@NotNull @Parameter(hidden = true) @PathParam("planId") Long planId,
 			@Context Pagination pagination)
 		throws Exception {
 
@@ -120,6 +120,18 @@ public abstract class BaseLogResourceImpl implements LogResource {
 
 	public void setGroupLocalService(GroupLocalService groupLocalService) {
 		this.groupLocalService = groupLocalService;
+	}
+
+	public void setResourceActionLocalService(
+		ResourceActionLocalService resourceActionLocalService) {
+
+		this.resourceActionLocalService = resourceActionLocalService;
+	}
+
+	public void setResourcePermissionLocalService(
+		ResourcePermissionLocalService resourcePermissionLocalService) {
+
+		this.resourcePermissionLocalService = resourcePermissionLocalService;
 	}
 
 	public void setRoleLocalService(RoleLocalService roleLocalService) {

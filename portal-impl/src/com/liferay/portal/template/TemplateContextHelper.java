@@ -45,7 +45,6 @@ import com.liferay.portal.kernel.service.OrganizationLocalService;
 import com.liferay.portal.kernel.service.OrganizationService;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.service.UserService;
-import com.liferay.portal.kernel.service.permission.AccountPermissionUtil;
 import com.liferay.portal.kernel.service.permission.CommonPermissionUtil;
 import com.liferay.portal.kernel.service.permission.GroupPermissionUtil;
 import com.liferay.portal.kernel.service.permission.LayoutPermissionUtil;
@@ -294,7 +293,6 @@ public class TemplateContextHelper {
 
 		if (themeDisplay != null) {
 			Layout layout = themeDisplay.getLayout();
-			List<Layout> layouts = themeDisplay.getLayouts();
 
 			HttpServletRequest originalHttpServletRequest =
 				PortalUtil.getOriginalServletRequest(httpServletRequest);
@@ -310,7 +308,7 @@ public class TemplateContextHelper {
 			contextObjects.put("colorScheme", themeDisplay.getColorScheme());
 			contextObjects.put("company", themeDisplay.getCompany());
 			contextObjects.put("layout", layout);
-			contextObjects.put("layouts", layouts);
+			contextObjects.put("layouts", themeDisplay.getLayouts());
 			contextObjects.put(
 				"layoutTypePortlet", themeDisplay.getLayoutTypePortlet());
 			contextObjects.put("locale", themeDisplay.getLocale());
@@ -712,15 +710,6 @@ public class TemplateContextHelper {
 			"windowStateFactory", WindowStateFactory_IW.getInstance());
 
 		// Permissions
-
-		try {
-			variables.put(
-				"accountPermission",
-				AccountPermissionUtil.getAccountPermission());
-		}
-		catch (SecurityException securityException) {
-			_log.error(securityException, securityException);
-		}
 
 		try {
 			variables.put(

@@ -14,23 +14,16 @@
 
 package com.liferay.source.formatter.checks;
 
-import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.tools.ToolsUtil;
 
 import java.io.IOException;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author Peter Shin
@@ -52,73 +45,113 @@ public class PropertiesPortalEnvironmentVariablesCheck extends BaseFileCheck {
 		return _formatPortalProperties(content);
 	}
 
-	private String _encode(String s) {
-		StringBundler sb = new StringBundler();
+	private String _addEnvVariables(
+		String content, String commentsBlock, String environmentVariablesBlock,
+		String variablesContent, int lineNumber) {
 
-		sb.append(_ENV_OVERRIDE_PREFIX);
+		Set<String> environmentVariables = _getEnvironmentVariables(
+			variablesContent);
 
-		for (char c : s.toCharArray()) {
-			if (Character.isLowerCase(c)) {
-				sb.append(Character.toUpperCase(c));
-			}
-			else {
-				sb.append(CharPool.UNDERLINE);
-
-				sb.append(_charPoolChars.get(c));
-
-				sb.append(CharPool.UNDERLINE);
-			}
+		if (environmentVariables.isEmpty()) {
+			return content;
 		}
 
-		return sb.toString();
-	}
+		StringBundler sb = new StringBundler();
 
-	private String _formatPortalProperties(String content) {
-		Matcher matcher = _pattern.matcher(content);
+		if (Validator.isNull(commentsBlock) &&
+			Validator.isNull(environmentVariablesBlock)) {
 
-		while (matcher.find()) {
-			String variablesContent = matcher.group(4);
-
-			Set<String> environmentVariables = _getEnvironmentVariables(
-				variablesContent);
-
-			if (environmentVariables.isEmpty()) {
-				continue;
-			}
-
-			String commentBlock = matcher.group(1);
-
-			StringBundler sb = new StringBundler();
-
-			if (Validator.isNull(commentBlock)) {
-				sb.append(StringPool.NEW_LINE);
-				sb.append(StringPool.FOUR_SPACES);
-				sb.append(StringPool.POUND);
-				sb.append(StringPool.NEW_LINE);
-			}
-
-			for (String environmentVariable : environmentVariables) {
-				sb.append(StringPool.FOUR_SPACES);
-				sb.append("# Env: ");
-				sb.append(environmentVariable);
-				sb.append(StringPool.NEW_LINE);
-			}
-
+			sb.append(StringPool.NEW_LINE);
 			sb.append(StringPool.FOUR_SPACES);
 			sb.append(StringPool.POUND);
 			sb.append(StringPool.NEW_LINE);
+		}
 
-			String environmentVariablesComment = sb.toString();
+		for (String environmentVariable : environmentVariables) {
+			sb.append(StringPool.FOUR_SPACES);
+			sb.append("# Env: ");
+			sb.append(environmentVariable);
+			sb.append(StringPool.NEW_LINE);
+		}
 
-			if (!commentBlock.endsWith(environmentVariablesComment)) {
-				return StringUtil.replaceFirst(
-					content, variablesContent,
-					environmentVariablesComment + variablesContent,
-					matcher.start() - 1);
+		sb.append(StringPool.FOUR_SPACES);
+		sb.append(StringPool.POUND);
+		sb.append(StringPool.NEW_LINE);
+
+		String environmentVariablesComment = sb.toString();
+
+		if (environmentVariablesBlock.equals(environmentVariablesComment)) {
+			return content;
+		}
+
+		int pos = getLineStartPos(content, lineNumber + 1);
+
+		if (Validator.isNotNull(environmentVariablesBlock)) {
+			return StringUtil.replaceFirst(
+				content, environmentVariablesBlock, environmentVariablesComment,
+				pos);
+		}
+
+		variablesContent = StringUtil.replaceLast(variablesContent, "\n", "");
+
+		return StringUtil.replaceFirst(
+			content, variablesContent,
+			environmentVariablesComment + variablesContent,
+			getLineStartPos(content, lineNumber + 1));
+	}
+
+	private String _formatPortalProperties(String content) {
+		StringBundler commentBlockSB = new StringBundler();
+		StringBundler environmentVariablesBlockSB = new StringBundler();
+		StringBundler variablesContentSB = new StringBundler();
+
+		int lineNumber = 0;
+
+		String[] lines = StringUtil.splitLines(content);
+
+		for (int i = 0; i < lines.length; i++) {
+			String line = lines[i];
+
+			if (line.startsWith("        ") || line.matches("    #?\\w.*")) {
+				variablesContentSB.append(line);
+				variablesContentSB.append("\n");
+
+				continue;
+			}
+
+			if (variablesContentSB.index() > 0) {
+				String newContent = _addEnvVariables(
+					content, commentBlockSB.toString(),
+					environmentVariablesBlockSB.toString(),
+					variablesContentSB.toString(), lineNumber);
+
+				if (!content.equals(newContent)) {
+					return newContent;
+				}
+
+				environmentVariablesBlockSB = new StringBundler();
+				variablesContentSB = new StringBundler();
+
+				lineNumber = i;
+			}
+
+			if (line.startsWith("    # Env: ") ||
+				((environmentVariablesBlockSB.index() > 0) &&
+				 line.equals("    #"))) {
+
+				environmentVariablesBlockSB.append(line);
+				environmentVariablesBlockSB.append("\n");
+			}
+			else if (line.equals("    #") || line.startsWith("    # ")) {
+				commentBlockSB.append(line);
+				commentBlockSB.append("\n");
 			}
 		}
 
-		return content;
+		return _addEnvVariables(
+			content, commentBlockSB.toString(),
+			environmentVariablesBlockSB.toString(),
+			variablesContentSB.toString(), lineNumber);
 	}
 
 	private Set<String> _getEnvironmentVariables(String s) {
@@ -139,39 +172,12 @@ public class PropertiesPortalEnvironmentVariablesCheck extends BaseFileCheck {
 				continue;
 			}
 
-			environmentVariables.add(_encode(trimmedLine.substring(0, pos)));
+			environmentVariables.add(
+				ToolsUtil.encodeEnvironmentProperty(
+					trimmedLine.substring(0, pos)));
 		}
 
 		return environmentVariables;
 	}
-
-	private static final String _ENV_OVERRIDE_PREFIX = "LIFERAY_";
-
-	private static final Map<Character, String> _charPoolChars =
-		new HashMap<Character, String>() {
-			{
-				try {
-					for (Field field : CharPool.class.getFields()) {
-						if (Modifier.isStatic(field.getModifiers()) &&
-							(field.getType() == char.class)) {
-
-							put(
-								field.getChar(null),
-								StringUtil.removeChar(
-									field.getName(), CharPool.UNDERLINE));
-						}
-					}
-				}
-				catch (ReflectiveOperationException
-							reflectiveOperationException) {
-
-					throw new ExceptionInInitializerError(
-						reflectiveOperationException);
-				}
-			}
-		};
-
-	private static final Pattern _pattern = Pattern.compile(
-		"\n((    #( .*)?\n)*)((    ( |#?\\w).*\n)+)");
 
 }

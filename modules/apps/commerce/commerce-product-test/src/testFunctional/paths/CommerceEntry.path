@@ -406,13 +406,18 @@
 	<td></td>
 </tr>
 <tr>
+	<td>ACCORDION_COLLAPSED</td>
+	<td>//fieldset[@id='${key_accordionTitle}']/a[contains(@class,'collapsed')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>ROLE_SELECT_BUTTON</td>
 	<td>//div/h3[contains(.,'${key_roleType}')]//..//button</td>
 	<td></td>
 </tr>
 <tr>
 	<td>ACCORDION_TITLE</td>
-	<td>//fieldset//div/a[contains(.,'${key_accordionTitle}')]</td>
+	<td>//fieldset[@id='${key_accordionTitle}']/a</td>
 	<td></td>
 </tr>
 <tr>
@@ -550,6 +555,17 @@
 <tr>
 	<td>PRODUCT_CARD_LIST_PRICE</td>
 	<td>//p[@title='${key_productName}']//following-sibling::p[@class='card-text']//span[@class='price-value']</td>
+	<td></td>
+</tr>
+<!--DIAGRAM-->
+<tr>
+	<td>VERIFY_PIN</td>
+	<td>//div[contains(@class,'diagram-pins-container')]//*[name()='svg']//*[name()='circle' and @fill='${key_color}']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>VERIFY_IMAGE</td>
+	<td>//div[contains(@class,'diagram-pins-container')]//*[name()='svg']//*[name()='image' and contains (@href,'${key_image}')]</td>
 	<td></td>
 </tr>
 <!--OPTION-->

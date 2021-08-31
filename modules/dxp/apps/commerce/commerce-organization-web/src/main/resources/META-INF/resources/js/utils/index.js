@@ -11,6 +11,8 @@
 
 import {hierarchy, tree as d3Tree} from 'd3';
 
+import {changeOrganizationParent} from '../data/accounts';
+import {updateOrganization} from '../data/organizations';
 import {
 	ACCOUNTS_PROPERTY_NAME,
 	DX,
@@ -121,6 +123,75 @@ export function insertChildrenIntoNode(children, parentNode) {
 	return parentNode;
 }
 
+function removeAddButton(node) {
+	const children = node.children || node._children;
+	const dataChildren = node.data.children || node.data._children;
+
+	if (!children) {
+		return;
+	}
+
+	if (children[0]?.data?.type === 'add') {
+		children.shift();
+		dataChildren.shift();
+	}
+
+	if (Array.isArray(node.children) && !node.children.length) {
+		node.children = null;
+		node.data.children = null;
+	}
+	if (Array.isArray(node._children) && !node._children.length) {
+		node._children = null;
+		node.data._children = null;
+	}
+}
+
+export function insertAddButtons(root, selectedNodesIds) {
+	if (!selectedNodesIds.size) {
+		return;
+	}
+
+	root.each((d) => {
+		if (
+			selectedNodesIds.has(d.data.chartNodeId) &&
+			d.data.type !== 'user' &&
+			d.data.type !== 'account'
+		) {
+			showChildren(d);
+
+			if (!d.children) {
+				d.children = [];
+				d.data.children = [];
+			}
+
+			if (d.children.length && d.children[0].data.type === 'add') {
+				return;
+			}
+
+			const id = Math.random();
+
+			const newNode = hierarchy(
+				{
+					chartNodeId: `add_${id}`,
+					chartNodeNumber: ++chartNodesCounter,
+					id,
+					type: 'add',
+				},
+				(node) => node.children
+			);
+
+			newNode.parent = d;
+			newNode.depth = d.depth + 1;
+
+			d.children.unshift(newNode);
+			d.data.children.unshift(newNode.data);
+		}
+		else {
+			removeAddButton(d);
+		}
+	});
+}
+
 export const tree = d3Tree().nodeSize([DX, DY]);
 
 export const getEntityId = (data) =>
@@ -187,4 +258,46 @@ export function getMinWidth(nodes) {
 
 		return maxWidth > width ? maxWidth : width;
 	}, 0);
+}
+
+export function changeNodesParentOrganization(nodes, target) {
+	const movings = [];
+
+	nodes.forEach((node) => {
+		switch (node.data.type) {
+			case 'organization':
+				movings.push(
+					updateOrganization(node.data.id, {
+						parentOrganization: {id: target.data.id},
+					})
+				);
+				break;
+			case 'account':
+				movings.push(
+					changeOrganizationParent(
+						node.data.id,
+						node.parent.data.id,
+						target.data.id
+					)
+				);
+				break;
+			default:
+				throw new Error(`Node type '${node.data.type}' not draggable`);
+		}
+	});
+
+	return Promise.allSettled(movings).then((results) => {
+		const formatted = results.reduce(
+			(formattedNodes, result, i) => ({
+				...formattedNodes,
+				[result.status]: [...formattedNodes[result.status], nodes[i]],
+			}),
+			{
+				fulfilled: [],
+				rejected: [],
+			}
+		);
+
+		return formatted;
+	});
 }

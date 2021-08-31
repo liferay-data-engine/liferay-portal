@@ -6,6 +6,10 @@ definition {
 			value1 = "${headerTitle}");
 	}
 
+	macro clickCancelButton {
+		Click(locator1 = "ACDXPSettings#AC_GENERIC_CANCEL_BUTTON");
+	}
+
 	macro clickHeaderTab {
 		Click(
 			key_tabName = "${tabName}",
@@ -17,6 +21,10 @@ definition {
 	}
 
 	macro exitSettings {
+		WaitForVisible(
+			key_title = "Settings",
+			locator1 = "Header#H2_TITLE");
+
 		Click(locator1 = "ACSettings#EXIT_SETTINGS_BUTTON");
 	}
 
@@ -70,9 +78,22 @@ definition {
 		Click(locator1 = "ACNavigation#TAB_NAME");
 	}
 
+	macro switchTabInCard {
+		var key_tabName = "${tabName}";
+
+		Click(locator1 = "ACNavigation#CARD_TAB_NAME");
+	}
+
 	macro viewActiveSwitchTab {
 		AssertTextEquals(
 			locator1 = "ACNavigation#ACTIVE_TAB_NAME",
+			value1 = "${tabName}");
+	}
+
+	macro viewActiveSwitchTabInCard {
+		AssertTextEquals(
+			key_tabName = "${tabName}",
+			locator1 = "ACNavigation#ACTIVE_CARD_TAB_NAME",
 			value1 = "${tabName}");
 	}
 

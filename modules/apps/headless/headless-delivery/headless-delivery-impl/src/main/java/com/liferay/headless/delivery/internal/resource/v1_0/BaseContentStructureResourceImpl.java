@@ -507,9 +507,19 @@ public abstract class BaseContentStructureResourceImpl
 			Map<String, Serializable> parameters, String search)
 		throws Exception {
 
-		return getSiteContentStructuresPage(
-			Long.parseLong((String)parameters.get("siteId")), search, null,
-			filter, pagination, sorts);
+		if (parameters.containsKey("assetLibraryId")) {
+			return getAssetLibraryContentStructuresPage(
+				(Long)parameters.get("assetLibraryId"), search, null, filter,
+				pagination, sorts);
+		}
+		else if (parameters.containsKey("siteId")) {
+			return getSiteContentStructuresPage(
+				(Long)parameters.get("siteId"), search, null, filter,
+				pagination, sorts);
+		}
+		else {
+			return null;
+		}
 	}
 
 	@Override
@@ -636,6 +646,18 @@ public abstract class BaseContentStructureResourceImpl
 
 	public void setGroupLocalService(GroupLocalService groupLocalService) {
 		this.groupLocalService = groupLocalService;
+	}
+
+	public void setResourceActionLocalService(
+		ResourceActionLocalService resourceActionLocalService) {
+
+		this.resourceActionLocalService = resourceActionLocalService;
+	}
+
+	public void setResourcePermissionLocalService(
+		ResourcePermissionLocalService resourcePermissionLocalService) {
+
+		this.resourcePermissionLocalService = resourcePermissionLocalService;
 	}
 
 	public void setRoleLocalService(RoleLocalService roleLocalService) {

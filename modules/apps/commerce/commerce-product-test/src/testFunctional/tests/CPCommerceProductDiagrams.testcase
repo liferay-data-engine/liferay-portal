@@ -1,0 +1,107 @@
+@component-name = "portal-commerce"
+definition {
+
+	property portal.release = "true";
+	property portal.upstream = "true";
+	property testray.main.component.name = "Product Info Management";
+
+	setUp {
+		TestCase.setUpPortalInstance();
+
+		User.firstLoginPG();
+	}
+
+	tearDown {
+		var testPortalInstance = PropsUtil.get("test.portal.instance");
+
+		if ("${testPortalInstance}" == "true") {
+			PortalInstances.tearDownCP();
+		}
+		else {
+			Navigator.openURL();
+
+			CommerceConfiguration.commerceAdminTearDown();
+
+			CommerceConfiguration.commerceInitializersTearDown();
+
+			User.logoutPG();
+		}
+	}
+
+	@description = "This is a test for COMMERCE-7019. AddDiagramProduct"
+	@priority = "3"
+	test AddDiagramProduct {
+		property portal.acceptance = "false";
+
+		CommerceNavigator.gotoPortlet(
+			category = "Product Management",
+			portlet = "Products");
+
+		CPCommerceCatalog.newProductsEntry(
+			productCatalog = "Master",
+			productName = "Diagram T-Shirt",
+			productType = "Diagram");
+
+		CommerceEntry.viewProductsEntry(
+			productFullDescription = "Diagram T-Shirt Full Description",
+			productName = "Diagram T-Shirt",
+			productShortDescription = "Diagram T-Shirt Short Description");
+
+		CommerceEntry.gotoMenuTab(menuTab = "Diagram");
+
+		Click(locator1 = "Icon#BACK");
+
+		CommerceNavigator.searchEntry(entryName = "Diagram T-Shirt");
+
+		AssertElementPresent(
+			key_entryName = "Diagram T-Shirt",
+			locator1 = "CommerceNavigation#ENTRY_NAME",
+			value1 = "Diagram T-Shirt");
+
+		CommerceNavigator.gotoEntry(entryName = "Diagram T-Shirt");
+	}
+
+	@description = "This is a test for COMMERCE-7020. UploadANotMappedNewImage"
+	@priority = "3"
+	test UploadANotMappedNewImage {
+		property portal.acceptance = "false";
+
+		CommerceNavigator.gotoPortlet(
+			category = "Product Management",
+			portlet = "Products");
+
+		CPCommerceCatalog.newProductsEntry(
+			productCatalog = "Master",
+			productName = "Diagram T-Shirt",
+			productType = "Diagram");
+
+		CommerceEntry.gotoMenuTab(menuTab = "Diagram");
+
+		CommerceProductImages.addDiagramImages(
+			imageTitles = "Black",
+			productType = "Diagram");
+
+		Button.clickPublish();
+
+		Alert.viewSuccessMessage();
+
+		DoubleClick(
+			key_image = "Commerce_Black",
+			locator1 = "CommerceEntry#VERIFY_IMAGE");
+
+		AssertElementPresent(
+			key_image = "Commerce_Black",
+			locator1 = "CommerceEntry#VERIFY_IMAGE");
+
+		AssertElementNotPresent(
+			key_color = "#ffffff",
+			locator1 = "CommerceEntry#VERIFY_PIN");
+
+		Refresh();
+
+		AssertElementPresent(
+			key_image = "Commerce_Black.jpg",
+			locator1 = "CommerceEntry#VERIFY_IMAGE");
+	}
+
+}

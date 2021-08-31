@@ -16,6 +16,7 @@ package com.liferay.headless.form.internal.resource.v1_0;
 
 import com.liferay.headless.form.dto.v1_0.FormRecord;
 import com.liferay.headless.form.resource.v1_0.FormRecordResource;
+import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.portal.kernel.model.GroupedModel;
 import com.liferay.portal.kernel.search.Sort;
@@ -281,9 +282,12 @@ public abstract class BaseFormRecordResourceImpl
 			Map<String, Serializable> parameters)
 		throws Exception {
 
-		for (FormRecord formRecord : formRecords) {
-			postFormFormRecord(
+		UnsafeConsumer<FormRecord, Exception> formRecordUnsafeConsumer =
+			formRecord -> postFormFormRecord(
 				Long.parseLong((String)parameters.get("formId")), formRecord);
+
+		for (FormRecord formRecord : formRecords) {
+			formRecordUnsafeConsumer.accept(formRecord);
 		}
 	}
 
@@ -389,6 +393,18 @@ public abstract class BaseFormRecordResourceImpl
 
 	public void setGroupLocalService(GroupLocalService groupLocalService) {
 		this.groupLocalService = groupLocalService;
+	}
+
+	public void setResourceActionLocalService(
+		ResourceActionLocalService resourceActionLocalService) {
+
+		this.resourceActionLocalService = resourceActionLocalService;
+	}
+
+	public void setResourcePermissionLocalService(
+		ResourcePermissionLocalService resourcePermissionLocalService) {
+
+		this.resourcePermissionLocalService = resourcePermissionLocalService;
 	}
 
 	public void setRoleLocalService(RoleLocalService roleLocalService) {

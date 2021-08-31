@@ -15,7 +15,10 @@
 package com.liferay.frontend.js.bundle.config.extender.internal.servlet.taglib;
 
 import com.liferay.frontend.js.bundle.config.extender.internal.JSBundleConfigTracker;
+import com.liferay.frontend.js.loader.modules.extender.npm.ModuleNameUtil;
 import com.liferay.petra.string.StringBundler;
+import com.liferay.portal.kernel.json.JSONFactory;
+import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.servlet.taglib.BaseDynamicInclude;
@@ -24,6 +27,7 @@ import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.ObjectValuePair;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.Validator;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -84,6 +88,11 @@ public class JSBundleConfigTopHeadDynamicInclude extends BaseDynamicInclude {
 
 					stringWriter.write(
 						StringBundler.concat(
+							"var MODULE_MAIN='", _getModuleMain(jsConfig),
+							"';"));
+
+					stringWriter.write(
+						StringBundler.concat(
 							"var MODULE_PATH='", _portal.getPathProxy(),
 							servletContext.getContextPath(), "';"));
 
@@ -128,6 +137,39 @@ public class JSBundleConfigTopHeadDynamicInclude extends BaseDynamicInclude {
 		_jsBundleConfigTracker = jsBundleConfigTracker;
 	}
 
+	private String _getModuleMain(JSBundleConfigTracker.JSConfig jsConfig) {
+		try {
+			ServletContext servletContext = jsConfig.getServletContext();
+
+			URL url = servletContext.getResource("package.json");
+
+			if (url == null) {
+				return null;
+			}
+
+			try (InputStream inputStream = url.openStream()) {
+				JSONObject jsonObject = _jsonFactory.createJSONObject(
+					StringUtil.read(inputStream));
+
+				String moduleName = jsonObject.getString("name");
+				String moduleVersion = jsonObject.getString("version");
+
+				String moduleMain = jsonObject.getString("main");
+
+				if (Validator.isNull(moduleMain)) {
+					moduleMain = "index.js";
+				}
+
+				return StringBundler.concat(
+					moduleName, "@", moduleVersion, "/",
+					ModuleNameUtil.toModuleName(moduleMain));
+			}
+		}
+		catch (Exception exception) {
+			throw new RuntimeException(exception);
+		}
+	}
+
 	private boolean _isStale() {
 		if (_jsBundleConfigTracker.getLastModified() >
 				_objectValuePair.getKey()) {
@@ -151,6 +193,10 @@ public class JSBundleConfigTopHeadDynamicInclude extends BaseDynamicInclude {
 		JSBundleConfigTopHeadDynamicInclude.class);
 
 	private JSBundleConfigTracker _jsBundleConfigTracker;
+
+	@Reference
+	private JSONFactory _jsonFactory;
+
 	private volatile ObjectValuePair<Long, String> _objectValuePair =
 		new ObjectValuePair<>(0L, null);
 

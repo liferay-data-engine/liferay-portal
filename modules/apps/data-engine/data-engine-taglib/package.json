@@ -1,19 +1,19 @@
 {
 	"dependencies": {
 		"@clayui/button": "3.32.0",
-		"@clayui/data-provider": "3.32.0",
-		"@clayui/drop-down": "3.32.0",
-		"@clayui/form": "3.32.0",
+		"@clayui/data-provider": "3.35.2",
+		"@clayui/drop-down": "3.35.2",
+		"@clayui/form": "3.35.2",
 		"@clayui/icon": "3.32.0",
 		"@clayui/label": "3.32.0",
 		"@clayui/layout": "3.32.0",
 		"@clayui/link": "3.32.0",
-		"@clayui/list": "3.32.0",
+		"@clayui/list": "3.35.2",
 		"@clayui/loading-indicator": "3.32.0",
-		"@clayui/modal": "3.32.0",
-		"@clayui/multi-step-nav": "3.32.0",
-		"@clayui/navigation-bar": "3.32.0",
-		"@clayui/pagination-bar": "3.33.0",
+		"@clayui/modal": "3.35.2",
+		"@clayui/multi-step-nav": "3.35.2",
+		"@clayui/navigation-bar": "3.35.2",
+		"@clayui/pagination-bar": "3.35.2",
 		"@clayui/sticker": "3.32.0",
 		"@clayui/table": "3.32.0",
 		"@liferay/frontend-js-react-web": "*",
@@ -33,9 +33,6 @@
 		"collectCoverageFrom": [
 			"src/main/resources/META-INF/resources/data_layout_builder/js/**/*.es.js"
 		],
-		"moduleNameMapper": {
-			"^dynamic-data-mapping-form-builder$": "<rootDir>/test/mock/dynamic-data-mapping-form-builder.es.js"
-		},
 		"setupFilesAfterEnv": [
 			"<rootDir>/jest-setup.config.js"
 		],

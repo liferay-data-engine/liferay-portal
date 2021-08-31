@@ -18,6 +18,7 @@ module.exports = {
 			exclude: {
 				lodash: false,
 			},
+			ignore: ['**/legacy/config.js'],
 		},
 	},
 };

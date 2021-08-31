@@ -77,7 +77,6 @@ public class LayoutRevisionLocalServiceImpl
 			layoutSetBranchPersistence.findByPrimaryKey(layoutSetBranchId);
 		parentLayoutRevisionId = getParentLayoutRevisionId(
 			layoutSetBranchId, parentLayoutRevisionId, plid);
-		Date date = new Date();
 
 		long layoutRevisionId = counterLocalService.increment();
 
@@ -105,7 +104,8 @@ public class LayoutRevisionLocalServiceImpl
 		layoutRevision.setColorSchemeId(colorSchemeId);
 		layoutRevision.setCss(css);
 		layoutRevision.setStatus(WorkflowConstants.STATUS_DRAFT);
-		layoutRevision.setStatusDate(serviceContext.getModifiedDate(date));
+		layoutRevision.setStatusDate(
+			serviceContext.getModifiedDate(new Date()));
 
 		layoutRevision = layoutRevisionPersistence.update(layoutRevision);
 
@@ -336,17 +336,10 @@ public class LayoutRevisionLocalServiceImpl
 			return layoutRevisions.get(0);
 		}
 
-		StringBundler sb = new StringBundler(7);
-
-		sb.append("{layoutSetBranchId=");
-		sb.append(layoutSetBranchId);
-		sb.append(", layoutBranchId=");
-		sb.append(layoutBranchId);
-		sb.append(", plid=");
-		sb.append(plid);
-		sb.append("}");
-
-		throw new NoSuchLayoutRevisionException(sb.toString());
+		throw new NoSuchLayoutRevisionException(
+			StringBundler.concat(
+				"{layoutSetBranchId=", layoutSetBranchId, ", layoutBranchId=",
+				layoutBranchId, ", plid=", plid, "}"));
 	}
 
 	@Override

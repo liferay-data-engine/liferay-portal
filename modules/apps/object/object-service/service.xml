@@ -23,6 +23,8 @@
 		<column method-name="DBTableName" name="dbTableName" type="String" />
 		<column localized="true" name="label" type="String" />
 		<column name="name" type="String" />
+		<column name="panelAppOrder" type="String" />
+		<column name="panelCategoryKey" type="String" />
 		<column method-name="PKObjectFieldDBColumnName" name="pkObjectFieldDBColumnName" type="String" />
 		<column method-name="PKObjectFieldName" name="pkObjectFieldName" type="String" />
 		<column localized="true" name="pluralLabel" type="String" />
@@ -91,6 +93,10 @@
 		<finder name="ObjectDefinitionId" return-type="Collection">
 			<finder-column name="objectDefinitionId" />
 		</finder>
+		<finder name="G_ODI" return-type="Collection">
+			<finder-column name="groupId" />
+			<finder-column name="objectDefinitionId" />
+		</finder>
 		<finder name="G_C_ERC" return-type="ObjectEntry">
 			<finder-column name="groupId" />
 			<finder-column name="companyId" />
@@ -119,6 +125,7 @@
 
 		<!-- Other fields -->
 
+		<column name="listTypeDefinitionId" type="long" />
 		<column name="objectDefinitionId" type="long" />
 		<column method-name="DBColumnName" name="dbColumnName" type="String" />
 		<column method-name="DBTableName" name="dbTableName" type="String" />
@@ -212,6 +219,8 @@
 		<exception>DuplicateObjectField</exception>
 		<exception>ObjectDefinitionLabel</exception>
 		<exception>ObjectDefinitionName</exception>
+		<exception>ObjectDefinitionPluralLabel</exception>
+		<exception>ObjectDefinitionScope</exception>
 		<exception>ObjectDefinitionStatus</exception>
 		<exception>ObjectDefinitionVersion</exception>
 		<exception>ObjectEntryValues</exception>

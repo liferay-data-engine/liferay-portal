@@ -23,7 +23,6 @@ import com.liferay.list.type.service.persistence.ListTypeEntryPersistence;
 import com.liferay.list.type.service.persistence.impl.constants.ListTypePersistenceConstants;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.configuration.Configuration;
-import com.liferay.portal.kernel.dao.orm.ArgumentsResolver;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -34,16 +33,15 @@ import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.dao.orm.SessionFactory;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.model.BaseModel;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
-import com.liferay.portal.kernel.util.HashMapDictionary;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.SetUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.uuid.PortalUUIDUtil;
 
@@ -51,18 +49,16 @@ import java.io.Serializable;
 
 import java.lang.reflect.InvocationHandler;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.sql.DataSource;
 
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -1727,10 +1723,277 @@ public class ListTypeEntryPersistenceImpl
 		_FINDER_COLUMN_LISTTYPEDEFINITIONID_LISTTYPEDEFINITIONID_2 =
 			"listTypeEntry.listTypeDefinitionId = ?";
 
+	private FinderPath _finderPathFetchByLTDI_K;
+	private FinderPath _finderPathCountByLTDI_K;
+
+	/**
+	 * Returns the list type entry where listTypeDefinitionId = &#63; and key = &#63; or throws a <code>NoSuchListTypeEntryException</code> if it could not be found.
+	 *
+	 * @param listTypeDefinitionId the list type definition ID
+	 * @param key the key
+	 * @return the matching list type entry
+	 * @throws NoSuchListTypeEntryException if a matching list type entry could not be found
+	 */
+	@Override
+	public ListTypeEntry findByLTDI_K(long listTypeDefinitionId, String key)
+		throws NoSuchListTypeEntryException {
+
+		ListTypeEntry listTypeEntry = fetchByLTDI_K(listTypeDefinitionId, key);
+
+		if (listTypeEntry == null) {
+			StringBundler sb = new StringBundler(6);
+
+			sb.append(_NO_SUCH_ENTITY_WITH_KEY);
+
+			sb.append("listTypeDefinitionId=");
+			sb.append(listTypeDefinitionId);
+
+			sb.append(", key=");
+			sb.append(key);
+
+			sb.append("}");
+
+			if (_log.isDebugEnabled()) {
+				_log.debug(sb.toString());
+			}
+
+			throw new NoSuchListTypeEntryException(sb.toString());
+		}
+
+		return listTypeEntry;
+	}
+
+	/**
+	 * Returns the list type entry where listTypeDefinitionId = &#63; and key = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
+	 *
+	 * @param listTypeDefinitionId the list type definition ID
+	 * @param key the key
+	 * @return the matching list type entry, or <code>null</code> if a matching list type entry could not be found
+	 */
+	@Override
+	public ListTypeEntry fetchByLTDI_K(long listTypeDefinitionId, String key) {
+		return fetchByLTDI_K(listTypeDefinitionId, key, true);
+	}
+
+	/**
+	 * Returns the list type entry where listTypeDefinitionId = &#63; and key = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
+	 *
+	 * @param listTypeDefinitionId the list type definition ID
+	 * @param key the key
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the matching list type entry, or <code>null</code> if a matching list type entry could not be found
+	 */
+	@Override
+	public ListTypeEntry fetchByLTDI_K(
+		long listTypeDefinitionId, String key, boolean useFinderCache) {
+
+		key = Objects.toString(key, "");
+
+		Object[] finderArgs = null;
+
+		if (useFinderCache) {
+			finderArgs = new Object[] {listTypeDefinitionId, key};
+		}
+
+		Object result = null;
+
+		if (useFinderCache) {
+			result = finderCache.getResult(
+				_finderPathFetchByLTDI_K, finderArgs);
+		}
+
+		if (result instanceof ListTypeEntry) {
+			ListTypeEntry listTypeEntry = (ListTypeEntry)result;
+
+			if ((listTypeDefinitionId !=
+					listTypeEntry.getListTypeDefinitionId()) ||
+				!Objects.equals(key, listTypeEntry.getKey())) {
+
+				result = null;
+			}
+		}
+
+		if (result == null) {
+			StringBundler sb = new StringBundler(4);
+
+			sb.append(_SQL_SELECT_LISTTYPEENTRY_WHERE);
+
+			sb.append(_FINDER_COLUMN_LTDI_K_LISTTYPEDEFINITIONID_2);
+
+			boolean bindKey = false;
+
+			if (key.isEmpty()) {
+				sb.append(_FINDER_COLUMN_LTDI_K_KEY_3);
+			}
+			else {
+				bindKey = true;
+
+				sb.append(_FINDER_COLUMN_LTDI_K_KEY_2);
+			}
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				queryPos.add(listTypeDefinitionId);
+
+				if (bindKey) {
+					queryPos.add(key);
+				}
+
+				List<ListTypeEntry> list = query.list();
+
+				if (list.isEmpty()) {
+					if (useFinderCache) {
+						finderCache.putResult(
+							_finderPathFetchByLTDI_K, finderArgs, list);
+					}
+				}
+				else {
+					if (list.size() > 1) {
+						Collections.sort(list, Collections.reverseOrder());
+
+						if (_log.isWarnEnabled()) {
+							if (!useFinderCache) {
+								finderArgs = new Object[] {
+									listTypeDefinitionId, key
+								};
+							}
+
+							_log.warn(
+								"ListTypeEntryPersistenceImpl.fetchByLTDI_K(long, String, boolean) with parameters (" +
+									StringUtil.merge(finderArgs) +
+										") yields a result set with more than 1 result. This violates the logical unique restriction. There is no order guarantee on which result is returned by this finder.");
+						}
+					}
+
+					ListTypeEntry listTypeEntry = list.get(0);
+
+					result = listTypeEntry;
+
+					cacheResult(listTypeEntry);
+				}
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		if (result instanceof List<?>) {
+			return null;
+		}
+		else {
+			return (ListTypeEntry)result;
+		}
+	}
+
+	/**
+	 * Removes the list type entry where listTypeDefinitionId = &#63; and key = &#63; from the database.
+	 *
+	 * @param listTypeDefinitionId the list type definition ID
+	 * @param key the key
+	 * @return the list type entry that was removed
+	 */
+	@Override
+	public ListTypeEntry removeByLTDI_K(long listTypeDefinitionId, String key)
+		throws NoSuchListTypeEntryException {
+
+		ListTypeEntry listTypeEntry = findByLTDI_K(listTypeDefinitionId, key);
+
+		return remove(listTypeEntry);
+	}
+
+	/**
+	 * Returns the number of list type entries where listTypeDefinitionId = &#63; and key = &#63;.
+	 *
+	 * @param listTypeDefinitionId the list type definition ID
+	 * @param key the key
+	 * @return the number of matching list type entries
+	 */
+	@Override
+	public int countByLTDI_K(long listTypeDefinitionId, String key) {
+		key = Objects.toString(key, "");
+
+		FinderPath finderPath = _finderPathCountByLTDI_K;
+
+		Object[] finderArgs = new Object[] {listTypeDefinitionId, key};
+
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+
+		if (count == null) {
+			StringBundler sb = new StringBundler(3);
+
+			sb.append(_SQL_COUNT_LISTTYPEENTRY_WHERE);
+
+			sb.append(_FINDER_COLUMN_LTDI_K_LISTTYPEDEFINITIONID_2);
+
+			boolean bindKey = false;
+
+			if (key.isEmpty()) {
+				sb.append(_FINDER_COLUMN_LTDI_K_KEY_3);
+			}
+			else {
+				bindKey = true;
+
+				sb.append(_FINDER_COLUMN_LTDI_K_KEY_2);
+			}
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				queryPos.add(listTypeDefinitionId);
+
+				if (bindKey) {
+					queryPos.add(key);
+				}
+
+				count = (Long)query.uniqueResult();
+
+				finderCache.putResult(finderPath, finderArgs, count);
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
+	}
+
+	private static final String _FINDER_COLUMN_LTDI_K_LISTTYPEDEFINITIONID_2 =
+		"listTypeEntry.listTypeDefinitionId = ? AND ";
+
+	private static final String _FINDER_COLUMN_LTDI_K_KEY_2 =
+		"listTypeEntry.key = ?";
+
+	private static final String _FINDER_COLUMN_LTDI_K_KEY_3 =
+		"(listTypeEntry.key IS NULL OR listTypeEntry.key = '')";
+
 	public ListTypeEntryPersistenceImpl() {
 		Map<String, String> dbColumnNames = new HashMap<String, String>();
 
 		dbColumnNames.put("uuid", "uuid_");
+		dbColumnNames.put("key", "key_");
 		dbColumnNames.put("type", "type_");
 
 		setDBColumnNames(dbColumnNames);
@@ -1752,6 +2015,13 @@ public class ListTypeEntryPersistenceImpl
 	public void cacheResult(ListTypeEntry listTypeEntry) {
 		entityCache.putResult(
 			ListTypeEntryImpl.class, listTypeEntry.getPrimaryKey(),
+			listTypeEntry);
+
+		finderCache.putResult(
+			_finderPathFetchByLTDI_K,
+			new Object[] {
+				listTypeEntry.getListTypeDefinitionId(), listTypeEntry.getKey()
+			},
 			listTypeEntry);
 	}
 
@@ -1812,6 +2082,19 @@ public class ListTypeEntryPersistenceImpl
 		for (Serializable primaryKey : primaryKeys) {
 			entityCache.removeResult(ListTypeEntryImpl.class, primaryKey);
 		}
+	}
+
+	protected void cacheUniqueFindersCache(
+		ListTypeEntryModelImpl listTypeEntryModelImpl) {
+
+		Object[] args = new Object[] {
+			listTypeEntryModelImpl.getListTypeDefinitionId(),
+			listTypeEntryModelImpl.getKey()
+		};
+
+		finderCache.putResult(_finderPathCountByLTDI_K, args, Long.valueOf(1));
+		finderCache.putResult(
+			_finderPathFetchByLTDI_K, args, listTypeEntryModelImpl);
 	}
 
 	/**
@@ -1996,6 +2279,8 @@ public class ListTypeEntryPersistenceImpl
 
 		entityCache.putResult(
 			ListTypeEntryImpl.class, listTypeEntryModelImpl, false, true);
+
+		cacheUniqueFindersCache(listTypeEntryModelImpl);
 
 		if (isNew) {
 			listTypeEntry.setNew(false);
@@ -2265,13 +2550,7 @@ public class ListTypeEntryPersistenceImpl
 	 * Initializes the list type entry persistence.
 	 */
 	@Activate
-	public void activate(BundleContext bundleContext) {
-		_bundleContext = bundleContext;
-
-		_argumentsResolverServiceRegistration = _bundleContext.registerService(
-			ArgumentsResolver.class, new ListTypeEntryModelArgumentsResolver(),
-			new HashMapDictionary<>());
-
+	public void activate() {
 		_finderPathWithPaginationFindAll = new FinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findAll", new String[0],
 			new String[0], true);
@@ -2339,13 +2618,21 @@ public class ListTypeEntryPersistenceImpl
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION,
 			"countByListTypeDefinitionId", new String[] {Long.class.getName()},
 			new String[] {"listTypeDefinitionId"}, false);
+
+		_finderPathFetchByLTDI_K = new FinderPath(
+			FINDER_CLASS_NAME_ENTITY, "fetchByLTDI_K",
+			new String[] {Long.class.getName(), String.class.getName()},
+			new String[] {"listTypeDefinitionId", "key_"}, true);
+
+		_finderPathCountByLTDI_K = new FinderPath(
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByLTDI_K",
+			new String[] {Long.class.getName(), String.class.getName()},
+			new String[] {"listTypeDefinitionId", "key_"}, false);
 	}
 
 	@Deactivate
 	public void deactivate() {
 		entityCache.removeCache(ListTypeEntryImpl.class.getName());
-
-		_argumentsResolverServiceRegistration.unregister();
 	}
 
 	@Override
@@ -2373,8 +2660,6 @@ public class ListTypeEntryPersistenceImpl
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		super.setSessionFactory(sessionFactory);
 	}
-
-	private BundleContext _bundleContext;
 
 	@Reference
 	protected EntityCache entityCache;
@@ -2406,101 +2691,15 @@ public class ListTypeEntryPersistenceImpl
 		ListTypeEntryPersistenceImpl.class);
 
 	private static final Set<String> _badColumnNames = SetUtil.fromArray(
-		new String[] {"uuid", "type"});
+		new String[] {"uuid", "key", "type"});
 
 	@Override
 	protected FinderCache getFinderCache() {
 		return finderCache;
 	}
 
-	private ServiceRegistration<ArgumentsResolver>
-		_argumentsResolverServiceRegistration;
-
-	private static class ListTypeEntryModelArgumentsResolver
-		implements ArgumentsResolver {
-
-		@Override
-		public Object[] getArguments(
-			FinderPath finderPath, BaseModel<?> baseModel, boolean checkColumn,
-			boolean original) {
-
-			String[] columnNames = finderPath.getColumnNames();
-
-			if ((columnNames == null) || (columnNames.length == 0)) {
-				if (baseModel.isNew()) {
-					return FINDER_ARGS_EMPTY;
-				}
-
-				return null;
-			}
-
-			ListTypeEntryModelImpl listTypeEntryModelImpl =
-				(ListTypeEntryModelImpl)baseModel;
-
-			long columnBitmask = listTypeEntryModelImpl.getColumnBitmask();
-
-			if (!checkColumn || (columnBitmask == 0)) {
-				return _getValue(listTypeEntryModelImpl, columnNames, original);
-			}
-
-			Long finderPathColumnBitmask = _finderPathColumnBitmasksCache.get(
-				finderPath);
-
-			if (finderPathColumnBitmask == null) {
-				finderPathColumnBitmask = 0L;
-
-				for (String columnName : columnNames) {
-					finderPathColumnBitmask |=
-						listTypeEntryModelImpl.getColumnBitmask(columnName);
-				}
-
-				_finderPathColumnBitmasksCache.put(
-					finderPath, finderPathColumnBitmask);
-			}
-
-			if ((columnBitmask & finderPathColumnBitmask) != 0) {
-				return _getValue(listTypeEntryModelImpl, columnNames, original);
-			}
-
-			return null;
-		}
-
-		@Override
-		public String getClassName() {
-			return ListTypeEntryImpl.class.getName();
-		}
-
-		@Override
-		public String getTableName() {
-			return ListTypeEntryTable.INSTANCE.getTableName();
-		}
-
-		private static Object[] _getValue(
-			ListTypeEntryModelImpl listTypeEntryModelImpl, String[] columnNames,
-			boolean original) {
-
-			Object[] arguments = new Object[columnNames.length];
-
-			for (int i = 0; i < arguments.length; i++) {
-				String columnName = columnNames[i];
-
-				if (original) {
-					arguments[i] =
-						listTypeEntryModelImpl.getColumnOriginalValue(
-							columnName);
-				}
-				else {
-					arguments[i] = listTypeEntryModelImpl.getColumnValue(
-						columnName);
-				}
-			}
-
-			return arguments;
-		}
-
-		private static final Map<FinderPath, Long>
-			_finderPathColumnBitmasksCache = new ConcurrentHashMap<>();
-
-	}
+	@Reference
+	private ListTypeEntryModelArgumentsResolver
+		_listTypeEntryModelArgumentsResolver;
 
 }

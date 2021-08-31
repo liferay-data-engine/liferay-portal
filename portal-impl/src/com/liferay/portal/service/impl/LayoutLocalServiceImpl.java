@@ -135,15 +135,9 @@ public class LayoutLocalServiceImpl extends LayoutLocalServiceBaseImpl {
 	 * @return the object counter's name
 	 */
 	public static String getCounterName(long groupId, boolean privateLayout) {
-		StringBundler sb = new StringBundler(5);
-
-		sb.append(Layout.class.getName());
-		sb.append(StringPool.POUND);
-		sb.append(groupId);
-		sb.append(StringPool.POUND);
-		sb.append(privateLayout);
-
-		return sb.toString();
+		return StringBundler.concat(
+			Layout.class.getName(), StringPool.POUND, groupId, StringPool.POUND,
+			privateLayout);
 	}
 
 	/**
@@ -1197,15 +1191,10 @@ public class LayoutLocalServiceImpl extends LayoutLocalServiceBaseImpl {
 		throws PortalException {
 
 		if (Validator.isNull(friendlyURL)) {
-			StringBundler sb = new StringBundler(5);
-
-			sb.append("{groupId=");
-			sb.append(groupId);
-			sb.append(", privateLayout=");
-			sb.append(privateLayout);
-			sb.append("}");
-
-			throw new NoSuchLayoutException(sb.toString());
+			throw new NoSuchLayoutException(
+				StringBundler.concat(
+					"{groupId=", groupId, ", privateLayout=", privateLayout,
+					"}"));
 		}
 
 		friendlyURL = layoutLocalServiceHelper.getFriendlyURL(friendlyURL);
@@ -1233,17 +1222,10 @@ public class LayoutLocalServiceImpl extends LayoutLocalServiceBaseImpl {
 		}
 
 		if (layout == null) {
-			StringBundler sb = new StringBundler(7);
-
-			sb.append("{groupId=");
-			sb.append(groupId);
-			sb.append(", privateLayout=");
-			sb.append(privateLayout);
-			sb.append(", friendlyURL=");
-			sb.append(friendlyURL);
-			sb.append("}");
-
-			throw new NoSuchLayoutException(sb.toString());
+			throw new NoSuchLayoutException(
+				StringBundler.concat(
+					"{groupId=", groupId, ", privateLayout=", privateLayout,
+					", friendlyURL=", friendlyURL, "}"));
 		}
 
 		return layout;
@@ -2487,8 +2469,6 @@ public class LayoutLocalServiceImpl extends LayoutLocalServiceBaseImpl {
 			long userId, long plid, String friendlyURL, String languageId)
 		throws PortalException {
 
-		Date date = new Date();
-
 		Layout layout = layoutPersistence.findByPrimaryKey(plid);
 
 		friendlyURL = layoutLocalServiceHelper.getFriendlyURL(
@@ -2504,7 +2484,7 @@ public class LayoutLocalServiceImpl extends LayoutLocalServiceBaseImpl {
 			layout.getPlid(), layout.isPrivateLayout(), friendlyURL, languageId,
 			new ServiceContext());
 
-		layout.setModifiedDate(date);
+		layout.setModifiedDate(new Date());
 
 		String defaultLanguageId = LocaleUtil.toLanguageId(
 			LocaleUtil.getSiteDefault());
@@ -2652,8 +2632,6 @@ public class LayoutLocalServiceImpl extends LayoutLocalServiceBaseImpl {
 		layoutLocalServiceHelper.validateParentLayoutId(
 			groupId, privateLayout, layoutId, parentLayoutId);
 
-		Date date = new Date();
-
 		Layout layout = layoutPersistence.findByG_P_L(
 			groupId, privateLayout, layoutId);
 
@@ -2668,7 +2646,7 @@ public class LayoutLocalServiceImpl extends LayoutLocalServiceBaseImpl {
 			layout.setPriority(priority);
 		}
 
-		layout.setModifiedDate(serviceContext.getModifiedDate(date));
+		layout.setModifiedDate(serviceContext.getModifiedDate(new Date()));
 		layout.setParentLayoutId(parentLayoutId);
 		layout.setNameMap(nameMap);
 		layout.setTitleMap(titleMap);
@@ -2806,12 +2784,10 @@ public class LayoutLocalServiceImpl extends LayoutLocalServiceBaseImpl {
 			String colorSchemeId, String css)
 		throws PortalException {
 
-		Date date = new Date();
-
 		Layout layout = layoutPersistence.findByG_P_L(
 			groupId, privateLayout, layoutId);
 
-		layout.setModifiedDate(date);
+		layout.setModifiedDate(new Date());
 
 		layout.setThemeId(themeId);
 		layout.setColorSchemeId(colorSchemeId);
@@ -2951,8 +2927,6 @@ public class LayoutLocalServiceImpl extends LayoutLocalServiceBaseImpl {
 		layoutLocalServiceHelper.validateParentLayoutId(
 			groupId, privateLayout, layoutId, parentLayoutId);
 
-		Date date = new Date();
-
 		Layout layout = layoutPersistence.findByG_P_L(
 			groupId, privateLayout, layoutId);
 
@@ -2967,7 +2941,7 @@ public class LayoutLocalServiceImpl extends LayoutLocalServiceBaseImpl {
 			layout.setPriority(priority);
 		}
 
-		layout.setModifiedDate(date);
+		layout.setModifiedDate(new Date());
 		layout.setParentLayoutId(parentLayoutId);
 
 		Layout draftLayout = layout.fetchDraftLayout();
@@ -3002,8 +2976,6 @@ public class LayoutLocalServiceImpl extends LayoutLocalServiceBaseImpl {
 			return layout;
 		}
 
-		Date date = new Date();
-
 		long parentLayoutId = LayoutConstants.DEFAULT_PARENT_LAYOUT_ID;
 
 		if (parentPlid > 0) {
@@ -3030,7 +3002,7 @@ public class LayoutLocalServiceImpl extends LayoutLocalServiceBaseImpl {
 			layout.setPriority(priority);
 		}
 
-		layout.setModifiedDate(date);
+		layout.setModifiedDate(new Date());
 		layout.setParentPlid(parentPlid);
 		layout.setParentLayoutId(parentLayoutId);
 

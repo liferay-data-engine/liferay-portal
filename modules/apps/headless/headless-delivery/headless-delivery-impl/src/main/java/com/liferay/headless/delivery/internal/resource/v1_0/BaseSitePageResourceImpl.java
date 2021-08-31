@@ -293,9 +293,14 @@ public abstract class BaseSitePageResourceImpl
 			Map<String, Serializable> parameters, String search)
 		throws Exception {
 
-		return getSiteSitePagesPage(
-			Long.parseLong((String)parameters.get("siteId")), search, null,
-			filter, pagination, sorts);
+		if (parameters.containsKey("siteId")) {
+			return getSiteSitePagesPage(
+				(Long)parameters.get("siteId"), search, null, filter,
+				pagination, sorts);
+		}
+		else {
+			return null;
+		}
 	}
 
 	@Override
@@ -361,6 +366,18 @@ public abstract class BaseSitePageResourceImpl
 
 	public void setGroupLocalService(GroupLocalService groupLocalService) {
 		this.groupLocalService = groupLocalService;
+	}
+
+	public void setResourceActionLocalService(
+		ResourceActionLocalService resourceActionLocalService) {
+
+		this.resourceActionLocalService = resourceActionLocalService;
+	}
+
+	public void setResourcePermissionLocalService(
+		ResourcePermissionLocalService resourcePermissionLocalService) {
+
+		this.resourcePermissionLocalService = resourcePermissionLocalService;
 	}
 
 	public void setRoleLocalService(RoleLocalService roleLocalService) {

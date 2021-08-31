@@ -27,7 +27,6 @@ import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.mobile.device.Device;
-import com.liferay.portal.kernel.model.Account;
 import com.liferay.portal.kernel.model.ColorScheme;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Contact;
@@ -138,19 +137,6 @@ public class ThemeDisplay
 		portletDisplay.setThemeDisplay(themeDisplay);
 
 		return themeDisplay;
-	}
-
-	public Account getAccount() {
-		if ((_account == null) && (_company != null)) {
-			try {
-				_account = _company.getAccount();
-			}
-			catch (PortalException portalException) {
-				ReflectionUtil.throwException(portalException);
-			}
-		}
-
-		return _account;
 	}
 
 	/**
@@ -950,11 +936,9 @@ public class ThemeDisplay
 	public String getThemeSetting(String key) {
 		Theme theme = getTheme();
 
-		String device = theme.getDevice();
-
 		Layout layout = getLayout();
 
-		return layout.getThemeSetting(key, device);
+		return layout.getThemeSetting(key, theme.getDevice());
 	}
 
 	/**
@@ -1273,10 +1257,6 @@ public class ThemeDisplay
 		_includePortletCssJs = themeDisplay._includePortletCssJs;
 
 		return this;
-	}
-
-	public void setAccount(Account account) {
-		_account = account;
 	}
 
 	public void setAddSessionIdToURL(boolean addSessionIdToURL) {
@@ -1896,7 +1876,6 @@ public class ThemeDisplay
 
 	private static int _layoutManagePagesInitialChildren = Integer.MIN_VALUE;
 
-	private Account _account;
 	private boolean _addSessionIdToURL;
 	private boolean _ajax;
 	private boolean _async;

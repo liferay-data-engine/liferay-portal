@@ -38,6 +38,7 @@ import com.liferay.portal.kernel.service.WorkflowDefinitionLinkLocalServiceUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
@@ -53,6 +54,7 @@ import com.liferay.translation.constants.TranslationPortletKeys;
 import com.liferay.translation.info.field.TranslationInfoFieldChecker;
 import com.liferay.translation.model.TranslationEntry;
 import com.liferay.translation.service.TranslationEntryLocalServiceUtil;
+import com.liferay.translation.web.internal.configuration.FFLayoutExperienceSelectorConfiguration;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -80,6 +82,8 @@ public class TranslateDisplayContext {
 		List<String> availableSourceLanguageIds,
 		List<String> availableTargetLanguageIds,
 		BooleanSupplier booleanSupplier, String className, long classPK,
+		FFLayoutExperienceSelectorConfiguration
+			ffLayoutExperienceSelectorConfiguration,
 		InfoForm infoForm, LiferayPortletRequest liferayPortletRequest,
 		LiferayPortletResponse liferayPortletResponse, Object object,
 		String segmentsExperienceId,
@@ -92,6 +96,8 @@ public class TranslateDisplayContext {
 		_booleanSupplier = booleanSupplier;
 		_className = className;
 		_classPK = classPK;
+		_ffLayoutExperienceSelectorConfiguration =
+			ffLayoutExperienceSelectorConfiguration;
 		_infoForm = infoForm;
 		_liferayPortletResponse = liferayPortletResponse;
 		_object = object;
@@ -132,8 +138,9 @@ public class TranslateDisplayContext {
 		InfoLocalizedValue<String> labelInfoLocalizedValue =
 			infoField.getLabelInfoLocalizedValue();
 
-		return labelInfoLocalizedValue.getValue(
-			PortalUtil.getLocale(_httpServletRequest));
+		return HtmlUtil.escape(
+			labelInfoLocalizedValue.getValue(
+				PortalUtil.getLocale(_httpServletRequest)));
 	}
 
 	public List<InfoField> getInfoFields(InfoFieldSetEntry infoFieldSetEntry) {
@@ -302,7 +309,7 @@ public class TranslateDisplayContext {
 		if (infoFieldSetEntry instanceof InfoFieldSet) {
 			InfoFieldSet infoFieldSet = (InfoFieldSet)infoFieldSetEntry;
 
-			return infoFieldSet.getLabel(locale);
+			return HtmlUtil.escape(infoFieldSet.getLabel(locale));
 		}
 
 		return null;
@@ -461,10 +468,20 @@ public class TranslateDisplayContext {
 		return _isAvailableTargetLanguageIdsEmpty();
 	}
 
+	private String _getEditorConfigKey() {
+		if (_className.equals(Layout.class.getName())) {
+			return "layoutTranslateEditor";
+		}
+
+		return "defaultTranslateEditor";
+	}
+
 	private Map<String, Object> _getExperiencesSelectorData()
 		throws PortalException {
 
-		if (!Objects.equals(_className, Layout.class.getName())) {
+		if (!_ffLayoutExperienceSelectorConfiguration.enabled() ||
+			!Objects.equals(_className, Layout.class.getName())) {
+
 			return null;
 		}
 
@@ -534,7 +551,7 @@ public class TranslateDisplayContext {
 	private Map<String, Object> _getInfoFieldEditorConfig(String infoFieldId) {
 		EditorConfiguration editorConfiguration =
 			EditorConfigurationFactoryUtil.getEditorConfiguration(
-				TranslationPortletKeys.TRANSLATION, "translateEditor",
+				TranslationPortletKeys.TRANSLATION, _getEditorConfigKey(),
 				"ckeditor",
 				HashMapBuilder.<String, Object>put(
 					"liferay-ui:input-editor:allowBrowseDocuments", true
@@ -579,6 +596,8 @@ public class TranslateDisplayContext {
 	private final BooleanSupplier _booleanSupplier;
 	private final String _className;
 	private final long _classPK;
+	private final FFLayoutExperienceSelectorConfiguration
+		_ffLayoutExperienceSelectorConfiguration;
 	private Long _groupId;
 	private final HttpServletRequest _httpServletRequest;
 	private final InfoForm _infoForm;

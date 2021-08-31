@@ -208,8 +208,12 @@ public abstract class BaseFormResourceImpl
 			Map<String, Serializable> parameters, String search)
 		throws Exception {
 
-		return getSiteFormsPage(
-			Long.parseLong((String)parameters.get("siteId")), pagination);
+		if (parameters.containsKey("siteId")) {
+			return getSiteFormsPage((Long)parameters.get("siteId"), pagination);
+		}
+		else {
+			return null;
+		}
 	}
 
 	@Override
@@ -275,6 +279,18 @@ public abstract class BaseFormResourceImpl
 
 	public void setGroupLocalService(GroupLocalService groupLocalService) {
 		this.groupLocalService = groupLocalService;
+	}
+
+	public void setResourceActionLocalService(
+		ResourceActionLocalService resourceActionLocalService) {
+
+		this.resourceActionLocalService = resourceActionLocalService;
+	}
+
+	public void setResourcePermissionLocalService(
+		ResourcePermissionLocalService resourcePermissionLocalService) {
+
+		this.resourcePermissionLocalService = resourcePermissionLocalService;
 	}
 
 	public void setRoleLocalService(RoleLocalService roleLocalService) {

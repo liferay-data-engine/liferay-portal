@@ -13,6 +13,36 @@ definition {
 		Click(locator1 = "ACSettings#SAVE_BUTTON");
 	}
 
+	macro addUserProperty {
+		Click(locator1 = "ACSettings#PROPERTIES_SELECT_USERS_BUTTON");
+
+		Click(locator1 = "ACSettings#PROPERTIES_SELECT_USERS_OKAY_BUTTON");
+
+		Click(locator1 = "ACSettings#PROPERTIES_ADD_USER_BUTTON");
+
+		Click(locator1 = "ACSidebar#PROPERTY_SEARCH");
+
+		Type(
+			locator1 = "ACSidebar#PROPERTY_SEARCH",
+			value1 = "${emailAddress}");
+
+		KeyPress(
+			locator1 = "ACSidebar#PROPERTY_SEARCH",
+			value1 = "\ENTER");
+
+		Click(
+			emailAddress = "${emailAddress}",
+			locator1 = "ACSettings#PROPERTIES_SELECT_USER_EMAIL");
+
+		Click(locator1 = "ACSettings#PROPERTIES_SUBMIT_BUTTON");
+
+		Alert.viewSuccessMessage();
+
+		AssertElementPresent(
+			emailAddress = "${emailAddress}",
+			locator1 = "ACSettings#PROPERTIES_ASSET_LIST");
+	}
+
 	@summary = "Asserts that the workspace is scoped by a specific Property"
 	macro assertCurrentActiveProperty {
 		AssertTextEquals(
@@ -41,6 +71,13 @@ definition {
 			value1 = "${propertyName}");
 	}
 
+	@summary = "Asserts property title on the properties page"
+	macro assertPropertyTitleList {
+		AssertTextEquals(
+			locator1 = "ACSettings#PROPERTIES_ASSET_TITLE_LIST",
+			value1 = "${propertyName}");
+	}
+
 	@summary = "Clicks the Property Menu Dropdown Button in the sidebar"
 	macro clickPropertyMenuButton {
 		Click(locator1 = "ACSidebar#PROPERTY_MENU_BUTTON");
@@ -51,6 +88,22 @@ definition {
 		var key_propertyName = "${propertyName}";
 
 		Click(locator1 = "ACSidebar#PROPERTY_MENU_ITEM_BY_NAME");
+	}
+
+	macro editPropertyName {
+		Click(locator1 = "Icon#EDIT_PENCIL");
+
+		Type(
+			locator1 = "ACSettings#PROPERTY_INPUT",
+			value1 = "${propertyName}");
+
+		Click(
+			key_title = "Settings",
+			locator1 = "Header#H2_TITLE");
+
+		AssertVisible(
+			locator1 = "ACSettings#HEADER_TITLE",
+			title = "${propertyName}");
 	}
 
 	@summary = "Switchs to a specific property"

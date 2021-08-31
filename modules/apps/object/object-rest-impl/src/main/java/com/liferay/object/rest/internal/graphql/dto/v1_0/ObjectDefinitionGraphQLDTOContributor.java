@@ -22,6 +22,7 @@ import com.liferay.object.rest.manager.v1_0.ObjectEntryManager;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.search.filter.Filter;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.odata.entity.EntityModel;
 import com.liferay.portal.vulcan.aggregation.Aggregation;
 import com.liferay.portal.vulcan.dto.converter.DTOConverterContext;
@@ -71,7 +72,7 @@ public class ObjectDefinitionGraphQLDTOContributor
 			new ObjectEntryEntityModel(objectFields), graphQLDTOProperties,
 			objectDefinition.getPKObjectFieldName(),
 			objectDefinition.getObjectDefinitionId(), objectEntryManager,
-			objectDefinition.getShortName());
+			StringUtil.toLowerCase(objectDefinition.getName()));
 	}
 
 	@Override
@@ -81,7 +82,7 @@ public class ObjectDefinitionGraphQLDTOContributor
 
 		return _toMap(
 			_objectEntryManager.addObjectEntry(
-				dtoConverterContext, dtoConverterContext.getUserId(),
+				dtoConverterContext, dtoConverterContext.getUserId(), 0,
 				_objectDefinitionId, _toObjectEntry(dto)));
 	}
 
@@ -113,7 +114,7 @@ public class ObjectDefinitionGraphQLDTOContributor
 		throws Exception {
 
 		Page<ObjectEntry> page = _objectEntryManager.getObjectEntries(
-			(Long)dtoConverterContext.getAttribute("companyId"),
+			(Long)dtoConverterContext.getAttribute("companyId"), 0,
 			_objectDefinitionId, aggregation, dtoConverterContext, filter,
 			pagination, search, sorts);
 

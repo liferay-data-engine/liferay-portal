@@ -2,6 +2,12 @@ definition {
 
 	macro addBreakdown {
 		Click(locator1 = "ACIndividualsDashboard#ADD_BREAKDOWN_BUTTON");
+
+		ACIndividualsDashboard.nameBreakdown(breakdownName = "${breakdownName}");
+
+		ACIndividualsDashboard.selectAttribute(attribute = "${attribute}");
+
+		ACIndividualsDashboard.saveBreakdown();
 	}
 
 	macro assertCustomRangeNotApplied {
@@ -22,13 +28,31 @@ definition {
 	}
 
 	macro clickBreakdownTab {
-		var key_tabName = "${tabName}";
-
-		Click(locator1 = "ACIndividualsDashboard#BREAKDOWN_TAB");
+		Click(
+			breakdownName = "${breakdownName}",
+			locator1 = "ACIndividualsDashboard#BREAKDOWN_TAB");
 	}
 
 	macro deleteBreakdown {
-		Click(locator1 = "ACIndividualsDashboard#DELETE_BREAKDOWN_BUTTON");
+		Click(
+			breakdownName = "${breakdownName}",
+			locator1 = "ACIndividualsDashboard#DELETE_BREAKDOWN_BUTTON");
+	}
+
+	macro getChartPopoverDate {
+		if (!(isSet(index))) {
+			var index = "1";
+		}
+
+		Click(
+			index = "${index}",
+			locator1 = "ACIndividualsDashboard#INDIVIDUALS_ACTIVITIES_CHART_RECHARTS_BAR");
+
+		SelectFrame.selectFrame(locator1 = "ACIndividualsDashboard#CHART_POPOVER");
+
+		var formattedDate = selenium.getText("ACIndividualsDashboard#CHART_POPOVER_ACTIVITIES_DATE");
+
+		return "${formattedDate}";
 	}
 
 	macro goToDistributionTab {
@@ -58,6 +82,27 @@ definition {
 		Click(locator1 = "ACIndividualsDashboard#INDIVIDUALS_TAB");
 	}
 
+	macro goToVisitedPageOverviewViaIndividualActivity {
+		if (!(isSet(itemIndex))) {
+			var itemIndex = "1";
+		}
+
+		Click(
+			index = "${itemIndex}",
+			itemName = "${itemName}",
+			locator1 = "ACIndividualsDashboard#BASE_RESULTS_TIMELINE_ITEM");
+
+		if (!(isSet(pageIndex))) {
+			var pageIndex = "1";
+		}
+
+		Click(
+			index = "${pageIndex}",
+			itemName = "${itemName}",
+			locator1 = "ACIndividualsDashboard#BASE_RESULTS_TIMELINE_ITEM_NESTED",
+			pageName = "${pageName}");
+	}
+
 	macro nameBreakdown {
 		Type(
 			locator1 = "ACIndividualsDashboard#BREAKDOWN_NAME_FIELD",
@@ -68,10 +113,92 @@ definition {
 		Click(locator1 = "ACIndividualsDashboard#SAVE_BREAKDOWN_BUTTON");
 	}
 
+	macro selectAttribute {
+		Click(
+			key_text = "Attribute",
+			locator1 = "TextInput#ANY");
+
+		Click(
+			locator1 = "ACIndividualsDashboard#DROPDOWN_MENU_ITEM",
+			menuItem = "${attribute}");
+	}
+
+	macro selectDataOnIndividualsActivitiesChart {
+		if (!(isSet(index))) {
+			var index = "1";
+		}
+
+		Click(
+			index = "${index}",
+			locator1 = "ACIndividualsDashboard#INDIVIDUALS_ACTIVITIES_CHART_RECHARTS_BAR");
+	}
+
 	macro viewActivitiesNumberInPeriod {
 		AssertTextEquals(
 			locator1 = "ACIndividualsDashboard#ACTIVITIES_NUMBER",
 			value1 = "${activitiesNumber}");
+	}
+
+	macro viewBreakdownNotPresent {
+		AssertElementNotPresent(
+			breakdownName = "${breakdownName}",
+			locator1 = "ACIndividualsDashboard#BREAKDOWN_TAB");
+	}
+
+	macro viewBreakdownRecharts {
+		if (!(isSet(index))) {
+			var index = "1";
+		}
+
+		AssertTextEquals.assertPartialText(
+			index = "${index}",
+			locator1 = "ACIndividualsDashboard#BREAKDOWN_RECHARTS_CARTESIAN_Y_AXIS_TICK",
+			value1 = "${tick}");
+
+		AssertAttributeValue(
+			attribute1 = "fill",
+			index = "${index}",
+			locator1 = "ACIndividualsDashboard#BREAKDOWN_RECHARTS_BAR_FILL_COLOR",
+			value1 = "${fillColor}");
+	}
+
+	macro viewIndividualDetailsCard {
+		AssertVisible(locator1 = "ACIndividualsDashboard#INDIVIDUAL_DETAILS_CARD_AVATAR");
+
+		AssertVisible(
+			fullName = "${fullName}",
+			locator1 = "ACIndividualsDashboard#INDIVIDUAL_DETAILS_CARD_FULL_NAME");
+
+		AssertVisible(
+			locator1 = "ACIndividualsDashboard#INDIVIDUAL_DETAILS_CARD_EMAIL",
+			userEmailAddress = "${userEmailAddress}");
+	}
+
+	macro viewRechartsBarOnIndividualsActivitiesChart {
+		if (!(isSet(index))) {
+			var index = "1";
+		}
+
+		AssertVisible(
+			index = "${index}",
+			locator1 = "ACIndividualsDashboard#INDIVIDUALS_ACTIVITIES_CHART_RECHARTS_BAR");
+	}
+
+	macro viewTimelineItem {
+		if (!(isSet(index))) {
+			var index = "1";
+		}
+
+		AssertVisible(
+			index = "${index}",
+			itemName = "${itemName}",
+			locator1 = "ACIndividualsDashboard#BASE_RESULTS_TIMELINE_ITEM");
+
+		AssertVisible(
+			index = "${index}",
+			itemName = "${itemName}",
+			locator1 = "ACIndividualsDashboard#BASE_RESULTS_TIMELINE_ITEM_SUBTITLE",
+			subtitle = "${visits}");
 	}
 
 	macro viewTotalActivities {
@@ -81,14 +208,6 @@ definition {
 		AssertTextEquals(
 			locator1 = "ACIndividualsDashboard#TOTAL_ACTIVITIES",
 			value1 = "${activitiesNumber}");
-	}
-
-	macro viewTotalIndividualsCount {
-		var key_individualCount = "${individualCount}";
-
-		AssertTextEquals(
-			locator1 = "ACIndividualsDashboard#TOTAL_INDIVIDUALS",
-			value1 = "${individualCount}");
 	}
 
 }

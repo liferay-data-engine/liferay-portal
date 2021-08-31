@@ -13,17 +13,130 @@
  */
 
 import ClayAlert from '@clayui/alert';
-import ClayButton from '@clayui/button';
-import {Align, ClayDropDownWithItems} from '@clayui/drop-down';
+import ClayButton, {ClayButtonWithIcon} from '@clayui/button';
+import ClayDropDown, {Align, ClayDropDownWithItems} from '@clayui/drop-down';
 import ClayIcon from '@clayui/icon';
+import ClayLabel from '@clayui/label';
+import ClayLayout from '@clayui/layout';
 import ClayLink from '@clayui/link';
 import ClayNavigationBar from '@clayui/navigation-bar';
 import {fetch} from 'frontend-js-web';
 import React, {useEffect, useState} from 'react';
 
-export default ({dataURL, getCache, spritemap, updateCache}) => {
+const LocalizationDropdown = ({
+	currentLocale,
+	defaultLocale,
+	locales,
+	setSelectedLocale,
+	spritemap,
+}) => {
+	const [active, setActive] = useState(false);
+
+	return (
+		<div className="autofit-col publications-localization">
+			<ClayDropDown
+				active={active}
+				onActiveChange={setActive}
+				trigger={
+					<ClayButton
+						displayType="secondary"
+						monospaced
+						onClick={() => setActive(!active)}
+					>
+						<span className="inline-item">
+							<ClayIcon
+								spritemap={spritemap}
+								symbol={currentLocale.symbol}
+							/>
+						</span>
+						<span className="btn-section">
+							{currentLocale.label}
+						</span>
+					</ClayButton>
+				}
+			>
+				<ClayDropDown.ItemList>
+					{locales
+						.sort((a, b) => {
+							if (a.label === defaultLocale.label) {
+								return -1;
+							}
+							else if (b.label === defaultLocale.label) {
+								return 1;
+							}
+
+							return 0;
+						})
+						.map((locale) => {
+							return (
+								<ClayDropDown.Item
+									key={locale.label}
+									onClick={() => {
+										setActive(false);
+										setSelectedLocale(locale);
+									}}
+								>
+									<ClayLayout.ContentRow containerElement="span">
+										<ClayLayout.ContentCol
+											containerElement="span"
+											expand
+										>
+											<ClayLayout.ContentSection>
+												<ClayIcon
+													className="inline-item inline-item-before"
+													spritemap={spritemap}
+													symbol={locale.symbol}
+												/>
+
+												{locale.label}
+											</ClayLayout.ContentSection>
+										</ClayLayout.ContentCol>
+										<ClayLayout.ContentCol containerElement="span">
+											<ClayLayout.ContentSection>
+												<ClayLabel
+													displayType={
+														locale.label ===
+														defaultLocale.label
+															? 'info'
+															: 'success'
+													}
+												>
+													{locale.label ===
+													defaultLocale.label
+														? Liferay.Language.get(
+																'default'
+														  )
+														: Liferay.Language.get(
+																'translated'
+														  )}
+												</ClayLabel>
+											</ClayLayout.ContentSection>
+										</ClayLayout.ContentCol>
+									</ClayLayout.ContentRow>
+								</ClayDropDown.Item>
+							);
+						})}
+				</ClayDropDown.ItemList>
+			</ClayDropDown>
+		</div>
+	);
+};
+
+export default ({
+	dataURL,
+	defaultLocale,
+	description,
+	discardURL,
+	getCache,
+	showDropdown,
+	showHeader = true,
+	spritemap,
+	title,
+	updateCache,
+}) => {
 	const CHANGE_TYPE_ADDED = 'added';
 	const CHANGE_TYPE_DELETED = 'deleted';
+	const CHANGE_TYPE_MODIFIED = 'modified';
 	const CHANGE_TYPE_PRODUCTION = 'production';
 	const CONTENT_TYPE_DATA = 'data';
 	const CONTENT_TYPE_DISPLAY = 'display';
@@ -33,6 +146,7 @@ export default ({dataURL, getCache, spritemap, updateCache}) => {
 	const VIEW_UNIFIED = 'VIEW_UNIFIED';
 
 	const [loading, setLoading] = useState(false);
+	const [selectedLocale, setSelectedLocale] = useState(defaultLocale);
 	const [state, setState] = useState({
 		contentType: CONTENT_TYPE_DISPLAY,
 		renderData: null,
@@ -65,15 +179,49 @@ export default ({dataURL, getCache, spritemap, updateCache}) => {
 				view: VIEW_UNIFIED,
 			};
 
-			if (!cachedData.content) {
+			if (
+				!Object.prototype.hasOwnProperty.call(
+					cachedData,
+					'leftContent'
+				) &&
+				!Object.prototype.hasOwnProperty.call(
+					cachedData,
+					'leftLocalizedContent'
+				) &&
+				!Object.prototype.hasOwnProperty.call(
+					cachedData,
+					'rightContent'
+				) &&
+				!Object.prototype.hasOwnProperty.call(
+					cachedData,
+					'rightLocalizedContent'
+				)
+			) {
 				newState.contentType = CONTENT_TYPE_DATA;
 			}
 
-			if (!cachedData.leftTitle) {
+			if (
+				!Object.prototype.hasOwnProperty.call(cachedData, 'leftTitle')
+			) {
 				newState.view = VIEW_RIGHT;
 			}
-			else if (!cachedData.rightTitle) {
+			else if (
+				!Object.prototype.hasOwnProperty.call(cachedData, 'rightTitle')
+			) {
 				newState.view = VIEW_LEFT;
+			}
+			else if (
+				cachedData.changeType === CHANGE_TYPE_MODIFIED &&
+				!Object.prototype.hasOwnProperty.call(
+					cachedData,
+					'leftRender'
+				) &&
+				!Object.prototype.hasOwnProperty.call(
+					cachedData,
+					'leftLocalizedRender'
+				)
+			) {
+				newState.view = VIEW_SPLIT;
 			}
 
 			setState(newState);
@@ -111,15 +259,44 @@ export default ({dataURL, getCache, spritemap, updateCache}) => {
 					view: VIEW_UNIFIED,
 				};
 
-				if (!json.content) {
+				if (
+					!Object.prototype.hasOwnProperty.call(
+						json,
+						'leftContent'
+					) &&
+					!Object.prototype.hasOwnProperty.call(
+						json,
+						'leftLocalizedContent'
+					) &&
+					!Object.prototype.hasOwnProperty.call(
+						json,
+						'rightContent'
+					) &&
+					!Object.prototype.hasOwnProperty.call(
+						json,
+						'rightLocalizedContent'
+					)
+				) {
 					newState.contentType = CONTENT_TYPE_DATA;
 				}
 
-				if (!json.leftTitle) {
+				if (!Object.prototype.hasOwnProperty.call(json, 'leftTitle')) {
 					newState.view = VIEW_RIGHT;
 				}
-				else if (!json.rightTitle) {
+				else if (
+					!Object.prototype.hasOwnProperty.call(json, 'rightTitle')
+				) {
 					newState.view = VIEW_LEFT;
+				}
+				else if (
+					json.changeType === CHANGE_TYPE_MODIFIED &&
+					!Object.prototype.hasOwnProperty.call(json, 'leftRender') &&
+					!Object.prototype.hasOwnProperty.call(
+						json,
+						'leftLocalizedRender'
+					)
+				) {
+					newState.view = VIEW_SPLIT;
 				}
 
 				setState(newState);
@@ -136,7 +313,34 @@ export default ({dataURL, getCache, spritemap, updateCache}) => {
 					},
 				});
 			});
-	}, [getCache, dataURL, updateCache]);
+	}, [dataURL, getCache, updateCache]);
+
+	let currentLocale = selectedLocale;
+	let currentTitle = title;
+
+	if (showHeader && state.renderData) {
+		if (
+			!state.renderData.locales ||
+			!state.renderData.locales.find(
+				(item) => item.label === currentLocale.label
+			)
+		) {
+			if (state.renderData.defaultLocale) {
+				currentLocale = state.renderData.defaultLocale;
+			}
+			else {
+				currentLocale = defaultLocale;
+			}
+		}
+
+		if (
+			state.renderData.localizedTitles &&
+			state.renderData.localizedTitles[currentLocale.label]
+		) {
+			currentTitle =
+				state.renderData.localizedTitles[currentLocale.label];
+		}
+	}
 
 	const setContentType = (contentType) => {
 		setState({
@@ -148,34 +352,9 @@ export default ({dataURL, getCache, spritemap, updateCache}) => {
 
 	const getContentSelectTitle = (view) => {
 		if (view === VIEW_LEFT) {
-			if (
-				state.renderData.changeType === CHANGE_TYPE_ADDED &&
-				state.renderData.versioned
-			) {
-				return (
-					state.renderData.leftTitle +
-					' (' +
-					Liferay.Language.get('previous') +
-					')'
-				);
-			}
-
 			return state.renderData.leftTitle;
 		}
 		else if (view === VIEW_RIGHT) {
-			if (
-				state.renderData.changeType === CHANGE_TYPE_ADDED &&
-				state.renderData.versioned &&
-				state.renderData.leftTitle
-			) {
-				return (
-					state.renderData.rightTitle +
-					' (' +
-					Liferay.Language.get('current') +
-					')'
-				);
-			}
-
 			return state.renderData.rightTitle;
 		}
 		else if (view === VIEW_SPLIT) {
@@ -196,6 +375,32 @@ export default ({dataURL, getCache, spritemap, updateCache}) => {
 						__html: state.renderData.leftRender,
 					}}
 				/>
+			);
+		}
+		else if (
+			state.contentType === CONTENT_TYPE_DATA &&
+			Object.prototype.hasOwnProperty.call(
+				state.renderData,
+				'leftLocalizedRender'
+			)
+		) {
+			if (state.renderData.leftLocalizedRender[currentLocale.label]) {
+				return (
+					<div
+						dangerouslySetInnerHTML={{
+							__html:
+								state.renderData.leftLocalizedRender[
+									currentLocale.label
+								],
+						}}
+					/>
+				);
+			}
+
+			return (
+				<ClayAlert displayType="info" spritemap={spritemap}>
+					{Liferay.Language.get('content-is-empty')}
+				</ClayAlert>
 			);
 		}
 		else if (
@@ -221,8 +426,51 @@ export default ({dataURL, getCache, spritemap, updateCache}) => {
 				</ClayAlert>
 			);
 		}
+		else if (
+			state.contentType === CONTENT_TYPE_DISPLAY &&
+			Object.prototype.hasOwnProperty.call(
+				state.renderData,
+				'leftLocalizedContent'
+			)
+		) {
+			if (state.renderData.leftLocalizedContent[currentLocale.label]) {
+				return (
+					<div
+						dangerouslySetInnerHTML={{
+							__html:
+								state.renderData.leftLocalizedContent[
+									currentLocale.label
+								],
+						}}
+					/>
+				);
+			}
+
+			return (
+				<ClayAlert displayType="info" spritemap={spritemap}>
+					{Liferay.Language.get('content-is-empty')}
+				</ClayAlert>
+			);
+		}
 		else if (loading) {
 			return '';
+		}
+		else if (
+			state.renderData.changeType === CHANGE_TYPE_MODIFIED &&
+			!Object.prototype.hasOwnProperty.call(
+				state.renderData,
+				'leftRender'
+			) &&
+			!Object.prototype.hasOwnProperty.call(
+				state.renderData,
+				'leftLocalizedRender'
+			)
+		) {
+			return (
+				<ClayAlert displayType="danger" spritemap={spritemap}>
+					{Liferay.Language.get('this-item-is-missing-or-is-deleted')}
+				</ClayAlert>
+			);
 		}
 
 		return (
@@ -251,6 +499,32 @@ export default ({dataURL, getCache, spritemap, updateCache}) => {
 			);
 		}
 		else if (
+			state.contentType === CONTENT_TYPE_DATA &&
+			Object.prototype.hasOwnProperty.call(
+				state.renderData,
+				'rightLocalizedRender'
+			)
+		) {
+			if (state.renderData.rightLocalizedRender[currentLocale.label]) {
+				return (
+					<div
+						dangerouslySetInnerHTML={{
+							__html:
+								state.renderData.rightLocalizedRender[
+									currentLocale.label
+								],
+						}}
+					/>
+				);
+			}
+
+			return (
+				<ClayAlert displayType="info" spritemap={spritemap}>
+					{Liferay.Language.get('content-is-empty')}
+				</ClayAlert>
+			);
+		}
+		else if (
 			state.contentType === CONTENT_TYPE_DISPLAY &&
 			Object.prototype.hasOwnProperty.call(
 				state.renderData,
@@ -262,6 +536,32 @@ export default ({dataURL, getCache, spritemap, updateCache}) => {
 					<div
 						dangerouslySetInnerHTML={{
 							__html: state.renderData.rightContent,
+						}}
+					/>
+				);
+			}
+
+			return (
+				<ClayAlert displayType="info" spritemap={spritemap}>
+					{Liferay.Language.get('content-is-empty')}
+				</ClayAlert>
+			);
+		}
+		else if (
+			state.contentType === CONTENT_TYPE_DISPLAY &&
+			Object.prototype.hasOwnProperty.call(
+				state.renderData,
+				'rightLocalizedContent'
+			)
+		) {
+			if (state.renderData.rightLocalizedContent[currentLocale.label]) {
+				return (
+					<div
+						dangerouslySetInnerHTML={{
+							__html:
+								state.renderData.rightLocalizedContent[
+									currentLocale.label
+								],
 						}}
 					/>
 				);
@@ -305,6 +605,34 @@ export default ({dataURL, getCache, spritemap, updateCache}) => {
 			);
 		}
 		else if (
+			state.contentType === CONTENT_TYPE_DATA &&
+			Object.prototype.hasOwnProperty.call(
+				state.renderData,
+				'unifiedLocalizedRender'
+			)
+		) {
+			if (state.renderData.unifiedLocalizedRender[currentLocale.label]) {
+				return (
+					<div className="taglib-diff-html">
+						<div
+							dangerouslySetInnerHTML={{
+								__html:
+									state.renderData.unifiedLocalizedRender[
+										currentLocale.label
+									],
+							}}
+						/>
+					</div>
+				);
+			}
+
+			return (
+				<ClayAlert displayType="info" spritemap={spritemap}>
+					{Liferay.Language.get('content-is-empty')}
+				</ClayAlert>
+			);
+		}
+		else if (
 			state.contentType === CONTENT_TYPE_DISPLAY &&
 			Object.prototype.hasOwnProperty.call(
 				state.renderData,
@@ -317,6 +645,34 @@ export default ({dataURL, getCache, spritemap, updateCache}) => {
 						<div
 							dangerouslySetInnerHTML={{
 								__html: state.renderData.unifiedContent,
+							}}
+						/>
+					</div>
+				);
+			}
+
+			return (
+				<ClayAlert displayType="info" spritemap={spritemap}>
+					{Liferay.Language.get('content-is-empty')}
+				</ClayAlert>
+			);
+		}
+		else if (
+			state.contentType === CONTENT_TYPE_DISPLAY &&
+			Object.prototype.hasOwnProperty.call(
+				state.renderData,
+				'unifiedLocalizedContent'
+			)
+		) {
+			if (state.renderData.unifiedLocalizedContent[currentLocale.label]) {
+				return (
+					<div className="taglib-diff-html">
+						<div
+							dangerouslySetInnerHTML={{
+								__html:
+									state.renderData.unifiedLocalizedContent[
+										currentLocale.label
+									],
 							}}
 						/>
 					</div>
@@ -343,7 +699,7 @@ export default ({dataURL, getCache, spritemap, updateCache}) => {
 	};
 
 	const renderDiffLegend = () => {
-		if (state.view === VIEW_LEFT || state.view === VIEW_RIGHT) {
+		if (state.view !== VIEW_UNIFIED) {
 			return '';
 		}
 
@@ -374,8 +730,91 @@ export default ({dataURL, getCache, spritemap, updateCache}) => {
 		return elements;
 	};
 
+	const renderDropdownMenu = () => {
+		if (!showDropdown || !state.renderData) {
+			return null;
+		}
+
+		const dropdownItems = [];
+
+		if (state.renderData.editURL) {
+			dropdownItems.push({
+				href: state.renderData.editURL,
+				label: Liferay.Language.get('edit'),
+				symbolLeft: 'pencil',
+			});
+		}
+
+		dropdownItems.push({
+			href: discardURL,
+			label: Liferay.Language.get('discard'),
+			symbolLeft: 'times-circle',
+		});
+
+		for (let i = 0; i < dropdownItems.length; i++) {
+			const dropdownItem = dropdownItems[i];
+
+			const href = dropdownItem.href;
+
+			if (typeof href !== 'string') {
+				continue;
+			}
+
+			const index = href.indexOf('?');
+
+			if (index > 0) {
+				let redirectKey = null;
+
+				const params = new URLSearchParams(href.substring(index + 1));
+
+				params.forEach((value, key) => {
+					if (key.endsWith('_redirect')) {
+						redirectKey = key;
+					}
+				});
+
+				if (redirectKey) {
+					params.set(
+						redirectKey,
+						window.location.pathname + window.location.search
+					);
+
+					dropdownItem.href =
+						href.substring(0, index) + '?' + params.toString();
+				}
+			}
+		}
+
+		return (
+			<div className="autofit-col">
+				<ClayDropDownWithItems
+					alignmentPosition={Align.BottomLeft}
+					items={dropdownItems}
+					spritemap={spritemap}
+					trigger={
+						<ClayButtonWithIcon
+							displayType="unstyled"
+							small
+							spritemap={spritemap}
+							symbol="ellipsis-v"
+						/>
+					}
+				/>
+			</div>
+		);
+	};
+
 	const renderViewDropdown = () => {
-		if (!state.renderData.leftTitle || !state.renderData.rightTitle) {
+		if (
+			!Object.prototype.hasOwnProperty.call(
+				state.renderData,
+				'leftTitle'
+			) ||
+			!Object.prototype.hasOwnProperty.call(
+				state.renderData,
+				'rightTitle'
+			)
+		) {
 			let title = null;
 
 			if (state.view === VIEW_LEFT) {
@@ -422,11 +861,23 @@ export default ({dataURL, getCache, spritemap, updateCache}) => {
 
 		const items = [];
 
-		pushItem(items, VIEW_UNIFIED);
+		if (
+			state.renderData.changeType !== CHANGE_TYPE_MODIFIED ||
+			Object.prototype.hasOwnProperty.call(
+				state.renderData,
+				'leftRender'
+			) ||
+			Object.prototype.hasOwnProperty.call(
+				state.renderData,
+				'leftLocalizedRender'
+			)
+		) {
+			pushItem(items, VIEW_UNIFIED);
 
-		items.push({
-			type: 'divider',
-		});
+			items.push({
+				type: 'divider',
+			});
+		}
 
 		pushItem(items, VIEW_LEFT);
 		pushItem(items, VIEW_RIGHT);
@@ -492,6 +943,69 @@ export default ({dataURL, getCache, spritemap, updateCache}) => {
 		);
 	};
 
+	const renderEntry = () => {
+		if (!state.renderData) {
+			if (loading) {
+				return (
+					<div>
+						<span
+							aria-hidden="true"
+							className="loading-animation"
+						/>
+					</div>
+				);
+			}
+
+			return '';
+		}
+		else if (
+			!state.renderData.changeType ||
+			state.renderData.errorMessage
+		) {
+			return (
+				<ClayAlert
+					displayType="danger"
+					spritemap={spritemap}
+					title={Liferay.Language.get('error')}
+				>
+					{state.renderData.errorMessage
+						? state.renderData.errorMessage
+						: Liferay.Language.get('an-unexpected-error-occurred')}
+				</ClayAlert>
+			);
+		}
+
+		return (
+			<table className="publications-render-view table">
+				{renderToolbar()}
+
+				{renderDividers()}
+
+				<tr>
+					{(state.view === VIEW_LEFT ||
+						state.view === VIEW_SPLIT) && (
+						<td className="publications-render-view-content">
+							{renderContentLeft()}
+						</td>
+					)}
+
+					{(state.view === VIEW_RIGHT ||
+						state.view === VIEW_SPLIT) && (
+						<td className="publications-render-view-content">
+							{renderContentRight()}
+						</td>
+					)}
+
+					{state.view === VIEW_UNIFIED && (
+						<td className="publications-render-view-content">
+							{renderContentUnified()}
+						</td>
+					)}
+				</tr>
+			</table>
+		);
+	};
+
 	const renderToolbar = () => {
 		if (state.renderData.changeType === CHANGE_TYPE_PRODUCTION) {
 			return '';
@@ -504,7 +1018,7 @@ export default ({dataURL, getCache, spritemap, updateCache}) => {
 		}
 
 		return (
-			<tr className={loading ? 'publications-loading' : ''}>
+			<tr>
 				<td
 					className="publications-render-view-toolbar"
 					colSpan={columns}
@@ -523,7 +1037,22 @@ export default ({dataURL, getCache, spritemap, updateCache}) => {
 								>
 									<ClayLink
 										className={
-											!state.renderData.content
+											!Object.prototype.hasOwnProperty.call(
+												state.renderData,
+												'leftContent'
+											) &&
+											!Object.prototype.hasOwnProperty.call(
+												state.renderData,
+												'leftLocalizedContent'
+											) &&
+											!Object.prototype.hasOwnProperty.call(
+												state.renderData,
+												'rightContent'
+											) &&
+											!Object.prototype.hasOwnProperty.call(
+												state.renderData,
+												'rightLocalizedContent'
+											)
 												? 'nav-link btn-link disabled'
 												: 'nav-link'
 										}
@@ -532,7 +1061,22 @@ export default ({dataURL, getCache, spritemap, updateCache}) => {
 											setContentType(CONTENT_TYPE_DISPLAY)
 										}
 										title={
-											!state.renderData.content
+											!Object.prototype.hasOwnProperty.call(
+												state.renderData,
+												'leftContent'
+											) &&
+											!Object.prototype.hasOwnProperty.call(
+												state.renderData,
+												'leftLocalizedContent'
+											) &&
+											!Object.prototype.hasOwnProperty.call(
+												state.renderData,
+												'rightContent'
+											) &&
+											!Object.prototype.hasOwnProperty.call(
+												state.renderData,
+												'rightLocalizedContent'
+											)
 												? Liferay.Language.get(
 														'item-does-not-have-a-content-display'
 												  )
@@ -567,56 +1111,33 @@ export default ({dataURL, getCache, spritemap, updateCache}) => {
 		);
 	};
 
-	if (!state.renderData) {
-		if (loading) {
-			return (
-				<div>
-					<span aria-hidden="true" className="loading-animation" />
-				</div>
-			);
-		}
-
-		return '';
-	}
-	else if (!state.renderData.changeType || state.renderData.errorMessage) {
-		return (
-			<ClayAlert
-				displayType="danger"
-				spritemap={spritemap}
-				title={Liferay.Language.get('error')}
-			>
-				{state.renderData.errorMessage
-					? state.renderData.errorMessage
-					: Liferay.Language.get('an-unexpected-error-occurred')}
-			</ClayAlert>
-		);
+	if (!showHeader) {
+		return renderEntry();
 	}
 
 	return (
-		<table className="publications-render-view table">
-			{renderToolbar()}
+		<div className={`sheet ${loading ? 'publications-loading' : ''}`}>
+			{state.renderData && (
+				<div className="autofit-row sheet-title">
+					{state.renderData.locales &&
+						state.renderData.locales.length > 0 && (
+							<LocalizationDropdown
+								currentLocale={currentLocale}
+								defaultLocale={state.renderData.defaultLocale}
+								locales={state.renderData.locales}
+								setSelectedLocale={setSelectedLocale}
+								spritemap={spritemap}
+							/>
+						)}
+					<div className="autofit-col autofit-col-expand">
+						<h2>{currentTitle}</h2>
 
-			{renderDividers()}
-
-			<tr className={loading ? 'publications-loading' : ''}>
-				{(state.view === VIEW_LEFT || state.view === VIEW_SPLIT) && (
-					<td className="publications-render-view-content">
-						{renderContentLeft()}
-					</td>
-				)}
-
-				{(state.view === VIEW_RIGHT || state.view === VIEW_SPLIT) && (
-					<td className="publications-render-view-content">
-						{renderContentRight()}
-					</td>
-				)}
-
-				{state.view === VIEW_UNIFIED && (
-					<td className="publications-render-view-content">
-						{renderContentUnified()}
-					</td>
-				)}
-			</tr>
-		</table>
+						<div className="entry-description">{description}</div>
+					</div>
+					{renderDropdownMenu()}
+				</div>
+			)}
+			<div className="sheet-section">{renderEntry()}</div>
+		</div>
 	);
 };

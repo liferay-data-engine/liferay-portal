@@ -2,9 +2,10 @@
 definition {
 
 	property analytics.cloud.enabled = "true";
-	property minimum.slave.ram = "32";
+	property minimum.slave.ram = "24";
 	property portal.release = "false";
 	property portal.upstream = "true";
+	property slave.label = "slave-1";
 	property testray.main.component.name = "Analytics Cloud";
 
 	setUp {
@@ -61,9 +62,7 @@ definition {
 			DMNavigator.gotoDocumentCP(dmDocumentTitle = "DM AC Title");
 		}
 
-		ACUtils.closeAllSessions();
-
-		Pause(locator1 = "30000");
+		ACUtils.closeAllSessionsAndWait();
 
 		ACUtils.launchAC();
 
@@ -79,7 +78,7 @@ definition {
 
 		ACTimeFilter.setLast24Hours();
 
-		AssertElementPresent(locator1 = "ACIndividualsDashboard#INDIVIDUAL_ACTIVITIES_CHART");
+		ACIndividualsDashboard.viewRechartsBarOnIndividualsActivitiesChart();
 	}
 
 }

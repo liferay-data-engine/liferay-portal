@@ -469,9 +469,9 @@ public class AnnouncementsEntryLocalServiceImpl
 	}
 
 	protected void notifyUsers(
-			final AnnouncementsEntry entry, final long teamId,
-			final LinkedHashMap<String, Object> params, final String toName,
-			final String toAddress, final Company company)
+			AnnouncementsEntry entry, long teamId,
+			LinkedHashMap<String, Object> params, String toName,
+			String toAddress, Company company)
 		throws PortalException {
 
 		int total = 0;
@@ -485,7 +485,7 @@ public class AnnouncementsEntryLocalServiceImpl
 				params);
 		}
 
-		final IntervalActionProcessor<Void> intervalActionProcessor =
+		IntervalActionProcessor<Void> intervalActionProcessor =
 			new IntervalActionProcessor<>(total);
 
 		intervalActionProcessor.setPerformIntervalActionMethod(
@@ -618,8 +618,6 @@ public class AnnouncementsEntryLocalServiceImpl
 			AnnouncementsEntry entry)
 		throws PortalException {
 
-		String portalURL = company.getPortalURL(0);
-
 		MailTemplateContextBuilder mailTemplateContextBuilder =
 			MailTemplateFactoryUtil.createMailTemplateContextBuilder();
 
@@ -641,7 +639,8 @@ public class AnnouncementsEntryLocalServiceImpl
 		mailTemplateContextBuilder.put("[$FROM_ADDRESS$]", fromAddress);
 		mailTemplateContextBuilder.put(
 			"[$FROM_NAME$]", HtmlUtil.escape(fromName));
-		mailTemplateContextBuilder.put("[$PORTAL_URL$]", portalURL);
+		mailTemplateContextBuilder.put(
+			"[$PORTAL_URL$]", company.getPortalURL(0));
 		mailTemplateContextBuilder.put(
 			"[$PORTLET_NAME$]",
 			new EscapableLocalizableFunction(

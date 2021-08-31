@@ -36,7 +36,6 @@ import com.liferay.registry.collections.ServiceTrackerCollections;
 import com.liferay.registry.collections.ServiceTrackerMap;
 
 import java.util.Collections;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -91,21 +90,15 @@ public class StoreFactory {
 		}
 
 		if (_log.isWarnEnabled()) {
-			StringBundler sb = new StringBundler(11);
-
-			sb.append("Liferay is configured with the legacy property ");
-			sb.append("\"dl.hook.impl=");
-			sb.append(dlHookImpl);
-			sb.append("\" in portal-ext.properties. Please reconfigure to ");
-			sb.append("use the new property \"");
-			sb.append(PropsKeys.DL_STORE_IMPL);
-			sb.append("\". Liferay will attempt to temporarily set \"");
-			sb.append(PropsKeys.DL_STORE_IMPL);
-			sb.append("=");
-			sb.append(PropsValues.DL_STORE_IMPL);
-			sb.append("\".");
-
-			_log.warn(sb.toString());
+			_log.warn(
+				StringBundler.concat(
+					"Liferay is configured with the legacy property ",
+					"\"dl.hook.impl=", dlHookImpl,
+					"\" in portal-ext.properties. Please reconfigure to use ",
+					"the new property \"", PropsKeys.DL_STORE_IMPL,
+					"\". Liferay will attempt to temporarily set \"",
+					PropsKeys.DL_STORE_IMPL, "=", PropsValues.DL_STORE_IMPL,
+					"\"."));
 		}
 
 		_warned = true;
@@ -240,11 +233,6 @@ public class StoreFactory {
 			Store store = _getStore(serviceReference, storeType);
 
 			if (StringUtil.equals(storeType, PropsValues.DL_STORE_IMPL)) {
-				Map<String, Object> properties =
-					HashMapBuilder.<String, Object>put(
-						"dl.store.impl.enabled", GetterUtil.getObject("true")
-					).build();
-
 				Registry registry = RegistryUtil.getRegistry();
 
 				_serviceRegistration = registry.registerService(
@@ -257,7 +245,9 @@ public class StoreFactory {
 						}
 
 					},
-					properties);
+					HashMapBuilder.<String, Object>put(
+						"dl.store.impl.enabled", GetterUtil.getObject("true")
+					).build());
 			}
 
 			return store;

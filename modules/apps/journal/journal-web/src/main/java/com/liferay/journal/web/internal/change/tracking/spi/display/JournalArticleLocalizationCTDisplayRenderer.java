@@ -22,8 +22,6 @@ import com.liferay.journal.service.JournalArticleLocalService;
 import com.liferay.petra.portlet.url.builder.PortletURLBuilder;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.Language;
-import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
-import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.util.Portal;
@@ -38,6 +36,7 @@ import java.util.ResourceBundle;
 import javax.portlet.PortletRequest;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -51,8 +50,8 @@ public class JournalArticleLocalizationCTDisplayRenderer
 
 	@Override
 	public String getContent(
-			LiferayPortletRequest liferayPortletRequest,
-			LiferayPortletResponse liferayPortletResponse,
+			HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse, Locale locale,
 			JournalArticleLocalization journalArticleLocalization)
 		throws PortalException {
 
@@ -60,8 +59,8 @@ public class JournalArticleLocalizationCTDisplayRenderer
 			_journalArticleLocalService.getJournalArticle(
 				journalArticleLocalization.getArticlePK()),
 			_journalArticleLocalService,
-			journalArticleLocalization.getLanguageId(), liferayPortletRequest,
-			liferayPortletResponse);
+			journalArticleLocalization.getLanguageId(), httpServletRequest,
+			httpServletResponse);
 	}
 
 	@Override
@@ -113,11 +112,6 @@ public class JournalArticleLocalizationCTDisplayRenderer
 			locale, JournalArticleLocalizationCTDisplayRenderer.class);
 
 		return _language.get(resourceBundle, "web-content-translation");
-	}
-
-	@Override
-	public boolean hasContent() {
-		return true;
 	}
 
 	@Override

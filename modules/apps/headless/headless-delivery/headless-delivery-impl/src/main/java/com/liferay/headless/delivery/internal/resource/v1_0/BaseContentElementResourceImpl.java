@@ -177,9 +177,19 @@ public abstract class BaseContentElementResourceImpl
 			Map<String, Serializable> parameters, String search)
 		throws Exception {
 
-		return getSiteContentElementsPage(
-			Long.parseLong((String)parameters.get("siteId")), search, null,
-			filter, pagination, sorts);
+		if (parameters.containsKey("assetLibraryId")) {
+			return getAssetLibraryContentElementsPage(
+				(Long)parameters.get("assetLibraryId"), search, null, filter,
+				pagination, sorts);
+		}
+		else if (parameters.containsKey("siteId")) {
+			return getSiteContentElementsPage(
+				(Long)parameters.get("siteId"), search, null, filter,
+				pagination, sorts);
+		}
+		else {
+			return null;
+		}
 	}
 
 	@Override
@@ -245,6 +255,18 @@ public abstract class BaseContentElementResourceImpl
 
 	public void setGroupLocalService(GroupLocalService groupLocalService) {
 		this.groupLocalService = groupLocalService;
+	}
+
+	public void setResourceActionLocalService(
+		ResourceActionLocalService resourceActionLocalService) {
+
+		this.resourceActionLocalService = resourceActionLocalService;
+	}
+
+	public void setResourcePermissionLocalService(
+		ResourcePermissionLocalService resourcePermissionLocalService) {
+
+		this.resourcePermissionLocalService = resourcePermissionLocalService;
 	}
 
 	public void setRoleLocalService(RoleLocalService roleLocalService) {

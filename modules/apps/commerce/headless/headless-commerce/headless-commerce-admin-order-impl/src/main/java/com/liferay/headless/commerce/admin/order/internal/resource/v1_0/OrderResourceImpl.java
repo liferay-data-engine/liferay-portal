@@ -112,7 +112,7 @@ public class OrderResourceImpl
 
 		if (commerceOrder == null) {
 			throw new NoSuchOrderException(
-				"Unable to find Order with externalReferenceCode: " +
+				"Unable to find order with external reference code " +
 					externalReferenceCode);
 		}
 
@@ -150,7 +150,7 @@ public class OrderResourceImpl
 
 		if (commerceOrder == null) {
 			throw new NoSuchOrderException(
-				"Unable to find Order with externalReferenceCode: " +
+				"Unable to find order with external reference code " +
 					externalReferenceCode);
 		}
 
@@ -201,7 +201,7 @@ public class OrderResourceImpl
 
 		if (commerceOrder == null) {
 			throw new NoSuchOrderException(
-				"Unable to find Order with externalReferenceCode: " +
+				"Unable to find order with external reference code " +
 					externalReferenceCode);
 		}
 
@@ -296,10 +296,9 @@ public class OrderResourceImpl
 
 		CommerceOrder commerceOrder =
 			_commerceOrderService.addOrUpdateCommerceOrder(
-				order.getExternalReferenceCode(), contextUser.getUserId(),
-				commerceChannel.getGroupId(),
+				order.getExternalReferenceCode(), commerceChannel.getGroupId(),
 				commerceAccount.getCommerceAccountId(),
-				commerceCurrency.getCommerceCurrencyId(),
+				commerceCurrency.getCommerceCurrencyId(), 0,
 				GetterUtil.getLong(order.getBillingAddressId()),
 				GetterUtil.getLong(order.getShippingAddressId()),
 				order.getPaymentMethod(), commerceShippingMethodId,

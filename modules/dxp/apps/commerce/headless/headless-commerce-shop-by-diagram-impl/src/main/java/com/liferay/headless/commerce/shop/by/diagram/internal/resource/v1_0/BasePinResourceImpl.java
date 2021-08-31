@@ -136,7 +136,7 @@ public abstract class BasePinResourceImpl
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -X 'PATCH' 'http://localhost:8080/o/headless-commerce-shop-by-diagram/v1.0/pins/{pinId}' -d $'{"diagramEntry": ___, "id": ___, "number": ___, "positionX": ___, "positionY": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 * curl -X 'PATCH' 'http://localhost:8080/o/headless-commerce-shop-by-diagram/v1.0/pins/{pinId}' -d $'{"diagramEntry": ___, "id": ___, "positionX": ___, "positionY": ___, "sequence": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
 	 */
 	@Consumes({"application/json", "application/xml"})
 	@Override
@@ -186,7 +186,7 @@ public abstract class BasePinResourceImpl
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -X 'POST' 'http://localhost:8080/o/headless-commerce-shop-by-diagram/v1.0/products/by-externalReferenceCode/{externalReferenceCode}/pins' -d $'{"diagramEntry": ___, "id": ___, "number": ___, "positionX": ___, "positionY": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 * curl -X 'POST' 'http://localhost:8080/o/headless-commerce-shop-by-diagram/v1.0/products/by-externalReferenceCode/{externalReferenceCode}/pins' -d $'{"diagramEntry": ___, "id": ___, "positionX": ___, "positionY": ___, "sequence": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
 	 */
 	@Consumes({"application/json", "application/xml"})
 	@Override
@@ -241,7 +241,7 @@ public abstract class BasePinResourceImpl
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -X 'POST' 'http://localhost:8080/o/headless-commerce-shop-by-diagram/v1.0/products/{productId}/pins' -d $'{"diagramEntry": ___, "id": ___, "number": ___, "positionX": ___, "positionY": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 * curl -X 'POST' 'http://localhost:8080/o/headless-commerce-shop-by-diagram/v1.0/products/{productId}/pins' -d $'{"diagramEntry": ___, "id": ___, "positionX": ___, "positionY": ___, "sequence": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
 	 */
 	@Consumes({"application/json", "application/xml"})
 	@Override
@@ -365,6 +365,18 @@ public abstract class BasePinResourceImpl
 
 	public void setGroupLocalService(GroupLocalService groupLocalService) {
 		this.groupLocalService = groupLocalService;
+	}
+
+	public void setResourceActionLocalService(
+		ResourceActionLocalService resourceActionLocalService) {
+
+		this.resourceActionLocalService = resourceActionLocalService;
+	}
+
+	public void setResourcePermissionLocalService(
+		ResourcePermissionLocalService resourcePermissionLocalService) {
+
+		this.resourcePermissionLocalService = resourcePermissionLocalService;
 	}
 
 	public void setRoleLocalService(RoleLocalService roleLocalService) {

@@ -92,12 +92,10 @@ public class AtomUtil {
 			return null;
 		}
 
-		User user = getUser(atomRequestContext);
-
 		portletTitle = portletTitle.concat(StringPool.SPACE);
 
 		portletTitle = portletTitle.concat(
-			PortalUtil.getPortletTitle(portletId, user));
+			PortalUtil.getPortletTitle(portletId, getUser(atomRequestContext)));
 
 		portletTitle = portletTitle.trim();
 
@@ -118,15 +116,9 @@ public class AtomUtil {
 			return StringPool.BLANK;
 		}
 
-		StringBundler sb = new StringBundler(5);
-
-		sb.append("tag:");
-		sb.append(company.getWebId());
-		sb.append(StringPool.COLON);
-		sb.append(title);
-		sb.append(StringPool.COLON);
-
-		String idTagPrefix = sb.toString();
+		String idTagPrefix = StringBundler.concat(
+			"tag:", company.getWebId(), StringPool.COLON, title,
+			StringPool.COLON);
 
 		return StringUtil.toLowerCase(idTagPrefix);
 	}

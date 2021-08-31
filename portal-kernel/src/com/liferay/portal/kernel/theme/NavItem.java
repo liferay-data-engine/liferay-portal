@@ -354,15 +354,10 @@ public class NavItem implements Serializable {
 			return StringPool.BLANK;
 		}
 
-		StringBundler sb = new StringBundler(5);
-
-		sb.append(_themeDisplay.getPathImage());
-		sb.append("/layout_icon?img_id=");
-		sb.append(_layout.getIconImageId());
-		sb.append("&t=");
-		sb.append(WebServerServletTokenUtil.getToken(_layout.getIconImageId()));
-
-		return sb.toString();
+		return StringBundler.concat(
+			_themeDisplay.getPathImage(), "/layout_icon?img_id=",
+			_layout.getIconImageId(), "&t=",
+			WebServerServletTokenUtil.getToken(_layout.getIconImageId()));
 	}
 
 	public boolean isBrowsable() {
@@ -431,7 +426,7 @@ public class NavItem implements Serializable {
 		HttpServletRequest httpServletRequest, ThemeDisplay themeDisplay,
 		List<Layout> layouts, Map<String, Object> contextObjects) {
 
-		if ((layouts == null) || layouts.isEmpty()) {
+		if (ListUtil.isEmpty(layouts)) {
 			return Collections.emptyList();
 		}
 

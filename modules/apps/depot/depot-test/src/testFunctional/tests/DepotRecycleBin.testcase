@@ -174,14 +174,12 @@ definition {
 			assetRestoreLocation = "Home",
 			assetType = "Document");
 
-		DepotNavigator.openDepotDocumentsAndMediaAdmin(depotName = "Test Depot Name");
-
 		for (var dmDocumentTitle : list "Document_1,Document_2") {
-			DMNavigator.gotoDocumentCP(dmDocumentTitle = "${dmDocumentTitle}");
+			DepotNavigator.openToDMEntryInDepot(
+				depotName = "Test Depot Name",
+				dmDocumentTitle = "${dmDocumentTitle}");
 
 			DMDocument.viewCP(dmDocumentTitle = "${dmDocumentTitle}");
-
-			DepotNavigator.openDepotDocumentsAndMediaAdmin(depotName = "Test Depot Name");
 		}
 	}
 
@@ -214,9 +212,9 @@ definition {
 			assetRestoreLocation = "Home",
 			assetType = "Web Content Article");
 
-		DepotNavigator.openDepotWebContentAdmin(depotName = "Test Depot Name");
-
-		WebContentNavigator.gotoEditCP(webContentTitle = "WC WebContent Title");
+		DepotNavigator.openToEditWCEntry(
+			depotName = "Test Depot Name",
+			webContentTitle = "WC WebContent Title");
 
 		WebContent.viewCP(
 			webContentContent = "WC WebContent Content",

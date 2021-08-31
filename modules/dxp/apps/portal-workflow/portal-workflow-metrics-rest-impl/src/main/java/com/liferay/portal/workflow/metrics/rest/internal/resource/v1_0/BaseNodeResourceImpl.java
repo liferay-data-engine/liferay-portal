@@ -14,6 +14,7 @@
 
 package com.liferay.portal.workflow.metrics.rest.internal.resource.v1_0;
 
+import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.portal.kernel.model.GroupedModel;
 import com.liferay.portal.kernel.search.Sort;
@@ -190,9 +191,12 @@ public abstract class BaseNodeResourceImpl
 			Map<String, Serializable> parameters)
 		throws Exception {
 
-		for (Node node : nodes) {
-			postProcessNode(
+		UnsafeConsumer<Node, Exception> nodeUnsafeConsumer =
+			node -> postProcessNode(
 				Long.parseLong((String)parameters.get("processId")), node);
+
+		for (Node node : nodes) {
+			nodeUnsafeConsumer.accept(node);
 		}
 	}
 
@@ -291,6 +295,18 @@ public abstract class BaseNodeResourceImpl
 
 	public void setGroupLocalService(GroupLocalService groupLocalService) {
 		this.groupLocalService = groupLocalService;
+	}
+
+	public void setResourceActionLocalService(
+		ResourceActionLocalService resourceActionLocalService) {
+
+		this.resourceActionLocalService = resourceActionLocalService;
+	}
+
+	public void setResourcePermissionLocalService(
+		ResourcePermissionLocalService resourcePermissionLocalService) {
+
+		this.resourcePermissionLocalService = resourcePermissionLocalService;
 	}
 
 	public void setRoleLocalService(RoleLocalService roleLocalService) {

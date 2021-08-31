@@ -13,3 +13,6 @@
  */
 
 export {default as Treeview} from './treeview/Treeview';
+
+export {activeLanguageIdsAtom} from './translation_manager/state';
+export {default as TranslationAdminModal} from './translation_manager/TranslationAdminModal';

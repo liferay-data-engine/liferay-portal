@@ -31,6 +31,16 @@ components:
                     items:
                         $ref: "#/components/schemas/ObjectField"
                     type: array
+                panelAppOrder:
+                    type: string
+                panelCategoryKey:
+                    type: string
+                pluralLabel:
+                    additionalProperties:
+                        type: string
+                    type: object
+                scope:
+                    type: string
                 status:
                     $ref: "#/components/schemas/Status"
                     readOnly: true
@@ -62,6 +72,9 @@ components:
                     additionalProperties:
                         type: string
                     type: object
+                listTypeDefinitionId:
+                    format: int64
+                    type: integer
                 name:
                     type: string
                 required:
@@ -121,8 +134,6 @@ paths:
                                 items:
                                     $ref: "#/components/schemas/ObjectDefinition"
                                 type: array
-                    description:
-                        ""
             tags: ["ObjectDefinition"]
         post:
             operationId: postObjectDefinition
@@ -143,8 +154,6 @@ paths:
                         application/xml:
                             schema:
                                 $ref: "#/components/schemas/ObjectDefinition"
-                    description:
-                        ""
             tags: ["ObjectDefinition"]
     "/object-definitions/{objectDefinitionId}":
         delete:
@@ -161,8 +170,6 @@ paths:
                     content:
                         application/json: {}
                         application/xml: {}
-                    description:
-                        ""
             tags: ["ObjectDefinition"]
         get:
             operationId: getObjectDefinition
@@ -182,8 +189,60 @@ paths:
                         application/xml:
                             schema:
                                 $ref: "#/components/schemas/ObjectDefinition"
-                    description:
-                        ""
+            tags: ["ObjectDefinition"]
+        patch:
+            operationId: patchObjectDefinition
+            parameters:
+                - in: path
+                  name: objectDefinitionId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/ObjectDefinition"
+                    application/xml:
+                        schema:
+                            $ref: "#/components/schemas/ObjectDefinition"
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ObjectDefinition"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/ObjectDefinition"
+            tags: ["ObjectDefinition"]
+        put:
+            operationId: putObjectDefinition
+            parameters:
+                - in: path
+                  name: objectDefinitionId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/ObjectDefinition"
+                    application/xml:
+                        schema:
+                            $ref: "#/components/schemas/ObjectDefinition"
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ObjectDefinition"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/ObjectDefinition"
             tags: ["ObjectDefinition"]
     "/object-definitions/{objectDefinitionId}/object-fields":
         get:
@@ -194,14 +253,6 @@ paths:
                   required: true
                   schema:
                       format: int64
-                      type: integer
-                - in: query
-                  name: page
-                  schema:
-                      type: integer
-                - in: query
-                  name: pageSize
-                  schema:
                       type: integer
             responses:
                 200:
@@ -216,8 +267,6 @@ paths:
                                 items:
                                     $ref: "#/components/schemas/ObjectField"
                                 type: array
-                    description:
-                        ""
             tags: ["ObjectField"]
         post:
             operationId: postObjectDefinitionObjectField
@@ -245,8 +294,6 @@ paths:
                         application/xml:
                             schema:
                                 $ref: "#/components/schemas/ObjectField"
-                    description:
-                        ""
             tags: ["ObjectField"]
     "/object-definitions/{objectDefinitionId}/publish":
         post:
@@ -263,8 +310,6 @@ paths:
                     content:
                         application/json: {}
                         application/xml: {}
-                    description:
-                        ""
             tags: ["ObjectDefinition"]
     "/object-fields/{objectFieldId}":
         get:
@@ -285,8 +330,33 @@ paths:
                         application/xml:
                             schema:
                                 $ref: "#/components/schemas/ObjectField"
-                    description:
-                        ""
+            tags: ["ObjectField"]
+        patch:
+            operationId: patchObjectField
+            parameters:
+                - in: path
+                  name: objectFieldId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/ObjectField"
+                    application/xml:
+                        schema:
+                            $ref: "#/components/schemas/ObjectField"
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/ObjectField"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/ObjectField"
             tags: ["ObjectField"]
         put:
             operationId: putObjectField
@@ -314,6 +384,4 @@ paths:
                         application/xml:
                             schema:
                                 $ref: "#/components/schemas/ObjectField"
-                    description:
-                        ""
             tags: ["ObjectField"]

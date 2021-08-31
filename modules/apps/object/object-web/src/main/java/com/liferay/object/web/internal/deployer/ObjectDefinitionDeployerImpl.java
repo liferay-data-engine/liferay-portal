@@ -15,15 +15,21 @@
 package com.liferay.object.web.internal.deployer;
 
 import com.liferay.application.list.PanelApp;
-import com.liferay.application.list.constants.PanelCategoryKeys;
 import com.liferay.frontend.taglib.clay.data.set.ClayDataSetDisplayView;
 import com.liferay.frontend.taglib.clay.data.set.view.table.ClayTableSchemaBuilderFactory;
 import com.liferay.object.deployer.ObjectDefinitionDeployer;
 import com.liferay.object.model.ObjectDefinition;
+import com.liferay.object.scope.ObjectScopeProviderRegistry;
+import com.liferay.object.service.ObjectDefinitionLocalService;
+import com.liferay.object.service.ObjectEntryService;
 import com.liferay.object.service.ObjectFieldLocalService;
 import com.liferay.object.web.internal.object.entries.application.list.ObjectEntriesPanelApp;
 import com.liferay.object.web.internal.object.entries.frontend.taglib.clay.data.set.view.table.ObjectEntriesTableClayDataSetDisplayView;
 import com.liferay.object.web.internal.object.entries.portlet.ObjectEntriesPortlet;
+import com.liferay.object.web.internal.object.entries.portlet.action.EditObjectEntryMVCActionCommand;
+import com.liferay.object.web.internal.object.entries.portlet.action.EditObjectEntryMVCRenderCommand;
+import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
+import com.liferay.portal.kernel.portlet.bridges.mvc.MVCRenderCommand;
 import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
 import com.liferay.portal.kernel.util.Portal;
 
@@ -62,24 +68,44 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 			_bundleContext.registerService(
 				PanelApp.class, new ObjectEntriesPanelApp(objectDefinition),
 				HashMapDictionaryBuilder.<String, Object>put(
-					"panel.app.order:Integer", "300"
+					"panel.app.order:Integer",
+					objectDefinition.getPanelAppOrder()
 				).put(
-					"panel.category.key", PanelCategoryKeys.CONTROL_PANEL_USERS
+					"panel.category.key", objectDefinition.getPanelCategoryKey()
 				).build()),
 			_bundleContext.registerService(
 				Portlet.class,
 				new ObjectEntriesPortlet(
-					_portal, objectDefinition.getRESTContextPath()),
+					objectDefinition.getObjectDefinitionId(),
+					_objectDefinitionLocalService, _portal,
+					objectDefinition.getRESTContextPath()),
 				HashMapDictionaryBuilder.<String, Object>put(
 					"com.liferay.portlet.display-category", "category.hidden"
 				).put(
 					"javax.portlet.display-name",
 					objectDefinition.getShortName()
 				).put(
-					"javax.portlet.name", objectDefinition.getPortletId()
-				).put(
 					"javax.portlet.init-param.view-template",
 					"/object_entries/view_object_entries.jsp"
+				).put(
+					"javax.portlet.name", objectDefinition.getPortletId()
+				).build()),
+			_bundleContext.registerService(
+				MVCActionCommand.class,
+				new EditObjectEntryMVCActionCommand(
+					_objectDefinitionLocalService, _objectEntryService,
+					_objectScopeProviderRegistry, _portal),
+				HashMapDictionaryBuilder.<String, Object>put(
+					"javax.portlet.name", objectDefinition.getPortletId()
+				).put(
+					"mvc.command.name", "/object_entries/edit_object_entry"
+				).build()),
+			_bundleContext.registerService(
+				MVCRenderCommand.class, new EditObjectEntryMVCRenderCommand(),
+				HashMapDictionaryBuilder.<String, Object>put(
+					"javax.portlet.name", objectDefinition.getPortletId()
+				).put(
+					"mvc.command.name", "/object_entries/edit_object_entry"
 				).build()));
 	}
 
@@ -94,7 +120,16 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 	private ClayTableSchemaBuilderFactory _clayTableSchemaBuilderFactory;
 
 	@Reference
+	private ObjectDefinitionLocalService _objectDefinitionLocalService;
+
+	@Reference
+	private ObjectEntryService _objectEntryService;
+
+	@Reference
 	private ObjectFieldLocalService _objectFieldLocalService;
+
+	@Reference
+	private ObjectScopeProviderRegistry _objectScopeProviderRegistry;
 
 	@Reference
 	private Portal _portal;

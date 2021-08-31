@@ -76,6 +76,27 @@ public abstract class BaseSkuResourceImpl
 	/**
 	 * Invoke this method with the command line:
 	 *
+	 * curl -X 'GET' 'http://localhost:8080/o/headless-commerce-admin-pricing/v2.0/discount-skus/{discountSkuId}/sku'  -u 'test@liferay.com:test'
+	 */
+	@GET
+	@Override
+	@Parameters(
+		value = {@Parameter(in = ParameterIn.PATH, name = "discountSkuId")}
+	)
+	@Path("/discount-skus/{discountSkuId}/sku")
+	@Produces({"application/json", "application/xml"})
+	@Tags(value = {@Tag(name = "Sku")})
+	public Sku getDiscountSkuSku(
+			@NotNull @Parameter(hidden = true) @PathParam("discountSkuId") Long
+				discountSkuId)
+		throws Exception {
+
+		return new Sku();
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
 	 * curl -X 'GET' 'http://localhost:8080/o/headless-commerce-admin-pricing/v2.0/price-entries/{priceEntryId}/sku'  -u 'test@liferay.com:test'
 	 */
 	@GET
@@ -196,6 +217,18 @@ public abstract class BaseSkuResourceImpl
 
 	public void setGroupLocalService(GroupLocalService groupLocalService) {
 		this.groupLocalService = groupLocalService;
+	}
+
+	public void setResourceActionLocalService(
+		ResourceActionLocalService resourceActionLocalService) {
+
+		this.resourceActionLocalService = resourceActionLocalService;
+	}
+
+	public void setResourcePermissionLocalService(
+		ResourcePermissionLocalService resourcePermissionLocalService) {
+
+		this.resourcePermissionLocalService = resourcePermissionLocalService;
 	}
 
 	public void setRoleLocalService(RoleLocalService roleLocalService) {

@@ -80,7 +80,7 @@ public class ProductGroupResourceImpl
 
 		if (commercePricingClass == null) {
 			throw new NoSuchPricingClassException(
-				"Unable to find Product Group with externalReferenceCode: " +
+				"Unable to find product group with external reference code " +
 					externalReferenceCode);
 		}
 
@@ -111,7 +111,7 @@ public class ProductGroupResourceImpl
 
 		if (commercePricingClass == null) {
 			throw new NoSuchPricingClassException(
-				"Unable to find Product Group with externalReferenceCode: " +
+				"Unable to find product group with external reference code " +
 					externalReferenceCode);
 		}
 
@@ -167,7 +167,7 @@ public class ProductGroupResourceImpl
 
 		if (commercePricingClass == null) {
 			throw new NoSuchPricingClassException(
-				"Unable to find Product Group with externalReferenceCode: " +
+				"Unable to find product group with external reference code " +
 					externalReferenceCode);
 		}
 
@@ -196,7 +196,6 @@ public class ProductGroupResourceImpl
 		CommercePricingClass commercePricingClass =
 			_commercePricingClassService.addOrUpdateCommercePricingClass(
 				productGroup.getExternalReferenceCode(), 0L,
-				contextUser.getUserId(),
 				LanguageUtils.getLocalizedMap(productGroup.getTitle()),
 				LanguageUtils.getLocalizedMap(productGroup.getDescription()),
 				_serviceContextHelper.getServiceContext());
@@ -245,7 +244,7 @@ public class ProductGroupResourceImpl
 						productGroupProduct.getProductExternalReferenceCode();
 
 					throw new NoSuchCProductException(
-						"Unable to find Product with externalReferenceCode: " +
+						"Unable to find product with external reference code " +
 							productExternalReferenceCode);
 				}
 
@@ -280,7 +279,6 @@ public class ProductGroupResourceImpl
 		commercePricingClass =
 			_commercePricingClassService.updateCommercePricingClass(
 				commercePricingClass.getCommercePricingClassId(),
-				commercePricingClass.getUserId(),
 				LanguageUtils.getLocalizedMap(productGroup.getTitle()),
 				LanguageUtils.getLocalizedMap(productGroup.getDescription()),
 				_serviceContextHelper.getServiceContext());

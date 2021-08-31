@@ -14,9 +14,11 @@
 
 package com.liferay.headless.admin.user.dto.v1_0;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import com.liferay.petra.function.UnsafeSupplier;
 import com.liferay.petra.string.StringBundler;
@@ -55,6 +57,36 @@ public class Account implements Serializable {
 	public static Account toDTO(String json) {
 		return ObjectMapperUtil.readValue(Account.class, json);
 	}
+
+	@Schema(description = "The users linked to the account")
+	@Valid
+	public UserAccount[] getAccountUserAccounts() {
+		return accountUserAccounts;
+	}
+
+	public void setAccountUserAccounts(UserAccount[] accountUserAccounts) {
+		this.accountUserAccounts = accountUserAccounts;
+	}
+
+	@JsonIgnore
+	public void setAccountUserAccounts(
+		UnsafeSupplier<UserAccount[], Exception>
+			accountUserAccountsUnsafeSupplier) {
+
+		try {
+			accountUserAccounts = accountUserAccountsUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField(description = "The users linked to the account")
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected UserAccount[] accountUserAccounts;
 
 	@Schema(
 		description = "Block of actions allowed by the user making the request."
@@ -230,6 +262,36 @@ public class Account implements Serializable {
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected String name;
 
+	@Schema(description = "The number of this account's associated users.")
+	public Integer getNumberOfUsers() {
+		return numberOfUsers;
+	}
+
+	public void setNumberOfUsers(Integer numberOfUsers) {
+		this.numberOfUsers = numberOfUsers;
+	}
+
+	@JsonIgnore
+	public void setNumberOfUsers(
+		UnsafeSupplier<Integer, Exception> numberOfUsersUnsafeSupplier) {
+
+		try {
+			numberOfUsers = numberOfUsersUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField(
+		description = "The number of this account's associated users."
+	)
+	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
+	protected Integer numberOfUsers;
+
 	@Schema
 	public Long[] getOrganizationIds() {
 		return organizationIds;
@@ -314,6 +376,42 @@ public class Account implements Serializable {
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected Integer status;
 
+	@Schema
+	@Valid
+	public Type getType() {
+		return type;
+	}
+
+	@JsonIgnore
+	public String getTypeAsString() {
+		if (type == null) {
+			return null;
+		}
+
+		return type.toString();
+	}
+
+	public void setType(Type type) {
+		this.type = type;
+	}
+
+	@JsonIgnore
+	public void setType(UnsafeSupplier<Type, Exception> typeUnsafeSupplier) {
+		try {
+			type = typeUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected Type type;
+
 	@Override
 	public boolean equals(Object object) {
 		if (this == object) {
@@ -340,6 +438,26 @@ public class Account implements Serializable {
 		StringBundler sb = new StringBundler();
 
 		sb.append("{");
+
+		if (accountUserAccounts != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"accountUserAccounts\": ");
+
+			sb.append("[");
+
+			for (int i = 0; i < accountUserAccounts.length; i++) {
+				sb.append(String.valueOf(accountUserAccounts[i]));
+
+				if ((i + 1) < accountUserAccounts.length) {
+					sb.append(", ");
+				}
+			}
+
+			sb.append("]");
+		}
 
 		if (actions != null) {
 			if (sb.length() > 1) {
@@ -427,6 +545,16 @@ public class Account implements Serializable {
 			sb.append("\"");
 		}
 
+		if (numberOfUsers != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"numberOfUsers\": ");
+
+			sb.append(numberOfUsers);
+		}
+
 		if (organizationIds != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -467,6 +595,20 @@ public class Account implements Serializable {
 			sb.append(status);
 		}
 
+		if (type != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"type\": ");
+
+			sb.append("\"");
+
+			sb.append(type);
+
+			sb.append("\"");
+		}
+
 		sb.append("}");
 
 		return sb.toString();
@@ -478,6 +620,44 @@ public class Account implements Serializable {
 		name = "x-class-name"
 	)
 	public String xClassName;
+
+	@GraphQLName("Type")
+	public static enum Type {
+
+		BUSINESS("business"), GUEST("guest"), PERSON("person");
+
+		@JsonCreator
+		public static Type create(String value) {
+			if ((value == null) || value.equals("")) {
+				return null;
+			}
+
+			for (Type type : values()) {
+				if (Objects.equals(type.getValue(), value)) {
+					return type;
+				}
+			}
+
+			throw new IllegalArgumentException("Invalid enum value: " + value);
+		}
+
+		@JsonValue
+		public String getValue() {
+			return _value;
+		}
+
+		@Override
+		public String toString() {
+			return _value;
+		}
+
+		private Type(String value) {
+			_value = value;
+		}
+
+		private final String _value;
+
+	}
 
 	private static String _escape(Object object) {
 		String string = String.valueOf(object);

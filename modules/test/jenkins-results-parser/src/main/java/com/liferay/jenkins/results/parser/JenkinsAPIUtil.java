@@ -55,9 +55,6 @@ public class JenkinsAPIUtil {
 			String errorMessage =
 				"Unable to get Jenkins API JSON object from " + sb.toString();
 
-			NotificationUtil.sendSlackNotification(
-				errorMessage, "ci-notifications", "Jenkins API Failure");
-
 			throw new RuntimeException(errorMessage, ioException);
 		}
 	}

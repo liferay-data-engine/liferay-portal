@@ -37,7 +37,7 @@ import com.liferay.portal.configuration.metatype.annotations.ExtendedObjectClass
 public interface NtlmConfiguration {
 
 	@Meta.AD(
-		deflt = "false", description = "enabled-help", name = "enabled",
+		deflt = "false", description = "enabled-help[ntlm]", name = "enabled",
 		required = false
 	)
 	public boolean enabled();

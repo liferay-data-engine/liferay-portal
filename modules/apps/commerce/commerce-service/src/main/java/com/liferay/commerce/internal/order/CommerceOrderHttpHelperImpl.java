@@ -103,9 +103,8 @@ public class CommerceOrderHttpHelperImpl implements CommerceOrderHttpHelper {
 
 		if (commerceAccount != null) {
 			commerceOrder = _commerceOrderService.addCommerceOrder(
-				_portal.getUserId(httpServletRequest),
 				commerceContext.getCommerceChannelGroupId(),
-				commerceAccount.getCommerceAccountId(), commerceCurrencyId);
+				commerceAccount.getCommerceAccountId(), commerceCurrencyId, 0);
 		}
 
 		if (commerceAccount == null) {
@@ -306,9 +305,18 @@ public class CommerceOrderHttpHelperImpl implements CommerceOrderHttpHelper {
 		CommerceOrder commerceOrder = _getCurrentCommerceOrder(
 			commerceContext, httpServletRequest);
 
-		if ((commerceOrder != null) && commerceOrder.isGuestOrder()) {
-			commerceOrder = _checkGuestOrder(
-				commerceContext, commerceOrder, httpServletRequest);
+		if (commerceOrder != null) {
+			if (commerceOrder.isGuestOrder()) {
+				commerceOrder = _checkGuestOrder(
+					commerceContext, commerceOrder, httpServletRequest);
+			}
+			else {
+				if (commerceOrder.getCommerceAccountId() !=
+						commerceAccount.getCommerceAccountId()) {
+
+					return null;
+				}
+			}
 		}
 
 		if (((commerceOrder != null) && !commerceOrder.isOpen()) ||
@@ -337,7 +345,7 @@ public class CommerceOrderHttpHelperImpl implements CommerceOrderHttpHelper {
 			_configurationProvider.getConfiguration(
 				CommerceOrderCheckoutConfiguration.class,
 				new GroupServiceSettingsLocator(
-					groupId, CommerceConstants.SERVICE_NAME_ORDER));
+					groupId, CommerceConstants.SERVICE_NAME_COMMERCE_ORDER));
 
 		return commerceOrderCheckoutConfiguration.guestCheckoutEnabled();
 	}
@@ -472,8 +480,6 @@ public class CommerceOrderHttpHelperImpl implements CommerceOrderHttpHelper {
 
 		CommerceOrder commerceOrder = _commerceOrderThreadLocal.get();
 
-		CommerceAccount commerceAccount = commerceContext.getCommerceAccount();
-
 		if (commerceOrder != null) {
 			CommerceOrder persistenceCommerceOrder =
 				_commerceOrderLocalService.fetchCommerceOrder(
@@ -481,13 +487,6 @@ public class CommerceOrderHttpHelperImpl implements CommerceOrderHttpHelper {
 
 			if (persistenceCommerceOrder == null) {
 				return commerceOrder;
-			}
-
-			if ((commerceAccount == null) ||
-				(commerceOrder.getCommerceAccountId() !=
-					commerceAccount.getCommerceAccountId())) {
-
-				return null;
 			}
 
 			_commerceOrderThreadLocal.set(persistenceCommerceOrder);
@@ -498,6 +497,8 @@ public class CommerceOrderHttpHelperImpl implements CommerceOrderHttpHelper {
 		CommerceChannel commerceChannel =
 			_commerceChannelLocalService.fetchCommerceChannel(
 				commerceContext.getCommerceChannelId());
+
+		CommerceAccount commerceAccount = commerceContext.getCommerceAccount();
 
 		if ((commerceChannel == null) || (commerceAccount == null)) {
 			return null;
@@ -533,12 +534,6 @@ public class CommerceOrderHttpHelperImpl implements CommerceOrderHttpHelper {
 			}
 
 			if (commerceOrder != null) {
-				if (commerceOrder.getCommerceAccountId() !=
-						commerceAccount.getCommerceAccountId()) {
-
-					return null;
-				}
-
 				_validateCommerceOrderItemVersions(
 					commerceOrder, _portal.getLocale(httpServletRequest));
 

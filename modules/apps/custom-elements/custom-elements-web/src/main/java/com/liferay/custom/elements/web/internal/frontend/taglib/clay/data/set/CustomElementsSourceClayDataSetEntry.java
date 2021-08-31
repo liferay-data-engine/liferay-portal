@@ -15,6 +15,8 @@
 package com.liferay.custom.elements.web.internal.frontend.taglib.clay.data.set;
 
 import com.liferay.custom.elements.model.CustomElementsSource;
+import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.util.Validator;
 
 /**
  * @author Iván Zaera Avellón
@@ -31,16 +33,24 @@ public class CustomElementsSourceClayDataSetEntry {
 		return _customElementsSource.getCustomElementsSourceId();
 	}
 
-	public String getHTMLElementName() {
+	public String getHtmlElementName() {
 		return _customElementsSource.getHTMLElementName();
+	}
+
+	public String getMainURL() {
+		String urls = _customElementsSource.getURLs();
+
+		if (Validator.isBlank(urls)) {
+			return StringPool.BLANK;
+		}
+
+		String[] urlsArray = urls.split(StringPool.NEW_LINE);
+
+		return urlsArray[0];
 	}
 
 	public String getName() {
 		return _customElementsSource.getName();
-	}
-
-	public String getURL() {
-		return _customElementsSource.getURL();
 	}
 
 	private final CustomElementsSource _customElementsSource;

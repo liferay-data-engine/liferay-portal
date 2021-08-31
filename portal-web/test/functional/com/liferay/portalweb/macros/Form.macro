@@ -881,15 +881,11 @@ definition {
 	}
 
 	macro viewCollapsedCollapseButton {
-		AssertElementPresent(
-			key_trueOrFalse = "false",
-			locator1 = "Form#COLLAPSE_BUTTON");
+		AssertElementPresent(locator1 = "Form#FIELDS_GROUP_COLLAPSED");
 	}
 
 	macro viewExpandedCollapseButton {
-		AssertElementPresent(
-			key_trueOrFalse = "true",
-			locator1 = "Form#COLLAPSE_BUTTON");
+		AssertElementPresent(locator1 = "Form#FIELDS_GROUP_EXPANDED");
 	}
 
 	macro viewFieldReference {
@@ -920,15 +916,15 @@ definition {
 	}
 
 	macro viewFieldsGroupCollapsedField {
-		AssertElementNotPresent(
+		AssertElementPresent(
 			key_fieldLabel = "${fieldLabel}",
-			locator1 = "Form#FIELDS_GROUP_FIELD_COLLAPSIBLE_IS_VISIBLE");
+			locator1 = "Form#FIELDS_GROUP_COLLAPSED_FIELD");
 	}
 
 	macro viewFieldsGroupNotCollapsedField {
-		AssertElementPresent(
+		AssertElementNotPresent(
 			key_fieldLabel = "${fieldLabel}",
-			locator1 = "Form#FIELDS_GROUP_FIELD_COLLAPSIBLE_IS_VISIBLE");
+			locator1 = "Form#FIELDS_GROUP_COLLAPSED_FIELD");
 	}
 
 	macro viewFormDescription {

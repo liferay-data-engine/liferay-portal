@@ -333,8 +333,6 @@ components:
                         The field's internal name. This is valid for comparisons and unique in the structured content.
                     type: string
         CustomValue:
-            description:
-                ""
             properties:
                 data:
                     description:
@@ -1037,6 +1035,14 @@ components:
                     format: int64
                     minimum: 0
                     type: integer
+                label:
+                    additionalProperties:
+                        type: string
+                    example:
+                        en_US: Hand Saw
+                        hr_HR: Product Name HR
+                        hu_HU: Product Name HU
+                    type: object
                 optionCategoryId:
                     example: 30129
                     format: int64
@@ -3335,8 +3341,6 @@ paths:
                     content:
                         application/json: {}
                         application/xml: {}
-                    description:
-                        ""
                 401:
                     content:
                         application/json:
@@ -3439,8 +3443,6 @@ paths:
                     content:
                         application/json: {}
                         application/xml: {}
-                    description:
-                        ""
                 401:
                     content:
                         application/json:
@@ -3543,8 +3545,6 @@ paths:
                     content:
                         application/json: {}
                         application/xml: {}
-                    description:
-                        ""
                 401:
                     content:
                         application/json:
@@ -3728,8 +3728,6 @@ paths:
                     content:
                         application/json: {}
                         application/xml: {}
-                    description:
-                        ""
                 401:
                     content:
                         application/json:
@@ -4059,8 +4057,6 @@ paths:
                     content:
                         application/json: {}
                         application/xml: {}
-                    description:
-                        ""
                 401:
                     content:
                         application/json:

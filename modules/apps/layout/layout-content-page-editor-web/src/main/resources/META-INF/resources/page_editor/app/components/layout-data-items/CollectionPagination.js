@@ -52,9 +52,8 @@ export default function CollectionPagination({
 			className={classNames(
 				'page-editor__collection__pagination d-flex',
 				{
-					'page-editor__collection__pagination__overlay': !isActive(
-						collectionId
-					),
+					'page-editor__collection__pagination__overlay':
+						totalNumberOfItems < 1 || !isActive(collectionId),
 					'pt-3 pb-2': paginationType === 'numeric',
 					'py-3': paginationType === 'simple',
 				}
@@ -73,7 +72,7 @@ export default function CollectionPagination({
 						activePage={activePage}
 						onPageChange={onPageChange}
 						totalPages={
-							Number.isFinite(totalPages) ? totalPages : 0
+							(Number.isFinite(totalPages) && totalPages) || 1
 						}
 					/>
 				</ClayPaginationBar>

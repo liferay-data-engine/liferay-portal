@@ -16,6 +16,8 @@ package com.liferay.headless.admin.batch.planner.resource.v1_0;
 
 import com.liferay.headless.admin.batch.planner.dto.v1_0.Log;
 import com.liferay.portal.kernel.service.GroupLocalService;
+import com.liferay.portal.kernel.service.ResourceActionLocalService;
+import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
 import com.liferay.portal.vulcan.pagination.Page;
@@ -48,7 +50,7 @@ public interface LogResource {
 		return FactoryHolder.factory.create();
 	}
 
-	public Page<Log> getPlanLogsPage(Long id, Pagination pagination)
+	public Page<Log> getPlanLogsPage(Long planId, Pagination pagination)
 		throws Exception;
 
 	public default void setContextAcceptLanguage(
@@ -74,6 +76,12 @@ public interface LogResource {
 
 	public void setGroupLocalService(GroupLocalService groupLocalService);
 
+	public void setResourceActionLocalService(
+		ResourceActionLocalService resourceActionLocalService);
+
+	public void setResourcePermissionLocalService(
+		ResourcePermissionLocalService resourcePermissionLocalService);
+
 	public void setRoleLocalService(RoleLocalService roleLocalService);
 
 	public static class FactoryHolder {
@@ -91,6 +99,9 @@ public interface LogResource {
 
 		public Builder httpServletRequest(
 			HttpServletRequest httpServletRequest);
+
+		public Builder httpServletResponse(
+			HttpServletResponse httpServletResponse);
 
 		public Builder preferredLocale(Locale preferredLocale);
 

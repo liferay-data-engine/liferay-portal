@@ -521,12 +521,14 @@ public class Layout implements Cloneable, Serializable {
 
 	public static enum Align {
 
-		CENTER("Center"), END("End"), NONE("None"), START("Start"),
-		STRETCH("Stretch");
+		BASELINE("Baseline"), CENTER("Center"), END("End"), NONE("None"),
+		START("Start"), STRETCH("Stretch");
 
 		public static Align create(String value) {
 			for (Align align : values()) {
-				if (Objects.equals(align.getValue(), value)) {
+				if (Objects.equals(align.getValue(), value) ||
+					Objects.equals(align.name(), value)) {
+
 					return align;
 				}
 			}
@@ -558,7 +560,9 @@ public class Layout implements Cloneable, Serializable {
 
 		public static BorderRadius create(String value) {
 			for (BorderRadius borderRadius : values()) {
-				if (Objects.equals(borderRadius.getValue(), value)) {
+				if (Objects.equals(borderRadius.getValue(), value) ||
+					Objects.equals(borderRadius.name(), value)) {
+
 					return borderRadius;
 				}
 			}
@@ -589,7 +593,9 @@ public class Layout implements Cloneable, Serializable {
 
 		public static ContainerType create(String value) {
 			for (ContainerType containerType : values()) {
-				if (Objects.equals(containerType.getValue(), value)) {
+				if (Objects.equals(containerType.getValue(), value) ||
+					Objects.equals(containerType.name(), value)) {
+
 					return containerType;
 				}
 			}
@@ -616,11 +622,13 @@ public class Layout implements Cloneable, Serializable {
 
 	public static enum ContentDisplay {
 
-		BLOCK("Block"), FLEX("Flex");
+		BLOCK("Block"), FLEX_COLUMN("FlexColumn"), FLEX_ROW("FlexRow");
 
 		public static ContentDisplay create(String value) {
 			for (ContentDisplay contentDisplay : values()) {
-				if (Objects.equals(contentDisplay.getValue(), value)) {
+				if (Objects.equals(contentDisplay.getValue(), value) ||
+					Objects.equals(contentDisplay.name(), value)) {
+
 					return contentDisplay;
 				}
 			}
@@ -652,7 +660,9 @@ public class Layout implements Cloneable, Serializable {
 
 		public static Justify create(String value) {
 			for (Justify justify : values()) {
-				if (Objects.equals(justify.getValue(), value)) {
+				if (Objects.equals(justify.getValue(), value) ||
+					Objects.equals(justify.name(), value)) {
+
 					return justify;
 				}
 			}
@@ -684,7 +694,9 @@ public class Layout implements Cloneable, Serializable {
 
 		public static Shadow create(String value) {
 			for (Shadow shadow : values()) {
-				if (Objects.equals(shadow.getValue(), value)) {
+				if (Objects.equals(shadow.getValue(), value) ||
+					Objects.equals(shadow.name(), value)) {
+
 					return shadow;
 				}
 			}
@@ -715,7 +727,9 @@ public class Layout implements Cloneable, Serializable {
 
 		public static WidthType create(String value) {
 			for (WidthType widthType : values()) {
-				if (Objects.equals(widthType.getValue(), value)) {
+				if (Objects.equals(widthType.getValue(), value) ||
+					Objects.equals(widthType.name(), value)) {
+
 					return widthType;
 				}
 			}

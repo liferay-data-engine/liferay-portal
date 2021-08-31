@@ -36,17 +36,15 @@ export const CommonStyles = ({commonStylesValues, item}) => {
 	let styles = commonStyles;
 
 	if (item.type === LAYOUT_DATA_ITEM_TYPES.collection) {
-		styles = styles.filter(
-			(fieldSet) =>
-				config.fragmentsHidingEnabled &&
-				fieldSet.styles.find((field) => field.name === 'display')
+		styles = styles.filter((fieldSet) =>
+			fieldSet.styles.find((field) => field.name === 'display')
 		);
 	}
 
 	return (
 		<>
 			<h1 className="sr-only">{Liferay.Language.get('common-styles')}</h1>
-			<div className="page-editor__row-styles-panel__common-styles">
+			<div className="page-editor__common-styles">
 				{styles.map((fieldSet, index) => {
 					return (
 						<FieldSet

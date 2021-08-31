@@ -63,11 +63,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
-import javax.portlet.ActionRequest;
-import javax.portlet.ActionURL;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletURL;
-import javax.portlet.RenderResponse;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -250,7 +247,7 @@ public class CPDefinitionsDisplayContext
 	}
 
 	public List<CommerceCatalog> getCommerceCatalogs() throws PortalException {
-		return _commerceCatalogService.searchCommerceCatalogs(
+		return _commerceCatalogService.search(
 			cpRequestHelper.getCompanyId(), null, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -350,16 +347,9 @@ public class CPDefinitionsDisplayContext
 
 		List<HeaderActionModel> headerActionModels = new ArrayList<>();
 
-		RenderResponse renderResponse = cpRequestHelper.getRenderResponse();
+		String saveButtonLabel = "save";
 
 		CPDefinition cpDefinition = getCPDefinition();
-
-		ActionURL actionURL = renderResponse.createActionURL();
-
-		actionURL.setParameter(
-			ActionRequest.ACTION_NAME, "/cp_definitions/edit_cp_definition");
-
-		String saveButtonLabel = "save";
 
 		if ((cpDefinition == null) || cpDefinition.isDraft() ||
 			cpDefinition.isApproved() || cpDefinition.isExpired() ||
@@ -369,7 +359,12 @@ public class CPDefinitionsDisplayContext
 		}
 
 		HeaderActionModel saveAsDraftHeaderActionModel = new HeaderActionModel(
-			null, renderResponse.getNamespace() + "fm", actionURL.toString(),
+			null, liferayPortletResponse.getNamespace() + "fm",
+			PortletURLBuilder.createActionURL(
+				liferayPortletResponse
+			).setActionName(
+				"/cp_definitions/edit_cp_definition"
+			).buildString(),
 			null, saveButtonLabel);
 
 		headerActionModels.add(saveAsDraftHeaderActionModel);
@@ -391,9 +386,13 @@ public class CPDefinitionsDisplayContext
 		}
 
 		HeaderActionModel publishHeaderActionModel = new HeaderActionModel(
-			additionalClasses, renderResponse.getNamespace() + "fm",
-			actionURL.toString(),
-			renderResponse.getNamespace() + "publishButton",
+			additionalClasses, liferayPortletResponse.getNamespace() + "fm",
+			PortletURLBuilder.createActionURL(
+				liferayPortletResponse
+			).setActionName(
+				"/cp_definitions/edit_cp_definition"
+			).buildString(),
+			liferayPortletResponse.getNamespace() + "publishButton",
 			publishButtonLabel);
 
 		headerActionModels.add(publishHeaderActionModel);

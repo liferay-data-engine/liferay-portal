@@ -12,8 +12,8 @@
 <tbody>
 <!-- INDIVIDUALS DASHBOARD -->
 <tr>
-	<td>HEADER_TITLE</td>
-	<td>//header//h1</td>
+	<td>DROPDOWN_MENU_ITEM</td>
+	<td>//ul[contains(@class,'dropdown-menu')][contains(@class,'show')]//button[.//span[normalize-space(text())='${menuItem}']]</td>
 	<td></td>
 </tr>
 <tr>
@@ -23,7 +23,17 @@
 </tr>
 <tr>
 	<td>ADD_BREAKDOWN_BUTTON</td>
-	<td>//div[contains(@class,'tabs-root')]/button</td>
+	<td>//div[contains(@class,'distribution-card')]//button[*[name()='svg'][contains(@class,'icon-plus')]]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>BREAKDOWN_RECHARTS_BAR_FILL_COLOR</td>
+	<td>xpath=(//div[contains(@class,'distribution-card')]//*[name()='g'][contains(@class,'recharts-bar')]//*[name()='path'])[${index}]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>BREAKDOWN_RECHARTS_CARTESIAN_Y_AXIS_TICK</td>
+	<td>xpath=(//div[contains(@class,'distribution-card')]//*[name()='g'][contains(@class,'recharts-yAxis')]//*[name()='g'][contains(@class,'recharts-layer')][contains(@class,'axis-tick')])[${index}]</td>
 	<td></td>
 </tr>
 <tr>
@@ -38,12 +48,12 @@
 </tr>
 <tr>
 	<td>DELETE_BREAKDOWN_BUTTON</td>
-	<td>//div[@class='tab-title active']/button</td>
+	<td>//div[contains(@class,'distribution-card')]//div[contains(@class,'tab-title')][normalize-space(text())='${breakdownName}']//button[*[name()='svg'][contains(@class,'icon-times')]]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>BREAKDOWN_TAB</td>
-	<td>//div[@class='card card-root distribution-card-root']//li/button[text()='${key_breakdownTabName}']</td>
+	<td>//div[contains(@class,'distribution-card')]//div[contains(@class,'tab-title')][normalize-space(text())='${breakdownName}']</td>
 	<td></td>
 </tr>
 <tr>
@@ -72,18 +82,65 @@
 	<td></td>
 </tr>
 <tr>
+	<td>CLEAR_DATE_SELECTION_BUTTON</td>
+	<td>//button[contains(@type,'button') and contains(.,'Clear Date Selection')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>TOTAL_ACTIVITIES</td>
 	<td>//a[@class='text-truncate'and text()='${key_userName}']/ancestor::td/following-sibling::td[text()='${key_activitiesNumber}']</td>
 	<td></td>
 </tr>
 <tr>
-	<td>INDIVIDUAL_ACTIVITIES_CHART</td>
-	<td>//*[contains(@class,'recharts-layer recharts-bar-rectangle')]/*[contains(@radius,'0')]</td>
+	<td>INDIVIDUALS_ACTIVITIES_CHART_RECHARTS_BAR</td>
+	<td>xpath=(//*[contains(@class,'recharts-layer recharts-bar-rectangle')]/*[name()='path'][contains(@class,'recharts-rectangle')])[${index}]</td>
 	<td></td>
 </tr>
 <tr>
-	<td>TOTAL_INDIVIDUALS</td>
-	<td>//h5[text()='Total Individuals']/parent::div/following-sibling::div/div[@class='total']</td>
+	<td>VISITORS_LEGEND</td>
+	<td>//span[contains(text(),'${key_visitorLegend}')]</td>
+	<td></td>
+</tr>
+<!--INDIVIDUAL_DETAILS_CARD-->
+<tr>
+	<td>INDIVIDUAL_DETAILS_CARD_AVATAR</td>
+	<td>//div[contains(@class,'individual-details-card')]//div[contains(@class,'avatar')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>INDIVIDUAL_DETAILS_CARD_EMAIL</td>
+	<td>//div[contains(@class,'individual-details-card')]//div[contains(@class,'email')][normalize-space(text())='${userEmailAddress}']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>INDIVIDUAL_DETAILS_CARD_FULL_NAME</td>
+	<td>//div[contains(@class,'individual-details-card')]//div[contains(@class,'card-body')]//h4[normalize-space(text())='${fullName}']</td>
+	<td></td>
+</tr>
+<!--INDIVIDUALS_ACTIVITIES_CHART-->
+<tr>
+	<td>BASE_RESULTS_TIMELINE_ITEM</td>
+	<td>xpath=(//div[contains(@class,'base-results')]//li[contains(@class,'timeline-item')]//span[contains(@class,'title')][normalize-space(text())='Visited ${itemName}'])[${index}]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>BASE_RESULTS_TIMELINE_ITEM_SUBTITLE</td>
+	<td>xpath=(//div[contains(@class,'base-results')]//li[contains(@class,'timeline-item')][.//span[contains(@class,'title')][normalize-space(text())='Visited ${itemName}']])[${index}]//span[contains(@class,'subtitle')][normalize-space()='${subtitle}']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>BASE_RESULTS_TIMELINE_ITEM_NESTED</td>
+	<td>xpath=(//div[contains(@class,'base-results')]//li[contains(@class,'timeline-item')][.//span[contains(@class,'title')][normalize-space(text())='Visited ${itemName}']]//ul[contains(@class,'timeline-nested')]//a[contains(@class,'title')][normalize-space()='Visited ${pageName}'])[${index}]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CHART_POPOVER</td>
+	<td>//div[contains(@class,'recharts-tooltip-wrapper')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CHART_POPOVER_ACTIVITIES_DATE</td>
+	<td>xpath=(//tr[contains(@class,'analytics-tooltip-chart-row')])[1]//td[2]//div[contains(@class,'analytics-tooltip-chart-content')]</td>
 	<td></td>
 </tr>
 </tbody>

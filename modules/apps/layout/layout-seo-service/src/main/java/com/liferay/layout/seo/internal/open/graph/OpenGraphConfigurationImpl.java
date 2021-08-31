@@ -15,6 +15,7 @@
 package com.liferay.layout.seo.internal.open.graph;
 
 import com.liferay.layout.seo.internal.configuration.LayoutSEOCompanyConfiguration;
+import com.liferay.layout.seo.internal.configuration.LayoutSEOGroupConfiguration;
 import com.liferay.layout.seo.model.LayoutSEOSite;
 import com.liferay.layout.seo.open.graph.OpenGraphConfiguration;
 import com.liferay.layout.seo.service.LayoutSEOSiteLocalService;
@@ -52,13 +53,21 @@ public class OpenGraphConfigurationImpl implements OpenGraphConfiguration {
 	public boolean isLayoutTranslatedLanguagesEnabled(Group group)
 		throws PortalException {
 
-		if (!isLayoutTranslatedLanguagesEnabled(
-				_companyLocalService.getCompany(group.getCompanyId()))) {
-
+		if (!isOpenGraphEnabled(group)) {
 			return false;
 		}
 
-		return isOpenGraphEnabled(group);
+		if (isLayoutTranslatedLanguagesEnabled(
+				_companyLocalService.getCompany(group.getCompanyId()))) {
+
+			return true;
+		}
+
+		LayoutSEOGroupConfiguration layoutSEOGroupConfiguration =
+			_configurationProvider.getGroupConfiguration(
+				LayoutSEOGroupConfiguration.class, group.getGroupId());
+
+		return layoutSEOGroupConfiguration.enableLayoutTranslatedLanguages();
 	}
 
 	@Override
@@ -67,11 +76,7 @@ public class OpenGraphConfigurationImpl implements OpenGraphConfiguration {
 			_configurationProvider.getCompanyConfiguration(
 				LayoutSEOCompanyConfiguration.class, company.getCompanyId());
 
-		if (!layoutSEOCompanyConfiguration.enableOpenGraph()) {
-			return false;
-		}
-
-		return true;
+		return layoutSEOCompanyConfiguration.enableOpenGraph();
 	}
 
 	@Override

@@ -25,21 +25,80 @@
 				return;
 			}
 
-			const instance = this;
-
-			const editor = instance.editor;
+			const editor = this.editor;
 
 			const toolbar = new CKEDITOR.ui.balloonToolbar(editor);
 
-			const unlinkButton = new CKEDITOR.ui.balloonToolbarButton({
-				click: instance._onUnlinkButtonClick.bind(instance),
-				icon: 'unlink',
-				title: editor.lang.undo.undo,
+			const configToolbarItems = editor.config.toolbarLink?.split(',');
+
+			if (!configToolbarItems) {
+				return;
+			}
+
+			configToolbarItems.forEach((item) => {
+				const toolbarItem = this._toolbarItems[item];
+
+				if (toolbarItem) {
+					toolbar.addItem(item, toolbarItem);
+
+					return;
+				}
+
+				const globalToolbarItem = editor.ui.create(item);
+
+				if (globalToolbarItem) {
+					toolbar.addItem(item, globalToolbarItem);
+				}
 			});
 
-			toolbar.addItem('unlinkButton', unlinkButton);
+			if (CKEDITOR.tools.isEmpty(toolbar._items)) {
+				return;
+			}
 
-			const targetSelect = new CKEDITOR.ui.balloonToolbarSelect({
+			this._toolbar = toolbar;
+		},
+
+		_currentSelection: null,
+
+		_initToolbarItems() {
+			const instance = this;
+
+			const toolbarItems = {};
+
+			const editor = instance.editor;
+
+			toolbarItems['LinkRemove'] = new CKEDITOR.ui.balloonToolbarButton({
+				click: () => {
+					const selection = editor.getSelection();
+
+					const bookmarks = selection.createBookmarks();
+					const ranges = selection.getRanges();
+
+					for (let i = 0; i < ranges.length; i++) {
+						const rangeRoot = ranges[i].getCommonAncestor(true);
+
+						const element = rangeRoot.getAscendant('a', true);
+
+						if (!element) {
+							continue;
+						}
+
+						ranges[i].selectNodeContents(element);
+					}
+
+					selection.selectRanges(ranges);
+
+					editor.document.$.execCommand('unlink', false, null);
+
+					selection.selectBookmarks(bookmarks);
+
+					instance._toolbar.hide();
+				},
+				icon: 'unlink',
+				title: editor.lang.link.unlink,
+			});
+
+			toolbarItems['LinkTarget'] = new CKEDITOR.ui.balloonToolbarSelect({
 				items: [
 					{
 						label: editor.lang.common.optionDefault,
@@ -66,238 +125,184 @@
 				name: editor.lang.common.target,
 			});
 
-			toolbar.addItem('targetSelect', targetSelect);
-
-			const linkInput = new CKEDITOR.ui.balloonToolbarTextInput({
-				placeholder: editor.lang.link.title,
-			});
-
-			const changeOrClickHandler = instance._onOkButtonClick.bind(
-				instance
+			toolbarItems['LinkInput'] = new CKEDITOR.ui.balloonToolbarTextInput(
+				{
+					placeholder: editor.lang.link.title,
+				}
 			);
 
-			linkInput.on('change', () => {
-				changeOrClickHandler();
-			});
+			toolbarItems['LinkConfirm'] = new CKEDITOR.ui.balloonToolbarButton({
+				click: () => {
+					const linkInput = instance._toolbar.getItem('LinkInput');
 
-			toolbar.addItem('linkInput', linkInput);
+					if (!linkInput?.value) {
+						instance._toolbar.hide();
 
-			const okButton = new CKEDITOR.ui.balloonToolbarButton({
-				click: changeOrClickHandler,
+						return;
+					}
+
+					let selection = instance._currentSelection;
+
+					const attributes = {
+						'data-cke-saved-href': linkInput.value,
+						href: linkInput.value,
+						rel: 'noopener',
+					};
+
+					const linkTarget = instance._toolbar.getItem('LinkTarget');
+
+					if (linkTarget) {
+						const hasTarget = linkTarget.value !== 'Default';
+
+						if (hasTarget) {
+							attributes.target = linkTarget.value;
+						}
+					}
+
+					if (editor.widgets.selected[0]) {
+						const imageWidget = editor.widgets.selected[0];
+
+						if (!imageWidget || imageWidget.name !== 'image') {
+							return;
+						}
+
+						const link = imageWidget.wrapper.findOne('a');
+
+						if (link) {
+							link.setAttributes(attributes);
+						}
+						else {
+							const newData = Object.assign(imageWidget.data, {
+								link: {
+									url: linkInput.value,
+								},
+							});
+
+							imageWidget.shiftState({
+								deflate() {},
+								element: imageWidget.element,
+								inflate() {
+									const link = imageWidget.wrapper.findOne(
+										'a'
+									);
+
+									link.setAttributes(attributes);
+								},
+								newData,
+								oldData: imageWidget.oldData,
+								widget: imageWidget,
+							});
+						}
+
+						instance._toolbar.hide();
+
+						imageWidget.focus();
+						imageWidget.element.focus();
+					}
+					else {
+						const startElement = selection.getStartElement();
+
+						let linkElement;
+
+						if (startElement.getName() === 'a') {
+							linkElement = startElement;
+
+							linkElement.setAttributes(attributes);
+
+							linkInput.clear();
+
+							instance._toolbar.hide();
+						}
+						else if (selection.getSelectedText()) {
+							selection = editor.getSelection();
+
+							const selectedText = selection.getSelectedText();
+
+							const [firstRange] = selection.getRanges();
+
+							const bookmark = firstRange.createBookmark();
+
+							linkElement = new CKEDITOR.dom.element('a');
+
+							linkElement.setAttributes(attributes);
+							linkElement.setText(selectedText);
+
+							linkElement.insertAfter(bookmark.endNode);
+
+							firstRange.moveToBookmark(bookmark);
+
+							firstRange.deleteContents();
+
+							linkInput.clear();
+
+							instance._toolbar.hide();
+
+							selection.unlock(true);
+						}
+					}
+				},
 				icon: 'check',
-				title: editor.lang.common.ok,
+				title: editor.lang.common.confirm,
 			});
 
-			toolbar.addItem('okButton', okButton);
-
-			const folderButton = new CKEDITOR.ui.balloonToolbarButton({
+			toolbarItems['LinkBrowse'] = new CKEDITOR.ui.balloonToolbarButton({
 				click() {
 					editor.execCommand('linkselector', (selectedItemURL) => {
-						const linkInput = toolbar.getItem('linkInput');
+						const linkInput = instance._toolbar.getItem(
+							'LinkInput'
+						);
 
-						linkInput.setValue(selectedItemURL);
+						linkInput?.setValue(selectedItemURL);
 					});
 				},
 				icon: 'folder',
 				title: editor.lang.common.browseServer,
 			});
 
-			toolbar.addItem('folderButton', folderButton);
-
-			instance._toolbar = toolbar;
-		},
-
-		_currentSelection: null,
-
-		_onOkButtonClick() {
-			const linkInput = this._toolbar.getItem('linkInput');
-
-			if (!linkInput.value) {
-				this._toolbar.hide();
-
-				return;
-			}
-
-			let selection = this._currentSelection;
-
-			const attributes = {
-				'data-cke-saved-href': linkInput.value,
-				href: linkInput.value,
-				rel: 'noopener',
-			};
-
-			const targetSelect = this._toolbar.getItem('targetSelect');
-
-			const hasTarget = targetSelect.value !== 'Default';
-
-			if (hasTarget) {
-				attributes.target = targetSelect.value;
-			}
-
-			if (this.editor.widgets.selected[0]) {
-				const imageWidget = this.editor.widgets.selected[0];
-
-				if (!imageWidget || imageWidget.name !== 'image') {
-					return;
-				}
-
-				const link = imageWidget.wrapper.findOne('a');
-
-				if (link) {
-					link.setAttributes(attributes);
-				}
-				else {
-					const newData = Object.assign(imageWidget.data, {
-						link: {
-							url: linkInput.value,
-						},
-					});
-
-					imageWidget.shiftState({
-						deflate() {},
-						element: imageWidget.element,
-						inflate() {
-							const link = imageWidget.wrapper.findOne('a');
-
-							link.setAttributes(attributes);
-						},
-						newData,
-						oldData: imageWidget.oldData,
-						widget: imageWidget,
-					});
-				}
-
-				this._toolbar.hide();
-
-				imageWidget.focus();
-				imageWidget.element.focus();
-			}
-			else {
-				const startElement = selection.getStartElement();
-
-				let linkElement;
-
-				if (startElement.getName() === 'a') {
-					linkElement = startElement;
-
-					linkElement.setAttributes(attributes);
-
-					linkInput.clear();
-
-					this._toolbar.hide();
-				}
-				else if (selection.getSelectedText()) {
-					selection = this.editor.getSelection();
-
-					const selectedText = selection.getSelectedText();
-
-					const ranges = selection.getRanges();
-
-					const range = ranges[0];
-
-					const bookmark = range.createBookmark();
-
-					linkElement = new CKEDITOR.dom.element('a');
-
-					linkElement.setAttributes(attributes);
-					linkElement.setText(selectedText);
-
-					linkElement.insertAfter(bookmark.endNode);
-
-					range.moveToBookmark(bookmark);
-
-					range.deleteContents();
-
-					linkInput.clear();
-
-					this._toolbar.hide();
-
-					selection.unlock(true);
-				}
-			}
-		},
-
-		_onUnlinkButtonClick() {
-			const startElement = this._currentSelection.getStartElement();
-			const startElementName = startElement.getName();
-
-			if (startElementName === 'a') {
-				startElement.remove(true);
-			}
-			else if (startElement.findOne('img')) {
-				const imageWidget = this.editor.widgets.selected[0];
-
-				if (!imageWidget || imageWidget.name !== 'image') {
-					return;
-				}
-
-				if (
-					Object.prototype.hasOwnProperty.call(
-						imageWidget.data,
-						'link'
-					)
-				) {
-					imageWidget.setData('link', {url: ''});
-
-					const linkInput = this._toolbar.getItem('linkInput');
-
-					linkInput.clear();
-
-					this._toolbar.hide();
-				}
-			}
-
-			this.editor.fire('hideToolbars');
+			instance._toolbarItems = toolbarItems;
 		},
 
 		_toolbar: null,
+
+		_toolbarItems: null,
 
 		init(editor) {
 			const instance = this;
 
 			instance.editor = editor;
 
-			const eventListeners = [];
+			instance._initToolbarItems();
 
-			editor.on('contentDom', () => {
-				const editable = editor.editable();
+			editor.on('selectionChange', () => {
+				const selection = editor.getSelection();
 
-				const showLinkToolbar = (event) => {
-					const imageWidget = editor.widgets.selected[0];
+				const selectedElement = selection.getSelectedElement();
 
-					const target = event.data.getTarget();
+				const startElement = selection.getStartElement();
 
-					if (imageWidget?.name === 'image') {
-						this._toolbar?.hide();
-					}
-					else if (target.$.closest('a')) {
-						editor.fire('showToolbar', {
-							toolbarCommand: 'linkToolbar',
-						});
-					}
-					else {
-						this._toolbar?.hide();
-					}
-				};
+				if (selectedElement || selection.getSelectedText()) {
+					instance._toolbar?.hide();
 
-				eventListeners.push(editable.on('mouseup', showLinkToolbar));
-				eventListeners.push(editable.on('keyup', showLinkToolbar));
-			});
+					return;
+				}
 
-			editor.on('destroy', () => {
-				eventListeners.forEach((listener) => {
-					listener.removeListener();
-				});
-			});
-
-			editor.on('unlinkTextOrImage', (event) => {
-				instance._currentSelection = event.data.selection;
-				instance._onUnlinkButtonClick();
+				if (startElement.getName() === 'a') {
+					editor.fire('showToolbar', {
+						toolbarCommand: 'linkToolbar',
+					});
+				}
+				else {
+					instance._toolbar?.hide();
+				}
 			});
 
 			editor.addCommand('linkToolbar', {
 				exec(editor) {
 					instance._createToolbar();
+
+					if (!instance._toolbar) {
+						return;
+					}
 
 					const selection = editor.getSelection();
 
@@ -320,13 +325,15 @@
 						link = startElement;
 					}
 
-					const linkInput = instance._toolbar.getItem('linkInput');
+					const linkInput = instance._toolbar.getItem('LinkInput');
 
-					if (link) {
-						linkInput.setValue(link.getAttribute('href'));
-					}
-					else {
-						linkInput.clear();
+					if (linkInput) {
+						if (link) {
+							linkInput.setValue(link.getAttribute('href'));
+						}
+						else {
+							linkInput.clear();
+						}
 					}
 				},
 			});

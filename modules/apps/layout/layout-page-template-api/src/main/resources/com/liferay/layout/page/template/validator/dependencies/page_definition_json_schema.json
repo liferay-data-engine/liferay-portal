@@ -1291,6 +1291,7 @@
 					"properties": {
 						"align": {
 							"enum": [
+								"Baseline",
 								"Center",
 								"End",
 								"None",
@@ -1331,7 +1332,8 @@
 						"contentDisplay": {
 							"enum": [
 								"Block",
-								"Flex"
+								"FlexColumn",
+								"FlexRow"
 							],
 							"title": "The contentDisplay Schema",
 							"type": "string"

@@ -23,8 +23,11 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutSet;
+import com.liferay.portal.kernel.model.WorkflowDefinitionLink;
+import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
 import com.liferay.portal.kernel.service.GroupServiceUtil;
 import com.liferay.portal.kernel.service.LayoutLocalServiceUtil;
+import com.liferay.portal.kernel.service.WorkflowDefinitionLinkLocalServiceUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.HttpUtil;
@@ -232,6 +235,35 @@ public class ActionUtil {
 			group, publicLayoutSetPrototypeId, privateLayoutSetPrototypeId,
 			publicLayoutSetPrototypeLinkEnabled,
 			privateLayoutSetPrototypeLinkEnabled);
+	}
+
+	public static void updateWorkflowDefinitionLinks(
+			ActionRequest actionRequest, Group liveGroup)
+		throws PortalException {
+
+		long layoutSetPrototypeId = ParamUtil.getLong(
+			actionRequest, "layoutSetPrototypeId");
+
+		Group layoutSetPrototypeGroup =
+			GroupLocalServiceUtil.getLayoutSetPrototypeGroup(
+				liveGroup.getCompanyId(), layoutSetPrototypeId);
+
+		List<WorkflowDefinitionLink> workflowDefinitionLinks =
+			WorkflowDefinitionLinkLocalServiceUtil.getWorkflowDefinitionLinks(
+				liveGroup.getCompanyId(), layoutSetPrototypeGroup.getGroupId(),
+				0);
+
+		for (WorkflowDefinitionLink workflowDefinitionLink :
+				workflowDefinitionLinks) {
+
+			WorkflowDefinitionLinkLocalServiceUtil.addWorkflowDefinitionLink(
+				liveGroup.getCreatorUserId(), liveGroup.getCompanyId(),
+				liveGroup.getGroupId(), workflowDefinitionLink.getClassName(),
+				workflowDefinitionLink.getClassPK(),
+				workflowDefinitionLink.getTypePK(),
+				workflowDefinitionLink.getWorkflowDefinitionName(),
+				workflowDefinitionLink.getWorkflowDefinitionVersion());
+		}
 	}
 
 	public static void validateDefaultLocaleGroupName(

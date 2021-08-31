@@ -34,7 +34,6 @@ import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
-import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
@@ -183,7 +182,6 @@ public abstract class BaseWorkflowInstanceResourceTestCase {
 
 		WorkflowInstance workflowInstance = randomWorkflowInstance();
 
-		workflowInstance.setState(regex);
 		workflowInstance.setWorkflowDefinitionName(regex);
 		workflowInstance.setWorkflowDefinitionVersion(regex);
 
@@ -193,7 +191,6 @@ public abstract class BaseWorkflowInstanceResourceTestCase {
 
 		workflowInstance = WorkflowInstanceSerDes.toDTO(json);
 
-		Assert.assertEquals(regex, workflowInstance.getState());
 		Assert.assertEquals(
 			regex, workflowInstance.getWorkflowDefinitionName());
 		Assert.assertEquals(
@@ -580,6 +577,14 @@ public abstract class BaseWorkflowInstanceResourceTestCase {
 				continue;
 			}
 
+			if (Objects.equals("currentNodeNames", additionalAssertFieldName)) {
+				if (workflowInstance.getCurrentNodeNames() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
 			if (Objects.equals("dateCompletion", additionalAssertFieldName)) {
 				if (workflowInstance.getDateCompletion() == null) {
 					valid = false;
@@ -590,14 +595,6 @@ public abstract class BaseWorkflowInstanceResourceTestCase {
 
 			if (Objects.equals("objectReviewed", additionalAssertFieldName)) {
 				if (workflowInstance.getObjectReviewed() == null) {
-					valid = false;
-				}
-
-				continue;
-			}
-
-			if (Objects.equals("state", additionalAssertFieldName)) {
-				if (workflowInstance.getState() == null) {
 					valid = false;
 				}
 
@@ -729,6 +726,17 @@ public abstract class BaseWorkflowInstanceResourceTestCase {
 				continue;
 			}
 
+			if (Objects.equals("currentNodeNames", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						workflowInstance1.getCurrentNodeNames(),
+						workflowInstance2.getCurrentNodeNames())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
 			if (Objects.equals("dateCompletion", additionalAssertFieldName)) {
 				if (!Objects.deepEquals(
 						workflowInstance1.getDateCompletion(),
@@ -765,17 +773,6 @@ public abstract class BaseWorkflowInstanceResourceTestCase {
 				if (!Objects.deepEquals(
 						workflowInstance1.getObjectReviewed(),
 						workflowInstance2.getObjectReviewed())) {
-
-					return false;
-				}
-
-				continue;
-			}
-
-			if (Objects.equals("state", additionalAssertFieldName)) {
-				if (!Objects.deepEquals(
-						workflowInstance1.getState(),
-						workflowInstance2.getState())) {
 
 					return false;
 				}
@@ -910,6 +907,11 @@ public abstract class BaseWorkflowInstanceResourceTestCase {
 				"Invalid entity field " + entityFieldName);
 		}
 
+		if (entityFieldName.equals("currentNodeNames")) {
+			throw new IllegalArgumentException(
+				"Invalid entity field " + entityFieldName);
+		}
+
 		if (entityFieldName.equals("dateCompletion")) {
 			if (operator.equals("between")) {
 				sb = new StringBundler();
@@ -988,14 +990,6 @@ public abstract class BaseWorkflowInstanceResourceTestCase {
 				"Invalid entity field " + entityFieldName);
 		}
 
-		if (entityFieldName.equals("state")) {
-			sb.append("'");
-			sb.append(String.valueOf(workflowInstance.getState()));
-			sb.append("'");
-
-			return sb.toString();
-		}
-
 		if (entityFieldName.equals("workflowDefinitionName")) {
 			sb.append("'");
 			sb.append(
@@ -1063,7 +1057,6 @@ public abstract class BaseWorkflowInstanceResourceTestCase {
 				dateCompletion = RandomTestUtil.nextDate();
 				dateCreated = RandomTestUtil.nextDate();
 				id = RandomTestUtil.randomLong();
-				state = StringUtil.toLowerCase(RandomTestUtil.randomString());
 				workflowDefinitionName = StringUtil.toLowerCase(
 					RandomTestUtil.randomString());
 				workflowDefinitionVersion = StringUtil.toLowerCase(
@@ -1161,8 +1154,8 @@ public abstract class BaseWorkflowInstanceResourceTestCase {
 
 	}
 
-	private static final Log _log = LogFactoryUtil.getLog(
-		BaseWorkflowInstanceResourceTestCase.class);
+	private static final com.liferay.portal.kernel.log.Log _log =
+		LogFactoryUtil.getLog(BaseWorkflowInstanceResourceTestCase.class);
 
 	private static BeanUtilsBean _beanUtilsBean = new BeanUtilsBean() {
 

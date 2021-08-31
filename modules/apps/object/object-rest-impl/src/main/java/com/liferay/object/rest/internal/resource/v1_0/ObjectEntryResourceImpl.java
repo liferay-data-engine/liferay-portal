@@ -82,6 +82,15 @@ public class ObjectEntryResourceImpl extends BaseObjectEntryResourceImpl {
 	}
 
 	@Override
+	public void deleteObjectEntryByExternalReferenceCode(
+			String externalReferenceCode)
+		throws Exception {
+
+		_objectEntryManager.deleteObjectEntry(
+			externalReferenceCode, contextCompany.getCompanyId(), 0L);
+	}
+
+	@Override
 	public void deleteSiteObjectEntryByExternalReferenceCode(
 			Long siteId, String externalReferenceCode)
 		throws Exception {
@@ -108,7 +117,7 @@ public class ObjectEntryResourceImpl extends BaseObjectEntryResourceImpl {
 		throws Exception {
 
 		return _objectEntryManager.getObjectEntries(
-			contextCompany.getCompanyId(),
+			contextCompany.getCompanyId(), 0,
 			_objectDefinition.getObjectDefinitionId(), aggregation,
 			_getDTOConverterContext(null), filter, pagination, search, sorts);
 	}
@@ -117,6 +126,16 @@ public class ObjectEntryResourceImpl extends BaseObjectEntryResourceImpl {
 	public ObjectEntry getObjectEntry(Long objectEntryId) throws Exception {
 		return _objectEntryManager.getObjectEntry(
 			_getDTOConverterContext(objectEntryId), objectEntryId);
+	}
+
+	@Override
+	public ObjectEntry getObjectEntryByExternalReferenceCode(
+			String externalReferenceCode)
+		throws Exception {
+
+		return _objectEntryManager.getObjectEntry(
+			_getDTOConverterContext(null), externalReferenceCode,
+			contextCompany.getCompanyId(), 0L);
 	}
 
 	@Override
@@ -134,7 +153,7 @@ public class ObjectEntryResourceImpl extends BaseObjectEntryResourceImpl {
 		throws Exception {
 
 		return _objectEntryManager.addObjectEntry(
-			_getDTOConverterContext(null), contextUser.getUserId(),
+			_getDTOConverterContext(null), contextUser.getUserId(), 0,
 			_objectDefinition.getObjectDefinitionId(), objectEntry);
 	}
 
@@ -146,6 +165,17 @@ public class ObjectEntryResourceImpl extends BaseObjectEntryResourceImpl {
 		return _objectEntryManager.updateObjectEntry(
 			_getDTOConverterContext(objectEntryId), contextUser.getUserId(),
 			objectEntryId, objectEntry);
+	}
+
+	@Override
+	public ObjectEntry putObjectEntryByExternalReferenceCode(
+			String externalReferenceCode, ObjectEntry objectEntry)
+		throws Exception {
+
+		return _objectEntryManager.addOrUpdateObjectEntry(
+			_getDTOConverterContext(null), externalReferenceCode,
+			contextUser.getUserId(), 0L,
+			_objectDefinition.getObjectDefinitionId(), objectEntry);
 	}
 
 	@Override

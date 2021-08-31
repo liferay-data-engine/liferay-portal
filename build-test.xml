@@ -231,6 +231,71 @@ module.framework.properties.osgi.console=11312</echo>
 		</sequential>
 	</macrodef>
 
+	<macrodef name="deploy-osgi-modules">
+		<attribute name="osgi.modules" />
+
+		<sequential>
+			<echo file="tools/sdk/build.${user.name}.properties">auto.deploy.dir=${liferay.home}/deploy</echo>
+
+			<property name="osgi.module.pattern" value="**" />
+
+			<antelope:stringutil property="osgi.modules.includes.pattern" string="${osgi.module.pattern}/@{osgi.modules}">
+				<antelope:replace regex="," replacement=",${osgi.module.pattern}/" />
+			</antelope:stringutil>
+
+			<pathconvert pathsep="," property="osgi.modules.paths">
+				<dirset
+					dir="modules"
+					excludes="**/node_modules/**"
+					includes="${osgi.modules.includes.pattern}"
+				>
+					<or>
+						<present targetdir="modules">
+							<mapper
+								from="*"
+								to="*/build.gradle"
+								type="glob"
+							/>
+						</present>
+						<present targetdir="modules">
+							<mapper
+								from="*"
+								to="*/build.xml"
+								type="glob"
+							/>
+						</present>
+					</or>
+				</dirset>
+			</pathconvert>
+
+			<for list="${osgi.modules.paths}" parallel="true" param="osgi.module.path">
+				<sequential>
+					<local name="module.base.dir" />
+					<local name="osgi.module.command.prefix" />
+
+					<dirname file="@{osgi.module.path}" property="module.base.dir" />
+
+					<move
+						failonerror="false"
+						file="${module.base.dir}/settings.gradle"
+						tofile="${module.base.dir}/settings.gradle.temp"
+						verbose="true"
+					/>
+
+					<gradle-execute dir="@{osgi.module.path}" forcedcacheenabled="false" task="deploy">
+						<arg value="clean" />
+					</gradle-execute>
+
+					<move
+						failonerror="false"
+						file="${module.base.dir}/settings.gradle.temp"
+						tofile="${module.base.dir}/settings.gradle"
+					/>
+				</sequential>
+			</for>
+		</sequential>
+	</macrodef>
+
 	<macrodef name="docker-copy">
 		<attribute name="dest.path" />
 		<attribute name="src.path" />
@@ -4302,6 +4367,7 @@ go</echo>
 						<equals arg1="@{liferay.portal.bundle}" arg2="7.2.10.5" />
 						<equals arg1="@{liferay.portal.bundle}" arg2="7.4.0" />
 						<equals arg1="@{liferay.portal.bundle}" arg2="7.4.1" />
+						<equals arg1="@{liferay.portal.bundle}" arg2="7.4.12" />
 					</or>
 					<then>
 						<var name="app.server.tomcat.version" value="9.0.43" />
@@ -6269,14 +6335,14 @@ war.path=${app.server.portal.dir}/</echo>
 				<then>
 					<loadfile
 						failonerror="false"
-						property="have.binary.commerce.license"
+						property="commerce.license.binary"
 					>
 						<zipentry name="data/license/LiferayCommerceSubscriptionDevelopment_developercluster.li" zipfile="${portal.legacy.dir}/${portal.version}/data-archive/${data.archive.type}-${database.type}.zip" />
 					</loadfile>
 
 					<loadfile
 						failonerror="false"
-						property="have.binary.portal.license"
+						property="dxp.license.binary"
 					>
 						<zipentry name="data/license/Liferaycom_PortalDevelopment_developercluster.li" zipfile="${portal.legacy.dir}/${portal.version}/data-archive/${data.archive.type}-${database.type}.zip" />
 					</loadfile>
@@ -6288,8 +6354,8 @@ war.path=${app.server.portal.dir}/</echo>
 					<equals arg1="${poshi.method.name}" arg2="DeployCommerceLicenseBinaryFile" />
 					<and>
 						<isset property="data.archive.type" />
-						<isset property="have.binary.commerce.license" />
-						<isset property="have.binary.portal.license" />
+						<isset property="commerce.license.binary" />
+						<isset property="dxp.license.binary" />
 					</and>
 				</or>
 				<then>
@@ -6298,9 +6364,9 @@ war.path=${app.server.portal.dir}/</echo>
 				<elseif>
 					<and>
 						<isset property="data.archive.type" />
-						<isset property="have.binary.commerce.license" />
+						<isset property="commerce.license.binary" />
 						<not>
-							<isset property="have.binary.portal.license" />
+							<isset property="dxp.license.binary" />
 						</not>
 					</and>
 					<then>
@@ -6343,6 +6409,12 @@ war.path=${app.server.portal.dir}/</echo>
 						<equals arg1="${portal.version}" arg2="7.0.4" />
 						<then>
 							<property name="portal.version.url.path" value="7.0.4-ga5" />
+						</then>
+					</elseif>
+					<elseif>
+						<equals arg1="${portal.version}" arg2="7.0.6" />
+						<then>
+							<property name="portal.version.url.path" value="7.0.6-ga7" />
 						</then>
 					</elseif>
 					<elseif>
@@ -7367,6 +7439,36 @@ virtualHostname="localhost"
 		</if>
 	</target>
 
+	<target name="deploy-data-guard">
+		<if>
+			<not>
+				<available file="${liferay.home}/osgi/test/com.liferay.portal.test.jar" />
+			</not>
+			<then>
+				<ant dir="portal-test" inheritAll="false" target="deploy" />
+			</then>
+		</if>
+
+		<move
+			file="${liferay.home}/osgi/test/com.liferay.portal.test.jar"
+			tofile="${liferay.home}/osgi/modules/com.liferay.portal.test.jar"
+		/>
+
+		<if>
+			<not>
+				<available file="${liferay.home}/osgi/test/com.liferay.data.guard.connector.jar" />
+			</not>
+			<then>
+				<deploy-osgi-modules osgi.modules="required-dependencies" />
+			</then>
+		</if>
+
+		<move
+			file="${liferay.home}/osgi/test/com.liferay.data.guard.connector.jar"
+			tofile="${liferay.home}/osgi/modules/com.liferay.data.guard.connector.jar"
+		/>
+	</target>
+
 	<target name="deploy-dependency-jars">
 		<get-testcase-property property.name="liferay.training.dependency.jars" />
 
@@ -7852,64 +7954,7 @@ virtualHostname="localhost"
 		<if>
 			<isset property="osgi.modules.includes" />
 			<then>
-				<echo file="tools/sdk/build.${user.name}.properties">auto.deploy.dir=${liferay.home}/deploy</echo>
-
-				<property name="osgi.module.pattern" value="**" />
-
-				<antelope:stringutil property="osgi.modules.includes.pattern" string="${osgi.module.pattern}/${osgi.modules.includes}">
-					<antelope:replace regex="," replacement=",${osgi.module.pattern}/" />
-				</antelope:stringutil>
-
-				<pathconvert pathsep="," property="osgi.modules.paths">
-					<dirset
-						dir="modules"
-						excludes="**/node_modules/**"
-						includes="${osgi.modules.includes.pattern}"
-					>
-						<or>
-							<present targetdir="modules">
-								<mapper
-									from="*"
-									to="*/build.gradle"
-									type="glob"
-								/>
-							</present>
-							<present targetdir="modules">
-								<mapper
-									from="*"
-									to="*/build.xml"
-									type="glob"
-								/>
-							</present>
-						</or>
-					</dirset>
-				</pathconvert>
-
-				<for list="${osgi.modules.paths}" parallel="true" param="osgi.module.path">
-					<sequential>
-						<local name="module.base.dir" />
-						<local name="osgi.module.command.prefix" />
-
-						<dirname file="@{osgi.module.path}" property="module.base.dir" />
-
-						<move
-							failonerror="false"
-							file="${module.base.dir}/settings.gradle"
-							tofile="${module.base.dir}/settings.gradle.temp"
-							verbose="true"
-						/>
-
-						<gradle-execute dir="@{osgi.module.path}" forcedcacheenabled="false" task="deploy">
-							<arg value="clean" />
-						</gradle-execute>
-
-						<move
-							failonerror="false"
-							file="${module.base.dir}/settings.gradle.temp"
-							tofile="${module.base.dir}/settings.gradle"
-						/>
-					</sequential>
-				</for>
+				<deploy-osgi-modules osgi.modules="${osgi.modules.includes}" />
 			</then>
 		</if>
 	</target>
@@ -8532,87 +8577,34 @@ virtualHostname="localhost"
 	</target>
 
 	<target name="merge-test-results">
-		<local name="dest.dir" />
+		<mkdir dir="test-results" />
 
-		<property location="test-results/src" name="dest.dir" />
+		<path id="junit.reports.paths">
+			<multirootfileset erroronmissingdir="false">
+				<basedir file="modules" />
+				<basedir file="portal-impl/test-results" />
+				<basedir file="portal-kernel/test-results" />
+				<basedir file="portal-web/test-results" />
+				<basedir file="tools/tck/test-results" />
+				<basedir file="util-java/test-results" />
+				<basedir file="util-taglib/test-results" />
+				<basedir file="${blade.samples.dir}/liferay-workspace/tests" />
+				<basedir file="${liferay.jenkins.dir}/commands/custom-scripts/test-results" />
+				<basedir file="${liferay.faces.bridge.impl.dir}/tck/bridge-tck-main-portlet" />
+				<basedir file="${liferay.faces.bridge.impl.dir}/test/integration" />
+				<basedir file="${liferay.faces.portal.dir}/test/integration" />
+				<exclude name="**/node_modules/**/TEST-*.xml" />
+				<include name="**/TEST-*.xml" />
+			</multirootfileset>
+		</path>
 
-		<mkdir dir="${dest.dir}" />
+		<pathtofileset dir="${basedir}" name="junit.reports.fileset" pathrefid="junit.reports.paths" />
 
 		<for param="test.results.file">
 			<path>
 				<fileset
-					dir="modules"
-					erroronmissingdir="false"
-				>
-					<exclude name="**/node_modules/**/TEST-*.xml" />
-					<include name="**/TEST-*.xml" />
-				</fileset>
-				<fileset
-					dir="portal-impl/test-results"
-					erroronmissingdir="false"
-				>
-					<include name="**/TEST-*.xml" />
-				</fileset>
-				<fileset
-					dir="portal-kernel/test-results"
-					erroronmissingdir="false"
-				>
-					<include name="**/TEST-*.xml" />
-				</fileset>
-				<fileset
-					dir="portal-web/test-results"
-					erroronmissingdir="false"
-				>
-					<include name="**/TEST-*.xml" />
-				</fileset>
-				<fileset
-					dir="tools/tck/test-results"
-					erroronmissingdir="false"
-				>
-					<include name="**/TEST-*.xml" />
-				</fileset>
-				<fileset
-					dir="util-java/test-results"
-					erroronmissingdir="false"
-				>
-					<include name="**/TEST-*.xml" />
-				</fileset>
-				<fileset
-					dir="util-taglib/test-results"
-					erroronmissingdir="false"
-				>
-					<include name="**/TEST-*.xml" />
-				</fileset>
-				<fileset
-					dir="${blade.samples.dir}/liferay-workspace/tests"
-					erroronmissingdir="false"
-				>
-					<include name="**/TEST-*.xml" />
-				</fileset>
-				<fileset
-					dir="${liferay.jenkins.dir}/commands/custom-scripts/test-results"
-					erroronmissingdir="false"
-				>
-					<include name="**/TEST-*.xml" />
-				</fileset>
-				<fileset
-					dir="${liferay.faces.bridge.impl.dir}/tck/bridge-tck-main-portlet"
-					erroronmissingdir="false"
-				>
-					<include name="**/TEST-*.xml" />
-				</fileset>
-				<fileset
-					dir="${liferay.faces.bridge.impl.dir}/test/integration"
-					erroronmissingdir="false"
-				>
-					<include name="**/TEST-*.xml" />
-				</fileset>
-				<fileset
-					dir="${liferay.faces.portal.dir}/test/integration"
-					erroronmissingdir="false"
-				>
-					<include name="**/TEST-*.xml" />
-				</fileset>
+					refid="junit.reports.fileset"
+				/>
 			</path>
 			<sequential>
 				<beanshell>
@@ -8663,11 +8655,9 @@ virtualHostname="localhost"
 								}
 							}
 
-							File updatedTestResultsFile = new File(project.getProperty("dest.dir"), testResultsFile.getName());
+							JenkinsResultsParserUtil.write(testResultsFile, Dom4JUtil.format(document.getRootElement()));
 
-							JenkinsResultsParserUtil.write(updatedTestResultsFile, Dom4JUtil.format(document.getRootElement()));
-
-							System.out.println("Copying " + testResultsFile + " to " + updatedTestResultsFile);
+							System.out.println("Truncating errors in " + testResultsFile);
 						}
 						catch (Exception exception) {
 							exception.printStackTrace();
@@ -8680,11 +8670,8 @@ virtualHostname="localhost"
 		<parallel timeout="1800000">
 			<junitreport todir="test-results">
 				<fileset
-					dir="${dest.dir}"
-					erroronmissingdir="false"
-				>
-					<include name="TEST-*.xml" />
-				</fileset>
+					refid="junit.reports.fileset"
+				/>
 				<report format="frames" todir="test-results/html" />
 			</junitreport>
 		</parallel>
@@ -9082,7 +9069,17 @@ jdbc.default.connectionProperties=oracle.jdbc.ReadTimeout=0;oracle.net.CONNECT_T
 			</then>
 		</if>
 
-		<get-testcase-property property.name="aws.store.enabled" />
+		<if>
+			<or>
+				<equals arg1="aws.store.enabled" arg2="" />
+				<not>
+					<isset property="aws.store.enabled" />
+				</not>
+			</or>
+			<then>
+				<get-testcase-property property.name="aws.store.enabled" />
+			</then>
+		</if>
 
 		<if>
 			<equals arg1="${aws.store.enabled}" arg2="true" />
@@ -9992,6 +9989,17 @@ auto.deploy.dest.dir=C:/WINDOWS/system32/config/systemprofile/liferay/websphere-
 			<then>
 				<echo append="true" file="${test.ext.properties.file}">
 					theme.ids=${legacy.theme.ids}
+				</echo>
+			</then>
+		</if>
+
+		<get-testcase-property property.name="liferay.data.guard.enabled" />
+
+		<if>
+			<istrue value="${liferay.data.guard.enabled}" />
+			<then>
+				<echo append="true" file="${test.ext.properties.file}">
+					liferay.data.guard.enabled=${liferay.data.guard.enabled}
 				</echo>
 			</then>
 		</if>
@@ -13651,6 +13659,15 @@ module.framework.properties.blacklist.portal.profile.names=${blacklist.portal.pr
 
 		<antcall target="deploy-osgi-modules" />
 
+		<get-testcase-property property.name="liferay.data.guard.enabled" />
+
+		<if>
+			<istrue value="${liferay.data.guard.enabled}" />
+			<then>
+				<antcall target="deploy-data-guard" />
+			</then>
+		</if>
+
 		<if>
 			<equals arg1="${functional.test.type}" arg2="analytics-cloud" />
 			<then>
@@ -13751,119 +13768,110 @@ module.framework.properties.blacklist.portal.profile.names=${blacklist.portal.pr
 			</then>
 		</if>
 
-		<get-testcase-property property.name="skip.start-app-server" />
+		<get-testcase-property property.name="theme.file.name" />
 
 		<if>
-			<not>
-				<equals arg1="${skip.start-app-server}" arg2="true" />
-			</not>
+			<isset property="theme.file.name" />
 			<then>
-				<get-testcase-property property.name="theme.file.name" />
+				<mkdir dir="${liferay.home}/tmp" />
 
-				<if>
-					<isset property="theme.file.name" />
-					<then>
-						<mkdir dir="${liferay.home}/tmp" />
+				<move
+					todir="${liferay.home}/tmp"
+				>
+					<fileset
+						dir="${liferay.home}/deploy"
+						includes="${theme.file.name}"
+					/>
+				</move>
 
-						<move
-							todir="${liferay.home}/tmp"
-						>
-							<fileset
-								dir="${liferay.home}/deploy"
-								includes="${theme.file.name}"
+				<move
+					todir="${liferay.home}/tmp"
+				>
+					<fileset
+						dir="${liferay.home}/osgi/marketplace"
+						includes="*Theme*.lpkg"
+					/>
+				</move>
+			</then>
+		</if>
+
+		<antcall target="start-app-server-preserve-liferay-home" />
+
+		<get-testcase-property property.name="app.server.bundles.size" />
+
+		<if>
+			<isset property="app.server.bundles.size" />
+			<then>
+				<var name="app.server.bundle.index" value="1" />
+
+				<get-testcase-property property.name="skip.start.app.server.index" />
+
+				<antelope:repeat count="${app.server.bundles.size}">
+					<if>
+						<not>
+							<contains string="${skip.start.app.server.index}" substring="${app.server.bundle.index}" />
+						</not>
+						<then>
+							<start-app-server
+								app.server.bundle.index="${app.server.bundle.index}"
 							/>
-						</move>
+						</then>
+					</if>
 
-						<move
-							todir="${liferay.home}/tmp"
-						>
-							<fileset
-								dir="${liferay.home}/osgi/marketplace"
-								includes="*Theme*.lpkg"
-							/>
-						</move>
-					</then>
-				</if>
+					<math
+						datatype="int"
+						operand1="${app.server.bundle.index}"
+						operand2="1"
+						operation="+"
+						result="app.server.bundle.index"
+					/>
+				</antelope:repeat>
 
-				<antcall target="start-app-server-preserve-liferay-home" />
+				<var name="app.server.bundle.index" unset="true" />
+			</then>
+		</if>
 
-				<get-testcase-property property.name="app.server.bundles.size" />
+		<waitfor maxwait="150" maxwaitunit="second">
+			<available file="${liferay.home}/logs" type="dir" />
+		</waitfor>
 
-				<if>
-					<isset property="app.server.bundles.size" />
-					<then>
-						<var name="app.server.bundle.index" value="1" />
+		<antcall target="wait-for-plugins-deployment" />
 
-						<get-testcase-property property.name="skip.start.app.server.index" />
+		<if>
+			<available file="${liferay.home}/tmp/${theme.file.name}" />
+			<then>
+				<move
+					todir="${liferay.home}/deploy"
+				>
+					<fileset
+						dir="${liferay.home}/tmp"
+						includes="${theme.file.name}"
+					/>
+				</move>
 
-						<antelope:repeat count="${app.server.bundles.size}">
-							<if>
-								<not>
-									<contains string="${skip.start.app.server.index}" substring="${app.server.bundle.index}" />
-								</not>
-								<then>
-									<start-app-server
-										app.server.bundle.index="${app.server.bundle.index}"
-									/>
-								</then>
-							</if>
+				<delete dir="${liferay.home}/tmp" failonerror="false" />
 
-							<math
-								datatype="int"
-								operand1="${app.server.bundle.index}"
-								operand2="1"
-								operation="+"
-								result="app.server.bundle.index"
-							/>
-						</antelope:repeat>
-
-						<var name="app.server.bundle.index" unset="true" />
-					</then>
-				</if>
-
-				<waitfor maxwait="150" maxwaitunit="second">
-					<available file="${liferay.home}/logs" type="dir" />
+				<waitfor checkevery="5" maxwait="300" maxwaitunit="second" timeoutproperty="theme.not.deployed">
+					<available file="${liferay.home}/osgi/war/${theme.file.name}" />
 				</waitfor>
 
-				<antcall target="wait-for-plugins-deployment" />
-
-				<if>
-					<available file="${liferay.home}/tmp/${theme.file.name}" />
-					<then>
-						<move
-							todir="${liferay.home}/deploy"
-						>
-							<fileset
-								dir="${liferay.home}/tmp"
-								includes="${theme.file.name}"
-							/>
-						</move>
-
-						<delete dir="${liferay.home}/tmp" failonerror="false" />
-
-						<waitfor checkevery="5" maxwait="300" maxwaitunit="second" timeoutproperty="theme.not.deployed">
-							<available file="${liferay.home}/osgi/war/${theme.file.name}" />
-						</waitfor>
-
-						<fail if="theme.not.deployed" message="${theme.file.name} has failed to deploy." />
-					</then>
-					<elseif>
-						<available file="${liferay.home}/tmp" type="dir" />
-						<then>
-							<move
-								todir="${liferay.home}/osgi/marketplace"
-							>
-								<fileset
-									dir="${liferay.home}/tmp"
-									includes="*Theme*.lpkg"
-								/>
-							</move>
-
-							<delete dir="${liferay.home}/tmp" failonerror="false" />
-						</then>
-					</elseif>
-				</if>
+				<fail if="theme.not.deployed" message="${theme.file.name} has failed to deploy." />
 			</then>
+			<elseif>
+				<available file="${liferay.home}/tmp" type="dir" />
+				<then>
+					<move
+						todir="${liferay.home}/osgi/marketplace"
+					>
+						<fileset
+							dir="${liferay.home}/tmp"
+							includes="*Theme*.lpkg"
+						/>
+					</move>
+
+					<delete dir="${liferay.home}/tmp" failonerror="false" />
+				</then>
+			</elseif>
 		</if>
 
 		<get-testcase-property property.name="analytics.cloud.enabled" />
@@ -13982,8 +13990,6 @@ url=${short.hostname}:8080</echo>
 				</if>
 			</then>
 		</if>
-
-		<print-search-indices />
 
 		<trycatch property="shutdown.error">
 			<try>
@@ -14206,6 +14212,13 @@ url=${short.hostname}:8080</echo>
 		</condition>
 
 		<uninstall-patches patching.tool.dir="${patching.tool.dir}" />
+	</target>
+
+	<target name="unzip-temp-file">
+		<unzip
+			dest="${selenium.output.dir.name}"
+			src="${selenium.output.dir.name}/${fileName}"
+		/>
 	</target>
 
 	<target name="update-osgi-module-configuration">

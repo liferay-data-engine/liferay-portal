@@ -19,6 +19,9 @@ package com.liferay.portal.kernel.util;
  */
 public interface PropsKeys {
 
+	public static final String ACCESS_CONTROL_SANITIZE_SECURITY_EXCEPTION =
+		"access.control.sanitize.security.exception";
+
 	public static final String ADMIN_ANALYTICS_TYPES = "admin.analytics.types";
 
 	public static final String ADMIN_DEFAULT_GROUP_NAMES =
@@ -3206,12 +3209,12 @@ public interface PropsKeys {
 			"sql.data.com.liferay.portal.kernel.model.Country.country.id";
 
 	public static final String
-		SQL_DATA_COM_LIFERAY_PORTAL_MODEL_LISTTYPE_ACCOUNT_ADDRESS =
-			"sql.data.com.liferay.portal.kernel.model.ListType.account.address";
+		SQL_DATA_COM_LIFERAY_PORTAL_MODEL_LISTTYPE_COMPANY_ADDRESS =
+			"sql.data.com.liferay.portal.kernel.model.ListType.company.address";
 
 	public static final String
-		SQL_DATA_COM_LIFERAY_PORTAL_MODEL_LISTTYPE_ACCOUNT_EMAIL_ADDRESS =
-			"sql.data.com.liferay.portal.kernel.model.ListType.account.email.address";
+		SQL_DATA_COM_LIFERAY_PORTAL_MODEL_LISTTYPE_COMPANY_EMAIL_ADDRESS =
+			"sql.data.com.liferay.portal.kernel.model.ListType.company.email.address";
 
 	public static final String
 		SQL_DATA_COM_LIFERAY_PORTAL_MODEL_LISTTYPE_CONTACT_EMAIL_ADDRESS =

@@ -18,6 +18,8 @@ import com.liferay.object.rest.dto.v1_0.ObjectEntry;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.search.filter.Filter;
 import com.liferay.portal.kernel.service.GroupLocalService;
+import com.liferay.portal.kernel.service.ResourceActionLocalService;
+import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
 import com.liferay.portal.vulcan.pagination.Page;
@@ -59,6 +61,18 @@ public interface ObjectEntryResource {
 	public Response postObjectEntryBatch(String callbackURL, Object object)
 		throws Exception;
 
+	public void deleteObjectEntryByExternalReferenceCode(
+			String externalReferenceCode)
+		throws Exception;
+
+	public ObjectEntry getObjectEntryByExternalReferenceCode(
+			String externalReferenceCode)
+		throws Exception;
+
+	public ObjectEntry putObjectEntryByExternalReferenceCode(
+			String externalReferenceCode, ObjectEntry objectEntry)
+		throws Exception;
+
 	public void deleteSiteObjectEntryByExternalReferenceCode(
 			Long siteId, String externalReferenceCode)
 		throws Exception;
@@ -77,6 +91,10 @@ public interface ObjectEntryResource {
 		throws Exception;
 
 	public ObjectEntry getObjectEntry(Long objectEntryId) throws Exception;
+
+	public ObjectEntry patchObjectEntry(
+			Long objectEntryId, ObjectEntry objectEntry)
+		throws Exception;
 
 	public ObjectEntry putObjectEntry(
 			Long objectEntryId, ObjectEntry objectEntry)
@@ -108,6 +126,12 @@ public interface ObjectEntryResource {
 
 	public void setGroupLocalService(GroupLocalService groupLocalService);
 
+	public void setResourceActionLocalService(
+		ResourceActionLocalService resourceActionLocalService);
+
+	public void setResourcePermissionLocalService(
+		ResourcePermissionLocalService resourcePermissionLocalService);
+
 	public void setRoleLocalService(RoleLocalService roleLocalService);
 
 	public static class FactoryHolder {
@@ -125,6 +149,9 @@ public interface ObjectEntryResource {
 
 		public Builder httpServletRequest(
 			HttpServletRequest httpServletRequest);
+
+		public Builder httpServletResponse(
+			HttpServletResponse httpServletResponse);
 
 		public Builder preferredLocale(Locale preferredLocale);
 

@@ -83,11 +83,11 @@ public class BasicWebContentSingleFormVariationInfoCollectionProvider
 	public InfoPage<JournalArticle> getCollectionInfoPage(
 		CollectionQuery collectionQuery) {
 
-		Indexer<?> indexer = JournalSearcher.getInstance();
-
-		SearchContext searchContext = _buildSearchContext(collectionQuery);
-
 		try {
+			Indexer<?> indexer = JournalSearcher.getInstance();
+
+			SearchContext searchContext = _buildSearchContext(collectionQuery);
+
 			Hits hits = indexer.search(searchContext);
 
 			List<JournalArticle> articles = new ArrayList<>();
@@ -160,8 +160,6 @@ public class BasicWebContentSingleFormVariationInfoCollectionProvider
 	}
 
 	private SearchContext _buildSearchContext(CollectionQuery collectionQuery) {
-		Pagination pagination = collectionQuery.getPagination();
-
 		SearchContext searchContext = new SearchContext();
 
 		searchContext.setAndSearch(true);
@@ -204,7 +202,10 @@ public class BasicWebContentSingleFormVariationInfoCollectionProvider
 
 		searchContext.setCompanyId(serviceContext.getCompanyId());
 
+		Pagination pagination = collectionQuery.getPagination();
+
 		searchContext.setEnd(pagination.getEnd());
+
 		searchContext.setGroupIds(
 			new long[] {serviceContext.getScopeGroupId()});
 
@@ -219,6 +220,12 @@ public class BasicWebContentSingleFormVariationInfoCollectionProvider
 					com.liferay.portal.kernel.search.Sort.LONG_TYPE,
 					sort.isReverse()));
 		}
+		else {
+			searchContext.setSorts(
+				new com.liferay.portal.kernel.search.Sort(
+					Field.MODIFIED_DATE,
+					com.liferay.portal.kernel.search.Sort.LONG_TYPE, true));
+		}
 
 		searchContext.setStart(pagination.getStart());
 
@@ -230,7 +237,7 @@ public class BasicWebContentSingleFormVariationInfoCollectionProvider
 		return searchContext;
 	}
 
-	private InfoField _getAssetTagsInfoField() {
+	private InfoField<?> _getAssetTagsInfoField() {
 		List<SelectInfoFieldType.Option> options = new ArrayList<>();
 
 		ServiceContext serviceContext =
@@ -248,7 +255,7 @@ public class BasicWebContentSingleFormVariationInfoCollectionProvider
 					assetTag.getName(), assetTag.getName()));
 		}
 
-		InfoField.FinalStep finalStep = InfoField.builder(
+		InfoField.FinalStep<?> finalStep = InfoField.builder(
 		).infoFieldType(
 			SelectInfoFieldType.INSTANCE
 		).name(

@@ -22,6 +22,7 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MimeTypesUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PropsUtil;
@@ -182,7 +183,7 @@ public class ServletResponseUtil {
 			return;
 		}
 
-		if ((ranges == null) || ranges.isEmpty()) {
+		if (ListUtil.isEmpty(ranges)) {
 			sendFile(
 				httpServletRequest, httpServletResponse, fileName, inputStream,
 				contentLength, contentType);
@@ -652,18 +653,12 @@ public class ServletResponseUtil {
 		String[] rangeFields = StringUtil.split(rangeString.substring(6));
 
 		if (rangeFields.length > _MAX_RANGE_FIELDS) {
-			StringBundler sb = new StringBundler(8);
-
-			sb.append("Request range ");
-			sb.append(rangeString);
-			sb.append(" with ");
-			sb.append(rangeFields.length);
-			sb.append(" range fields has exceeded maximum allowance as ");
-			sb.append("specified by the property \"");
-			sb.append(PropsKeys.WEB_SERVER_SERVLET_MAX_RANGE_FIELDS);
-			sb.append("\"");
-
-			throw new IOException(sb.toString());
+			throw new IOException(
+				StringBundler.concat(
+					"Request range ", rangeString, " with ", rangeFields.length,
+					" range fields has exceeded maximum allowance as ",
+					"specified by the property \"",
+					PropsKeys.WEB_SERVER_SERVLET_MAX_RANGE_FIELDS, "\""));
 		}
 
 		List<Range> ranges = new ArrayList<>();

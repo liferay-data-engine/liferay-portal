@@ -47,8 +47,6 @@ import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.upgrade.registry.UpgradeStepRegistrator;
 import com.liferay.portlet.expando.util.test.ExpandoTestUtil;
-import com.liferay.registry.Registry;
-import com.liferay.registry.RegistryUtil;
 import com.liferay.segments.criteria.Criteria;
 import com.liferay.segments.model.SegmentsEntry;
 import com.liferay.segments.service.SegmentsEntryLocalService;
@@ -617,27 +615,23 @@ public class ContentTargetingUpgradeProcessTest {
 	protected void createContentTargetingTables()
 		throws IOException, SQLException {
 
-		StringBundler sb = new StringBundler(6);
+		_db.runSQL(
+			StringBundler.concat(
+				"create table CT_RuleInstance (uuid_ VARCHAR (75) null, ",
+				"ruleInstanceId LONG not null primary key, groupId LONG, ",
+				"companyId LONG, userId LONG, userName VARCHAR(75) null, ",
+				"createDate DATE null, modifiedDate DATE null, userSegmentId ",
+				"LONG, ruleKey VARCHAR(75) null, displayOrder INTEGER, ",
+				"typeSettings TEXT null)"));
 
-		sb.append("create table CT_RuleInstance (uuid_ VARCHAR (75) null, ");
-		sb.append("ruleInstanceId LONG not null primary key, groupId LONG, ");
-		sb.append("companyId LONG, userId LONG, userName VARCHAR(75) null, ");
-		sb.append("createDate DATE null, modifiedDate DATE null, ");
-		sb.append("userSegmentId LONG, ruleKey VARCHAR(75) null, ");
-		sb.append("displayOrder INTEGER, typeSettings TEXT null)");
-
-		_db.runSQL(sb.toString());
-
-		sb = new StringBundler(6);
-
-		sb.append("create table CT_UserSegment (uuid_ VARCHAR (75) null, ");
-		sb.append("userSegmentId LONG not null primary key, groupId LONG, ");
-		sb.append("companyId LONG, userId LONG, userName VARCHAR(75) null, ");
-		sb.append("createDate DATE null, modifiedDate DATE null, ");
-		sb.append("lastPublishDate DATE null, name STRING null, description ");
-		sb.append("STRING null)");
-
-		_db.runSQL(sb.toString());
+		_db.runSQL(
+			StringBundler.concat(
+				"create table CT_UserSegment (uuid_ VARCHAR (75) null, ",
+				"userSegmentId LONG not null primary key, groupId LONG, ",
+				"companyId LONG, userId LONG, userName VARCHAR(75) null, ",
+				"createDate DATE null, modifiedDate DATE null, ",
+				"lastPublishDate DATE null, name STRING null, description ",
+				"STRING null)"));
 	}
 
 	protected void dropContentTargetingTables() throws Exception {
@@ -659,18 +653,13 @@ public class ContentTargetingUpgradeProcessTest {
 			String typeSettings)
 		throws Exception {
 
-		StringBundler sb = new StringBundler(4);
-
-		sb.append("insert into CT_RuleInstance(ruleInstanceId, groupId, ");
-		sb.append("companyId, userId, userName, createDate, modifiedDate, ");
-		sb.append("userSegmentId, ruleKey, typeSettings) values (?, ?, ?, ?, ");
-		sb.append("?, ?, ?, ?, ?, ?)");
-
-		String sql = sb.toString();
-
 		try (Connection connection = DataAccess.getConnection();
 			PreparedStatement preparedStatement = connection.prepareStatement(
-				sql)) {
+				StringBundler.concat(
+					"insert into CT_RuleInstance(ruleInstanceId, groupId, ",
+					"companyId, userId, userName, createDate, modifiedDate, ",
+					"userSegmentId, ruleKey, typeSettings) values (?, ?, ?, ",
+					"?, ?, ?, ?, ?, ?, ?)"))) {
 
 			preparedStatement.setLong(1, _counterLocalService.increment());
 			preparedStatement.setLong(2, _group.getGroupId());
@@ -698,17 +687,12 @@ public class ContentTargetingUpgradeProcessTest {
 			Map<Locale, String> descriptionMap)
 		throws Exception {
 
-		StringBundler sb = new StringBundler(3);
-
-		sb.append("insert into CT_UserSegment(userSegmentId, groupId, ");
-		sb.append("companyId, userId, userName, createDate, modifiedDate, ");
-		sb.append("name, description) values (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-
-		String sql = sb.toString();
-
 		try (Connection connection = DataAccess.getConnection();
 			PreparedStatement preparedStatement = connection.prepareStatement(
-				sql)) {
+				StringBundler.concat(
+					"insert into CT_UserSegment(userSegmentId, groupId, ",
+					"companyId, userId, userName, createDate, modifiedDate, ",
+					"name, description) values (?, ?, ?, ?, ?, ?, ?, ?, ?)"))) {
 
 			preparedStatement.setLong(1, contentTargetingUserSegmentId);
 			preparedStatement.setLong(2, _group.getGroupId());
@@ -743,14 +727,7 @@ public class ContentTargetingUpgradeProcessTest {
 	}
 
 	protected void setUpContentTargetingUpgradeProcess() {
-		Registry registry = RegistryUtil.getRegistry();
-
-		UpgradeStepRegistrator upgradeStepRegistror = registry.getService(
-			registry.getServiceReference(
-				"com.liferay.segments.content.targeting.upgrade.internal." +
-					"SegmentsContentTargetingUpgrade"));
-
-		upgradeStepRegistror.register(
+		_upgradeStepRegistror.register(
 			new UpgradeStepRegistrator.Registry() {
 
 				@Override
@@ -774,17 +751,10 @@ public class ContentTargetingUpgradeProcessTest {
 	private String _getCustomFieldFilterString(
 		ExpandoColumn expandoColumn, String expandoValue) {
 
-		StringBundler sb = new StringBundler(7);
-
-		sb.append("(customField/_");
-		sb.append(expandoColumn.getColumnId());
-		sb.append("_");
-		sb.append(Normalizer.normalizeIdentifier(expandoColumn.getName()));
-		sb.append(" eq '");
-		sb.append(expandoValue);
-		sb.append("')");
-
-		return sb.toString();
+		return StringBundler.concat(
+			"(customField/_", expandoColumn.getColumnId(), "_",
+			Normalizer.normalizeIdentifier(expandoColumn.getName()), " eq '",
+			expandoValue, "')");
 	}
 
 	private String _getCustomFieldRuleTypeSettings(
@@ -846,5 +816,10 @@ public class ContentTargetingUpgradeProcessTest {
 
 	@Inject
 	private SegmentsEntryLocalService _segmentsEntryLocalService;
+
+	@Inject(
+		filter = "component.name=com.liferay.segments.content.targeting.upgrade.internal.SegmentsContentTargetingUpgrade"
+	)
+	private UpgradeStepRegistrator _upgradeStepRegistror;
 
 }

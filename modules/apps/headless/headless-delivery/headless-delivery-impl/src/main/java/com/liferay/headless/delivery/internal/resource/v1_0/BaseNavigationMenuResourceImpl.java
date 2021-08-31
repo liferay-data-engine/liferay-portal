@@ -16,6 +16,7 @@ package com.liferay.headless.delivery.internal.resource.v1_0;
 
 import com.liferay.headless.delivery.dto.v1_0.NavigationMenu;
 import com.liferay.headless.delivery.resource.v1_0.NavigationMenuResource;
+import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.portal.kernel.model.GroupedModel;
 import com.liferay.portal.kernel.model.ResourceAction;
@@ -154,7 +155,6 @@ public abstract class BaseNavigationMenuResourceImpl
 	 * curl -X 'GET' 'http://localhost:8080/o/headless-delivery/v1.0/navigation-menus/{navigationMenuId}'  -u 'test@liferay.com:test'
 	 */
 	@GET
-	@Operation(description = "")
 	@Override
 	@Parameters(
 		value = {@Parameter(in = ParameterIn.PATH, name = "navigationMenuId")}
@@ -339,7 +339,6 @@ public abstract class BaseNavigationMenuResourceImpl
 	 * curl -X 'GET' 'http://localhost:8080/o/headless-delivery/v1.0/sites/{siteId}/navigation-menus'  -u 'test@liferay.com:test'
 	 */
 	@GET
-	@Operation(description = "")
 	@Override
 	@Parameters(
 		value = {
@@ -519,10 +518,18 @@ public abstract class BaseNavigationMenuResourceImpl
 			Map<String, Serializable> parameters)
 		throws Exception {
 
+		UnsafeConsumer<NavigationMenu, Exception> navigationMenuUnsafeConsumer =
+			navigationMenu -> {
+			};
+
+		if (parameters.containsKey("siteId")) {
+			navigationMenuUnsafeConsumer =
+				navigationMenu -> postSiteNavigationMenu(
+					(Long)parameters.get("siteId"), navigationMenu);
+		}
+
 		for (NavigationMenu navigationMenu : navigationMenus) {
-			postSiteNavigationMenu(
-				Long.parseLong((String)parameters.get("siteId")),
-				navigationMenu);
+			navigationMenuUnsafeConsumer.accept(navigationMenu);
 		}
 	}
 
@@ -558,8 +565,13 @@ public abstract class BaseNavigationMenuResourceImpl
 			Map<String, Serializable> parameters, String search)
 		throws Exception {
 
-		return getSiteNavigationMenusPage(
-			Long.parseLong((String)parameters.get("siteId")), pagination);
+		if (parameters.containsKey("siteId")) {
+			return getSiteNavigationMenusPage(
+				(Long)parameters.get("siteId"), pagination);
+		}
+		else {
+			return null;
+		}
 	}
 
 	@Override
@@ -693,6 +705,18 @@ public abstract class BaseNavigationMenuResourceImpl
 
 	public void setGroupLocalService(GroupLocalService groupLocalService) {
 		this.groupLocalService = groupLocalService;
+	}
+
+	public void setResourceActionLocalService(
+		ResourceActionLocalService resourceActionLocalService) {
+
+		this.resourceActionLocalService = resourceActionLocalService;
+	}
+
+	public void setResourcePermissionLocalService(
+		ResourcePermissionLocalService resourcePermissionLocalService) {
+
+		this.resourcePermissionLocalService = resourcePermissionLocalService;
 	}
 
 	public void setRoleLocalService(RoleLocalService roleLocalService) {

@@ -18,6 +18,7 @@ import com.liferay.asset.categories.configuration.AssetCategoriesCompanyConfigur
 import com.liferay.asset.kernel.model.AssetCategory;
 import com.liferay.asset.kernel.model.AssetVocabulary;
 import com.liferay.content.dashboard.web.internal.item.ContentDashboardItem;
+import com.liferay.content.dashboard.web.internal.item.selector.criteria.content.dashboard.file.extension.criterion.ContentDashboardFileExtensionItemSelectorCriterion;
 import com.liferay.content.dashboard.web.internal.item.selector.criteria.content.dashboard.type.criterion.ContentDashboardItemSubtypeItemSelectorCriterion;
 import com.liferay.content.dashboard.web.internal.item.type.ContentDashboardItemSubtype;
 import com.liferay.content.dashboard.web.internal.item.type.ContentDashboardItemSubtypeFactoryTracker;
@@ -299,6 +300,39 @@ public class ContentDashboardAdminDisplayContext {
 
 		return _contentDashboardDropdownItemsProvider.getDropdownItems(
 			contentDashboardItem);
+	}
+
+	public String getFileExtensionItemSelectorURL() {
+		RequestBackedPortletURLFactory requestBackedPortletURLFactory =
+			RequestBackedPortletURLFactoryUtil.create(_liferayPortletRequest);
+
+		ContentDashboardFileExtensionItemSelectorCriterion
+			contentDashboardFileExtensionItemSelectorCriterion =
+				new ContentDashboardFileExtensionItemSelectorCriterion();
+
+		contentDashboardFileExtensionItemSelectorCriterion.
+			setDesiredItemSelectorReturnTypes(
+				Collections.singletonList(new UUIDItemSelectorReturnType()));
+
+		return PortletURLBuilder.create(
+			_itemSelector.getItemSelectorURL(
+				requestBackedPortletURLFactory,
+				_liferayPortletResponse.getNamespace() +
+					"selectedFileExtension",
+				contentDashboardFileExtensionItemSelectorCriterion)
+		).setParameter(
+			"checkedFileExtensions",
+			() -> {
+				List<String> fileExtensions = getFileExtensions();
+
+				return fileExtensions.toArray(new String[0]);
+			}
+		).buildString();
+	}
+
+	public List<String> getFileExtensions() {
+		return Arrays.asList(
+			ParamUtil.getStringValues(_liferayPortletRequest, "fileExtension"));
 	}
 
 	public String getOnClickConfiguration() throws WindowStateException {

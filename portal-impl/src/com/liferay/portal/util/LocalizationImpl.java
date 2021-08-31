@@ -94,6 +94,10 @@ public class LocalizationImpl implements Localization {
 
 	@Override
 	public String[] getAvailableLanguageIds(Document document) {
+		if (document == null) {
+			return new String[0];
+		}
+
 		String attributeValue = _getRootAttributeValue(
 			document, _AVAILABLE_LOCALES, StringPool.BLANK);
 
@@ -140,19 +144,12 @@ public class LocalizationImpl implements Localization {
 		}
 
 		if (_log.isWarnEnabled()) {
-			StringBundler sb = new StringBundler(9);
-
-			sb.append("Language ");
-			sb.append(LocaleUtil.toLanguageId(contentDefaultLocale));
-			sb.append(" is missing for ");
-			sb.append(className);
-			sb.append(" with primary key ");
-			sb.append(primaryKey);
-			sb.append(". Setting default language to ");
-			sb.append(LocaleUtil.toLanguageId(defaultLocale));
-			sb.append(".");
-
-			_log.warn(sb.toString());
+			_log.warn(
+				StringBundler.concat(
+					"Language ", LocaleUtil.toLanguageId(contentDefaultLocale),
+					" is missing for ", className, " with primary key ",
+					primaryKey, ". Setting default language to ",
+					LocaleUtil.toLanguageId(defaultLocale), "."));
 		}
 
 		return defaultLocale;
@@ -872,13 +869,12 @@ public class LocalizationImpl implements Localization {
 
 			for (Map.Entry<String, String> entry : map.entrySet()) {
 				String languageId = entry.getKey();
-				String value = entry.getValue();
 
 				xmlStreamWriter.writeStartElement(key);
 
 				xmlStreamWriter.writeAttribute(_LANGUAGE_ID, languageId);
 				xmlStreamWriter.writeCharacters(
-					XMLUtil.stripInvalidChars(value));
+					XMLUtil.stripInvalidChars(entry.getValue()));
 
 				xmlStreamWriter.writeEndElement();
 			}

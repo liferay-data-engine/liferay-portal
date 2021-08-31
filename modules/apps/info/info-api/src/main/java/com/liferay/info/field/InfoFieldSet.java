@@ -149,15 +149,10 @@ public class InfoFieldSet implements InfoFieldSetEntry {
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(5);
-
-		sb.append("{_infoFieldSetEntries: ");
-		sb.append(MapUtil.toString(_builder._infoFieldSetEntries));
-		sb.append(", name: ");
-		sb.append(_builder._name);
-		sb.append("}");
-
-		return sb.toString();
+		return StringBundler.concat(
+			"{_infoFieldSetEntries: ",
+			MapUtil.toString(_builder._infoFieldSetEntries), ", name: ",
+			_builder._name, "}");
 	}
 
 	public static class Builder {
@@ -185,10 +180,10 @@ public class InfoFieldSet implements InfoFieldSetEntry {
 
 		public <T extends Throwable> Builder infoFieldSetEntry(
 				UnsafeConsumer<UnsafeConsumer<InfoFieldSetEntry, T>, T>
-					consumer)
+					unsafeConsumer)
 			throws T {
 
-			consumer.accept(this::infoFieldSetEntry);
+			unsafeConsumer.accept(this::infoFieldSetEntry);
 
 			return this;
 		}

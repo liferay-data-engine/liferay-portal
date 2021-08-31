@@ -34,6 +34,7 @@ import com.liferay.change.tracking.web.internal.security.permission.resource.CTC
 import com.liferay.change.tracking.web.internal.util.PublicationsPortletURLUtil;
 import com.liferay.petra.lang.HashUtil;
 import com.liferay.petra.portlet.url.builder.PortletURLBuilder;
+import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.change.tracking.sql.CTSQLModeThreadLocal;
@@ -61,6 +62,7 @@ import com.liferay.portal.kernel.util.FastDateFormatFactoryUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
@@ -310,10 +312,21 @@ public class ViewChangesDisplayContext {
 			() -> {
 				ResourceURL dataURL = _renderResponse.createResourceURL();
 
+				dataURL.setParameter("localize", Boolean.TRUE.toString());
 				dataURL.setResourceID("/change_tracking/get_entry_render_data");
 
 				return dataURL.toString();
 			}
+		).put(
+			"defaultLocale",
+			JSONUtil.put(
+				"label", _themeDisplay.getLanguageId()
+			).put(
+				"symbol",
+				StringUtil.replace(
+					StringUtil.toLowerCase(_themeDisplay.getLanguageId()),
+					CharPool.UNDERLINE, CharPool.DASH)
+			)
 		).put(
 			"deleteCTCommentURL",
 			() -> {
@@ -356,6 +369,8 @@ public class ViewChangesDisplayContext {
 
 				return getCTCommentsURL.toString();
 			}
+		).put(
+			"keywordsFromURL", ParamUtil.getString(_renderRequest, "keywords")
 		).put(
 			"modelData",
 			() -> {

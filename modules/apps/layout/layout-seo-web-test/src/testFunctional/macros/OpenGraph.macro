@@ -139,18 +139,53 @@ definition {
 	}
 
 	macro mapEditableTextToField {
+		if ("${textType}" == "TextInput") {
+			Type(
+				key_text = "${mappedField}",
+				locator1 = "TextInput#ANY",
+				value1 = "${mappedFieldText}");
+		}
+		else if ("${textType}" == "TextArea") {
+			Type(
+				key_text = "${mappedField}",
+				locator1 = "TextArea#ANY",
+				value1 = "${mappedFieldText}");
+		}
+
 		Click(
-			key_mappedField = "${mappedField}",
+			key_mappedField = "${mappedFieldName}",
 			locator1 = "PageEditor#EDITABLE_FIELD_TOOLBAR_MAP_BUTTON_SPECIFIC");
 
-		Select(
-			key_fieldLabel = "Field",
-			locator1 = "Select#GENERIC_SELECT_FIELD",
-			value1 = "${field}");
+		for (var field : list "${field}" ) {
+			if ("${textType}" == "TextInput") {
+				Type.sendKeys(
+					key_text = "${mappedField}",
+					locator1 = "TextInput#ANY",
+					value1 = "${field}:");
+			}
+			else if ("${textType}" == "TextArea") {
+				Type.sendKeys(
+					key_text = "${mappedField}",
+					locator1 = "TextArea#ANY",
+					value1 = "${field}:");
+			}
 
-		Click(
-			key_mappedField = "${mappedField}",
-			locator1 = "PageEditor#EDITABLE_FIELD_TOOLBAR_MAP_BUTTON_SPECIFIC");
+			Select(
+				key_fieldLabel = "Field",
+				locator1 = "Select#GENERIC_SELECT_FIELD",
+				value1 = "${field}");
+
+			if ("${mappedFieldName}" == "Image") {
+				Click(
+					key_text = "Map Content",
+					locator1 = "Button#ANY");
+			}
+			else {
+				Click(
+					key_text = "Add Field",
+					locator1 = "Button#ANY");
+			}
+		}
 	}
 
 	macro openToConfigInSystemSettings {
@@ -209,6 +244,44 @@ definition {
 		}
 	}
 
+	macro viewDefaultMappedField {
+		if ("${portlet}" == "Open Graph") {
+			AssertAttributeValue(
+				attribute1 = "value",
+				key_mappedField = "Title",
+				locator1 = "TextInput#SEO_MAPPED_FIELD",
+				value1 = "title");
+
+			AssertTextEquals(
+				key_mappedField = "Description",
+				locator1 = "TextInput#SEO_MAPPED_FIELD",
+				value1 = "description");
+
+			AssertAttributeValue(
+				attribute1 = "value",
+				key_mappedField = "Image",
+				locator1 = "TextInput#SEO_MAPPED_FIELD",
+				value1 = "-- Unmapped --");
+
+			AssertTextEquals(
+				key_mappedField = "ImageAlt",
+				locator1 = "TextInput#SEO_MAPPED_FIELD",
+				value1 = "");
+		}
+
+		if ("${portlet}" == "SEO") {
+			AssertElementPresent(
+				key_mappedField = "title",
+				locator1 = "TextInput#SEO_HTML_TITLE",
+				mappedFieldValue = "title");
+
+			AssertElementPresent(
+				key_mappedField = "description",
+				locator1 = "TextInput#SEO_MAPPED_FIELD",
+				mappedFieldValue = "description");
+		}
+	}
+
 	macro viewImageAltDescriptionDefault {
 		AssertElementPresent(
 			key_text = "openGraphImageAlt",
@@ -220,21 +293,19 @@ definition {
 	}
 
 	macro viewMappedField {
-		AssertTextEquals(
-			key_mappedField = "${mappedField}",
-			locator1 = "TextInput#SEO_MAPPED_FIELD",
-			value1 = "${mappedFieldValue}");
-
-		if ("${mappedFieldValue}" == "-- Unmapped --") {
-			AssertElementPresent(
+		if (isSet(textType)) {
+			AssertTextEquals(
 				key_mappedField = "${mappedField}",
-				locator1 = "PageEditor#EDITABLE_FIELD_TOOLBAR_UNMAPPED_BUTTON");
+				locator1 = "TextInput#SEO_MAPPED_FIELD",
+				value1 = "${mappedFieldValue}");
 		}
 
 		else {
-			AssertElementPresent(
+			AssertAttributeValue(
+				attribute1 = "value",
 				key_mappedField = "${mappedField}",
-				locator1 = "PageEditor#EDITABLE_FIELD_TOOLBAR_MAPPED_BUTTON");
+				locator1 = "TextInput#SEO_MAPPED_FIELD",
+				value1 = "${mappedFieldValue}");
 		}
 	}
 
