@@ -187,6 +187,11 @@ public class CommerceCurrencyWrapper
 		}
 	}
 
+	@Override
+	public CommerceCurrency cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the active of this commerce currency.
 	 *

@@ -156,6 +156,11 @@ public class CPMeasurementUnitWrapper
 	}
 
 	@Override
+	public CPMeasurementUnit cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
+	@Override
 	public String[] getAvailableLanguageIds() {
 		return model.getAvailableLanguageIds();
 	}

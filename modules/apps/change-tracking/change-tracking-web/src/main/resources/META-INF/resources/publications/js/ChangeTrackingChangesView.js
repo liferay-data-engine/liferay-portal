@@ -23,7 +23,9 @@ import ClayForm, {
 	ClayToggle,
 } from '@clayui/form';
 import ClayIcon from '@clayui/icon';
-import ClayManagementToolbar from '@clayui/management-toolbar';
+import ClayManagementToolbar, {
+	ClayResultsBar,
+} from '@clayui/management-toolbar';
 import {ClayPaginationBarWithBasicItems} from '@clayui/pagination-bar';
 import ClaySticker from '@clayui/sticker';
 import ClayTable from '@clayui/table';
@@ -555,10 +557,12 @@ export default ({
 	ctCollectionId,
 	currentUserId,
 	dataURL,
+	defaultLocale,
 	deleteCTCommentURL,
 	discardURL,
 	expired,
 	getCTCommentsURL,
+	keywordsFromURL,
 	modelData,
 	namespace,
 	pathFromURL,
@@ -581,6 +585,7 @@ export default ({
 	const GLOBAL_SITE_NAME = Liferay.Language.get('global');
 	const MVC_RENDER_COMMAND_NAME = '/change_tracking/view_changes';
 	const PARAM_CT_COLLECTION_ID = namespace + 'ctCollectionId';
+	const PARAM_KEYWORDS = namespace + 'keywords';
 	const PARAM_MVC_RENDER_COMMAND_NAME = namespace + 'mvcRenderCommandName';
 	const PARAM_PATH = namespace + 'path';
 	const PARAM_SHOW_HIDEABLE = namespace + 'showHideable';
@@ -992,6 +997,7 @@ export default ({
 		window.history.replaceState(state, document.title);
 	}
 
+	params.delete(PARAM_KEYWORDS);
 	params.delete(PARAM_PATH);
 	params.delete(PARAM_SHOW_HIDEABLE);
 
@@ -1000,20 +1006,32 @@ export default ({
 	const commentsCache = useRef({});
 	const renderCache = useRef({});
 
-	const filterHideableNodes = (nodes, showHideable) => {
-		if (!nodes || showHideable) {
+	const filterNodes = (keywords, nodes, showHideable, viewType) => {
+		if (!nodes || (!keywords && showHideable)) {
 			return nodes;
 		}
 
-		const filterNodes = [];
+		const filteredNodes = nodes.slice(0);
 
-		for (let i = 0; i < nodes.length; i++) {
-			if (!nodes[i].hideable) {
-				filterNodes.push(nodes[i]);
+		return filteredNodes.filter((node) => {
+			if (!showHideable && node.hideable) {
+				return false;
 			}
-		}
+			else if (viewType === VIEW_TYPE_CONTEXT || !keywords) {
+				return true;
+			}
 
-		return filterNodes;
+			const pattern = keywords
+				.toLowerCase()
+				.replace(/[^0-9a-z]+/g, '|')
+				.replace(/^\||\|$/g, '');
+
+			if (node.title && node.title.toLowerCase().match(pattern)) {
+				return true;
+			}
+
+			return false;
+		});
 	};
 
 	const setParameter = useCallback(
@@ -1040,79 +1058,9 @@ export default ({
 		[discardURL, setParameter]
 	);
 
-	const getDropdownItems = useCallback(
-		(node) => {
-			if (!activeCTCollection || !node.modelClassNameId) {
-				return null;
-			}
-
-			const dropdownItems = [];
-
-			const cache =
-				renderCache.current[
-					node.modelClassNameId.toString() +
-						'-' +
-						node.modelClassPK.toString()
-				];
-
-			if (cache && cache.editURL) {
-				dropdownItems.push({
-					href: cache.editURL,
-					label: Liferay.Language.get('edit'),
-					symbolLeft: 'pencil',
-				});
-			}
-
-			dropdownItems.push({
-				href: getDiscardURL(node),
-				label: Liferay.Language.get('discard'),
-				symbolLeft: 'times-circle',
-			});
-
-			for (let i = 0; i < dropdownItems.length; i++) {
-				const dropdownItem = dropdownItems[i];
-
-				const href = dropdownItem.href;
-
-				if (typeof href !== 'string') {
-					continue;
-				}
-
-				const index = href.indexOf('?');
-
-				if (index > 0) {
-					let redirectKey = null;
-
-					const params = new URLSearchParams(
-						href.substring(index + 1)
-					);
-
-					params.forEach((value, key) => {
-						if (key.endsWith('_redirect')) {
-							redirectKey = key;
-						}
-					});
-
-					if (redirectKey) {
-						params.set(
-							redirectKey,
-							window.location.pathname + window.location.search
-						);
-
-						dropdownItem.href =
-							href.substring(0, index) + '?' + params.toString();
-					}
-				}
-			}
-
-			return dropdownItems;
-		},
-		[activeCTCollection, getDiscardURL]
-	);
-
 	const getPath = useCallback(
-		(pathParam, showHideable) => {
-			return (
+		(keywords, pathParam, showHideable) => {
+			const path =
 				basePath.current +
 				'&' +
 				PARAM_PATH +
@@ -1121,10 +1069,15 @@ export default ({
 				'&' +
 				PARAM_SHOW_HIDEABLE +
 				'=' +
-				showHideable.toString()
-			);
+				showHideable.toString();
+
+			if (keywords) {
+				return path + '&' + PARAM_KEYWORDS + '=' + keywords.toString();
+			}
+
+			return path;
 		},
-		[PARAM_PATH, PARAM_SHOW_HIDEABLE]
+		[PARAM_KEYWORDS, PARAM_PATH, PARAM_SHOW_HIDEABLE]
 	);
 
 	const getPathParam = (filterClass, node, viewType) => {
@@ -1192,11 +1145,12 @@ export default ({
 	const [columnState, setColumnState] = useState(COLUMN_TITLE);
 	const [deltaState, setDeltaState] = useState(20);
 	const [renderState, setRenderState] = useState({
-		children: filterHideableNodes(
+		children: filterNodes(
+			keywordsFromURL,
 			initialNode.children,
-			initialShowHideable
+			initialShowHideable,
+			initialViewType
 		),
-		dropdownItems: getDropdownItems(initialNode),
 		filterClass: initialFilterClass,
 		id: initialNodeId,
 		node: initialNode,
@@ -1204,7 +1158,10 @@ export default ({
 		showHideable: initialShowHideable,
 		viewType: initialViewType,
 	});
+	const [resultsKeywords, setResultsKeywords] = useState(keywordsFromURL);
+	const [searchTerms, setSearchTerms] = useState(keywordsFromURL);
 	const [showComments, setShowComments] = useState(false);
+	const [searchMobile, setSearchMobile] = useState(false);
 
 	const handleNavigationUpdate = useCallback(
 		(json) => {
@@ -1234,7 +1191,6 @@ export default ({
 			) {
 				setRenderState({
 					children: renderState.children,
-					dropdownItems: renderState.dropdownItems,
 					filterClass: renderState.filterClass,
 					id: renderState.id,
 					node: renderState.node,
@@ -1250,7 +1206,7 @@ export default ({
 
 			const pathParam = getPathParam(filterClass, node, viewType);
 
-			const path = getPath(pathParam, showHideable);
+			const path = getPath(resultsKeywords, pathParam, showHideable);
 
 			const state = {
 				path,
@@ -1260,8 +1216,12 @@ export default ({
 			window.history.pushState(state, document.title, path);
 
 			setRenderState({
-				children: filterHideableNodes(node.children, showHideable),
-				dropdownItems: getDropdownItems(node),
+				children: filterNodes(
+					resultsKeywords,
+					node.children,
+					showHideable,
+					viewType
+				),
 				filterClass,
 				id: nodeId,
 				node,
@@ -1272,7 +1232,7 @@ export default ({
 
 			window.scrollTo(0, 0);
 		},
-		[VIEW_TYPE_CONTEXT, getDropdownItems, getNode, getPath, renderState]
+		[VIEW_TYPE_CONTEXT, getNode, getPath, renderState, resultsKeywords]
 	);
 
 	const handlePopState = useCallback(
@@ -1321,7 +1281,6 @@ export default ({
 			) {
 				setRenderState({
 					children: renderState.children,
-					dropdownItems: renderState.dropdownItems,
 					filterClass: renderState.filterClass,
 					id: renderState.id,
 					node: renderState.node,
@@ -1335,6 +1294,12 @@ export default ({
 
 			const node = getNode(filterClass, nodeId, viewType);
 
+			let keywords = params.get(PARAM_KEYWORDS);
+
+			if (!keywords) {
+				keywords = '';
+			}
+
 			const showHideable =
 				node.hideable ||
 				(filterClass !== FILTER_CLASS_EVERYTHING &&
@@ -1343,8 +1308,12 @@ export default ({
 					: !!renderState.showHideable;
 
 			setRenderState({
-				children: filterHideableNodes(node.children, showHideable),
-				dropdownItems: getDropdownItems(node),
+				children: filterNodes(
+					keywords,
+					node.children,
+					showHideable,
+					viewType
+				),
 				filterClass,
 				id: nodeId,
 				node,
@@ -1352,11 +1321,13 @@ export default ({
 				showHideable,
 				viewType,
 			});
+			setResultsKeywords(keywords);
+			setSearchTerms(keywords);
 		},
 		[
+			PARAM_KEYWORDS,
 			PARAM_PATH,
 			VIEW_TYPE_CONTEXT,
-			getDropdownItems,
 			getNode,
 			getPathState,
 			isWithinApp,
@@ -2122,7 +2093,7 @@ export default ({
 			isWithinApp(params) &&
 			(!oldPathParam || oldPathParam === pathParam)
 		) {
-			const path = getPath(pathParam, showHideable);
+			const path = getPath(resultsKeywords, pathParam, showHideable);
 
 			let newState = {
 				path,
@@ -2139,11 +2110,12 @@ export default ({
 		}
 
 		setRenderState({
-			children: filterHideableNodes(
+			children: filterNodes(
+				resultsKeywords,
 				renderState.node.children,
-				showHideable
+				showHideable,
+				renderState.viewType
 			),
-			dropdownItems: renderState.dropdownItems,
 			filterClass: renderState.filterClass,
 			id: renderState.id,
 			node: renderState.node,
@@ -2159,77 +2131,157 @@ export default ({
 		}
 
 		return (
-			<div className="sheet">
-				<div className="autofit-row sheet-title">
-					<div className="autofit-col autofit-col-expand">
-						<h2>{renderState.node.title} </h2>
+			<ChangeTrackingRenderView
+				ctEntry={!!renderState.node.ctEntryId}
+				dataURL={getDataURL(renderState.node)}
+				defaultLocale={defaultLocale}
+				description={
+					renderState.node.description
+						? renderState.node.description
+						: renderState.node.typeName
+				}
+				discardURL={getDiscardURL(renderState.node)}
+				getCache={() =>
+					renderCache.current[
+						renderState.node.modelClassNameId.toString() +
+							'-' +
+							renderState.node.modelClassPK.toString()
+					]
+				}
+				showDropdown={
+					activeCTCollection && renderState.node.modelClassNameId
+				}
+				spritemap={spritemap}
+				title={renderState.node.title}
+				updateCache={(data) => {
+					renderCache.current[
+						renderState.node.modelClassNameId.toString() +
+							'-' +
+							renderState.node.modelClassPK.toString()
+					] = data;
 
-						<div className="entry-description">
-							{renderState.node.description
-								? renderState.node.description
-								: renderState.node.typeName}
-						</div>
-					</div>
-					{renderState.dropdownItems && (
-						<div className="autofit-col">
-							<ClayDropDownWithItems
-								alignmentPosition={Align.BottomLeft}
-								items={renderState.dropdownItems}
-								spritemap={spritemap}
-								trigger={
-									<ClayButtonWithIcon
-										displayType="unstyled"
-										small
-										spritemap={spritemap}
-										symbol="ellipsis-v"
-									/>
-								}
-							/>
-						</div>
-					)}
-				</div>
-				<div className="sheet-section">
-					<ChangeTrackingRenderView
-						ctEntry={!!renderState.node.ctEntryId}
-						dataURL={getDataURL(renderState.node)}
-						getCache={() =>
-							renderCache.current[
-								renderState.node.modelClassNameId.toString() +
-									'-' +
-									renderState.node.modelClassPK.toString()
-							]
-						}
-						spritemap={spritemap}
-						updateCache={(data) => {
-							renderCache.current[
-								renderState.node.modelClassNameId.toString() +
-									'-' +
-									renderState.node.modelClassPK.toString()
-							] = data;
-
-							setRenderState({
-								children: renderState.children,
-								dropdownItems: getDropdownItems(
-									renderState.node
-								),
-								filterClass: renderState.filterClass,
-								id: renderState.id,
-								node: renderState.node,
-								page: renderState.page,
-								showHideable: renderState.showHideable,
-								viewType: renderState.viewType,
-							});
-						}}
-					/>
-				</div>
-			</div>
+					setRenderState({
+						children: renderState.children,
+						filterClass: renderState.filterClass,
+						id: renderState.id,
+						node: renderState.node,
+						page: renderState.page,
+						showHideable: renderState.showHideable,
+						viewType: renderState.viewType,
+					});
+				}}
+			/>
 		);
+	};
+
+	const onSubmit = (keywords) => {
+		setResultsKeywords(keywords);
+
+		const pathParam = getPathParam(
+			renderState.filterClass,
+			renderState.node,
+			renderState.viewType
+		);
+
+		const path = getPath(keywords, pathParam, renderState.showHideable);
+
+		const state = {
+			path,
+			senna: true,
+		};
+
+		window.history.pushState(state, document.title, path);
+
+		setRenderState({
+			children: filterNodes(
+				keywords,
+				renderState.node.children,
+				renderState.showHideable,
+				renderState.viewType
+			),
+			filterClass: renderState.filterClass,
+			id: renderState.id,
+			node: renderState.node,
+			page: renderState.page,
+			showHideable: renderState.showHideable,
+			viewType: renderState.viewType,
+		});
+		setResultsKeywords(keywords);
+
+		window.scrollTo(0, 0);
 	};
 
 	const renderManagementToolbar = () => {
 		return (
-			<ClayManagementToolbar>
+			<ClayManagementToolbar
+				className={
+					renderState.viewType === VIEW_TYPE_CONTEXT
+						? 'nav-item-expand'
+						: ''
+				}
+			>
+				{renderState.viewType === VIEW_TYPE_CHANGES && (
+					<ClayManagementToolbar.Search
+						onSubmit={(event) => {
+							event.preventDefault();
+
+							onSubmit(searchTerms.trim());
+						}}
+						showMobile={searchMobile}
+					>
+						<ClayInput.Group>
+							<ClayInput.GroupItem>
+								<ClayInput
+									aria-label={Liferay.Language.get('search')}
+									className="form-control input-group-inset input-group-inset-after"
+									disabled={changes.length === 0}
+									onChange={(event) =>
+										setSearchTerms(event.target.value)
+									}
+									placeholder={`${Liferay.Language.get(
+										'search'
+									)}...`}
+									type="text"
+									value={searchTerms}
+								/>
+								<ClayInput.GroupInsetItem after tag="span">
+									<ClayButtonWithIcon
+										className="navbar-breakpoint-d-none"
+										disabled={changes.length === 0}
+										displayType="unstyled"
+										onClick={() => setSearchMobile(false)}
+										spritemap={spritemap}
+										symbol="times"
+									/>
+									<ClayButtonWithIcon
+										displayType="unstyled"
+										spritemap={spritemap}
+										symbol="search"
+										type="submit"
+									/>
+								</ClayInput.GroupInsetItem>
+							</ClayInput.GroupItem>
+						</ClayInput.Group>
+					</ClayManagementToolbar.Search>
+				)}
+
 				<ClayManagementToolbar.ItemList>
+					{renderState.viewType === VIEW_TYPE_CHANGES && (
+						<ClayManagementToolbar.Item className="navbar-breakpoint-d-none">
+							<ClayButton
+								className="nav-link nav-link-monospaced"
+								disabled={changes.length === 0}
+								displayType="unstyled"
+								onClick={() => setSearchMobile(true)}
+							>
+								<ClayIcon
+									spritemap={spritemap}
+									symbol="search"
+								/>
+							</ClayButton>
+						</ClayManagementToolbar.Item>
+					)}
+
 					{renderState.viewType === VIEW_TYPE_CONTEXT && (
 						<ClayManagementToolbar.Item>
 							<ClayDropDownWithItems
@@ -2309,8 +2361,9 @@ export default ({
 							</ClayButton>
 						</ClayManagementToolbar.Item>
 					)}
-
-					<ClayManagementToolbar.Item className="nav-item-expand" />
+					{renderState.viewType === VIEW_TYPE_CONTEXT && (
+						<ClayManagementToolbar.Item className="nav-item-expand" />
+					)}
 
 					<ClayManagementToolbar.Item className="simple-toggle-switch-reverse">
 						<ClayToggle
@@ -2361,7 +2414,6 @@ export default ({
 					setDeltaState(delta);
 					setRenderState({
 						children: renderState.children,
-						dropdownItems: renderState.dropdownItems,
 						filterClass: renderState.filterClass,
 						id: renderState.id,
 						node: renderState.node,
@@ -2373,7 +2425,6 @@ export default ({
 				onPageChange={(page) =>
 					setRenderState({
 						children: renderState.children,
-						dropdownItems: renderState.dropdownItems,
 						filterClass: renderState.filterClass,
 						id: renderState.id,
 						node: renderState.node,
@@ -2411,6 +2462,57 @@ export default ({
 				</div>
 			</div>
 		);
+	};
+
+	const renderResultsBar = () => {
+		if (renderState.viewType === VIEW_TYPE_CONTEXT) {
+			return '';
+		}
+
+		const items = [];
+
+		if (resultsKeywords) {
+			items.push(
+				<ClayResultsBar.Item>
+					<span className="component-text text-truncate-inline">
+						<span className="text-truncate">
+							{Liferay.Util.sub(
+								renderState.children &&
+									renderState.children.length === 1
+									? Liferay.Language.get('x-result-for')
+									: Liferay.Language.get('x-results-for'),
+								renderState.children
+									? renderState.children.length.toString()
+									: '0'
+							) + ' '}
+							<strong>{resultsKeywords}</strong>
+						</span>
+					</span>
+				</ClayResultsBar.Item>
+			);
+		}
+
+		if (items.length === 0) {
+			return '';
+		}
+
+		items.push(<ClayResultsBar.Item expand />);
+		items.push(
+			<ClayResultsBar.Item>
+				<ClayButton
+					className="component-link tbar-link"
+					displayType="unstyled"
+					onClick={() => {
+						onSubmit('');
+						setSearchTerms('');
+					}}
+				>
+					{Liferay.Language.get('clear')}
+				</ClayButton>
+			</ClayResultsBar.Item>
+		);
+
+		return <ClayResultsBar>{items}</ClayResultsBar>;
 	};
 
 	const renderTable = () => {
@@ -2538,6 +2640,7 @@ export default ({
 	return (
 		<>
 			{renderManagementToolbar()}
+			{renderResultsBar()}
 			<div
 				className={`sidenav-container sidenav-right ${
 					showComments ? 'open' : 'closed'

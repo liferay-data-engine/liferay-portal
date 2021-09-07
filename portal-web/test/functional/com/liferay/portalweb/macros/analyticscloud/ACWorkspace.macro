@@ -1,5 +1,59 @@
 definition {
 
+	macro configureWorkspaceSettings {
+		if (isSet(workspaceName)) {
+			Type(
+				key_text = "Workspace Name",
+				locator1 = "TextInput#ANY",
+				value1 = "${workspaceName}");
+		}
+
+		if (isSet(timezone)) {
+			Select(
+				locator1 = "ACWorkspace#TIMEZONE_COUNTRY_SELECT_FIELD",
+				value1 = "${timezone}");
+
+			Select(
+				locator1 = "Select#SELECT_ID",
+				selectFieldId = "timeZoneId",
+				value1 = "${timezoneId}");
+		}
+
+		Click(
+			key_text = "Add Incident Report Contacts",
+			locator1 = "TextInput#ANY");
+
+		KeyPress(
+			key_text = "Add Incident Report Contacts",
+			locator1 = "TextInput#ANY",
+			value1 = "\BACK_SPACE");
+
+		Type(
+			key_text = "Add Incident Report Contacts",
+			locator1 = "TextInput#ANY",
+			value1 = "test@liferay.com");
+
+		Click(
+			label = "Add Incident Report Contacts",
+			locator1 = "ACUtils#LABEL");
+
+		if (isSet(cancel)) {
+			WaitForElementNotPresent(
+				key_text = "Cancel",
+				locator1 = "Button#ANY_DISABLED");
+
+			Button.click(button = "Cancel");
+		}
+
+		else {
+			WaitForElementNotPresent(
+				key_text = "Save",
+				locator1 = "Button#ANY_DISABLED");
+
+			Button.clickSave();
+		}
+	}
+
 	macro openWorkspace {
 		if (isSet(workspaceName)) {
 			var key_WorkspaceName = "${workspaceName}";
@@ -28,6 +82,26 @@ definition {
 		Click(locator1 = "ACWorkspace#SWITCH_WORKSPACE_OPTION");
 
 		ACWorkspace.openWorkspace(workspaceName = "${workspaceName}");
+	}
+
+	macro viewWorkspaceSettings {
+		if (isSet(workspaceName)) {
+			AssertTextEquals(
+				key_text = "Workspace Name",
+				locator1 = "TextInput#ANY",
+				value1 = "${workspaceName}");
+		}
+
+		if (isSet(timezone)) {
+			AssertSelectedLabel(
+				locator1 = "ACWorkspace#TIMEZONE_COUNTRY_SELECT_FIELD",
+				value1 = "${timezone}");
+
+			AssertSelectedLabel(
+				locator1 = "Select#SELECT_ID",
+				selectFieldId = "timeZoneId",
+				value1 = "${timezoneId}");
+		}
 	}
 
 }

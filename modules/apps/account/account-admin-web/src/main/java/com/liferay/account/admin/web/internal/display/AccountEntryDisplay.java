@@ -14,6 +14,7 @@
 
 package com.liferay.account.admin.web.internal.display;
 
+import com.liferay.account.admin.web.internal.util.CurrentAccountEntryManagerUtil;
 import com.liferay.account.configuration.AccountEntryEmailDomainsConfiguration;
 import com.liferay.account.constants.AccountConstants;
 import com.liferay.account.model.AccountEntry;
@@ -26,6 +27,7 @@ import com.liferay.account.service.AccountEntryUserRelLocalServiceUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.petra.string.StringUtil;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -111,20 +113,18 @@ public class AccountEntryDisplay {
 		return _domains;
 	}
 
+	public String getExternalReferenceCode() {
+		return _externalReferenceCode;
+	}
+
 	public long getLogoId() {
 		return _logoId;
 	}
 
 	public String getLogoURL(ThemeDisplay themeDisplay) {
-		StringBundler sb = new StringBundler(5);
-
-		sb.append(themeDisplay.getPathImage());
-		sb.append("/account_entry_logo?img_id=");
-		sb.append(getLogoId());
-		sb.append("&t=");
-		sb.append(WebServerServletTokenUtil.getToken(_logoId));
-
-		return sb.toString();
+		return StringBundler.concat(
+			themeDisplay.getPathImage(), "/account_entry_logo?img_id=",
+			getLogoId(), "&t=", WebServerServletTokenUtil.getToken(_logoId));
 	}
 
 	public String getName() {
@@ -182,6 +182,20 @@ public class AccountEntryDisplay {
 		return false;
 	}
 
+	public boolean isSelectedAccountEntry(long groupId, long userId)
+		throws PortalException {
+
+		long currentAccountEntryId =
+			CurrentAccountEntryManagerUtil.getCurrentAccountEntryId(
+				groupId, userId);
+
+		if (currentAccountEntryId == getAccountEntryId()) {
+			return true;
+		}
+
+		return false;
+	}
+
 	public boolean isValidateUserEmailAddress(ThemeDisplay themeDisplay) {
 		if (isEmailDomainValidationEnabled(themeDisplay) &&
 			ListUtil.isNotEmpty(getDomains())) {
@@ -199,6 +213,7 @@ public class AccountEntryDisplay {
 		_defaultShippingAddress = null;
 		_description = StringPool.BLANK;
 		_domains = Collections.emptyList();
+		_externalReferenceCode = StringPool.BLANK;
 		_logoId = 0;
 		_name = StringPool.BLANK;
 		_organizationNames = StringPool.BLANK;
@@ -216,6 +231,7 @@ public class AccountEntryDisplay {
 		_defaultShippingAddress = accountEntry.getDefaultShippingAddress();
 		_description = accountEntry.getDescription();
 		_domains = _getDomains(accountEntry);
+		_externalReferenceCode = accountEntry.getExternalReferenceCode();
 		_logoId = accountEntry.getLogoId();
 		_name = accountEntry.getName();
 		_organizationNames = _getOrganizationNames(accountEntry);
@@ -361,6 +377,7 @@ public class AccountEntryDisplay {
 	private final Address _defaultShippingAddress;
 	private final String _description;
 	private final List<String> _domains;
+	private final String _externalReferenceCode;
 	private final long _logoId;
 	private final String _name;
 	private final String _organizationNames;

@@ -26,15 +26,18 @@ import com.liferay.portal.kernel.model.impl.BaseModelImpl;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -575,6 +578,31 @@ public class JournalArticleLocalizationModelImpl
 	}
 
 	@Override
+	public JournalArticleLocalization cloneWithOriginalValues() {
+		JournalArticleLocalizationImpl journalArticleLocalizationImpl =
+			new JournalArticleLocalizationImpl();
+
+		journalArticleLocalizationImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		journalArticleLocalizationImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		journalArticleLocalizationImpl.setArticleLocalizationId(
+			this.<Long>getColumnOriginalValue("articleLocalizationId"));
+		journalArticleLocalizationImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		journalArticleLocalizationImpl.setArticlePK(
+			this.<Long>getColumnOriginalValue("articlePK"));
+		journalArticleLocalizationImpl.setTitle(
+			this.<String>getColumnOriginalValue("title"));
+		journalArticleLocalizationImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		journalArticleLocalizationImpl.setLanguageId(
+			this.<String>getColumnOriginalValue("languageId"));
+
+		return journalArticleLocalizationImpl;
+	}
+
+	@Override
 	public int compareTo(
 		JournalArticleLocalization journalArticleLocalization) {
 
@@ -695,7 +723,7 @@ public class JournalArticleLocalizationModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -706,11 +734,27 @@ public class JournalArticleLocalizationModelImpl
 			Function<JournalArticleLocalization, Object>
 				attributeGetterFunction = entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply(
-					(JournalArticleLocalization)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(JournalArticleLocalization)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

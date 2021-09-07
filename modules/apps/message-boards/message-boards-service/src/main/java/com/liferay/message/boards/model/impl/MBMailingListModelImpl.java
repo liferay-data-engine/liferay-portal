@@ -31,12 +31,14 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
@@ -1092,6 +1094,69 @@ public class MBMailingListModelImpl
 	}
 
 	@Override
+	public MBMailingList cloneWithOriginalValues() {
+		MBMailingListImpl mbMailingListImpl = new MBMailingListImpl();
+
+		mbMailingListImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		mbMailingListImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		mbMailingListImpl.setUuid(this.<String>getColumnOriginalValue("uuid_"));
+		mbMailingListImpl.setMailingListId(
+			this.<Long>getColumnOriginalValue("mailingListId"));
+		mbMailingListImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		mbMailingListImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		mbMailingListImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		mbMailingListImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		mbMailingListImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		mbMailingListImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		mbMailingListImpl.setCategoryId(
+			this.<Long>getColumnOriginalValue("categoryId"));
+		mbMailingListImpl.setEmailAddress(
+			this.<String>getColumnOriginalValue("emailAddress"));
+		mbMailingListImpl.setInProtocol(
+			this.<String>getColumnOriginalValue("inProtocol"));
+		mbMailingListImpl.setInServerName(
+			this.<String>getColumnOriginalValue("inServerName"));
+		mbMailingListImpl.setInServerPort(
+			this.<Integer>getColumnOriginalValue("inServerPort"));
+		mbMailingListImpl.setInUseSSL(
+			this.<Boolean>getColumnOriginalValue("inUseSSL"));
+		mbMailingListImpl.setInUserName(
+			this.<String>getColumnOriginalValue("inUserName"));
+		mbMailingListImpl.setInPassword(
+			this.<String>getColumnOriginalValue("inPassword"));
+		mbMailingListImpl.setInReadInterval(
+			this.<Integer>getColumnOriginalValue("inReadInterval"));
+		mbMailingListImpl.setOutEmailAddress(
+			this.<String>getColumnOriginalValue("outEmailAddress"));
+		mbMailingListImpl.setOutCustom(
+			this.<Boolean>getColumnOriginalValue("outCustom"));
+		mbMailingListImpl.setOutServerName(
+			this.<String>getColumnOriginalValue("outServerName"));
+		mbMailingListImpl.setOutServerPort(
+			this.<Integer>getColumnOriginalValue("outServerPort"));
+		mbMailingListImpl.setOutUseSSL(
+			this.<Boolean>getColumnOriginalValue("outUseSSL"));
+		mbMailingListImpl.setOutUserName(
+			this.<String>getColumnOriginalValue("outUserName"));
+		mbMailingListImpl.setOutPassword(
+			this.<String>getColumnOriginalValue("outPassword"));
+		mbMailingListImpl.setAllowAnonymous(
+			this.<Boolean>getColumnOriginalValue("allowAnonymous"));
+		mbMailingListImpl.setActive(
+			this.<Boolean>getColumnOriginalValue("active_"));
+
+		return mbMailingListImpl;
+	}
+
+	@Override
 	public int compareTo(MBMailingList mbMailingList) {
 		long primaryKey = mbMailingList.getPrimaryKey();
 
@@ -1310,7 +1375,7 @@ public class MBMailingListModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1321,9 +1386,26 @@ public class MBMailingListModelImpl
 			Function<MBMailingList, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((MBMailingList)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((MBMailingList)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

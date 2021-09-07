@@ -121,6 +121,11 @@ public class BlogsStatsUserWrapper
 		}
 	}
 
+	@Override
+	public BlogsStatsUser cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the company ID of this blogs stats user.
 	 *

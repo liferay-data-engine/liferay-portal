@@ -37,6 +37,7 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
@@ -44,6 +45,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1024,6 +1026,37 @@ public class CommercePricingClassModelImpl
 	}
 
 	@Override
+	public CommercePricingClass cloneWithOriginalValues() {
+		CommercePricingClassImpl commercePricingClassImpl =
+			new CommercePricingClassImpl();
+
+		commercePricingClassImpl.setUuid(
+			this.<String>getColumnOriginalValue("uuid_"));
+		commercePricingClassImpl.setExternalReferenceCode(
+			this.<String>getColumnOriginalValue("externalReferenceCode"));
+		commercePricingClassImpl.setCommercePricingClassId(
+			this.<Long>getColumnOriginalValue("commercePricingClassId"));
+		commercePricingClassImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		commercePricingClassImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		commercePricingClassImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		commercePricingClassImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		commercePricingClassImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		commercePricingClassImpl.setTitle(
+			this.<String>getColumnOriginalValue("title"));
+		commercePricingClassImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		commercePricingClassImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+
+		return commercePricingClassImpl;
+	}
+
+	@Override
 	public int compareTo(CommercePricingClass commercePricingClass) {
 		int value = 0;
 
@@ -1188,7 +1221,7 @@ public class CommercePricingClassModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1199,10 +1232,27 @@ public class CommercePricingClassModelImpl
 			Function<CommercePricingClass, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply((CommercePricingClass)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(CommercePricingClass)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

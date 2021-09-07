@@ -31,12 +31,14 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -727,6 +729,35 @@ public class CommerceAccountGroupModelImpl
 	}
 
 	@Override
+	public CommerceAccountGroup cloneWithOriginalValues() {
+		CommerceAccountGroupImpl commerceAccountGroupImpl =
+			new CommerceAccountGroupImpl();
+
+		commerceAccountGroupImpl.setExternalReferenceCode(
+			this.<String>getColumnOriginalValue("externalReferenceCode"));
+		commerceAccountGroupImpl.setCommerceAccountGroupId(
+			this.<Long>getColumnOriginalValue("commerceAccountGroupId"));
+		commerceAccountGroupImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		commerceAccountGroupImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		commerceAccountGroupImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		commerceAccountGroupImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		commerceAccountGroupImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		commerceAccountGroupImpl.setName(
+			this.<String>getColumnOriginalValue("name"));
+		commerceAccountGroupImpl.setType(
+			this.<Integer>getColumnOriginalValue("type_"));
+		commerceAccountGroupImpl.setSystem(
+			this.<Boolean>getColumnOriginalValue("system_"));
+
+		return commerceAccountGroupImpl;
+	}
+
+	@Override
 	public int compareTo(CommerceAccountGroup commerceAccountGroup) {
 		int value = 0;
 
@@ -866,7 +897,7 @@ public class CommerceAccountGroupModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -877,10 +908,27 @@ public class CommerceAccountGroupModelImpl
 			Function<CommerceAccountGroup, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply((CommerceAccountGroup)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(CommerceAccountGroup)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

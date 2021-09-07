@@ -33,6 +33,7 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.reports.engine.console.model.Source;
 import com.liferay.portal.reports.engine.console.model.SourceModel;
@@ -43,6 +44,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -928,6 +930,35 @@ public class SourceModelImpl
 	}
 
 	@Override
+	public Source cloneWithOriginalValues() {
+		SourceImpl sourceImpl = new SourceImpl();
+
+		sourceImpl.setUuid(this.<String>getColumnOriginalValue("uuid_"));
+		sourceImpl.setSourceId(this.<Long>getColumnOriginalValue("sourceId"));
+		sourceImpl.setGroupId(this.<Long>getColumnOriginalValue("groupId"));
+		sourceImpl.setCompanyId(this.<Long>getColumnOriginalValue("companyId"));
+		sourceImpl.setUserId(this.<Long>getColumnOriginalValue("userId"));
+		sourceImpl.setUserName(this.<String>getColumnOriginalValue("userName"));
+		sourceImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		sourceImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		sourceImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+		sourceImpl.setName(this.<String>getColumnOriginalValue("name"));
+		sourceImpl.setDriverClassName(
+			this.<String>getColumnOriginalValue("driverClassName"));
+		sourceImpl.setDriverUrl(
+			this.<String>getColumnOriginalValue("driverUrl"));
+		sourceImpl.setDriverUserName(
+			this.<String>getColumnOriginalValue("driverUserName"));
+		sourceImpl.setDriverPassword(
+			this.<String>getColumnOriginalValue("driverPassword"));
+
+		return sourceImpl;
+	}
+
+	@Override
 	public int compareTo(Source source) {
 		long primaryKey = source.getPrimaryKey();
 
@@ -1100,7 +1131,7 @@ public class SourceModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1110,9 +1141,26 @@ public class SourceModelImpl
 			String attributeName = entry.getKey();
 			Function<Source, Object> attributeGetterFunction = entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((Source)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((Source)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

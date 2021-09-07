@@ -35,6 +35,7 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
@@ -43,6 +44,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1336,6 +1338,55 @@ public class DDMTemplateVersionModelImpl
 	}
 
 	@Override
+	public DDMTemplateVersion cloneWithOriginalValues() {
+		DDMTemplateVersionImpl ddmTemplateVersionImpl =
+			new DDMTemplateVersionImpl();
+
+		ddmTemplateVersionImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		ddmTemplateVersionImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		ddmTemplateVersionImpl.setTemplateVersionId(
+			this.<Long>getColumnOriginalValue("templateVersionId"));
+		ddmTemplateVersionImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		ddmTemplateVersionImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		ddmTemplateVersionImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		ddmTemplateVersionImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		ddmTemplateVersionImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		ddmTemplateVersionImpl.setClassNameId(
+			this.<Long>getColumnOriginalValue("classNameId"));
+		ddmTemplateVersionImpl.setClassPK(
+			this.<Long>getColumnOriginalValue("classPK"));
+		ddmTemplateVersionImpl.setTemplateId(
+			this.<Long>getColumnOriginalValue("templateId"));
+		ddmTemplateVersionImpl.setVersion(
+			this.<String>getColumnOriginalValue("version"));
+		ddmTemplateVersionImpl.setName(
+			this.<String>getColumnOriginalValue("name"));
+		ddmTemplateVersionImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		ddmTemplateVersionImpl.setLanguage(
+			this.<String>getColumnOriginalValue("language"));
+		ddmTemplateVersionImpl.setScript(
+			this.<String>getColumnOriginalValue("script"));
+		ddmTemplateVersionImpl.setStatus(
+			this.<Integer>getColumnOriginalValue("status"));
+		ddmTemplateVersionImpl.setStatusByUserId(
+			this.<Long>getColumnOriginalValue("statusByUserId"));
+		ddmTemplateVersionImpl.setStatusByUserName(
+			this.<String>getColumnOriginalValue("statusByUserName"));
+		ddmTemplateVersionImpl.setStatusDate(
+			this.<Date>getColumnOriginalValue("statusDate"));
+
+		return ddmTemplateVersionImpl;
+	}
+
+	@Override
 	public int compareTo(DDMTemplateVersion ddmTemplateVersion) {
 		long primaryKey = ddmTemplateVersion.getPrimaryKey();
 
@@ -1512,7 +1563,7 @@ public class DDMTemplateVersionModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1523,9 +1574,27 @@ public class DDMTemplateVersionModelImpl
 			Function<DDMTemplateVersion, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((DDMTemplateVersion)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(DDMTemplateVersion)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

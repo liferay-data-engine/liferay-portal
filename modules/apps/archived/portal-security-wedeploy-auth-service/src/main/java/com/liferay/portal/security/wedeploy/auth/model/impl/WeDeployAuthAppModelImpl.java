@@ -27,6 +27,7 @@ import com.liferay.portal.kernel.model.impl.BaseModelImpl;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.security.wedeploy.auth.model.WeDeployAuthApp;
 import com.liferay.portal.security.wedeploy.auth.model.WeDeployAuthAppModel;
 import com.liferay.portal.security.wedeploy.auth.model.WeDeployAuthAppSoap;
@@ -36,6 +37,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -685,6 +687,34 @@ public class WeDeployAuthAppModelImpl
 	}
 
 	@Override
+	public WeDeployAuthApp cloneWithOriginalValues() {
+		WeDeployAuthAppImpl weDeployAuthAppImpl = new WeDeployAuthAppImpl();
+
+		weDeployAuthAppImpl.setWeDeployAuthAppId(
+			this.<Long>getColumnOriginalValue("weDeployAuthAppId"));
+		weDeployAuthAppImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		weDeployAuthAppImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		weDeployAuthAppImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		weDeployAuthAppImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		weDeployAuthAppImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		weDeployAuthAppImpl.setName(
+			this.<String>getColumnOriginalValue("name"));
+		weDeployAuthAppImpl.setRedirectURI(
+			this.<String>getColumnOriginalValue("redirectURI"));
+		weDeployAuthAppImpl.setClientId(
+			this.<String>getColumnOriginalValue("clientId"));
+		weDeployAuthAppImpl.setClientSecret(
+			this.<String>getColumnOriginalValue("clientSecret"));
+
+		return weDeployAuthAppImpl;
+	}
+
+	@Override
 	public int compareTo(WeDeployAuthApp weDeployAuthApp) {
 		long primaryKey = weDeployAuthApp.getPrimaryKey();
 
@@ -831,7 +861,7 @@ public class WeDeployAuthAppModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -842,9 +872,26 @@ public class WeDeployAuthAppModelImpl
 			Function<WeDeployAuthApp, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((WeDeployAuthApp)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((WeDeployAuthApp)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

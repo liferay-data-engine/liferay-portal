@@ -34,12 +34,14 @@ import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -838,6 +840,42 @@ public class CommerceMLForecastAlertEntryModelImpl
 	}
 
 	@Override
+	public CommerceMLForecastAlertEntry cloneWithOriginalValues() {
+		CommerceMLForecastAlertEntryImpl commerceMLForecastAlertEntryImpl =
+			new CommerceMLForecastAlertEntryImpl();
+
+		commerceMLForecastAlertEntryImpl.setUuid(
+			this.<String>getColumnOriginalValue("uuid_"));
+		commerceMLForecastAlertEntryImpl.setCommerceMLForecastAlertEntryId(
+			this.<Long>getColumnOriginalValue(
+				"commerceMLForecastAlertEntryId"));
+		commerceMLForecastAlertEntryImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		commerceMLForecastAlertEntryImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		commerceMLForecastAlertEntryImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		commerceMLForecastAlertEntryImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		commerceMLForecastAlertEntryImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		commerceMLForecastAlertEntryImpl.setCommerceAccountId(
+			this.<Long>getColumnOriginalValue("commerceAccountId"));
+		commerceMLForecastAlertEntryImpl.setActual(
+			this.<Double>getColumnOriginalValue("actual"));
+		commerceMLForecastAlertEntryImpl.setForecast(
+			this.<Double>getColumnOriginalValue("forecast"));
+		commerceMLForecastAlertEntryImpl.setTimestamp(
+			this.<Date>getColumnOriginalValue("timestamp"));
+		commerceMLForecastAlertEntryImpl.setRelativeChange(
+			this.<Double>getColumnOriginalValue("relativeChange"));
+		commerceMLForecastAlertEntryImpl.setStatus(
+			this.<Integer>getColumnOriginalValue("status"));
+
+		return commerceMLForecastAlertEntryImpl;
+	}
+
+	@Override
 	public int compareTo(
 		CommerceMLForecastAlertEntry commerceMLForecastAlertEntry) {
 
@@ -989,7 +1027,7 @@ public class CommerceMLForecastAlertEntryModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1000,11 +1038,27 @@ public class CommerceMLForecastAlertEntryModelImpl
 			Function<CommerceMLForecastAlertEntry, Object>
 				attributeGetterFunction = entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply(
-					(CommerceMLForecastAlertEntry)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(CommerceMLForecastAlertEntry)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

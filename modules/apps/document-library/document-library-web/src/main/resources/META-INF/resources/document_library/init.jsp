@@ -23,7 +23,6 @@ page import="com.liferay.document.library.configuration.DLConfiguration" %><%@
 page import="com.liferay.document.library.exception.DLStorageQuotaExceededException" %><%@
 page import="com.liferay.document.library.kernel.model.DLVersionNumberIncrease" %><%@
 page import="com.liferay.document.library.web.internal.bulk.selection.BulkSelectionRunnerUtil" %><%@
-page import="com.liferay.document.library.web.internal.configuration.util.FFExpirationDateReviewDateConfigurationUtil" %><%@
 page import="com.liferay.document.library.web.internal.display.context.DLAccessFromDesktopDisplayContext" %><%@
 page import="com.liferay.document.library.web.internal.display.context.DLAdminDisplayContextProvider" %><%@
 page import="com.liferay.document.library.web.internal.display.context.DLEditFileEntryTypeDataEngineDisplayContext" %><%@
@@ -52,6 +51,7 @@ page import="com.liferay.portal.kernel.repository.model.RepositoryEntry" %><%@
 page import="com.liferay.portal.kernel.util.LocaleUtil" %><%@
 page import="com.liferay.portal.kernel.util.SetUtil" %><%@
 page import="com.liferay.portal.kernel.view.count.ViewCountManagerUtil" %><%@
+page import="com.liferay.portal.util.RepositoryUtil" %><%@
 page import="com.liferay.taglib.util.PortalIncludeUtil" %>
 
 <%@ page import="java.util.Collections" %>

@@ -31,6 +31,7 @@ import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
@@ -38,6 +39,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
@@ -707,6 +709,39 @@ public class WorkflowInstanceLinkModelImpl
 	}
 
 	@Override
+	public WorkflowInstanceLink cloneWithOriginalValues() {
+		WorkflowInstanceLinkImpl workflowInstanceLinkImpl =
+			new WorkflowInstanceLinkImpl();
+
+		workflowInstanceLinkImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		workflowInstanceLinkImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		workflowInstanceLinkImpl.setWorkflowInstanceLinkId(
+			this.<Long>getColumnOriginalValue("workflowInstanceLinkId"));
+		workflowInstanceLinkImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		workflowInstanceLinkImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		workflowInstanceLinkImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		workflowInstanceLinkImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		workflowInstanceLinkImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		workflowInstanceLinkImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		workflowInstanceLinkImpl.setClassNameId(
+			this.<Long>getColumnOriginalValue("classNameId"));
+		workflowInstanceLinkImpl.setClassPK(
+			this.<Long>getColumnOriginalValue("classPK"));
+		workflowInstanceLinkImpl.setWorkflowInstanceId(
+			this.<Long>getColumnOriginalValue("workflowInstanceId"));
+
+		return workflowInstanceLinkImpl;
+	}
+
+	@Override
 	public int compareTo(WorkflowInstanceLink workflowInstanceLink) {
 		int value = 0;
 
@@ -838,7 +873,7 @@ public class WorkflowInstanceLinkModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -849,10 +884,27 @@ public class WorkflowInstanceLinkModelImpl
 			Function<WorkflowInstanceLink, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply((WorkflowInstanceLink)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(WorkflowInstanceLink)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

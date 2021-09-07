@@ -216,6 +216,11 @@ public class CommerceAccountWrapper
 		}
 	}
 
+	@Override
+	public CommerceAccount cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the active of this commerce account.
 	 *

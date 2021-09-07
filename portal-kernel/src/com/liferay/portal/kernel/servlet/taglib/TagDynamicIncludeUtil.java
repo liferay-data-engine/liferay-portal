@@ -51,7 +51,7 @@ public class TagDynamicIncludeUtil {
 		List<TagDynamicInclude> tagDynamicIncludes = getTagDynamicIncludes(
 			tagClassName, tagDynamicId, tagPoint);
 
-		if ((tagDynamicIncludes == null) || tagDynamicIncludes.isEmpty()) {
+		if (ListUtil.isEmpty(tagDynamicIncludes)) {
 			return false;
 		}
 
@@ -66,7 +66,7 @@ public class TagDynamicIncludeUtil {
 		List<TagDynamicInclude> tagDynamicIncludes = getTagDynamicIncludes(
 			tagClassName, tagDynamicId, tagPoint);
 
-		if ((tagDynamicIncludes == null) || tagDynamicIncludes.isEmpty()) {
+		if (ListUtil.isEmpty(tagDynamicIncludes)) {
 			return;
 		}
 
@@ -96,15 +96,9 @@ public class TagDynamicIncludeUtil {
 	private static String _getKey(
 		String tagClassName, String tagDynamicId, String tagPoint) {
 
-		StringBundler sb = new StringBundler(5);
-
-		sb.append(tagClassName);
-		sb.append(CharPool.POUND);
-		sb.append(tagPoint);
-		sb.append(CharPool.POUND);
-		sb.append(tagDynamicId);
-
-		return sb.toString();
+		return StringBundler.concat(
+			tagClassName, CharPool.POUND, tagPoint, CharPool.POUND,
+			tagDynamicId);
 	}
 
 	private TagDynamicIncludeUtil() {

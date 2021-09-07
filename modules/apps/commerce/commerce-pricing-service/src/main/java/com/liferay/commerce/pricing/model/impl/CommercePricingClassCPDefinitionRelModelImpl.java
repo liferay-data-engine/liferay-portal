@@ -32,12 +32,14 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -660,6 +662,34 @@ public class CommercePricingClassCPDefinitionRelModelImpl
 	}
 
 	@Override
+	public CommercePricingClassCPDefinitionRel cloneWithOriginalValues() {
+		CommercePricingClassCPDefinitionRelImpl
+			commercePricingClassCPDefinitionRelImpl =
+				new CommercePricingClassCPDefinitionRelImpl();
+
+		commercePricingClassCPDefinitionRelImpl.
+			setCommercePricingClassCPDefinitionRelId(
+				this.<Long>getColumnOriginalValue(
+					"CPricingClassCPDefinitionRelId"));
+		commercePricingClassCPDefinitionRelImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		commercePricingClassCPDefinitionRelImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		commercePricingClassCPDefinitionRelImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		commercePricingClassCPDefinitionRelImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		commercePricingClassCPDefinitionRelImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		commercePricingClassCPDefinitionRelImpl.setCommercePricingClassId(
+			this.<Long>getColumnOriginalValue("commercePricingClassId"));
+		commercePricingClassCPDefinitionRelImpl.setCPDefinitionId(
+			this.<Long>getColumnOriginalValue("CPDefinitionId"));
+
+		return commercePricingClassCPDefinitionRelImpl;
+	}
+
+	@Override
 	public int compareTo(
 		CommercePricingClassCPDefinitionRel
 			commercePricingClassCPDefinitionRel) {
@@ -796,7 +826,7 @@ public class CommercePricingClassCPDefinitionRelModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -808,11 +838,27 @@ public class CommercePricingClassCPDefinitionRelModelImpl
 			Function<CommercePricingClassCPDefinitionRel, Object>
 				attributeGetterFunction = entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply(
-					(CommercePricingClassCPDefinitionRel)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(CommercePricingClassCPDefinitionRel)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

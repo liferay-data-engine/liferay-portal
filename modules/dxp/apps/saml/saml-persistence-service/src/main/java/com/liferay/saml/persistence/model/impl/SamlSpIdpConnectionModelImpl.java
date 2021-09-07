@@ -27,6 +27,7 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.saml.persistence.model.SamlSpIdpConnection;
 import com.liferay.saml.persistence.model.SamlSpIdpConnectionModel;
 
@@ -35,6 +36,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
@@ -924,6 +926,57 @@ public class SamlSpIdpConnectionModelImpl
 	}
 
 	@Override
+	public SamlSpIdpConnection cloneWithOriginalValues() {
+		SamlSpIdpConnectionImpl samlSpIdpConnectionImpl =
+			new SamlSpIdpConnectionImpl();
+
+		samlSpIdpConnectionImpl.setSamlSpIdpConnectionId(
+			this.<Long>getColumnOriginalValue("samlSpIdpConnectionId"));
+		samlSpIdpConnectionImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		samlSpIdpConnectionImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		samlSpIdpConnectionImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		samlSpIdpConnectionImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		samlSpIdpConnectionImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		samlSpIdpConnectionImpl.setAssertionSignatureRequired(
+			this.<Boolean>getColumnOriginalValue("assertionSignatureRequired"));
+		samlSpIdpConnectionImpl.setClockSkew(
+			this.<Long>getColumnOriginalValue("clockSkew"));
+		samlSpIdpConnectionImpl.setEnabled(
+			this.<Boolean>getColumnOriginalValue("enabled"));
+		samlSpIdpConnectionImpl.setForceAuthn(
+			this.<Boolean>getColumnOriginalValue("forceAuthn"));
+		samlSpIdpConnectionImpl.setLdapImportEnabled(
+			this.<Boolean>getColumnOriginalValue("ldapImportEnabled"));
+		samlSpIdpConnectionImpl.setMetadataUpdatedDate(
+			this.<Date>getColumnOriginalValue("metadataUpdatedDate"));
+		samlSpIdpConnectionImpl.setMetadataUrl(
+			this.<String>getColumnOriginalValue("metadataUrl"));
+		samlSpIdpConnectionImpl.setMetadataXml(
+			this.<String>getColumnOriginalValue("metadataXml"));
+		samlSpIdpConnectionImpl.setName(
+			this.<String>getColumnOriginalValue("name"));
+		samlSpIdpConnectionImpl.setNameIdFormat(
+			this.<String>getColumnOriginalValue("nameIdFormat"));
+		samlSpIdpConnectionImpl.setSamlIdpEntityId(
+			this.<String>getColumnOriginalValue("samlIdpEntityId"));
+		samlSpIdpConnectionImpl.setSignAuthnRequest(
+			this.<Boolean>getColumnOriginalValue("signAuthnRequest"));
+		samlSpIdpConnectionImpl.setUnknownUsersAreStrangers(
+			this.<Boolean>getColumnOriginalValue("unknownUsersAreStrangers"));
+		samlSpIdpConnectionImpl.setUserAttributeMappings(
+			this.<String>getColumnOriginalValue("userAttributeMappings"));
+		samlSpIdpConnectionImpl.setUserIdentifierExpression(
+			this.<String>getColumnOriginalValue("userIdentifierExpression"));
+
+		return samlSpIdpConnectionImpl;
+	}
+
+	@Override
 	public int compareTo(SamlSpIdpConnection samlSpIdpConnection) {
 		long primaryKey = samlSpIdpConnection.getPrimaryKey();
 
@@ -1129,7 +1182,7 @@ public class SamlSpIdpConnectionModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1140,9 +1193,27 @@ public class SamlSpIdpConnectionModelImpl
 			Function<SamlSpIdpConnection, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((SamlSpIdpConnection)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(SamlSpIdpConnection)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

@@ -28,16 +28,19 @@ import com.liferay.portal.kernel.model.impl.BaseModelImpl;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -783,6 +786,39 @@ public class ResourcePermissionModelImpl
 	}
 
 	@Override
+	public ResourcePermission cloneWithOriginalValues() {
+		ResourcePermissionImpl resourcePermissionImpl =
+			new ResourcePermissionImpl();
+
+		resourcePermissionImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		resourcePermissionImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		resourcePermissionImpl.setResourcePermissionId(
+			this.<Long>getColumnOriginalValue("resourcePermissionId"));
+		resourcePermissionImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		resourcePermissionImpl.setName(
+			this.<String>getColumnOriginalValue("name"));
+		resourcePermissionImpl.setScope(
+			this.<Integer>getColumnOriginalValue("scope"));
+		resourcePermissionImpl.setPrimKey(
+			this.<String>getColumnOriginalValue("primKey"));
+		resourcePermissionImpl.setPrimKeyId(
+			this.<Long>getColumnOriginalValue("primKeyId"));
+		resourcePermissionImpl.setRoleId(
+			this.<Long>getColumnOriginalValue("roleId"));
+		resourcePermissionImpl.setOwnerId(
+			this.<Long>getColumnOriginalValue("ownerId"));
+		resourcePermissionImpl.setActionIds(
+			this.<Long>getColumnOriginalValue("actionIds"));
+		resourcePermissionImpl.setViewActionId(
+			this.<Boolean>getColumnOriginalValue("viewActionId"));
+
+		return resourcePermissionImpl;
+	}
+
+	@Override
 	public int compareTo(ResourcePermission resourcePermission) {
 		long primaryKey = resourcePermission.getPrimaryKey();
 
@@ -900,7 +936,7 @@ public class ResourcePermissionModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -911,9 +947,27 @@ public class ResourcePermissionModelImpl
 			Function<ResourcePermission, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((ResourcePermission)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(ResourcePermission)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

@@ -119,6 +119,11 @@ public class AccountGroupRelWrapper
 		}
 	}
 
+	@Override
+	public AccountGroupRel cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the account group ID of this account group rel.
 	 *

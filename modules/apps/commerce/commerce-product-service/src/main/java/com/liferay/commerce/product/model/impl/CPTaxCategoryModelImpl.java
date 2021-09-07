@@ -35,6 +35,7 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
@@ -42,6 +43,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -919,6 +921,31 @@ public class CPTaxCategoryModelImpl
 	}
 
 	@Override
+	public CPTaxCategory cloneWithOriginalValues() {
+		CPTaxCategoryImpl cpTaxCategoryImpl = new CPTaxCategoryImpl();
+
+		cpTaxCategoryImpl.setExternalReferenceCode(
+			this.<String>getColumnOriginalValue("externalReferenceCode"));
+		cpTaxCategoryImpl.setCPTaxCategoryId(
+			this.<Long>getColumnOriginalValue("CPTaxCategoryId"));
+		cpTaxCategoryImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		cpTaxCategoryImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		cpTaxCategoryImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		cpTaxCategoryImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		cpTaxCategoryImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		cpTaxCategoryImpl.setName(this.<String>getColumnOriginalValue("name"));
+		cpTaxCategoryImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+
+		return cpTaxCategoryImpl;
+	}
+
+	@Override
 	public int compareTo(CPTaxCategory cpTaxCategory) {
 		int value = 0;
 
@@ -1062,7 +1089,7 @@ public class CPTaxCategoryModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1073,9 +1100,26 @@ public class CPTaxCategoryModelImpl
 			Function<CPTaxCategory, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((CPTaxCategory)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((CPTaxCategory)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

@@ -33,12 +33,14 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1020,6 +1022,49 @@ public class OrganizationModelImpl
 	}
 
 	@Override
+	public Organization cloneWithOriginalValues() {
+		OrganizationImpl organizationImpl = new OrganizationImpl();
+
+		organizationImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		organizationImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		organizationImpl.setUuid(this.<String>getColumnOriginalValue("uuid_"));
+		organizationImpl.setExternalReferenceCode(
+			this.<String>getColumnOriginalValue("externalReferenceCode"));
+		organizationImpl.setOrganizationId(
+			this.<Long>getColumnOriginalValue("organizationId"));
+		organizationImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		organizationImpl.setUserId(this.<Long>getColumnOriginalValue("userId"));
+		organizationImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		organizationImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		organizationImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		organizationImpl.setParentOrganizationId(
+			this.<Long>getColumnOriginalValue("parentOrganizationId"));
+		organizationImpl.setTreePath(
+			this.<String>getColumnOriginalValue("treePath"));
+		organizationImpl.setName(this.<String>getColumnOriginalValue("name"));
+		organizationImpl.setType(this.<String>getColumnOriginalValue("type_"));
+		organizationImpl.setRecursable(
+			this.<Boolean>getColumnOriginalValue("recursable"));
+		organizationImpl.setRegionId(
+			this.<Long>getColumnOriginalValue("regionId"));
+		organizationImpl.setCountryId(
+			this.<Long>getColumnOriginalValue("countryId"));
+		organizationImpl.setStatusId(
+			this.<Long>getColumnOriginalValue("statusId"));
+		organizationImpl.setComments(
+			this.<String>getColumnOriginalValue("comments"));
+		organizationImpl.setLogoId(this.<Long>getColumnOriginalValue("logoId"));
+
+		return organizationImpl;
+	}
+
+	@Override
 	public int compareTo(Organization organization) {
 		int value = 0;
 
@@ -1200,7 +1245,7 @@ public class OrganizationModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1211,9 +1256,26 @@ public class OrganizationModelImpl
 			Function<Organization, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((Organization)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((Organization)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

@@ -30,6 +30,7 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
@@ -37,9 +38,11 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -657,6 +660,33 @@ public class UserNotificationDeliveryModelImpl
 	}
 
 	@Override
+	public UserNotificationDelivery cloneWithOriginalValues() {
+		UserNotificationDeliveryImpl userNotificationDeliveryImpl =
+			new UserNotificationDeliveryImpl();
+
+		userNotificationDeliveryImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		userNotificationDeliveryImpl.setUserNotificationDeliveryId(
+			this.<Long>getColumnOriginalValue("userNotificationDeliveryId"));
+		userNotificationDeliveryImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		userNotificationDeliveryImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		userNotificationDeliveryImpl.setPortletId(
+			this.<String>getColumnOriginalValue("portletId"));
+		userNotificationDeliveryImpl.setClassNameId(
+			this.<Long>getColumnOriginalValue("classNameId"));
+		userNotificationDeliveryImpl.setNotificationType(
+			this.<Integer>getColumnOriginalValue("notificationType"));
+		userNotificationDeliveryImpl.setDeliveryType(
+			this.<Integer>getColumnOriginalValue("deliveryType"));
+		userNotificationDeliveryImpl.setDeliver(
+			this.<Boolean>getColumnOriginalValue("deliver"));
+
+		return userNotificationDeliveryImpl;
+	}
+
+	@Override
 	public int compareTo(UserNotificationDelivery userNotificationDelivery) {
 		long primaryKey = userNotificationDelivery.getPrimaryKey();
 
@@ -764,7 +794,7 @@ public class UserNotificationDeliveryModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -775,10 +805,27 @@ public class UserNotificationDeliveryModelImpl
 			Function<UserNotificationDelivery, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply((UserNotificationDelivery)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(UserNotificationDelivery)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

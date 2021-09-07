@@ -31,6 +31,7 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
@@ -38,6 +39,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
@@ -994,6 +996,55 @@ public class AssetListEntryUsageModelImpl
 	}
 
 	@Override
+	public AssetListEntryUsage cloneWithOriginalValues() {
+		AssetListEntryUsageImpl assetListEntryUsageImpl =
+			new AssetListEntryUsageImpl();
+
+		assetListEntryUsageImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		assetListEntryUsageImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		assetListEntryUsageImpl.setUuid(
+			this.<String>getColumnOriginalValue("uuid_"));
+		assetListEntryUsageImpl.setAssetListEntryUsageId(
+			this.<Long>getColumnOriginalValue("assetListEntryUsageId"));
+		assetListEntryUsageImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		assetListEntryUsageImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		assetListEntryUsageImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		assetListEntryUsageImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		assetListEntryUsageImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		assetListEntryUsageImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		assetListEntryUsageImpl.setAssetListEntryId(
+			this.<Long>getColumnOriginalValue("assetListEntryId"));
+		assetListEntryUsageImpl.setClassNameId(
+			this.<Long>getColumnOriginalValue("classNameId"));
+		assetListEntryUsageImpl.setClassPK(
+			this.<Long>getColumnOriginalValue("classPK"));
+		assetListEntryUsageImpl.setContainerKey(
+			this.<String>getColumnOriginalValue("containerKey"));
+		assetListEntryUsageImpl.setContainerType(
+			this.<Long>getColumnOriginalValue("containerType"));
+		assetListEntryUsageImpl.setKey(
+			this.<String>getColumnOriginalValue("key_"));
+		assetListEntryUsageImpl.setPlid(
+			this.<Long>getColumnOriginalValue("plid"));
+		assetListEntryUsageImpl.setPortletId(
+			this.<String>getColumnOriginalValue("portletId"));
+		assetListEntryUsageImpl.setType(
+			this.<Integer>getColumnOriginalValue("type_"));
+		assetListEntryUsageImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+
+		return assetListEntryUsageImpl;
+	}
+
+	@Override
 	public int compareTo(AssetListEntryUsage assetListEntryUsage) {
 		long primaryKey = assetListEntryUsage.getPrimaryKey();
 
@@ -1169,7 +1220,7 @@ public class AssetListEntryUsageModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1180,9 +1231,27 @@ public class AssetListEntryUsageModelImpl
 			Function<AssetListEntryUsage, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((AssetListEntryUsage)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(AssetListEntryUsage)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

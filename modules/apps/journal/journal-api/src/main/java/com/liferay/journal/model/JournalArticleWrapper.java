@@ -317,6 +317,11 @@ public class JournalArticleWrapper
 		return new JournalArticleWrapper((JournalArticle)model.clone());
 	}
 
+	@Override
+	public JournalArticle cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the article ID of this journal article.
 	 *

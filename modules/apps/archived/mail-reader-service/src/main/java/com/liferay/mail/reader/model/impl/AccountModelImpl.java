@@ -29,12 +29,14 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
@@ -956,6 +958,63 @@ public class AccountModelImpl
 	}
 
 	@Override
+	public Account cloneWithOriginalValues() {
+		AccountImpl accountImpl = new AccountImpl();
+
+		accountImpl.setAccountId(
+			this.<Long>getColumnOriginalValue("accountId"));
+		accountImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		accountImpl.setUserId(this.<Long>getColumnOriginalValue("userId"));
+		accountImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		accountImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		accountImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		accountImpl.setAddress(this.<String>getColumnOriginalValue("address"));
+		accountImpl.setPersonalName(
+			this.<String>getColumnOriginalValue("personalName"));
+		accountImpl.setProtocol(
+			this.<String>getColumnOriginalValue("protocol"));
+		accountImpl.setIncomingHostName(
+			this.<String>getColumnOriginalValue("incomingHostName"));
+		accountImpl.setIncomingPort(
+			this.<Integer>getColumnOriginalValue("incomingPort"));
+		accountImpl.setIncomingSecure(
+			this.<Boolean>getColumnOriginalValue("incomingSecure"));
+		accountImpl.setOutgoingHostName(
+			this.<String>getColumnOriginalValue("outgoingHostName"));
+		accountImpl.setOutgoingPort(
+			this.<Integer>getColumnOriginalValue("outgoingPort"));
+		accountImpl.setOutgoingSecure(
+			this.<Boolean>getColumnOriginalValue("outgoingSecure"));
+		accountImpl.setLogin(this.<String>getColumnOriginalValue("login"));
+		accountImpl.setPassword(
+			this.<String>getColumnOriginalValue("password_"));
+		accountImpl.setSavePassword(
+			this.<Boolean>getColumnOriginalValue("savePassword"));
+		accountImpl.setSignature(
+			this.<String>getColumnOriginalValue("signature"));
+		accountImpl.setUseSignature(
+			this.<Boolean>getColumnOriginalValue("useSignature"));
+		accountImpl.setFolderPrefix(
+			this.<String>getColumnOriginalValue("folderPrefix"));
+		accountImpl.setInboxFolderId(
+			this.<Long>getColumnOriginalValue("inboxFolderId"));
+		accountImpl.setDraftFolderId(
+			this.<Long>getColumnOriginalValue("draftFolderId"));
+		accountImpl.setSentFolderId(
+			this.<Long>getColumnOriginalValue("sentFolderId"));
+		accountImpl.setTrashFolderId(
+			this.<Long>getColumnOriginalValue("trashFolderId"));
+		accountImpl.setDefaultSender(
+			this.<Boolean>getColumnOriginalValue("defaultSender"));
+
+		return accountImpl;
+	}
+
+	@Override
 	public int compareTo(Account account) {
 		int value = 0;
 
@@ -1161,7 +1220,7 @@ public class AccountModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1172,9 +1231,26 @@ public class AccountModelImpl
 			Function<Account, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((Account)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((Account)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

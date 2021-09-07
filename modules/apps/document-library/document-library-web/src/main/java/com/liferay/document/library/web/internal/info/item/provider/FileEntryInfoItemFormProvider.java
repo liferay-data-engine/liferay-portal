@@ -15,7 +15,6 @@
 package com.liferay.document.library.web.internal.info.item.provider;
 
 import com.liferay.asset.info.item.provider.AssetEntryInfoItemFieldSetProvider;
-import com.liferay.asset.kernel.model.AssetCategory;
 import com.liferay.asset.kernel.service.AssetEntryLocalService;
 import com.liferay.document.library.kernel.model.DLFileEntry;
 import com.liferay.document.library.kernel.model.DLFileEntryConstants;
@@ -40,6 +39,7 @@ import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.template.info.item.provider.TemplateInfoItemFieldSetProvider;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -250,9 +250,9 @@ public class FileEntryInfoItemFormProvider
 			).infoFieldSetEntry(
 				_getFileInformationFieldSet()
 			).<NoSuchStructureException>infoFieldSetEntry(
-				consumer -> {
+				unsafeConsumer -> {
 					if (ddmStructureId != 0) {
-						consumer.accept(
+						unsafeConsumer.accept(
 							_getFileEntryTypeInfoFieldSet(
 								ddmStructureId, fileEntryTypeId));
 					}
@@ -263,10 +263,13 @@ public class FileEntryInfoItemFormProvider
 				_expandoInfoItemFieldSetProvider.getInfoFieldSet(
 					DLFileEntryConstants.getClassName())
 			).infoFieldSetEntry(
+				_templateInfoItemFieldSetProvider.getInfoFieldSet(
+					FileEntry.class.getName(), fileEntryTypeId)
+			).infoFieldSetEntry(
 				assetEntryInfoFieldSet
 			).infoFieldSetEntry(
 				_infoItemFieldReaderFieldSetProvider.getInfoFieldSet(
-					AssetCategory.class.getName())
+					FileEntry.class.getName())
 			).labelInfoLocalizedValue(
 				infoLocalizedValueBuilder.build()
 			).name(
@@ -364,5 +367,8 @@ public class FileEntryInfoItemFormProvider
 
 	@Reference
 	private Portal _portal;
+
+	@Reference
+	private TemplateInfoItemFieldSetProvider _templateInfoItemFieldSetProvider;
 
 }

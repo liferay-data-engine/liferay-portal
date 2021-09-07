@@ -23,12 +23,14 @@
 		'<%= accountSelectorId %>',
 		'<%= accountSelectorId %>',
 		{
+			commerceChannelId: '<%= commerceChannelId %>',
 			createNewOrderURL: '<%= createNewOrderURL %>',
-			currentAccount: <%= Validator.isNotNull(currentAccount) ? jsonSerializer.serializeDeep(currentAccount) : null %>,
-			currentOrder: <%= Validator.isNotNull(currentOrder) ? jsonSerializer.serializeDeep(currentOrder) : null %>,
+			currentCommerceAccount: <%= Validator.isNotNull(currentCommerceAccount) ? jsonSerializer.serializeDeep(currentCommerceAccount) : null %>,
+			currentCommerceOrder: <%= Validator.isNotNull(currentCommerceOrder) ? jsonSerializer.serializeDeep(currentCommerceOrder) : null %>,
 			refreshPageOnAccountSelected: true,
 			selectOrderURL: '<%= selectOrderURL %>',
 			setCurrentAccountURL: '<%= setCurrentAccountURL %>',
+			showOrderTypeModal: <%= showOrderTypeModal %>,
 			spritemap: '<%= spritemap %>',
 		}
 	);

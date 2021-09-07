@@ -72,19 +72,27 @@ const getLocalizedValue = ({
 		}
 	}
 
-	try {
-		_value = type === 'numeric' ? _value : JSON.parse(_value);
-	}
-	catch (error) {}
-
-	if (type === 'image') {
-		try {
-			return JSON.parse(value);
+	switch (type) {
+		case 'select':
+		case 'numeric': {
+			return _value;
 		}
-		catch (error) {}
+		case 'image': {
+			try {
+				return JSON.parse(value);
+			}
+			catch (error) {
+				return _value;
+			}
+		}
+		default:
+			try {
+				return JSON.parse(_value);
+			}
+			catch (error) {
+				return _value;
+			}
 	}
-
-	return _value;
 };
 
 const getLocalizedPages = (pages, defaultLanguageId, editingLanguageId) => {
@@ -181,7 +189,7 @@ export default (state, action) => {
 					// the fields in the settingsContext structure.
 
 					if (field.settingsContext) {
-						const newField = {
+						let newField = {
 							...field,
 							...updateFieldLanguage({
 								...field,
@@ -191,6 +199,34 @@ export default (state, action) => {
 							}),
 							value: previousValue,
 						};
+
+						if (field.numericInputMask) {
+							const visitor = new PagesVisitor(
+								field.settingsContext.pages
+							);
+							let numericInputMask = {};
+							visitor.mapFields((field) => {
+								if (field.fieldName === 'numericInputMask') {
+									numericInputMask =
+										field.localizedValue[editingLanguageId];
+									newField = {
+										...newField,
+										...numericInputMask,
+									};
+								}
+							});
+
+							field.settingsContext.pages = visitor.mapFields(
+								(field) => {
+									return field.fieldName === 'predefinedValue'
+										? {
+												...field,
+												...numericInputMask,
+										  }
+										: field;
+								}
+							);
+						}
 
 						if (field.fieldName === newFocusedField.fieldName) {
 							newFocusedField = newField;

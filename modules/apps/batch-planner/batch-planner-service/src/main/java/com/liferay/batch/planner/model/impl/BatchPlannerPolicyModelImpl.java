@@ -32,12 +32,14 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -676,6 +678,35 @@ public class BatchPlannerPolicyModelImpl
 	}
 
 	@Override
+	public BatchPlannerPolicy cloneWithOriginalValues() {
+		BatchPlannerPolicyImpl batchPlannerPolicyImpl =
+			new BatchPlannerPolicyImpl();
+
+		batchPlannerPolicyImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		batchPlannerPolicyImpl.setBatchPlannerPolicyId(
+			this.<Long>getColumnOriginalValue("batchPlannerPolicyId"));
+		batchPlannerPolicyImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		batchPlannerPolicyImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		batchPlannerPolicyImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		batchPlannerPolicyImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		batchPlannerPolicyImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		batchPlannerPolicyImpl.setBatchPlannerPlanId(
+			this.<Long>getColumnOriginalValue("batchPlannerPlanId"));
+		batchPlannerPolicyImpl.setName(
+			this.<String>getColumnOriginalValue("name"));
+		batchPlannerPolicyImpl.setValue(
+			this.<String>getColumnOriginalValue("value"));
+
+		return batchPlannerPolicyImpl;
+	}
+
+	@Override
 	public int compareTo(BatchPlannerPolicy batchPlannerPolicy) {
 		int value = 0;
 
@@ -813,7 +844,7 @@ public class BatchPlannerPolicyModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -824,9 +855,27 @@ public class BatchPlannerPolicyModelImpl
 			Function<BatchPlannerPolicy, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((BatchPlannerPolicy)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(BatchPlannerPolicy)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

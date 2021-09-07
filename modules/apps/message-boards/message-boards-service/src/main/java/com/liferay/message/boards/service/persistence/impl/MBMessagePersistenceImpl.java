@@ -24,7 +24,6 @@ import com.liferay.message.boards.service.persistence.impl.constants.MBPersisten
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.change.tracking.CTColumnResolutionType;
 import com.liferay.portal.kernel.configuration.Configuration;
-import com.liferay.portal.kernel.dao.orm.ArgumentsResolver;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -37,7 +36,6 @@ import com.liferay.portal.kernel.dao.orm.SessionFactory;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.model.BaseModel;
 import com.liferay.portal.kernel.sanitizer.Sanitizer;
 import com.liferay.portal.kernel.sanitizer.SanitizerException;
 import com.liferay.portal.kernel.sanitizer.SanitizerUtil;
@@ -52,7 +50,6 @@ import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.HashMapDictionary;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.SetUtil;
@@ -75,12 +72,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.sql.DataSource;
 
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -3911,9 +3905,9 @@ public class MBMessagePersistenceImpl
 	private static final String _FINDER_COLUMN_THREADID_THREADID_2 =
 		"mbMessage.threadId = ?";
 
-	private FinderPath _finderPathWithPaginationFindByThreadReplies;
-	private FinderPath _finderPathWithoutPaginationFindByThreadReplies;
-	private FinderPath _finderPathCountByThreadReplies;
+	private FinderPath _finderPathWithPaginationFindByThreadIdReplies;
+	private FinderPath _finderPathWithoutPaginationFindByThreadIdReplies;
+	private FinderPath _finderPathCountByThreadIdReplies;
 
 	/**
 	 * Returns all the message-boards messages where threadId = &#63;.
@@ -3922,8 +3916,8 @@ public class MBMessagePersistenceImpl
 	 * @return the matching message-boards messages
 	 */
 	@Override
-	public List<MBMessage> findByThreadReplies(long threadId) {
-		return findByThreadReplies(
+	public List<MBMessage> findByThreadIdReplies(long threadId) {
+		return findByThreadIdReplies(
 			threadId, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
 
@@ -3940,10 +3934,10 @@ public class MBMessagePersistenceImpl
 	 * @return the range of matching message-boards messages
 	 */
 	@Override
-	public List<MBMessage> findByThreadReplies(
+	public List<MBMessage> findByThreadIdReplies(
 		long threadId, int start, int end) {
 
-		return findByThreadReplies(threadId, start, end, null);
+		return findByThreadIdReplies(threadId, start, end, null);
 	}
 
 	/**
@@ -3960,11 +3954,11 @@ public class MBMessagePersistenceImpl
 	 * @return the ordered range of matching message-boards messages
 	 */
 	@Override
-	public List<MBMessage> findByThreadReplies(
+	public List<MBMessage> findByThreadIdReplies(
 		long threadId, int start, int end,
 		OrderByComparator<MBMessage> orderByComparator) {
 
-		return findByThreadReplies(
+		return findByThreadIdReplies(
 			threadId, start, end, orderByComparator, true);
 	}
 
@@ -3983,7 +3977,7 @@ public class MBMessagePersistenceImpl
 	 * @return the ordered range of matching message-boards messages
 	 */
 	@Override
-	public List<MBMessage> findByThreadReplies(
+	public List<MBMessage> findByThreadIdReplies(
 		long threadId, int start, int end,
 		OrderByComparator<MBMessage> orderByComparator,
 		boolean useFinderCache) {
@@ -3998,12 +3992,12 @@ public class MBMessagePersistenceImpl
 			(orderByComparator == null)) {
 
 			if (useFinderCache && productionMode) {
-				finderPath = _finderPathWithoutPaginationFindByThreadReplies;
+				finderPath = _finderPathWithoutPaginationFindByThreadIdReplies;
 				finderArgs = new Object[] {threadId};
 			}
 		}
 		else if (useFinderCache && productionMode) {
-			finderPath = _finderPathWithPaginationFindByThreadReplies;
+			finderPath = _finderPathWithPaginationFindByThreadIdReplies;
 			finderArgs = new Object[] {threadId, start, end, orderByComparator};
 		}
 
@@ -4037,7 +4031,7 @@ public class MBMessagePersistenceImpl
 
 			sb.append(_SQL_SELECT_MBMESSAGE_WHERE);
 
-			sb.append(_FINDER_COLUMN_THREADREPLIES_THREADID_2);
+			sb.append(_FINDER_COLUMN_THREADIDREPLIES_THREADID_2);
 
 			if (orderByComparator != null) {
 				appendOrderByComparator(
@@ -4089,11 +4083,11 @@ public class MBMessagePersistenceImpl
 	 * @throws NoSuchMessageException if a matching message-boards message could not be found
 	 */
 	@Override
-	public MBMessage findByThreadReplies_First(
+	public MBMessage findByThreadIdReplies_First(
 			long threadId, OrderByComparator<MBMessage> orderByComparator)
 		throws NoSuchMessageException {
 
-		MBMessage mbMessage = fetchByThreadReplies_First(
+		MBMessage mbMessage = fetchByThreadIdReplies_First(
 			threadId, orderByComparator);
 
 		if (mbMessage != null) {
@@ -4120,10 +4114,10 @@ public class MBMessagePersistenceImpl
 	 * @return the first matching message-boards message, or <code>null</code> if a matching message-boards message could not be found
 	 */
 	@Override
-	public MBMessage fetchByThreadReplies_First(
+	public MBMessage fetchByThreadIdReplies_First(
 		long threadId, OrderByComparator<MBMessage> orderByComparator) {
 
-		List<MBMessage> list = findByThreadReplies(
+		List<MBMessage> list = findByThreadIdReplies(
 			threadId, 0, 1, orderByComparator);
 
 		if (!list.isEmpty()) {
@@ -4142,11 +4136,11 @@ public class MBMessagePersistenceImpl
 	 * @throws NoSuchMessageException if a matching message-boards message could not be found
 	 */
 	@Override
-	public MBMessage findByThreadReplies_Last(
+	public MBMessage findByThreadIdReplies_Last(
 			long threadId, OrderByComparator<MBMessage> orderByComparator)
 		throws NoSuchMessageException {
 
-		MBMessage mbMessage = fetchByThreadReplies_Last(
+		MBMessage mbMessage = fetchByThreadIdReplies_Last(
 			threadId, orderByComparator);
 
 		if (mbMessage != null) {
@@ -4173,16 +4167,16 @@ public class MBMessagePersistenceImpl
 	 * @return the last matching message-boards message, or <code>null</code> if a matching message-boards message could not be found
 	 */
 	@Override
-	public MBMessage fetchByThreadReplies_Last(
+	public MBMessage fetchByThreadIdReplies_Last(
 		long threadId, OrderByComparator<MBMessage> orderByComparator) {
 
-		int count = countByThreadReplies(threadId);
+		int count = countByThreadIdReplies(threadId);
 
 		if (count == 0) {
 			return null;
 		}
 
-		List<MBMessage> list = findByThreadReplies(
+		List<MBMessage> list = findByThreadIdReplies(
 			threadId, count - 1, count, orderByComparator);
 
 		if (!list.isEmpty()) {
@@ -4202,7 +4196,7 @@ public class MBMessagePersistenceImpl
 	 * @throws NoSuchMessageException if a message-boards message with the primary key could not be found
 	 */
 	@Override
-	public MBMessage[] findByThreadReplies_PrevAndNext(
+	public MBMessage[] findByThreadIdReplies_PrevAndNext(
 			long messageId, long threadId,
 			OrderByComparator<MBMessage> orderByComparator)
 		throws NoSuchMessageException {
@@ -4216,12 +4210,12 @@ public class MBMessagePersistenceImpl
 
 			MBMessage[] array = new MBMessageImpl[3];
 
-			array[0] = getByThreadReplies_PrevAndNext(
+			array[0] = getByThreadIdReplies_PrevAndNext(
 				session, mbMessage, threadId, orderByComparator, true);
 
 			array[1] = mbMessage;
 
-			array[2] = getByThreadReplies_PrevAndNext(
+			array[2] = getByThreadIdReplies_PrevAndNext(
 				session, mbMessage, threadId, orderByComparator, false);
 
 			return array;
@@ -4234,7 +4228,7 @@ public class MBMessagePersistenceImpl
 		}
 	}
 
-	protected MBMessage getByThreadReplies_PrevAndNext(
+	protected MBMessage getByThreadIdReplies_PrevAndNext(
 		Session session, MBMessage mbMessage, long threadId,
 		OrderByComparator<MBMessage> orderByComparator, boolean previous) {
 
@@ -4251,7 +4245,7 @@ public class MBMessagePersistenceImpl
 
 		sb.append(_SQL_SELECT_MBMESSAGE_WHERE);
 
-		sb.append(_FINDER_COLUMN_THREADREPLIES_THREADID_2);
+		sb.append(_FINDER_COLUMN_THREADIDREPLIES_THREADID_2);
 
 		if (orderByComparator != null) {
 			String[] orderByConditionFields =
@@ -4348,9 +4342,9 @@ public class MBMessagePersistenceImpl
 	 * @param threadId the thread ID
 	 */
 	@Override
-	public void removeByThreadReplies(long threadId) {
+	public void removeByThreadIdReplies(long threadId) {
 		for (MBMessage mbMessage :
-				findByThreadReplies(
+				findByThreadIdReplies(
 					threadId, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 
 			remove(mbMessage);
@@ -4364,7 +4358,7 @@ public class MBMessagePersistenceImpl
 	 * @return the number of matching message-boards messages
 	 */
 	@Override
-	public int countByThreadReplies(long threadId) {
+	public int countByThreadIdReplies(long threadId) {
 		boolean productionMode = ctPersistenceHelper.isProductionMode(
 			MBMessage.class);
 
@@ -4374,7 +4368,7 @@ public class MBMessagePersistenceImpl
 		Long count = null;
 
 		if (productionMode) {
-			finderPath = _finderPathCountByThreadReplies;
+			finderPath = _finderPathCountByThreadIdReplies;
 
 			finderArgs = new Object[] {threadId};
 
@@ -4386,7 +4380,7 @@ public class MBMessagePersistenceImpl
 
 			sb.append(_SQL_COUNT_MBMESSAGE_WHERE);
 
-			sb.append(_FINDER_COLUMN_THREADREPLIES_THREADID_2);
+			sb.append(_FINDER_COLUMN_THREADIDREPLIES_THREADID_2);
 
 			String sql = sb.toString();
 
@@ -4418,7 +4412,7 @@ public class MBMessagePersistenceImpl
 		return count.intValue();
 	}
 
-	private static final String _FINDER_COLUMN_THREADREPLIES_THREADID_2 =
+	private static final String _FINDER_COLUMN_THREADIDREPLIES_THREADID_2 =
 		"mbMessage.threadId = ? AND mbMessage.parentMessageId != 0";
 
 	private FinderPath _finderPathWithPaginationFindByParentMessageId;
@@ -21891,6 +21885,26 @@ public class MBMessagePersistenceImpl
 			return map;
 		}
 
+		if ((databaseInMaxParameters > 0) &&
+			(primaryKeys.size() > databaseInMaxParameters)) {
+
+			Iterator<Serializable> iterator = primaryKeys.iterator();
+
+			while (iterator.hasNext()) {
+				Set<Serializable> page = new HashSet<>();
+
+				for (int i = 0;
+					 (i < databaseInMaxParameters) && iterator.hasNext(); i++) {
+
+					page.add(iterator.next());
+				}
+
+				map.putAll(fetchByPrimaryKeys(page));
+			}
+
+			return map;
+		}
+
 		StringBundler sb = new StringBundler((primaryKeys.size() * 2) + 1);
 
 		sb.append(getSelectSQL());
@@ -22234,13 +22248,7 @@ public class MBMessagePersistenceImpl
 	 * Initializes the message-boards message persistence.
 	 */
 	@Activate
-	public void activate(BundleContext bundleContext) {
-		_bundleContext = bundleContext;
-
-		_argumentsResolverServiceRegistration = _bundleContext.registerService(
-			ArgumentsResolver.class, new MBMessageModelArgumentsResolver(),
-			new HashMapDictionary<>());
-
+	public void activate() {
 		_finderPathWithPaginationFindAll = new FinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findAll", new String[0],
 			new String[0], true);
@@ -22371,21 +22379,21 @@ public class MBMessagePersistenceImpl
 			new String[] {Long.class.getName()}, new String[] {"threadId"},
 			false);
 
-		_finderPathWithPaginationFindByThreadReplies = new FinderPath(
-			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByThreadReplies",
+		_finderPathWithPaginationFindByThreadIdReplies = new FinderPath(
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByThreadIdReplies",
 			new String[] {
 				Long.class.getName(), Integer.class.getName(),
 				Integer.class.getName(), OrderByComparator.class.getName()
 			},
 			new String[] {"threadId"}, true);
 
-		_finderPathWithoutPaginationFindByThreadReplies = new FinderPath(
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByThreadReplies",
+		_finderPathWithoutPaginationFindByThreadIdReplies = new FinderPath(
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByThreadIdReplies",
 			new String[] {Long.class.getName()}, new String[] {"threadId"},
 			true);
 
-		_finderPathCountByThreadReplies = new FinderPath(
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByThreadReplies",
+		_finderPathCountByThreadIdReplies = new FinderPath(
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByThreadIdReplies",
 			new String[] {Long.class.getName()}, new String[] {"threadId"},
 			false);
 
@@ -22893,8 +22901,6 @@ public class MBMessagePersistenceImpl
 	@Deactivate
 	public void deactivate() {
 		entityCache.removeCache(MBMessageImpl.class.getName());
-
-		_argumentsResolverServiceRegistration.unregister();
 	}
 
 	@Override
@@ -22922,8 +22928,6 @@ public class MBMessagePersistenceImpl
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		super.setSessionFactory(sessionFactory);
 	}
-
-	private BundleContext _bundleContext;
 
 	@Reference
 	protected CTPersistenceHelper ctPersistenceHelper;
@@ -22988,111 +22992,7 @@ public class MBMessagePersistenceImpl
 		return finderCache;
 	}
 
-	private ServiceRegistration<ArgumentsResolver>
-		_argumentsResolverServiceRegistration;
-
-	private static class MBMessageModelArgumentsResolver
-		implements ArgumentsResolver {
-
-		@Override
-		public Object[] getArguments(
-			FinderPath finderPath, BaseModel<?> baseModel, boolean checkColumn,
-			boolean original) {
-
-			String[] columnNames = finderPath.getColumnNames();
-
-			if ((columnNames == null) || (columnNames.length == 0)) {
-				if (baseModel.isNew()) {
-					return FINDER_ARGS_EMPTY;
-				}
-
-				return null;
-			}
-
-			MBMessageModelImpl mbMessageModelImpl =
-				(MBMessageModelImpl)baseModel;
-
-			long columnBitmask = mbMessageModelImpl.getColumnBitmask();
-
-			if (!checkColumn || (columnBitmask == 0)) {
-				return _getValue(mbMessageModelImpl, columnNames, original);
-			}
-
-			Long finderPathColumnBitmask = _finderPathColumnBitmasksCache.get(
-				finderPath);
-
-			if (finderPathColumnBitmask == null) {
-				finderPathColumnBitmask = 0L;
-
-				for (String columnName : columnNames) {
-					finderPathColumnBitmask |=
-						mbMessageModelImpl.getColumnBitmask(columnName);
-				}
-
-				if (finderPath.isBaseModelResult() &&
-					(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION ==
-						finderPath.getCacheName())) {
-
-					finderPathColumnBitmask |= _ORDER_BY_COLUMNS_BITMASK;
-				}
-
-				_finderPathColumnBitmasksCache.put(
-					finderPath, finderPathColumnBitmask);
-			}
-
-			if ((columnBitmask & finderPathColumnBitmask) != 0) {
-				return _getValue(mbMessageModelImpl, columnNames, original);
-			}
-
-			return null;
-		}
-
-		@Override
-		public String getClassName() {
-			return MBMessageImpl.class.getName();
-		}
-
-		@Override
-		public String getTableName() {
-			return MBMessageTable.INSTANCE.getTableName();
-		}
-
-		private static Object[] _getValue(
-			MBMessageModelImpl mbMessageModelImpl, String[] columnNames,
-			boolean original) {
-
-			Object[] arguments = new Object[columnNames.length];
-
-			for (int i = 0; i < arguments.length; i++) {
-				String columnName = columnNames[i];
-
-				if (original) {
-					arguments[i] = mbMessageModelImpl.getColumnOriginalValue(
-						columnName);
-				}
-				else {
-					arguments[i] = mbMessageModelImpl.getColumnValue(
-						columnName);
-				}
-			}
-
-			return arguments;
-		}
-
-		private static final Map<FinderPath, Long>
-			_finderPathColumnBitmasksCache = new ConcurrentHashMap<>();
-
-		private static final long _ORDER_BY_COLUMNS_BITMASK;
-
-		static {
-			long orderByColumnsBitmask = 0;
-
-			orderByColumnsBitmask |= MBMessageModelImpl.getColumnBitmask(
-				"createDate");
-
-			_ORDER_BY_COLUMNS_BITMASK = orderByColumnsBitmask;
-		}
-
-	}
+	@Reference
+	private MBMessageModelArgumentsResolver _mbMessageModelArgumentsResolver;
 
 }

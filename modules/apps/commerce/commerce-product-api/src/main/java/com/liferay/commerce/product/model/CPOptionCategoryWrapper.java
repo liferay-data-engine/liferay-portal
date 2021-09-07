@@ -135,6 +135,11 @@ public class CPOptionCategoryWrapper
 	}
 
 	@Override
+	public CPOptionCategory cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
+	@Override
 	public String[] getAvailableLanguageIds() {
 		return model.getAvailableLanguageIds();
 	}

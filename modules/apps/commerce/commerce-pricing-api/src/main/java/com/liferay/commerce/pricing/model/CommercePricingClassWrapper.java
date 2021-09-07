@@ -132,6 +132,11 @@ public class CommercePricingClassWrapper
 	}
 
 	@Override
+	public CommercePricingClass cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
+	@Override
 	public String[] getAvailableLanguageIds() {
 		return model.getAvailableLanguageIds();
 	}

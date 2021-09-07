@@ -54,6 +54,11 @@
 	<td>//td[contains(., '${key_AvailablePropertyName}')]</td>
 	<td></td>
 </tr>
+<tr>
+	<td>AVAILABLE_NO_PROPERTIES_FOUND</td>
+	<td>//span[contains(@class,'title') and text()='No Properties Found']</td>
+	<td></td>
+</tr>
 <!-- GENERIC CHECKBOX -->
 <tr>
 	<td>AC_GENERIC_CHECKBOX</td>
@@ -100,13 +105,58 @@
 </tr>
 <!-- SYNC CONTACT DATA SCREEN -->
 <tr>
-	<td>SYNC_CONTACTS_OPTION</td>
-	<td>//fieldset//*[contains(@href, 'synced-contact-data')]</td>
+	<td>FIELD_NAME_CHECKBOX</td>
+	<td>//td/input[contains(@value, '${key_fieldName}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SYNCED_CONTACT_DATA_USER_TAB</td>
+	<td>//li[contains(@class, 'nav-item') and contains(.,'User')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>SYNC_ALL_CONTACTS_TOGGLE</td>
 	<td>//*[contains(@class, 'toggle-switch-check')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SYNC_ALL_CONTACTS_NUMBER</td>
+	<td>//*[contains(@class, 'toggle-switch-text')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SYNC_CONTACTS_OPTION</td>
+	<td>//fieldset//*[contains(@href, 'synced-contact-data')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SYNC_BY_ORGANIZATIONS_PREVIEW</td>
+	<td>//fieldset//a[2]//div[2]//small[contains(@class,'list-group-subtext')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SYNC_BY_ORGANIZATIONS_BUTTON</td>
+	<td>//fieldset//a[2]//div[2]//p[contains(@class,'list-group-title')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CONTACT_SYNC_OPTIONS</td>
+	<td>//p[contains(@class,'list-group-title') and contains (text(),'${key_option}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>USER_GROUP_OPTION_CHECKBOX</td>
+	<td>//tr[contains(., '${key_entry}')]//input</td>
+	<td></td>
+</tr>
+<tr>
+	<td>AC_CHECKBOX_INDEX</td>
+	<td>xpath=(//*[contains(@type, 'checkbox')])[${key_index}]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SYNC_BY_USER_GROUPS_PREVIEW</td>
+	<td>//fieldset//a[1]//div[2]//small[contains(@class,'list-group-subtext')]</td>
 	<td></td>
 </tr>
 </tbody>

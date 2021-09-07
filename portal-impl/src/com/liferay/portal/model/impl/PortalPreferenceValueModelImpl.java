@@ -26,15 +26,18 @@ import com.liferay.portal.kernel.model.impl.BaseModelImpl;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -616,6 +619,33 @@ public class PortalPreferenceValueModelImpl
 	}
 
 	@Override
+	public PortalPreferenceValue cloneWithOriginalValues() {
+		PortalPreferenceValueImpl portalPreferenceValueImpl =
+			new PortalPreferenceValueImpl();
+
+		portalPreferenceValueImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		portalPreferenceValueImpl.setPortalPreferenceValueId(
+			this.<Long>getColumnOriginalValue("portalPreferenceValueId"));
+		portalPreferenceValueImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		portalPreferenceValueImpl.setPortalPreferencesId(
+			this.<Long>getColumnOriginalValue("portalPreferencesId"));
+		portalPreferenceValueImpl.setIndex(
+			this.<Integer>getColumnOriginalValue("index_"));
+		portalPreferenceValueImpl.setKey(
+			this.<String>getColumnOriginalValue("key_"));
+		portalPreferenceValueImpl.setLargeValue(
+			this.<String>getColumnOriginalValue("largeValue"));
+		portalPreferenceValueImpl.setNamespace(
+			this.<String>getColumnOriginalValue("namespace"));
+		portalPreferenceValueImpl.setSmallValue(
+			this.<String>getColumnOriginalValue("smallValue"));
+
+		return portalPreferenceValueImpl;
+	}
+
+	@Override
 	public int compareTo(PortalPreferenceValue portalPreferenceValue) {
 		int value = 0;
 
@@ -747,7 +777,7 @@ public class PortalPreferenceValueModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -758,10 +788,27 @@ public class PortalPreferenceValueModelImpl
 			Function<PortalPreferenceValue, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply((PortalPreferenceValue)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(PortalPreferenceValue)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

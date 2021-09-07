@@ -45,6 +45,11 @@ public class DefaultWorkflowInstance implements Serializable, WorkflowInstance {
 	}
 
 	@Override
+	public List<String> getCurrentNodeNames() {
+		return _currentNodeNames;
+	}
+
+	@Override
 	public Date getEndDate() {
 		return _endDate;
 	}
@@ -68,6 +73,11 @@ public class DefaultWorkflowInstance implements Serializable, WorkflowInstance {
 		return _startDate;
 	}
 
+	/**
+	 * @deprecated As of Cavanaugh (7.4.x), replaced by {@link
+	 * #getCurrentNodeNames()}
+	 */
+	@Deprecated
 	@Override
 	public String getState() {
 		return _state;
@@ -108,6 +118,10 @@ public class DefaultWorkflowInstance implements Serializable, WorkflowInstance {
 		_childrenWorkflowInstances = childrenWorkflowInstances;
 	}
 
+	public void setCurrentNodeNames(List<String> currentNodeNames) {
+		_currentNodeNames = currentNodeNames;
+	}
+
 	public void setEndDate(Date endDate) {
 		_endDate = endDate;
 	}
@@ -123,6 +137,11 @@ public class DefaultWorkflowInstance implements Serializable, WorkflowInstance {
 		_startDate = startDate;
 	}
 
+	/**
+	 * @deprecated As of Cavanaugh (7.4.x), replaced by {@link
+	 * #setCurrentNodeNames(List)}
+	 */
+	@Deprecated
 	public void setState(String state) {
 		_state = state;
 	}
@@ -145,6 +164,7 @@ public class DefaultWorkflowInstance implements Serializable, WorkflowInstance {
 
 	private List<WorkflowInstance> _childrenWorkflowInstances =
 		new ArrayList<>();
+	private List<String> _currentNodeNames;
 	private Date _endDate;
 	private WorkflowInstance _parentWorkflowInstance;
 	private Date _startDate;

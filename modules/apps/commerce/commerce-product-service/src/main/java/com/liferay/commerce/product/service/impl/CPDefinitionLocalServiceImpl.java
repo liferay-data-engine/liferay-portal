@@ -803,11 +803,6 @@ public class CPDefinitionLocalServiceImpl
 			cProductLocalService.deleteCProduct(cpDefinition.getCProductId());
 		}
 
-		// Commerce product definition localization
-
-		cpDefinitionLocalizationPersistence.removeByCPDefinitionId(
-			cpDefinition.getCPDefinitionId());
-
 		// Commerce product definition specification option values
 
 		cpDefinitionSpecificationOptionValueLocalService.
@@ -1187,7 +1182,8 @@ public class CPDefinitionLocalServiceImpl
 	}
 
 	@Override
-	public CPAttachmentFileEntry getDefaultImage(long cpDefinitionId)
+	public CPAttachmentFileEntry getDefaultImageCPAttachmentFileEntry(
+			long cpDefinitionId)
 		throws PortalException {
 
 		long classNameId = classNameLocalService.getClassNameId(
@@ -1502,14 +1498,15 @@ public class CPDefinitionLocalServiceImpl
 	@Override
 	public BaseModelSearchResult<CPDefinition>
 			searchCPDefinitionsByChannelGroupId(
-				long companyId, long[] groupIds, long channelGroupId,
+				long companyId, long[] groupIds, long commerceChannelGroupId,
 				String keywords, int status, int start, int end, Sort sort)
 		throws PortalException {
 
 		SearchContext searchContext = buildSearchContext(
 			companyId, groupIds, keywords, status, start, end, sort);
 
-		searchContext.setAttribute(CPField.CHANNEL_GROUP_ID, channelGroupId);
+		searchContext.setAttribute(
+			CPField.COMMERCE_CHANNEL_GROUP_ID, commerceChannelGroupId);
 		searchContext.setAttribute("secure", Boolean.TRUE);
 
 		return searchCPDefinitions(searchContext);

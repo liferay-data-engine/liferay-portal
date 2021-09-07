@@ -33,12 +33,14 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -773,6 +775,39 @@ public class CPDefinitionDiagramSettingModelImpl
 	}
 
 	@Override
+	public CPDefinitionDiagramSetting cloneWithOriginalValues() {
+		CPDefinitionDiagramSettingImpl cpDefinitionDiagramSettingImpl =
+			new CPDefinitionDiagramSettingImpl();
+
+		cpDefinitionDiagramSettingImpl.setUuid(
+			this.<String>getColumnOriginalValue("uuid_"));
+		cpDefinitionDiagramSettingImpl.setCPDefinitionDiagramSettingId(
+			this.<Long>getColumnOriginalValue("CPDefinitionDiagramSettingId"));
+		cpDefinitionDiagramSettingImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		cpDefinitionDiagramSettingImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		cpDefinitionDiagramSettingImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		cpDefinitionDiagramSettingImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		cpDefinitionDiagramSettingImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		cpDefinitionDiagramSettingImpl.setCPAttachmentFileEntryId(
+			this.<Long>getColumnOriginalValue("CPAttachmentFileEntryId"));
+		cpDefinitionDiagramSettingImpl.setCPDefinitionId(
+			this.<Long>getColumnOriginalValue("CPDefinitionId"));
+		cpDefinitionDiagramSettingImpl.setColor(
+			this.<String>getColumnOriginalValue("color"));
+		cpDefinitionDiagramSettingImpl.setRadius(
+			this.<Double>getColumnOriginalValue("radius"));
+		cpDefinitionDiagramSettingImpl.setType(
+			this.<String>getColumnOriginalValue("type_"));
+
+		return cpDefinitionDiagramSettingImpl;
+	}
+
+	@Override
 	public int compareTo(
 		CPDefinitionDiagramSetting cpDefinitionDiagramSetting) {
 
@@ -926,7 +961,7 @@ public class CPDefinitionDiagramSettingModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -937,11 +972,27 @@ public class CPDefinitionDiagramSettingModelImpl
 			Function<CPDefinitionDiagramSetting, Object>
 				attributeGetterFunction = entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply(
-					(CPDefinitionDiagramSetting)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(CPDefinitionDiagramSetting)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

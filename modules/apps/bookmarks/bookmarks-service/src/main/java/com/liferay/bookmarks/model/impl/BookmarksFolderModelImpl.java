@@ -36,6 +36,7 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
@@ -44,6 +45,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1204,6 +1206,50 @@ public class BookmarksFolderModelImpl
 	}
 
 	@Override
+	public BookmarksFolder cloneWithOriginalValues() {
+		BookmarksFolderImpl bookmarksFolderImpl = new BookmarksFolderImpl();
+
+		bookmarksFolderImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		bookmarksFolderImpl.setUuid(
+			this.<String>getColumnOriginalValue("uuid_"));
+		bookmarksFolderImpl.setFolderId(
+			this.<Long>getColumnOriginalValue("folderId"));
+		bookmarksFolderImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		bookmarksFolderImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		bookmarksFolderImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		bookmarksFolderImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		bookmarksFolderImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		bookmarksFolderImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		bookmarksFolderImpl.setParentFolderId(
+			this.<Long>getColumnOriginalValue("parentFolderId"));
+		bookmarksFolderImpl.setTreePath(
+			this.<String>getColumnOriginalValue("treePath"));
+		bookmarksFolderImpl.setName(
+			this.<String>getColumnOriginalValue("name"));
+		bookmarksFolderImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		bookmarksFolderImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+		bookmarksFolderImpl.setStatus(
+			this.<Integer>getColumnOriginalValue("status"));
+		bookmarksFolderImpl.setStatusByUserId(
+			this.<Long>getColumnOriginalValue("statusByUserId"));
+		bookmarksFolderImpl.setStatusByUserName(
+			this.<String>getColumnOriginalValue("statusByUserName"));
+		bookmarksFolderImpl.setStatusDate(
+			this.<Date>getColumnOriginalValue("statusDate"));
+
+		return bookmarksFolderImpl;
+	}
+
+	@Override
 	public int compareTo(BookmarksFolder bookmarksFolder) {
 		int value = 0;
 
@@ -1399,7 +1445,7 @@ public class BookmarksFolderModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1410,9 +1456,26 @@ public class BookmarksFolderModelImpl
 			Function<BookmarksFolder, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((BookmarksFolder)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((BookmarksFolder)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

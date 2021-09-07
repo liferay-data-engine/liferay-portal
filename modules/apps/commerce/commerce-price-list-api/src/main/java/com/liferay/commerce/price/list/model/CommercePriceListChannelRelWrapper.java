@@ -134,6 +134,11 @@ public class CommercePriceListChannelRelWrapper
 	}
 
 	@Override
+	public CommercePriceListChannelRel cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
+	@Override
 	public com.liferay.commerce.product.model.CommerceChannel
 			getCommerceChannel()
 		throws com.liferay.portal.kernel.exception.PortalException {

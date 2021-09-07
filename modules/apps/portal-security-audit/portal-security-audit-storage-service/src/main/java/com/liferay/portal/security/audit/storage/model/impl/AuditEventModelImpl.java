@@ -29,6 +29,7 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.security.audit.storage.model.AuditEvent;
 import com.liferay.portal.security.audit.storage.model.AuditEventModel;
 import com.liferay.portal.security.audit.storage.model.AuditEventSoap;
@@ -38,6 +39,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -773,6 +775,43 @@ public class AuditEventModelImpl
 	}
 
 	@Override
+	public AuditEvent cloneWithOriginalValues() {
+		AuditEventImpl auditEventImpl = new AuditEventImpl();
+
+		auditEventImpl.setAuditEventId(
+			this.<Long>getColumnOriginalValue("auditEventId"));
+		auditEventImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		auditEventImpl.setUserId(this.<Long>getColumnOriginalValue("userId"));
+		auditEventImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		auditEventImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		auditEventImpl.setEventType(
+			this.<String>getColumnOriginalValue("eventType"));
+		auditEventImpl.setClassName(
+			this.<String>getColumnOriginalValue("className"));
+		auditEventImpl.setClassPK(
+			this.<String>getColumnOriginalValue("classPK"));
+		auditEventImpl.setMessage(
+			this.<String>getColumnOriginalValue("message"));
+		auditEventImpl.setClientHost(
+			this.<String>getColumnOriginalValue("clientHost"));
+		auditEventImpl.setClientIP(
+			this.<String>getColumnOriginalValue("clientIP"));
+		auditEventImpl.setServerName(
+			this.<String>getColumnOriginalValue("serverName"));
+		auditEventImpl.setServerPort(
+			this.<Integer>getColumnOriginalValue("serverPort"));
+		auditEventImpl.setSessionID(
+			this.<String>getColumnOriginalValue("sessionID"));
+		auditEventImpl.setAdditionalInfo(
+			this.<String>getColumnOriginalValue("additionalInfo"));
+
+		return auditEventImpl;
+	}
+
+	@Override
 	public int compareTo(AuditEvent auditEvent) {
 		int value = 0;
 
@@ -949,7 +988,7 @@ public class AuditEventModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -960,9 +999,26 @@ public class AuditEventModelImpl
 			Function<AuditEvent, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((AuditEvent)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((AuditEvent)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

@@ -128,6 +128,11 @@ public class CPDAvailabilityEstimateWrapper
 	}
 
 	@Override
+	public CPDAvailabilityEstimate cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
+	@Override
 	public CommerceAvailabilityEstimate getCommerceAvailabilityEstimate()
 		throws com.liferay.portal.kernel.exception.PortalException {
 

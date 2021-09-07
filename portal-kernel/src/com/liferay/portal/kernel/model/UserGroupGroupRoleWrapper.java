@@ -100,6 +100,11 @@ public class UserGroupGroupRoleWrapper
 	}
 
 	@Override
+	public UserGroupGroupRole cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
+	@Override
 	public boolean equals(Object object) {
 		return model.equals(object);
 	}

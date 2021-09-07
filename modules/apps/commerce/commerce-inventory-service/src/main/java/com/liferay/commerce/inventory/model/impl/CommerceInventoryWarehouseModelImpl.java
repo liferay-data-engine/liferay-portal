@@ -31,12 +31,14 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1053,6 +1055,57 @@ public class CommerceInventoryWarehouseModelImpl
 	}
 
 	@Override
+	public CommerceInventoryWarehouse cloneWithOriginalValues() {
+		CommerceInventoryWarehouseImpl commerceInventoryWarehouseImpl =
+			new CommerceInventoryWarehouseImpl();
+
+		commerceInventoryWarehouseImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		commerceInventoryWarehouseImpl.setExternalReferenceCode(
+			this.<String>getColumnOriginalValue("externalReferenceCode"));
+		commerceInventoryWarehouseImpl.setCommerceInventoryWarehouseId(
+			this.<Long>getColumnOriginalValue("CIWarehouseId"));
+		commerceInventoryWarehouseImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		commerceInventoryWarehouseImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		commerceInventoryWarehouseImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		commerceInventoryWarehouseImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		commerceInventoryWarehouseImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		commerceInventoryWarehouseImpl.setName(
+			this.<String>getColumnOriginalValue("name"));
+		commerceInventoryWarehouseImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		commerceInventoryWarehouseImpl.setActive(
+			this.<Boolean>getColumnOriginalValue("active_"));
+		commerceInventoryWarehouseImpl.setStreet1(
+			this.<String>getColumnOriginalValue("street1"));
+		commerceInventoryWarehouseImpl.setStreet2(
+			this.<String>getColumnOriginalValue("street2"));
+		commerceInventoryWarehouseImpl.setStreet3(
+			this.<String>getColumnOriginalValue("street3"));
+		commerceInventoryWarehouseImpl.setCity(
+			this.<String>getColumnOriginalValue("city"));
+		commerceInventoryWarehouseImpl.setZip(
+			this.<String>getColumnOriginalValue("zip"));
+		commerceInventoryWarehouseImpl.setCommerceRegionCode(
+			this.<String>getColumnOriginalValue("commerceRegionCode"));
+		commerceInventoryWarehouseImpl.setCountryTwoLettersISOCode(
+			this.<String>getColumnOriginalValue("countryTwoLettersISOCode"));
+		commerceInventoryWarehouseImpl.setLatitude(
+			this.<Double>getColumnOriginalValue("latitude"));
+		commerceInventoryWarehouseImpl.setLongitude(
+			this.<Double>getColumnOriginalValue("longitude"));
+		commerceInventoryWarehouseImpl.setType(
+			this.<String>getColumnOriginalValue("type_"));
+
+		return commerceInventoryWarehouseImpl;
+	}
+
+	@Override
 	public int compareTo(
 		CommerceInventoryWarehouse commerceInventoryWarehouse) {
 
@@ -1281,7 +1334,7 @@ public class CommerceInventoryWarehouseModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1292,11 +1345,27 @@ public class CommerceInventoryWarehouseModelImpl
 			Function<CommerceInventoryWarehouse, Object>
 				attributeGetterFunction = entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply(
-					(CommerceInventoryWarehouse)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(CommerceInventoryWarehouse)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

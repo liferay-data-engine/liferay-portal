@@ -30,6 +30,7 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.ratings.kernel.model.RatingsEntry;
 import com.liferay.ratings.kernel.model.RatingsEntryModel;
@@ -40,6 +41,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -789,6 +791,35 @@ public class RatingsEntryModelImpl
 	}
 
 	@Override
+	public RatingsEntry cloneWithOriginalValues() {
+		RatingsEntryImpl ratingsEntryImpl = new RatingsEntryImpl();
+
+		ratingsEntryImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		ratingsEntryImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		ratingsEntryImpl.setUuid(this.<String>getColumnOriginalValue("uuid_"));
+		ratingsEntryImpl.setEntryId(
+			this.<Long>getColumnOriginalValue("entryId"));
+		ratingsEntryImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		ratingsEntryImpl.setUserId(this.<Long>getColumnOriginalValue("userId"));
+		ratingsEntryImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		ratingsEntryImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		ratingsEntryImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		ratingsEntryImpl.setClassNameId(
+			this.<Long>getColumnOriginalValue("classNameId"));
+		ratingsEntryImpl.setClassPK(
+			this.<Long>getColumnOriginalValue("classPK"));
+		ratingsEntryImpl.setScore(this.<Double>getColumnOriginalValue("score"));
+
+		return ratingsEntryImpl;
+	}
+
+	@Override
 	public int compareTo(RatingsEntry ratingsEntry) {
 		long primaryKey = ratingsEntry.getPrimaryKey();
 
@@ -921,7 +952,7 @@ public class RatingsEntryModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -932,9 +963,26 @@ public class RatingsEntryModelImpl
 			Function<RatingsEntry, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((RatingsEntry)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((RatingsEntry)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

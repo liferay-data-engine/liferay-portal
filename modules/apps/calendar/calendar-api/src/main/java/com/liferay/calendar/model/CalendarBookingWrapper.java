@@ -273,6 +273,11 @@ public class CalendarBookingWrapper
 		}
 	}
 
+	@Override
+	public CalendarBooking cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the all day of this calendar booking.
 	 *

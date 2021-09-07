@@ -251,6 +251,20 @@ public interface CommerceOrderModel
 	public void setCommerceCurrencyId(long commerceCurrencyId);
 
 	/**
+	 * Returns the commerce order type ID of this commerce order.
+	 *
+	 * @return the commerce order type ID of this commerce order
+	 */
+	public long getCommerceOrderTypeId();
+
+	/**
+	 * Sets the commerce order type ID of this commerce order.
+	 *
+	 * @param commerceOrderTypeId the commerce order type ID of this commerce order
+	 */
+	public void setCommerceOrderTypeId(long commerceOrderTypeId);
+
+	/**
 	 * Returns the billing address ID of this commerce order.
 	 *
 	 * @return the billing address ID of this commerce order
@@ -1177,5 +1191,8 @@ public interface CommerceOrderModel
 	 */
 	@Override
 	public boolean isScheduled();
+
+	@Override
+	public CommerceOrder cloneWithOriginalValues();
 
 }

@@ -165,7 +165,7 @@ definition {
 			locator1 = "Form#SETTINGS_TAB_EMAIL_NOTIFICATIONS",
 			value1 = "Notifications");
 
-		FormFields.enableSwitcher(fieldName = "sendEmailNotification");
+		FormFields.enableSwitch(fieldName = "sendEmailNotification");
 
 		FormFields.editText(
 			fieldName = "emailFromName",
@@ -197,13 +197,13 @@ definition {
 	}
 
 	macro configureRequireAuthentication {
-		FormFields.enableSwitcher(fieldName = "requireAuthentication");
+		FormFields.enableSwitch(fieldName = "requireAuthentication");
 
 		Button.clickDone();
 	}
 
 	macro configureRequireCaptcha {
-		FormFields.enableSwitcher(fieldName = "requireCaptcha");
+		FormFields.enableSwitch(fieldName = "requireCaptcha");
 
 		Button.clickDone();
 	}
@@ -284,11 +284,11 @@ definition {
 	}
 
 	macro disableAutocompleteConfiguration {
-		FormFields.disableSwitcher(fieldName = "Autocomplete");
+		FormFields.disableSwitch(fieldName = "Autocomplete");
 	}
 
-	macro disableAutocompleteSwitcherTextField {
-		Click(locator1 = "FormFields#SWITCHER_TEXTFIELD");
+	macro disableAutocompleteSwitchTextField {
+		Click(locator1 = "FormFields#SWITCH_TEXTFIELD");
 	}
 
 	macro duplicate {
@@ -470,7 +470,7 @@ definition {
 	}
 
 	macro enableAutocompleteConfiguration {
-		Click(locator1 = "FormFields#SWITCHER_TEXTFIELD");
+		Click(locator1 = "FormFields#SWITCH_TEXTFIELD");
 	}
 
 	macro getPublishedFormPublicURL {
@@ -881,15 +881,11 @@ definition {
 	}
 
 	macro viewCollapsedCollapseButton {
-		AssertElementPresent(
-			key_trueOrFalse = "false",
-			locator1 = "Form#COLLAPSE_BUTTON");
+		AssertElementPresent(locator1 = "Form#FIELDS_GROUP_COLLAPSED");
 	}
 
 	macro viewExpandedCollapseButton {
-		AssertElementPresent(
-			key_trueOrFalse = "true",
-			locator1 = "Form#COLLAPSE_BUTTON");
+		AssertElementPresent(locator1 = "Form#FIELDS_GROUP_EXPANDED");
 	}
 
 	macro viewFieldReference {
@@ -920,15 +916,15 @@ definition {
 	}
 
 	macro viewFieldsGroupCollapsedField {
-		AssertElementNotPresent(
+		AssertElementPresent(
 			key_fieldLabel = "${fieldLabel}",
-			locator1 = "Form#FIELDS_GROUP_FIELD_COLLAPSIBLE_IS_VISIBLE");
+			locator1 = "Form#FIELDS_GROUP_COLLAPSED_FIELD");
 	}
 
 	macro viewFieldsGroupNotCollapsedField {
-		AssertElementPresent(
+		AssertElementNotPresent(
 			key_fieldLabel = "${fieldLabel}",
-			locator1 = "Form#FIELDS_GROUP_FIELD_COLLAPSIBLE_IS_VISIBLE");
+			locator1 = "Form#FIELDS_GROUP_COLLAPSED_FIELD");
 	}
 
 	macro viewFormDescription {
@@ -987,6 +983,12 @@ definition {
 
 	macro viewFormTemporarilyNotAvailableMessage {
 		AssertElementPresent(locator1 = "Form#FORM_TEMPORARILY_NOT_AVAILABLE");
+	}
+
+	macro viewHiddenField {
+		AssertElementPresent(
+			key_fieldLabel = "${fieldLabel}",
+			locator1 = "Form#FIELD_HIDDEN_LABEL");
 	}
 
 	macro viewPageEmptyField {

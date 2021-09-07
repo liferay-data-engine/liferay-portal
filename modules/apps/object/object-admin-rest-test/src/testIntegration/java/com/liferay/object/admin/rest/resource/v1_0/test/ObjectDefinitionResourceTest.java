@@ -19,13 +19,15 @@ import com.liferay.object.admin.rest.client.dto.v1_0.ObjectDefinition;
 import com.liferay.object.admin.rest.client.dto.v1_0.ObjectField;
 import com.liferay.object.admin.rest.client.pagination.Page;
 import com.liferay.object.admin.rest.client.pagination.Pagination;
+import com.liferay.object.constants.ObjectDefinitionConstants;
 import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.test.rule.Inject;
+
+import java.util.Collections;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -114,21 +116,23 @@ public class ObjectDefinitionResourceTest
 		ObjectDefinition objectDefinition = super.randomObjectDefinition();
 
 		objectDefinition.setLabel(
-			HashMapBuilder.put(
-				"en_US", "A" + objectDefinition.getName()
-			).build());
+			Collections.singletonMap(
+				"en_US", "A" + objectDefinition.getName()));
 		objectDefinition.setName("A" + objectDefinition.getName());
-
-		ObjectField objectField = new ObjectField();
-
-		objectField.setLabel(
-			HashMapBuilder.put(
-				"en_US", "Column"
-			).build());
-		objectField.setName("column");
-		objectField.setType("String");
-
-		objectDefinition.setObjectFields(new ObjectField[] {objectField});
+		objectDefinition.setPluralLabel(
+			Collections.singletonMap(
+				"en_US", "A" + objectDefinition.getName()));
+		objectDefinition.setObjectFields(
+			new ObjectField[] {
+				new ObjectField() {
+					{
+						setLabel(Collections.singletonMap("en_US", "Column"));
+						setName("column");
+						setType("String");
+					}
+				}
+			});
+		objectDefinition.setScope(ObjectDefinitionConstants.SCOPE_COMPANY);
 
 		return objectDefinition;
 	}
@@ -155,6 +159,13 @@ public class ObjectDefinitionResourceTest
 	}
 
 	@Override
+	protected ObjectDefinition testPatchObjectDefinition_addObjectDefinition()
+		throws Exception {
+
+		return _addObjectDefinition(randomObjectDefinition());
+	}
+
+	@Override
 	protected ObjectDefinition testPostObjectDefinition_addObjectDefinition(
 			ObjectDefinition objectDefinition)
 		throws Exception {
@@ -165,6 +176,13 @@ public class ObjectDefinitionResourceTest
 	@Override
 	protected ObjectDefinition
 			testPostObjectDefinitionPublish_addObjectDefinition()
+		throws Exception {
+
+		return _addObjectDefinition(randomObjectDefinition());
+	}
+
+	@Override
+	protected ObjectDefinition testPutObjectDefinition_addObjectDefinition()
 		throws Exception {
 
 		return _addObjectDefinition(randomObjectDefinition());

@@ -26,6 +26,7 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.social.kernel.model.SocialActivitySetting;
 import com.liferay.social.kernel.model.SocialActivitySettingModel;
@@ -36,10 +37,12 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -685,6 +688,33 @@ public class SocialActivitySettingModelImpl
 	}
 
 	@Override
+	public SocialActivitySetting cloneWithOriginalValues() {
+		SocialActivitySettingImpl socialActivitySettingImpl =
+			new SocialActivitySettingImpl();
+
+		socialActivitySettingImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		socialActivitySettingImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		socialActivitySettingImpl.setActivitySettingId(
+			this.<Long>getColumnOriginalValue("activitySettingId"));
+		socialActivitySettingImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		socialActivitySettingImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		socialActivitySettingImpl.setClassNameId(
+			this.<Long>getColumnOriginalValue("classNameId"));
+		socialActivitySettingImpl.setActivityType(
+			this.<Integer>getColumnOriginalValue("activityType"));
+		socialActivitySettingImpl.setName(
+			this.<String>getColumnOriginalValue("name"));
+		socialActivitySettingImpl.setValue(
+			this.<String>getColumnOriginalValue("value"));
+
+		return socialActivitySettingImpl;
+	}
+
+	@Override
 	public int compareTo(SocialActivitySetting socialActivitySetting) {
 		long primaryKey = socialActivitySetting.getPrimaryKey();
 
@@ -797,7 +827,7 @@ public class SocialActivitySettingModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -808,10 +838,27 @@ public class SocialActivitySettingModelImpl
 			Function<SocialActivitySetting, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply((SocialActivitySetting)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(SocialActivitySetting)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

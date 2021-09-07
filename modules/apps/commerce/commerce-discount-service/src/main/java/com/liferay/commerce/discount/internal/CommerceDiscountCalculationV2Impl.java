@@ -158,11 +158,19 @@ public class CommerceDiscountCalculationV2Impl
 				productUnitPrice, quantity, commerceContext, commerceDiscounts);
 		}
 
+		long commerceOrderTypeId = 0;
+
+		CommerceOrder commerceOrder = commerceContext.getCommerceOrder();
+
+		if (commerceOrder != null) {
+			commerceOrderTypeId = commerceOrder.getCommerceOrderTypeId();
+		}
+
 		List<CommerceDiscount> commerceDiscounts =
 			getProductCommerceDiscountByHierarchy(
 				cpInstance.getCompanyId(), commerceContext.getCommerceAccount(),
-				commerceContext.getCommerceChannelId(),
-				cpInstance.getCPDefinitionId());
+				commerceContext.getCommerceChannelId(), commerceOrderTypeId,
+				cpInstance.getCPDefinitionId(), cpInstanceId);
 
 		if (commerceDiscounts.isEmpty()) {
 			return null;
@@ -374,7 +382,7 @@ public class CommerceDiscountCalculationV2Impl
 
 	private CommerceDiscountValue _getCommerceDiscountValue(
 			CommerceOrder commerceOrder, BigDecimal amount,
-			CommerceContext commerceContext, String discountType)
+			CommerceContext commerceContext, String target)
 		throws PortalException {
 
 		if ((amount == null) ||
@@ -387,7 +395,8 @@ public class CommerceDiscountCalculationV2Impl
 			getOrderCommerceDiscountByHierarchy(
 				commerceOrder.getCompanyId(),
 				commerceContext.getCommerceAccount(),
-				commerceContext.getCommerceChannelId(), discountType);
+				commerceContext.getCommerceChannelId(),
+				commerceOrder.getCommerceOrderTypeId(), target);
 
 		if (commerceDiscounts.isEmpty()) {
 			return null;

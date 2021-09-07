@@ -148,6 +148,11 @@ public class CustomElementsPortletDescriptorWrapper
 		}
 	}
 
+	@Override
+	public CustomElementsPortletDescriptor cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the company ID of this custom elements portlet descriptor.
 	 *

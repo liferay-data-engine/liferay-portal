@@ -35,6 +35,7 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
@@ -42,10 +43,12 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -1520,6 +1523,50 @@ public class GroupModelImpl extends BaseModelImpl<Group> implements GroupModel {
 	}
 
 	@Override
+	public Group cloneWithOriginalValues() {
+		GroupImpl groupImpl = new GroupImpl();
+
+		groupImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		groupImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		groupImpl.setUuid(this.<String>getColumnOriginalValue("uuid_"));
+		groupImpl.setGroupId(this.<Long>getColumnOriginalValue("groupId"));
+		groupImpl.setCompanyId(this.<Long>getColumnOriginalValue("companyId"));
+		groupImpl.setCreatorUserId(
+			this.<Long>getColumnOriginalValue("creatorUserId"));
+		groupImpl.setClassNameId(
+			this.<Long>getColumnOriginalValue("classNameId"));
+		groupImpl.setClassPK(this.<Long>getColumnOriginalValue("classPK"));
+		groupImpl.setParentGroupId(
+			this.<Long>getColumnOriginalValue("parentGroupId"));
+		groupImpl.setLiveGroupId(
+			this.<Long>getColumnOriginalValue("liveGroupId"));
+		groupImpl.setTreePath(this.<String>getColumnOriginalValue("treePath"));
+		groupImpl.setGroupKey(this.<String>getColumnOriginalValue("groupKey"));
+		groupImpl.setName(this.<String>getColumnOriginalValue("name"));
+		groupImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		groupImpl.setType(this.<Integer>getColumnOriginalValue("type_"));
+		groupImpl.setTypeSettings(
+			this.<String>getColumnOriginalValue("typeSettings"));
+		groupImpl.setManualMembership(
+			this.<Boolean>getColumnOriginalValue("manualMembership"));
+		groupImpl.setMembershipRestriction(
+			this.<Integer>getColumnOriginalValue("membershipRestriction"));
+		groupImpl.setFriendlyURL(
+			this.<String>getColumnOriginalValue("friendlyURL"));
+		groupImpl.setSite(this.<Boolean>getColumnOriginalValue("site"));
+		groupImpl.setRemoteStagingGroupCount(
+			this.<Integer>getColumnOriginalValue("remoteStagingGroupCount"));
+		groupImpl.setInheritContent(
+			this.<Boolean>getColumnOriginalValue("inheritContent"));
+		groupImpl.setActive(this.<Boolean>getColumnOriginalValue("active_"));
+
+		return groupImpl;
+	}
+
+	@Override
 	public int compareTo(Group group) {
 		int value = 0;
 
@@ -1685,7 +1732,7 @@ public class GroupModelImpl extends BaseModelImpl<Group> implements GroupModel {
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1695,9 +1742,26 @@ public class GroupModelImpl extends BaseModelImpl<Group> implements GroupModel {
 			String attributeName = entry.getKey();
 			Function<Group, Object> attributeGetterFunction = entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((Group)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((Group)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

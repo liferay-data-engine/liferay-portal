@@ -36,14 +36,11 @@ import com.liferay.layout.seo.open.graph.OpenGraphConfiguration;
 import com.liferay.layout.seo.service.LayoutSEOEntryLocalService;
 import com.liferay.layout.seo.service.LayoutSEOSiteLocalService;
 import com.liferay.layout.seo.template.LayoutSEOTemplateProcessor;
-import com.liferay.layout.seo.web.internal.configuration.FFLayoutTranslatedLanguagesConfiguration;
-import com.liferay.layout.seo.web.internal.configuration.FFSEOInlineFieldMapping;
 import com.liferay.layout.seo.web.internal.util.OpenGraphImageProvider;
 import com.liferay.layout.seo.web.internal.util.TitleProvider;
 import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
-import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.model.Group;
@@ -84,13 +81,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Alicia García
  */
-@Component(
-	configurationPid = {
-		"com.liferay.layout.seo.web.internal.configuration.FFLayoutTranslatedLanguagesConfiguration",
-		"com.liferay.layout.seo.web.internal.configuration.FFSEOInlineFieldMapping"
-	},
-	service = DynamicInclude.class
-)
+@Component(service = DynamicInclude.class)
 public class OpenGraphTopHeadDynamicInclude extends BaseDynamicInclude {
 
 	@Override
@@ -110,7 +101,8 @@ public class OpenGraphTopHeadDynamicInclude extends BaseDynamicInclude {
 				return;
 			}
 
-			Set<Locale> availableLocales = _getAvailableLocales(layout);
+			Set<Locale> availableLocales = _getAvailableLocales(
+				layout, _portal.getSiteDefaultLocale(layout.getGroupId()));
 
 			String completeURL = _portal.getCurrentCompleteURL(
 				httpServletRequest);
@@ -193,8 +185,7 @@ public class OpenGraphTopHeadDynamicInclude extends BaseDynamicInclude {
 
 			Optional<String> descriptionOptional = _getMappedValueOptional(
 				layout.getTypeSettingsProperty(
-					"mapped-openGraphDescription",
-					_getDefaultDescriptionTemplate()),
+					"mapped-openGraphDescription", "${description}"),
 				infoItemFieldValues, themeDisplay.getLocale());
 
 			String description = descriptionOptional.orElseGet(
@@ -230,7 +221,7 @@ public class OpenGraphTopHeadDynamicInclude extends BaseDynamicInclude {
 
 			Optional<String> titleOptional = _getMappedValueOptional(
 				layout.getTypeSettingsProperty(
-					"mapped-openGraphTitle", _getDefaultTitleTemplate()),
+					"mapped-openGraphTitle", "${title}"),
 				infoItemFieldValues, themeDisplay.getLocale());
 
 			String title = titleOptional.orElseGet(
@@ -318,12 +309,6 @@ public class OpenGraphTopHeadDynamicInclude extends BaseDynamicInclude {
 	@Activate
 	@Modified
 	protected void activate(Map<String, Object> properties) {
-		_ffLayoutTranslatedLanguagesConfiguration =
-			ConfigurableUtil.createConfigurable(
-				FFLayoutTranslatedLanguagesConfiguration.class, properties);
-		_ffSEOInlineFieldMapping = ConfigurableUtil.createConfigurable(
-			FFSEOInlineFieldMapping.class, properties);
-
 		_openGraphImageProvider = new OpenGraphImageProvider(
 			_ddmStructureLocalService, _dlAppLocalService,
 			_dlFileEntryMetadataLocalService, _dlurlHelper,
@@ -353,15 +338,14 @@ public class OpenGraphTopHeadDynamicInclude extends BaseDynamicInclude {
 		return sb.toString();
 	}
 
-	private Set<Locale> _getAvailableLocales(Layout layout)
+	private Set<Locale> _getAvailableLocales(
+			Layout layout, Locale siteDefaultLocale)
 		throws PortalException {
 
 		Set<Locale> siteAvailableLocales = _language.getAvailableLocales(
 			layout.getGroupId());
 
-		if (!_ffLayoutTranslatedLanguagesConfiguration.
-				enableFFLayoutTranslatedLanguages() ||
-			!_openGraphConfiguration.isLayoutTranslatedLanguagesEnabled(
+		if (!_openGraphConfiguration.isLayoutTranslatedLanguagesEnabled(
 				layout.getGroup())) {
 
 			return siteAvailableLocales;
@@ -380,23 +364,14 @@ public class OpenGraphTopHeadDynamicInclude extends BaseDynamicInclude {
 
 		Stream<Locale> localesStream = stream.map(LocaleUtil::fromLanguageId);
 
-		return localesStream.collect(Collectors.toSet());
-	}
+		Set<Locale> availableLocales = localesStream.collect(
+			Collectors.toSet());
 
-	private String _getDefaultDescriptionTemplate() {
-		if (_ffSEOInlineFieldMapping.enabled()) {
-			return "${description}";
+		if (!availableLocales.contains(siteDefaultLocale)) {
+			availableLocales.add(siteDefaultLocale);
 		}
 
-		return "description";
-	}
-
-	private String _getDefaultTitleTemplate() {
-		if (_ffSEOInlineFieldMapping.enabled()) {
-			return "${title}";
-		}
-
-		return "title";
+		return availableLocales;
 	}
 
 	private InfoItemFieldValues _getInfoItemFieldValues(
@@ -479,10 +454,6 @@ public class OpenGraphTopHeadDynamicInclude extends BaseDynamicInclude {
 
 	@Reference
 	private DLURLHelper _dlurlHelper;
-
-	private volatile FFLayoutTranslatedLanguagesConfiguration
-		_ffLayoutTranslatedLanguagesConfiguration;
-	private volatile FFSEOInlineFieldMapping _ffSEOInlineFieldMapping;
 
 	@Reference
 	private InfoItemServiceTracker _infoItemServiceTracker;

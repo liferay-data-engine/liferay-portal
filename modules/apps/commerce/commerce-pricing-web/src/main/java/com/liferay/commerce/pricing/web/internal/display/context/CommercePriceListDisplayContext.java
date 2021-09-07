@@ -54,10 +54,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.portlet.ActionRequest;
-import javax.portlet.ActionURL;
 import javax.portlet.PortletURL;
-import javax.portlet.RenderResponse;
-import javax.portlet.RenderURL;
 import javax.portlet.WindowStateException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -114,7 +111,7 @@ public class CommercePriceListDisplayContext
 			(ThemeDisplay)httpServletRequest.getAttribute(
 				WebKeys.THEME_DISPLAY);
 
-		return commerceCatalogService.searchCommerceCatalogs(
+		return commerceCatalogService.search(
 			themeDisplay.getCompanyId(), null, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -171,27 +168,18 @@ public class CommercePriceListDisplayContext
 
 		List<HeaderActionModel> headerActionModels = new ArrayList<>();
 
-		CPRequestHelper cpRequestHelper = new CPRequestHelper(
-			httpServletRequest);
-
-		RenderResponse renderResponse = cpRequestHelper.getRenderResponse();
-
-		RenderURL cancelURL = renderResponse.createRenderURL();
-
 		HeaderActionModel cancelHeaderActionModel = new HeaderActionModel(
-			null, cancelURL.toString(), null, "cancel");
+			null,
+			PortletURLBuilder.createRenderURL(
+				liferayPortletResponse
+			).buildString(),
+			null, "cancel");
 
 		headerActionModels.add(cancelHeaderActionModel);
 
-		CommercePriceList commercePriceList = getCommercePriceList();
-
-		ActionURL actionURL = renderResponse.createActionURL();
-
-		actionURL.setParameter(
-			ActionRequest.ACTION_NAME,
-			"/commerce_price_list/edit_commerce_price_list");
-
 		String saveButtonLabel = "save";
+
+		CommercePriceList commercePriceList = getCommercePriceList();
 
 		if ((commercePriceList == null) || commercePriceList.isDraft() ||
 			commercePriceList.isApproved() || commercePriceList.isExpired() ||
@@ -202,11 +190,19 @@ public class CommercePriceListDisplayContext
 
 		HeaderActionModel saveAsDraftHeaderActionModel = new HeaderActionModel(
 			null, liferayPortletResponse.getNamespace() + "fm",
-			actionURL.toString(), null, saveButtonLabel);
+			PortletURLBuilder.createActionURL(
+				liferayPortletResponse
+			).setActionName(
+				"/commerce_price_list/edit_commerce_price_list"
+			).buildString(),
+			null, saveButtonLabel);
 
 		headerActionModels.add(saveAsDraftHeaderActionModel);
 
 		String publishButtonLabel = "publish";
+
+		CPRequestHelper cpRequestHelper = new CPRequestHelper(
+			httpServletRequest);
 
 		if (WorkflowDefinitionLinkLocalServiceUtil.hasWorkflowDefinitionLink(
 				cpRequestHelper.getCompanyId(),
@@ -224,7 +220,11 @@ public class CommercePriceListDisplayContext
 
 		HeaderActionModel publishHeaderActionModel = new HeaderActionModel(
 			additionalClasses, liferayPortletResponse.getNamespace() + "fm",
-			actionURL.toString(),
+			PortletURLBuilder.createActionURL(
+				liferayPortletResponse
+			).setActionName(
+				"/commerce_price_list/edit_commerce_price_list"
+			).buildString(),
 			liferayPortletResponse.getNamespace() + "publishButton",
 			publishButtonLabel);
 
@@ -310,23 +310,16 @@ public class CommercePriceListDisplayContext
 	}
 
 	public String getPriceListsApiUrl(String portletName) {
-		StringBundler filterSB = new StringBundler(4);
+		String encodedFilter = URLCodec.encodeURL(
+			StringBundler.concat(
+				"type eq '", getCommercePriceListType(portletName),
+				StringPool.APOSTROPHE),
+			true);
 
-		filterSB.append("type eq ");
-		filterSB.append(StringPool.APOSTROPHE);
-		filterSB.append(getCommercePriceListType(portletName));
-		filterSB.append(StringPool.APOSTROPHE);
-
-		String encodedFilter = URLCodec.encodeURL(filterSB.toString(), true);
-
-		StringBundler apiUrlSB = new StringBundler(4);
-
-		apiUrlSB.append(PortalUtil.getPortalURL(httpServletRequest));
-		apiUrlSB.append("/o/headless-commerce-admin-pricing/v2.0/price-lists");
-		apiUrlSB.append("?filter=");
-		apiUrlSB.append(encodedFilter);
-
-		return apiUrlSB.toString();
+		return StringBundler.concat(
+			PortalUtil.getPortalURL(httpServletRequest),
+			"/o/headless-commerce-admin-pricing/v2.0/price-lists?filter=",
+			encodedFilter);
 	}
 
 	public String getPriceModifierCategoriesApiUrl() throws PortalException {

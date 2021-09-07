@@ -36,6 +36,7 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
@@ -43,6 +44,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1116,6 +1118,45 @@ public class DDMDataProviderInstanceModelImpl
 	}
 
 	@Override
+	public DDMDataProviderInstance cloneWithOriginalValues() {
+		DDMDataProviderInstanceImpl ddmDataProviderInstanceImpl =
+			new DDMDataProviderInstanceImpl();
+
+		ddmDataProviderInstanceImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		ddmDataProviderInstanceImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		ddmDataProviderInstanceImpl.setUuid(
+			this.<String>getColumnOriginalValue("uuid_"));
+		ddmDataProviderInstanceImpl.setDataProviderInstanceId(
+			this.<Long>getColumnOriginalValue("dataProviderInstanceId"));
+		ddmDataProviderInstanceImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		ddmDataProviderInstanceImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		ddmDataProviderInstanceImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		ddmDataProviderInstanceImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		ddmDataProviderInstanceImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		ddmDataProviderInstanceImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		ddmDataProviderInstanceImpl.setName(
+			this.<String>getColumnOriginalValue("name"));
+		ddmDataProviderInstanceImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		ddmDataProviderInstanceImpl.setDefinition(
+			this.<String>getColumnOriginalValue("definition"));
+		ddmDataProviderInstanceImpl.setType(
+			this.<String>getColumnOriginalValue("type_"));
+		ddmDataProviderInstanceImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+
+		return ddmDataProviderInstanceImpl;
+	}
+
+	@Override
 	public int compareTo(DDMDataProviderInstance ddmDataProviderInstance) {
 		long primaryKey = ddmDataProviderInstance.getPrimaryKey();
 
@@ -1289,7 +1330,7 @@ public class DDMDataProviderInstanceModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1300,10 +1341,27 @@ public class DDMDataProviderInstanceModelImpl
 			Function<DDMDataProviderInstance, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply((DDMDataProviderInstance)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(DDMDataProviderInstance)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

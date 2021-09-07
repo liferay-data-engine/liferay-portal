@@ -29,6 +29,7 @@ import com.liferay.dynamic.data.mapping.model.DDMFormLayoutPage;
 import com.liferay.dynamic.data.mapping.model.DDMFormLayoutRow;
 import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 import com.liferay.dynamic.data.mapping.util.DDMFormDeserializeUtil;
+import com.liferay.dynamic.data.mapping.util.DDMFormFieldUtil;
 import com.liferay.dynamic.data.mapping.util.DDMFormLayoutDeserializeUtil;
 import com.liferay.dynamic.data.mapping.util.DDMFormSerializeUtil;
 import com.liferay.petra.string.StringBundler;
@@ -52,7 +53,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Random;
 import java.util.Set;
 
 /**
@@ -80,19 +80,6 @@ public class DDMStructureUpgradeProcess extends UpgradeProcess {
 		_upgradeDDMStructureVersion();
 
 		_upgradeDDMStructure();
-	}
-
-	private String _generateDDMFormFieldName() {
-		String ddmFormFieldName = "Field";
-
-		Random random = new Random();
-
-		for (int i = 0; i < _DDM_FORM_FIELD_NAME_RANDOM_NUMBERS_LENGTH; i++) {
-			ddmFormFieldName = ddmFormFieldName.concat(
-				String.valueOf(random.nextInt(10)));
-		}
-
-		return ddmFormFieldName;
 	}
 
 	private boolean _hasMoreThanOneDDMFormFieldPerColumn(
@@ -189,21 +176,18 @@ public class DDMStructureUpgradeProcess extends UpgradeProcess {
 	}
 
 	private void _upgradeDDMStructureLayout() throws Exception {
-		StringBundler sb = new StringBundler(10);
-
-		sb.append("select DDMStructure.structureId, ");
-		sb.append("DDMStructureLayout.structureLayoutId, ");
-		sb.append("DDMStructureLayout.structureVersionId, ");
-		sb.append("DDMStructureLayout.definition from DDMStructureLayout ");
-		sb.append("inner join DDMStructureVersion on ");
-		sb.append("DDMStructureLayout.structureVersionId = ");
-		sb.append("DDMStructureVersion.structureVersionId inner join ");
-		sb.append("DDMStructure on DDMStructure.structureId = ");
-		sb.append("DDMStructureVersion.structureId where ");
-		sb.append("DDMStructure.classNameId = ?");
-
 		try (PreparedStatement preparedStatement1 = connection.prepareStatement(
-				sb.toString());
+				StringBundler.concat(
+					"select DDMStructure.structureId, ",
+					"DDMStructureLayout.structureLayoutId, ",
+					"DDMStructureLayout.structureVersionId, ",
+					"DDMStructureLayout.definition from DDMStructureLayout ",
+					"inner join DDMStructureVersion on ",
+					"DDMStructureLayout.structureVersionId = ",
+					"DDMStructureVersion.structureVersionId inner join ",
+					"DDMStructure on DDMStructure.structureId = ",
+					"DDMStructureVersion.structureId where ",
+					"DDMStructure.classNameId = ?"));
 			PreparedStatement preparedStatement2 =
 				AutoBatchPreparedStatementUtil.concurrentAutoBatch(
 					connection,
@@ -288,7 +272,8 @@ public class DDMStructureUpgradeProcess extends UpgradeProcess {
 						ddmFormLayoutColumn.getDDMFormFieldNames();
 
 					if (ddmFormFieldNames.size() > 1) {
-						String ddmFormFieldName = _generateDDMFormFieldName();
+						String ddmFormFieldName =
+							DDMFormFieldUtil.getDDMFormFieldName("Field");
 
 						ddmFormFieldTuples.add(
 							new Tuple(
@@ -315,16 +300,13 @@ public class DDMStructureUpgradeProcess extends UpgradeProcess {
 			return;
 		}
 
-		StringBundler sb = new StringBundler(5);
-
-		sb.append("select DDMStructureVersion.structureVersionId, ");
-		sb.append("DDMStructureVersion.definition from DDMStructure inner ");
-		sb.append("join DDMStructureVersion on DDMStructure.structureId = ");
-		sb.append("DDMStructureVersion.structureId where ");
-		sb.append("DDMStructure.classNameId = ?");
-
 		try (PreparedStatement preparedStatement1 = connection.prepareStatement(
-				sb.toString());
+				StringBundler.concat(
+					"select DDMStructureVersion.structureVersionId, ",
+					"DDMStructureVersion.definition from DDMStructure inner ",
+					"join DDMStructureVersion on DDMStructure.structureId = ",
+					"DDMStructureVersion.structureId where ",
+					"DDMStructure.classNameId = ?"));
 			PreparedStatement preparedStatement2 =
 				AutoBatchPreparedStatementUtil.concurrentAutoBatch(
 					connection,
@@ -435,8 +417,6 @@ public class DDMStructureUpgradeProcess extends UpgradeProcess {
 
 		return DDMFormSerializeUtil.serialize(ddmForm, _ddmFormSerializer);
 	}
-
-	private static final int _DDM_FORM_FIELD_NAME_RANDOM_NUMBERS_LENGTH = 8;
 
 	private static final int _DDM_FORM_FIELD_TUPLE_COLUMN_SIZE = 2;
 

@@ -51,6 +51,7 @@ public class ObjectFieldWrapper
 		attributes.put("userName", getUserName());
 		attributes.put("createDate", getCreateDate());
 		attributes.put("modifiedDate", getModifiedDate());
+		attributes.put("listTypeDefinitionId", getListTypeDefinitionId());
 		attributes.put("objectDefinitionId", getObjectDefinitionId());
 		attributes.put("dbColumnName", getDBColumnName());
 		attributes.put("dbTableName", getDBTableName());
@@ -114,6 +115,13 @@ public class ObjectFieldWrapper
 
 		if (modifiedDate != null) {
 			setModifiedDate(modifiedDate);
+		}
+
+		Long listTypeDefinitionId = (Long)attributes.get(
+			"listTypeDefinitionId");
+
+		if (listTypeDefinitionId != null) {
+			setListTypeDefinitionId(listTypeDefinitionId);
 		}
 
 		Long objectDefinitionId = (Long)attributes.get("objectDefinitionId");
@@ -181,6 +189,11 @@ public class ObjectFieldWrapper
 		if (type != null) {
 			setType(type);
 		}
+	}
+
+	@Override
+	public ObjectField cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
 	}
 
 	@Override
@@ -337,6 +350,16 @@ public class ObjectFieldWrapper
 	@Override
 	public Map<java.util.Locale, String> getLabelMap() {
 		return model.getLabelMap();
+	}
+
+	/**
+	 * Returns the list type definition ID of this object field.
+	 *
+	 * @return the list type definition ID of this object field
+	 */
+	@Override
+	public long getListTypeDefinitionId() {
+		return model.getListTypeDefinitionId();
 	}
 
 	/**
@@ -717,6 +740,16 @@ public class ObjectFieldWrapper
 		java.util.Locale defaultLocale) {
 
 		model.setLabelMap(labelMap, defaultLocale);
+	}
+
+	/**
+	 * Sets the list type definition ID of this object field.
+	 *
+	 * @param listTypeDefinitionId the list type definition ID of this object field
+	 */
+	@Override
+	public void setListTypeDefinitionId(long listTypeDefinitionId) {
+		model.setListTypeDefinitionId(listTypeDefinitionId);
 	}
 
 	/**

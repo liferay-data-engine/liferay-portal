@@ -34,12 +34,14 @@ import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -718,6 +720,34 @@ public class KBTemplateModelImpl
 	}
 
 	@Override
+	public KBTemplate cloneWithOriginalValues() {
+		KBTemplateImpl kbTemplateImpl = new KBTemplateImpl();
+
+		kbTemplateImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		kbTemplateImpl.setUuid(this.<String>getColumnOriginalValue("uuid_"));
+		kbTemplateImpl.setKbTemplateId(
+			this.<Long>getColumnOriginalValue("kbTemplateId"));
+		kbTemplateImpl.setGroupId(this.<Long>getColumnOriginalValue("groupId"));
+		kbTemplateImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		kbTemplateImpl.setUserId(this.<Long>getColumnOriginalValue("userId"));
+		kbTemplateImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		kbTemplateImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		kbTemplateImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		kbTemplateImpl.setTitle(this.<String>getColumnOriginalValue("title"));
+		kbTemplateImpl.setContent(
+			this.<String>getColumnOriginalValue("content"));
+		kbTemplateImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+
+		return kbTemplateImpl;
+	}
+
+	@Override
 	public int compareTo(KBTemplate kbTemplate) {
 		int value = 0;
 
@@ -869,7 +899,7 @@ public class KBTemplateModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -880,9 +910,26 @@ public class KBTemplateModelImpl
 			Function<KBTemplate, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((KBTemplate)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((KBTemplate)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

@@ -31,12 +31,14 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
@@ -75,9 +77,9 @@ public class CustomElementsPortletDescriptorModelImpl
 		{"customElementsPortletDescId", Types.BIGINT},
 		{"companyId", Types.BIGINT}, {"userId", Types.BIGINT},
 		{"userName", Types.VARCHAR}, {"createDate", Types.TIMESTAMP},
-		{"modifiedDate", Types.TIMESTAMP}, {"cssURLs", Types.VARCHAR},
+		{"modifiedDate", Types.TIMESTAMP}, {"cssURLs", Types.CLOB},
 		{"htmlElementName", Types.VARCHAR}, {"instanceable", Types.BOOLEAN},
-		{"name", Types.VARCHAR}, {"properties", Types.VARCHAR}
+		{"name", Types.VARCHAR}, {"properties", Types.CLOB}
 	};
 
 	public static final Map<String, Integer> TABLE_COLUMNS_MAP =
@@ -92,15 +94,15 @@ public class CustomElementsPortletDescriptorModelImpl
 		TABLE_COLUMNS_MAP.put("userName", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("createDate", Types.TIMESTAMP);
 		TABLE_COLUMNS_MAP.put("modifiedDate", Types.TIMESTAMP);
-		TABLE_COLUMNS_MAP.put("cssURLs", Types.VARCHAR);
+		TABLE_COLUMNS_MAP.put("cssURLs", Types.CLOB);
 		TABLE_COLUMNS_MAP.put("htmlElementName", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("instanceable", Types.BOOLEAN);
 		TABLE_COLUMNS_MAP.put("name", Types.VARCHAR);
-		TABLE_COLUMNS_MAP.put("properties", Types.VARCHAR);
+		TABLE_COLUMNS_MAP.put("properties", Types.CLOB);
 	}
 
 	public static final String TABLE_SQL_CREATE =
-		"create table CustomElementsPortletDesc (mvccVersion LONG default 0 not null,uuid_ VARCHAR(75) null,customElementsPortletDescId LONG not null primary key,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,cssURLs VARCHAR(75) null,htmlElementName VARCHAR(75) null,instanceable BOOLEAN,name VARCHAR(75) null,properties VARCHAR(75) null)";
+		"create table CustomElementsPortletDesc (mvccVersion LONG default 0 not null,uuid_ VARCHAR(75) null,customElementsPortletDescId LONG not null primary key,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,cssURLs TEXT null,htmlElementName VARCHAR(75) null,instanceable BOOLEAN,name VARCHAR(75) null,properties TEXT null)";
 
 	public static final String TABLE_SQL_DROP =
 		"drop table CustomElementsPortletDesc";
@@ -723,6 +725,44 @@ public class CustomElementsPortletDescriptorModelImpl
 	}
 
 	@Override
+	public CustomElementsPortletDescriptor cloneWithOriginalValues() {
+		CustomElementsPortletDescriptorImpl
+			customElementsPortletDescriptorImpl =
+				new CustomElementsPortletDescriptorImpl();
+
+		customElementsPortletDescriptorImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		customElementsPortletDescriptorImpl.setUuid(
+			this.<String>getColumnOriginalValue("uuid_"));
+		customElementsPortletDescriptorImpl.
+			setCustomElementsPortletDescriptorId(
+				this.<Long>getColumnOriginalValue(
+					"customElementsPortletDescId"));
+		customElementsPortletDescriptorImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		customElementsPortletDescriptorImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		customElementsPortletDescriptorImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		customElementsPortletDescriptorImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		customElementsPortletDescriptorImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		customElementsPortletDescriptorImpl.setCSSURLs(
+			this.<String>getColumnOriginalValue("cssURLs"));
+		customElementsPortletDescriptorImpl.setHTMLElementName(
+			this.<String>getColumnOriginalValue("htmlElementName"));
+		customElementsPortletDescriptorImpl.setInstanceable(
+			this.<Boolean>getColumnOriginalValue("instanceable"));
+		customElementsPortletDescriptorImpl.setName(
+			this.<String>getColumnOriginalValue("name"));
+		customElementsPortletDescriptorImpl.setProperties(
+			this.<String>getColumnOriginalValue("properties"));
+
+		return customElementsPortletDescriptorImpl;
+	}
+
+	@Override
 	public int compareTo(
 		CustomElementsPortletDescriptor customElementsPortletDescriptor) {
 
@@ -896,7 +936,7 @@ public class CustomElementsPortletDescriptorModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -908,11 +948,27 @@ public class CustomElementsPortletDescriptorModelImpl
 			Function<CustomElementsPortletDescriptor, Object>
 				attributeGetterFunction = entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply(
-					(CustomElementsPortletDescriptor)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(CustomElementsPortletDescriptor)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

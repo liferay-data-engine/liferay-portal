@@ -24,14 +24,20 @@ import {useIsMounted} from '@liferay/frontend-js-react-web';
 import classNames from 'classnames';
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
 
+import {COLLECTION_APPLIED_FILTERS_FRAGMENT_ENTRY_KEY} from '../../../../../../app/config/constants/collectionAppliedFiltersFragmentKey';
+import {COLLECTION_FILTER_FRAGMENT_ENTRY_KEY} from '../../../../../../app/config/constants/collectionFilterFragmentEntryKey';
+import {FREEMARKER_FRAGMENT_ENTRY_PROCESSOR} from '../../../../../../app/config/constants/freemarkerFragmentEntryProcessor';
+import {LAYOUT_DATA_ITEM_TYPES} from '../../../../../../app/config/constants/layoutDataItemTypes';
 import {config} from '../../../../../../app/config/index';
 import {
 	useDispatch,
+	useGetState,
 	useSelector,
 } from '../../../../../../app/contexts/StoreContext';
 import selectSegmentsExperienceId from '../../../../../../app/selectors/selectSegmentsExperienceId';
 import CollectionService from '../../../../../../app/services/CollectionService';
 import InfoItemService from '../../../../../../app/services/InfoItemService';
+import updateCollectionDisplayCollection from '../../../../../../app/thunks/updateCollectionDisplayCollection';
 import updateItemConfig from '../../../../../../app/thunks/updateItemConfig';
 import {useId} from '../../../../../../app/utils/useId';
 import CollectionSelector from '../../../../../../common/components/CollectionSelector';
@@ -61,14 +67,15 @@ const DEFAULT_LIST_STYLE = {
 
 const ERROR_MESSAGES = {
 	maximumItems: Liferay.Language.get(
-		'the-maximum-number-of-items-in-this-collection-is-x'
+		'the-current-number-of-items-in-this-collection-is-x'
 	),
 	maximumItemsPerPage: Liferay.Language.get(
 		'you-can-only-display-a-maximum-of-x-items-per-page'
 	),
-	noItems: Liferay.Language.get(
-		'you-need-at-least-one-item-to-use-pagination'
+	neededItem: Liferay.Language.get(
+		'you-need-at-least-one-item-to-use-this-configuration'
 	),
+	noItems: Liferay.Language.get('this-collection-has-no-items'),
 };
 
 export const CollectionGeneralPanel = ({item}) => {
@@ -86,6 +93,7 @@ export const CollectionGeneralPanel = ({item}) => {
 	const collectionNumberOfItemsPerPageId = useId();
 	const collectionPaginationTypeId = useId();
 	const dispatch = useDispatch();
+	const getState = useGetState();
 	const isMaximumValuePerPageError =
 		item.config.numberOfItemsPerPage > config.searchContainerPageMaxDelta;
 	const isMounted = useIsMounted();
@@ -94,11 +102,14 @@ export const CollectionGeneralPanel = ({item}) => {
 		numberOfItems: item.config.numberOfItems,
 		numberOfItemsPerPage: item.config.numberOfItemsPerPage,
 	});
+	const [showAllItems, setShowAllItems] = useState(item.config.showAllItems);
+	const [totalNumberOfItems, setTotalNumberOfItems] = useState(0);
+	const segmentsExperienceId = useSelector(selectSegmentsExperienceId);
+
 	const [numberOfItemsError, setNumberOfItemsError] = useState(null);
 	const [numberOfItemsPerPageError, setNumberOfItemsPerPageError] = useState(
 		null
 	);
-	const segmentsExperienceId = useSelector(selectSegmentsExperienceId);
 
 	const {
 		observer: filterConfigurationObserver,
@@ -123,9 +134,6 @@ export const CollectionGeneralPanel = ({item}) => {
 		[collectionConfiguration, setFilterConfigurationVisible]
 	);
 
-	const [showAllItems, setShowAllItems] = useState(item.config.showAllItems);
-	const [totalNumberOfItems, setTotalNumberOfItems] = useState(0);
-
 	const handleCollectionListItemStyleChanged = ({target}) => {
 		const options = target.options;
 
@@ -137,12 +145,8 @@ export const CollectionGeneralPanel = ({item}) => {
 
 	const handleCollectionNumberOfItemsBlurred = (event) => {
 		if (Number(nextValue.numberOfItems) !== item.config.numberOfItems) {
-			setNumberOfItemsError(
-				Number(event.target.value) < 1 ? ERROR_MESSAGES.noItems : null
-			);
-
 			handleConfigurationChanged({
-				numberOfItems: Number(event.target.value) || 1,
+				numberOfItems: Number(event.target.value),
 			});
 		}
 	};
@@ -162,17 +166,8 @@ export const CollectionGeneralPanel = ({item}) => {
 		if (
 			nextValue.numberOfItemsPerPage !== item.config.numberOfItemsPerPage
 		) {
-			if (Number(event.target.value) < 1) {
-				setNumberOfItemsPerPageError(ERROR_MESSAGES.noItems);
-			}
-			else if (
-				Number(event.target.value) <= config.searchContainerPageMaxDelta
-			) {
-				setNumberOfItemsPerPageError(null);
-			}
-
 			handleConfigurationChanged({
-				numberOfItemsPerPage: Number(event.target.value) || 1,
+				numberOfItemsPerPage: Number(event.target.value),
 			});
 		}
 	};
@@ -182,6 +177,55 @@ export const CollectionGeneralPanel = ({item}) => {
 			...nextValue,
 			numberOfItemsPerPage: event.target.value,
 		});
+
+	const handleCollectionSelect = (collection = {}) => {
+		dispatch(
+			updateCollectionDisplayCollection({
+				collection: Object.keys(collection).length ? collection : null,
+				itemId: item.itemId,
+				listStyle: LIST_STYLE_GRID,
+			})
+		);
+	};
+
+	const shouldPreventCollectionSelect = () => {
+		const state = getState();
+
+		const isLinkedToFilter = Object.values(state.layoutData.items).some(
+			(layoutDataItem) => {
+				if (layoutDataItem.type !== LAYOUT_DATA_ITEM_TYPES.fragment) {
+					return false;
+				}
+
+				const fragmentEntryLink =
+					state.fragmentEntryLinks[
+						layoutDataItem.config.fragmentEntryLinkId
+					];
+
+				if (
+					fragmentEntryLink.fragmentEntryKey !==
+						COLLECTION_FILTER_FRAGMENT_ENTRY_KEY &&
+					fragmentEntryLink.fragmentEntryKey !==
+						COLLECTION_APPLIED_FILTERS_FRAGMENT_ENTRY_KEY
+				) {
+					return false;
+				}
+
+				return fragmentEntryLink.editableValues[
+					FREEMARKER_FRAGMENT_ENTRY_PROCESSOR
+				]?.targetCollections?.includes(item.itemId);
+			}
+		);
+
+		return (
+			isLinkedToFilter &&
+			!confirm(
+				`${Liferay.Language.get(
+					'if-you-change-the-collection-you-unlink-the-collection-filter'
+				)}\n\n${Liferay.Language.get('do-you-want-to-continue')}`
+			)
+		);
+	};
 
 	const handleConfigurationChanged = useCallback(
 		(itemConfig) => {
@@ -199,47 +243,53 @@ export const CollectionGeneralPanel = ({item}) => {
 	const handleShowAllItemsChanged = (event) => {
 		setShowAllItems(event.target.checked);
 
-		const numberOfItems = totalNumberOfItems || 1;
-
 		setNextValue({
 			...nextValue,
-			numberOfItems,
+			numberOfItems: totalNumberOfItems,
 		});
 
 		handleConfigurationChanged({
-			numberOfItems,
+			numberOfItems: totalNumberOfItems,
 			showAllItems: event.target.checked,
 		});
-
-		if (numberOfItemsError) {
-			setNumberOfItemsError(null);
-		}
 	};
 
 	useEffect(() => {
-		if (
-			totalNumberOfItems &&
-			item.config.numberOfItems > totalNumberOfItems
-		) {
-			setNumberOfItemsError(
-				Liferay.Util.sub(
+		let errorMessage = null;
+
+		if (totalNumberOfItems) {
+			if (item.config.numberOfItems > totalNumberOfItems) {
+				errorMessage = Liferay.Util.sub(
 					ERROR_MESSAGES.maximumItems,
 					totalNumberOfItems
-				)
-			);
+				);
+			}
+			else if (item.config.numberOfItems < 1) {
+				errorMessage = ERROR_MESSAGES.neededItem;
+			}
 		}
+		else {
+			errorMessage = ERROR_MESSAGES.noItems;
+		}
+
+		setNumberOfItemsError(errorMessage);
 	}, [totalNumberOfItems, item.config.numberOfItems]);
 
 	useEffect(() => {
+		let errorMessage = null;
+
 		if (isMaximumValuePerPageError) {
-			setNumberOfItemsPerPageError(
-				Liferay.Util.sub(
-					ERROR_MESSAGES.maximumItemsPerPage,
-					config.searchContainerPageMaxDelta
-				)
+			errorMessage = Liferay.Util.sub(
+				ERROR_MESSAGES.maximumItemsPerPage,
+				config.searchContainerPageMaxDelta
 			);
 		}
-	}, [isMaximumValuePerPageError]);
+		else if (item.config.numberOfItemsPerPage < 1) {
+			errorMessage = ERROR_MESSAGES.neededItem;
+		}
+
+		setNumberOfItemsPerPageError(errorMessage);
+	}, [isMaximumValuePerPageError, item.config.numberOfItemsPerPage]);
 
 	useEffect(() => {
 		if (collectionItemType) {
@@ -269,21 +319,17 @@ export const CollectionGeneralPanel = ({item}) => {
 				onNetworkStatus: () => {},
 			}).then(({totalNumberOfItems}) => {
 				if (isMounted()) {
-					const numberOfItems = totalNumberOfItems || 1;
-
-					setTotalNumberOfItems(numberOfItems);
+					setTotalNumberOfItems(totalNumberOfItems);
 
 					if (showAllItems) {
 						handleConfigurationChanged({
-							numberOfItems,
+							numberOfItems: totalNumberOfItems,
 						});
 
 						setNextValue((prevValue) => ({
 							...prevValue,
-							numberOfItems,
+							numberOfItems: totalNumberOfItems,
 						}));
-
-						setNumberOfItemsError(null);
 					}
 				}
 			});
@@ -343,17 +389,9 @@ export const CollectionGeneralPanel = ({item}) => {
 				collectionItem={item.config.collection}
 				itemSelectorURL={config.collectionSelectorURL}
 				label={Liferay.Language.get('collection')}
-				onCollectionSelect={(collection = {}) =>
-					handleConfigurationChanged({
-						collection: Object.keys(collection).length
-							? collection
-							: null,
-						listItemStyle: null,
-						listStyle: LIST_STYLE_GRID,
-						templateKey: null,
-					})
-				}
+				onCollectionSelect={handleCollectionSelect}
 				optionsMenuItems={optionsMenuItems}
+				shouldPreventCollectionSelect={shouldPreventCollectionSelect}
 			/>
 			{item.config.collection && (
 				<>
@@ -529,10 +567,9 @@ export const CollectionGeneralPanel = ({item}) => {
 				<CollectionFilterConfigurationModal
 					collectionConfiguration={collectionConfiguration}
 					handleConfigurationChanged={handleConfigurationChanged}
-					item={item}
+					itemConfig={item.config}
 					observer={filterConfigurationObserver}
 					onClose={onFilterConfigurationClose}
-					visible={filterConfigurationVisible}
 				/>
 			) : null}
 		</>

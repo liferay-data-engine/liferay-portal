@@ -30,12 +30,14 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
@@ -628,6 +630,37 @@ public class CommerceOrderPaymentModelImpl
 	}
 
 	@Override
+	public CommerceOrderPayment cloneWithOriginalValues() {
+		CommerceOrderPaymentImpl commerceOrderPaymentImpl =
+			new CommerceOrderPaymentImpl();
+
+		commerceOrderPaymentImpl.setCommerceOrderPaymentId(
+			this.<Long>getColumnOriginalValue("commerceOrderPaymentId"));
+		commerceOrderPaymentImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		commerceOrderPaymentImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		commerceOrderPaymentImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		commerceOrderPaymentImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		commerceOrderPaymentImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		commerceOrderPaymentImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		commerceOrderPaymentImpl.setCommerceOrderId(
+			this.<Long>getColumnOriginalValue("commerceOrderId"));
+		commerceOrderPaymentImpl.setCommercePaymentMethodKey(
+			this.<String>getColumnOriginalValue("commercePaymentMethodKey"));
+		commerceOrderPaymentImpl.setContent(
+			this.<String>getColumnOriginalValue("content"));
+		commerceOrderPaymentImpl.setStatus(
+			this.<Integer>getColumnOriginalValue("status"));
+
+		return commerceOrderPaymentImpl;
+	}
+
+	@Override
 	public int compareTo(CommerceOrderPayment commerceOrderPayment) {
 		int value = 0;
 
@@ -772,7 +805,7 @@ public class CommerceOrderPaymentModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -783,10 +816,27 @@ public class CommerceOrderPaymentModelImpl
 			Function<CommerceOrderPayment, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply((CommerceOrderPayment)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(CommerceOrderPayment)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

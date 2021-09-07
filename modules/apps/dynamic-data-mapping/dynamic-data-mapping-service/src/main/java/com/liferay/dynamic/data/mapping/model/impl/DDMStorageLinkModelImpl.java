@@ -27,6 +27,7 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
@@ -34,9 +35,11 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -602,6 +605,32 @@ public class DDMStorageLinkModelImpl
 	}
 
 	@Override
+	public DDMStorageLink cloneWithOriginalValues() {
+		DDMStorageLinkImpl ddmStorageLinkImpl = new DDMStorageLinkImpl();
+
+		ddmStorageLinkImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		ddmStorageLinkImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		ddmStorageLinkImpl.setUuid(
+			this.<String>getColumnOriginalValue("uuid_"));
+		ddmStorageLinkImpl.setStorageLinkId(
+			this.<Long>getColumnOriginalValue("storageLinkId"));
+		ddmStorageLinkImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		ddmStorageLinkImpl.setClassNameId(
+			this.<Long>getColumnOriginalValue("classNameId"));
+		ddmStorageLinkImpl.setClassPK(
+			this.<Long>getColumnOriginalValue("classPK"));
+		ddmStorageLinkImpl.setStructureId(
+			this.<Long>getColumnOriginalValue("structureId"));
+		ddmStorageLinkImpl.setStructureVersionId(
+			this.<Long>getColumnOriginalValue("structureVersionId"));
+
+		return ddmStorageLinkImpl;
+	}
+
+	@Override
 	public int compareTo(DDMStorageLink ddmStorageLink) {
 		long primaryKey = ddmStorageLink.getPrimaryKey();
 
@@ -706,7 +735,7 @@ public class DDMStorageLinkModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -717,9 +746,26 @@ public class DDMStorageLinkModelImpl
 			Function<DDMStorageLink, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((DDMStorageLink)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((DDMStorageLink)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

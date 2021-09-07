@@ -45,26 +45,21 @@ public class UpgradeAsset extends UpgradeProcess {
 			long classNameId = PortalUtil.getClassNameId(
 				DLFileEntryConstants.getClassName());
 
-			StringBundler sb = new StringBundler(5);
+			DBTypeToSQLMap dbTypeToSQLMap = new DBTypeToSQLMap(
+				StringBundler.concat(
+					"delete from AssetEntry where classNameId = ", classNameId,
+					" and classPK not in (select fileVersionId from ",
+					"DLFileVersion) and classPK not in (select fileEntryId ",
+					"from DLFileEntry)"));
 
-			sb.append("delete from AssetEntry where classNameId = ");
-			sb.append(classNameId);
-			sb.append(" and classPK not in (select fileVersionId from ");
-			sb.append("DLFileVersion) and classPK not in (select fileEntryId ");
-			sb.append("from DLFileEntry)");
-
-			DBTypeToSQLMap dbTypeToSQLMap = new DBTypeToSQLMap(sb.toString());
-
-			sb = new StringBundler(6);
-
-			sb.append("delete from AssetEntry where classNameId = ");
-			sb.append(classNameId);
-			sb.append(" and not exists (select null from DLFileVersion where ");
-			sb.append("fileVersionId = AssetEntry.classPK) and not exists ");
-			sb.append("(select null from DLFileEntry where fileEntryId = ");
-			sb.append("AssetEntry.classPK)");
-
-			dbTypeToSQLMap.add(DBType.POSTGRESQL, sb.toString());
+			dbTypeToSQLMap.add(
+				DBType.POSTGRESQL,
+				StringBundler.concat(
+					"delete from AssetEntry where classNameId = ", classNameId,
+					" and not exists (select null from DLFileVersion where ",
+					"fileVersionId = AssetEntry.classPK) and not exists ",
+					"(select null from DLFileEntry where fileEntryId = ",
+					"AssetEntry.classPK)"));
 
 			runSQL(dbTypeToSQLMap);
 		}
@@ -100,25 +95,23 @@ public class UpgradeAsset extends UpgradeProcess {
 	}
 
 	protected void updateAssetEntries() throws Exception {
-		StringBundler sb = new StringBundler(10);
-
-		sb.append("update AssetEntry set listable = ? where classNameId = ? ");
-		sb.append("and classPK in (select JournalArticle.resourcePrimKey as ");
-		sb.append("resourcePrimKey from (select ");
-		sb.append("JournalArticle.resourcePrimKey as primKey, ");
-		sb.append("max(JournalArticle.version) as maxVersion from ");
-		sb.append("JournalArticle group by JournalArticle.resourcePrimKey) ");
-		sb.append("TEMP_TABLE inner join JournalArticle on ");
-		sb.append("(JournalArticle.resourcePrimKey = TEMP_TABLE.primKey and ");
-		sb.append("JournalArticle.indexable = ? and JournalArticle.status = ");
-		sb.append("0 and JournalArticle.version = TEMP_TABLE.maxVersion))");
-
 		long classNameId = PortalUtil.getClassNameId(
 			"com.liferay.journal.model.JournalArticle");
 
 		try (LoggingTimer loggingTimer = new LoggingTimer();
 			PreparedStatement preparedStatement1 = connection.prepareStatement(
-				sb.toString())) {
+				StringBundler.concat(
+					"update AssetEntry set listable = ? where classNameId = ? ",
+					"and classPK in (select JournalArticle.resourcePrimKey as ",
+					"resourcePrimKey from (select ",
+					"JournalArticle.resourcePrimKey as primKey, ",
+					"max(JournalArticle.version) as maxVersion from ",
+					"JournalArticle group by JournalArticle.resourcePrimKey) ",
+					"TEMP_TABLE inner join JournalArticle on ",
+					"(JournalArticle.resourcePrimKey = TEMP_TABLE.primKey and ",
+					"JournalArticle.indexable = ? and JournalArticle.status = ",
+					"0 and JournalArticle.version = ",
+					"TEMP_TABLE.maxVersion))"))) {
 
 			preparedStatement1.setBoolean(1, false);
 			preparedStatement1.setLong(2, classNameId);

@@ -24,6 +24,7 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import java.io.Serializable;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Provides the local service utility for ListTypeEntry. This utility wraps
@@ -57,6 +58,15 @@ public class ListTypeEntryLocalServiceUtil {
 	 */
 	public static ListTypeEntry addListTypeEntry(ListTypeEntry listTypeEntry) {
 		return getService().addListTypeEntry(listTypeEntry);
+	}
+
+	public static ListTypeEntry addListTypeEntry(
+			long userId, long listTypeDefinitionId, String key,
+			Map<java.util.Locale, String> nameMap)
+		throws PortalException {
+
+		return getService().addListTypeEntry(
+			userId, listTypeDefinitionId, key, nameMap);
 	}
 
 	/**
@@ -261,6 +271,13 @@ public class ListTypeEntryLocalServiceUtil {
 		return getService().getListTypeEntries(start, end);
 	}
 
+	public static List<ListTypeEntry> getListTypeEntries(
+		long listTypeDefinitionId, int start, int end) {
+
+		return getService().getListTypeEntries(
+			listTypeDefinitionId, start, end);
+	}
+
 	/**
 	 * Returns the number of list type entries.
 	 *
@@ -268,6 +285,10 @@ public class ListTypeEntryLocalServiceUtil {
 	 */
 	public static int getListTypeEntriesCount() {
 		return getService().getListTypeEntriesCount();
+	}
+
+	public static int getListTypeEntriesCount(long listTypeDefinitionId) {
+		return getService().getListTypeEntriesCount(listTypeDefinitionId);
 	}
 
 	/**

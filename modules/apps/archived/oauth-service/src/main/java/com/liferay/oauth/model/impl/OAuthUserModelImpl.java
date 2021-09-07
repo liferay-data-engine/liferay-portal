@@ -31,12 +31,14 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -655,6 +657,31 @@ public class OAuthUserModelImpl
 	}
 
 	@Override
+	public OAuthUser cloneWithOriginalValues() {
+		OAuthUserImpl oAuthUserImpl = new OAuthUserImpl();
+
+		oAuthUserImpl.setOAuthUserId(
+			this.<Long>getColumnOriginalValue("oAuthUserId"));
+		oAuthUserImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		oAuthUserImpl.setUserId(this.<Long>getColumnOriginalValue("userId"));
+		oAuthUserImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		oAuthUserImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		oAuthUserImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		oAuthUserImpl.setOAuthApplicationId(
+			this.<Long>getColumnOriginalValue("oAuthApplicationId"));
+		oAuthUserImpl.setAccessToken(
+			this.<String>getColumnOriginalValue("accessToken"));
+		oAuthUserImpl.setAccessSecret(
+			this.<String>getColumnOriginalValue("accessSecret"));
+
+		return oAuthUserImpl;
+	}
+
+	@Override
 	public int compareTo(OAuthUser oAuthUser) {
 		long primaryKey = oAuthUser.getPrimaryKey();
 
@@ -786,7 +813,7 @@ public class OAuthUserModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -797,9 +824,26 @@ public class OAuthUserModelImpl
 			Function<OAuthUser, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((OAuthUser)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((OAuthUser)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

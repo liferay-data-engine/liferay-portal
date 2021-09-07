@@ -146,6 +146,11 @@ public class CommercePaymentMethodGroupRelWrapper
 		}
 	}
 
+	@Override
+	public CommercePaymentMethodGroupRel cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the active of this commerce payment method group rel.
 	 *

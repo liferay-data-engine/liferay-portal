@@ -27,6 +27,7 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.saml.persistence.model.SamlIdpSpConnection;
 import com.liferay.saml.persistence.model.SamlIdpSpConnectionModel;
 
@@ -35,6 +36,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
@@ -862,6 +864,53 @@ public class SamlIdpSpConnectionModelImpl
 	}
 
 	@Override
+	public SamlIdpSpConnection cloneWithOriginalValues() {
+		SamlIdpSpConnectionImpl samlIdpSpConnectionImpl =
+			new SamlIdpSpConnectionImpl();
+
+		samlIdpSpConnectionImpl.setSamlIdpSpConnectionId(
+			this.<Long>getColumnOriginalValue("samlIdpSpConnectionId"));
+		samlIdpSpConnectionImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		samlIdpSpConnectionImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		samlIdpSpConnectionImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		samlIdpSpConnectionImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		samlIdpSpConnectionImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		samlIdpSpConnectionImpl.setAssertionLifetime(
+			this.<Integer>getColumnOriginalValue("assertionLifetime"));
+		samlIdpSpConnectionImpl.setAttributeNames(
+			this.<String>getColumnOriginalValue("attributeNames"));
+		samlIdpSpConnectionImpl.setAttributesEnabled(
+			this.<Boolean>getColumnOriginalValue("attributesEnabled"));
+		samlIdpSpConnectionImpl.setAttributesNamespaceEnabled(
+			this.<Boolean>getColumnOriginalValue("attributesNamespaceEnabled"));
+		samlIdpSpConnectionImpl.setEnabled(
+			this.<Boolean>getColumnOriginalValue("enabled"));
+		samlIdpSpConnectionImpl.setEncryptionForced(
+			this.<Boolean>getColumnOriginalValue("encryptionForced"));
+		samlIdpSpConnectionImpl.setMetadataUrl(
+			this.<String>getColumnOriginalValue("metadataUrl"));
+		samlIdpSpConnectionImpl.setMetadataXml(
+			this.<String>getColumnOriginalValue("metadataXml"));
+		samlIdpSpConnectionImpl.setMetadataUpdatedDate(
+			this.<Date>getColumnOriginalValue("metadataUpdatedDate"));
+		samlIdpSpConnectionImpl.setName(
+			this.<String>getColumnOriginalValue("name"));
+		samlIdpSpConnectionImpl.setNameIdAttribute(
+			this.<String>getColumnOriginalValue("nameIdAttribute"));
+		samlIdpSpConnectionImpl.setNameIdFormat(
+			this.<String>getColumnOriginalValue("nameIdFormat"));
+		samlIdpSpConnectionImpl.setSamlSpEntityId(
+			this.<String>getColumnOriginalValue("samlSpEntityId"));
+
+		return samlIdpSpConnectionImpl;
+	}
+
+	@Override
 	public int compareTo(SamlIdpSpConnection samlIdpSpConnection) {
 		long primaryKey = samlIdpSpConnection.getPrimaryKey();
 
@@ -1055,7 +1104,7 @@ public class SamlIdpSpConnectionModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1066,9 +1115,27 @@ public class SamlIdpSpConnectionModelImpl
 			Function<SamlIdpSpConnection, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((SamlIdpSpConnection)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(SamlIdpSpConnection)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

@@ -216,6 +216,11 @@ public class CommercePriceListWrapper
 	}
 
 	@Override
+	public CommercePriceList cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
+	@Override
 	public CommercePriceList fetchParentCommercePriceList() {
 		return model.fetchParentCommercePriceList();
 	}

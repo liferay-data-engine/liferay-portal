@@ -33,6 +33,7 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
 import java.io.Serializable;
@@ -40,6 +41,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1146,6 +1148,57 @@ public class FragmentCompositionModelImpl
 	}
 
 	@Override
+	public FragmentComposition cloneWithOriginalValues() {
+		FragmentCompositionImpl fragmentCompositionImpl =
+			new FragmentCompositionImpl();
+
+		fragmentCompositionImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		fragmentCompositionImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		fragmentCompositionImpl.setUuid(
+			this.<String>getColumnOriginalValue("uuid_"));
+		fragmentCompositionImpl.setFragmentCompositionId(
+			this.<Long>getColumnOriginalValue("fragmentCompositionId"));
+		fragmentCompositionImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		fragmentCompositionImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		fragmentCompositionImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		fragmentCompositionImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		fragmentCompositionImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		fragmentCompositionImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		fragmentCompositionImpl.setFragmentCollectionId(
+			this.<Long>getColumnOriginalValue("fragmentCollectionId"));
+		fragmentCompositionImpl.setFragmentCompositionKey(
+			this.<String>getColumnOriginalValue("fragmentCompositionKey"));
+		fragmentCompositionImpl.setName(
+			this.<String>getColumnOriginalValue("name"));
+		fragmentCompositionImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		fragmentCompositionImpl.setData(
+			this.<String>getColumnOriginalValue("data_"));
+		fragmentCompositionImpl.setPreviewFileEntryId(
+			this.<Long>getColumnOriginalValue("previewFileEntryId"));
+		fragmentCompositionImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+		fragmentCompositionImpl.setStatus(
+			this.<Integer>getColumnOriginalValue("status"));
+		fragmentCompositionImpl.setStatusByUserId(
+			this.<Long>getColumnOriginalValue("statusByUserId"));
+		fragmentCompositionImpl.setStatusByUserName(
+			this.<String>getColumnOriginalValue("statusByUserName"));
+		fragmentCompositionImpl.setStatusDate(
+			this.<Date>getColumnOriginalValue("statusDate"));
+
+		return fragmentCompositionImpl;
+	}
+
+	@Override
 	public int compareTo(FragmentComposition fragmentComposition) {
 		int value = 0;
 
@@ -1347,7 +1400,7 @@ public class FragmentCompositionModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1358,9 +1411,27 @@ public class FragmentCompositionModelImpl
 			Function<FragmentComposition, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((FragmentComposition)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(FragmentComposition)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

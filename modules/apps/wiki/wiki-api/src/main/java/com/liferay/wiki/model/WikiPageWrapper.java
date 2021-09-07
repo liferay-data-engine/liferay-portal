@@ -242,6 +242,11 @@ public class WikiPageWrapper
 	}
 
 	@Override
+	public WikiPage cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
+	@Override
 	public WikiPage fetchParentPage() {
 		return model.fetchParentPage();
 	}

@@ -24,6 +24,7 @@ import com.liferay.portal.kernel.model.impl.BaseModelImpl;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.social.kernel.model.SocialRelation;
 import com.liferay.social.kernel.model.SocialRelationModel;
 
@@ -32,9 +33,11 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -584,6 +587,32 @@ public class SocialRelationModelImpl
 	}
 
 	@Override
+	public SocialRelation cloneWithOriginalValues() {
+		SocialRelationImpl socialRelationImpl = new SocialRelationImpl();
+
+		socialRelationImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		socialRelationImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		socialRelationImpl.setUuid(
+			this.<String>getColumnOriginalValue("uuid_"));
+		socialRelationImpl.setRelationId(
+			this.<Long>getColumnOriginalValue("relationId"));
+		socialRelationImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		socialRelationImpl.setCreateDate(
+			this.<Long>getColumnOriginalValue("createDate"));
+		socialRelationImpl.setUserId1(
+			this.<Long>getColumnOriginalValue("userId1"));
+		socialRelationImpl.setUserId2(
+			this.<Long>getColumnOriginalValue("userId2"));
+		socialRelationImpl.setType(
+			this.<Integer>getColumnOriginalValue("type_"));
+
+		return socialRelationImpl;
+	}
+
+	@Override
 	public int compareTo(SocialRelation socialRelation) {
 		long primaryKey = socialRelation.getPrimaryKey();
 
@@ -688,7 +717,7 @@ public class SocialRelationModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -699,9 +728,26 @@ public class SocialRelationModelImpl
 			Function<SocialRelation, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((SocialRelation)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((SocialRelation)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

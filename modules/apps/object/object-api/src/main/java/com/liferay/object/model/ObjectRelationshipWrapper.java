@@ -107,6 +107,11 @@ public class ObjectRelationshipWrapper
 		}
 	}
 
+	@Override
+	public ObjectRelationship cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the company ID of this object relationship.
 	 *

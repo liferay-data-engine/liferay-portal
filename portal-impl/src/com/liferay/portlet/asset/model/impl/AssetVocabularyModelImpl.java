@@ -36,6 +36,7 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
@@ -43,6 +44,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1193,6 +1195,48 @@ public class AssetVocabularyModelImpl
 	}
 
 	@Override
+	public AssetVocabulary cloneWithOriginalValues() {
+		AssetVocabularyImpl assetVocabularyImpl = new AssetVocabularyImpl();
+
+		assetVocabularyImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		assetVocabularyImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		assetVocabularyImpl.setUuid(
+			this.<String>getColumnOriginalValue("uuid_"));
+		assetVocabularyImpl.setExternalReferenceCode(
+			this.<String>getColumnOriginalValue("externalReferenceCode"));
+		assetVocabularyImpl.setVocabularyId(
+			this.<Long>getColumnOriginalValue("vocabularyId"));
+		assetVocabularyImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		assetVocabularyImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		assetVocabularyImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		assetVocabularyImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		assetVocabularyImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		assetVocabularyImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		assetVocabularyImpl.setName(
+			this.<String>getColumnOriginalValue("name"));
+		assetVocabularyImpl.setTitle(
+			this.<String>getColumnOriginalValue("title"));
+		assetVocabularyImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		assetVocabularyImpl.setSettings(
+			this.<String>getColumnOriginalValue("settings_"));
+		assetVocabularyImpl.setVisibilityType(
+			this.<Integer>getColumnOriginalValue("visibilityType"));
+		assetVocabularyImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+
+		return assetVocabularyImpl;
+	}
+
+	@Override
 	public int compareTo(AssetVocabulary assetVocabulary) {
 		int value = 0;
 
@@ -1375,7 +1419,7 @@ public class AssetVocabularyModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1386,9 +1430,26 @@ public class AssetVocabularyModelImpl
 			Function<AssetVocabulary, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((AssetVocabulary)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((AssetVocabulary)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

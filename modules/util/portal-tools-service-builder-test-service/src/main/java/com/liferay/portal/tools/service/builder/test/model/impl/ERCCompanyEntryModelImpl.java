@@ -24,6 +24,7 @@ import com.liferay.portal.kernel.model.impl.BaseModelImpl;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.tools.service.builder.test.model.ERCCompanyEntry;
 import com.liferay.portal.tools.service.builder.test.model.ERCCompanyEntryModel;
 
@@ -32,9 +33,11 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -418,6 +421,20 @@ public class ERCCompanyEntryModelImpl
 	}
 
 	@Override
+	public ERCCompanyEntry cloneWithOriginalValues() {
+		ERCCompanyEntryImpl ercCompanyEntryImpl = new ERCCompanyEntryImpl();
+
+		ercCompanyEntryImpl.setExternalReferenceCode(
+			this.<String>getColumnOriginalValue("externalReferenceCode"));
+		ercCompanyEntryImpl.setErcCompanyEntryId(
+			this.<Long>getColumnOriginalValue("ercCompanyEntryId"));
+		ercCompanyEntryImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+
+		return ercCompanyEntryImpl;
+	}
+
+	@Override
 	public int compareTo(ERCCompanyEntry ercCompanyEntry) {
 		long primaryKey = ercCompanyEntry.getPrimaryKey();
 
@@ -514,7 +531,7 @@ public class ERCCompanyEntryModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -525,9 +542,26 @@ public class ERCCompanyEntryModelImpl
 			Function<ERCCompanyEntry, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((ERCCompanyEntry)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((ERCCompanyEntry)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

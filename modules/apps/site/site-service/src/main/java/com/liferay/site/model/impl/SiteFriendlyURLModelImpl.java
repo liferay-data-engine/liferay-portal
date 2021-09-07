@@ -29,6 +29,7 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.site.model.SiteFriendlyURL;
 import com.liferay.site.model.SiteFriendlyURLModel;
 
@@ -37,6 +38,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
@@ -694,6 +696,38 @@ public class SiteFriendlyURLModelImpl
 	}
 
 	@Override
+	public SiteFriendlyURL cloneWithOriginalValues() {
+		SiteFriendlyURLImpl siteFriendlyURLImpl = new SiteFriendlyURLImpl();
+
+		siteFriendlyURLImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		siteFriendlyURLImpl.setUuid(
+			this.<String>getColumnOriginalValue("uuid_"));
+		siteFriendlyURLImpl.setSiteFriendlyURLId(
+			this.<Long>getColumnOriginalValue("siteFriendlyURLId"));
+		siteFriendlyURLImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		siteFriendlyURLImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		siteFriendlyURLImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		siteFriendlyURLImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		siteFriendlyURLImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		siteFriendlyURLImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		siteFriendlyURLImpl.setFriendlyURL(
+			this.<String>getColumnOriginalValue("friendlyURL"));
+		siteFriendlyURLImpl.setLanguageId(
+			this.<String>getColumnOriginalValue("languageId"));
+		siteFriendlyURLImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+
+		return siteFriendlyURLImpl;
+	}
+
+	@Override
 	public int compareTo(SiteFriendlyURL siteFriendlyURL) {
 		long primaryKey = siteFriendlyURL.getPrimaryKey();
 
@@ -846,7 +880,7 @@ public class SiteFriendlyURLModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -857,9 +891,26 @@ public class SiteFriendlyURLModelImpl
 			Function<SiteFriendlyURL, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((SiteFriendlyURL)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((SiteFriendlyURL)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

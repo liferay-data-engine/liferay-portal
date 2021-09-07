@@ -36,6 +36,7 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
@@ -43,6 +44,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1282,6 +1284,53 @@ public class DDLRecordSetModelImpl
 	}
 
 	@Override
+	public DDLRecordSet cloneWithOriginalValues() {
+		DDLRecordSetImpl ddlRecordSetImpl = new DDLRecordSetImpl();
+
+		ddlRecordSetImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		ddlRecordSetImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		ddlRecordSetImpl.setUuid(this.<String>getColumnOriginalValue("uuid_"));
+		ddlRecordSetImpl.setRecordSetId(
+			this.<Long>getColumnOriginalValue("recordSetId"));
+		ddlRecordSetImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		ddlRecordSetImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		ddlRecordSetImpl.setUserId(this.<Long>getColumnOriginalValue("userId"));
+		ddlRecordSetImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		ddlRecordSetImpl.setVersionUserId(
+			this.<Long>getColumnOriginalValue("versionUserId"));
+		ddlRecordSetImpl.setVersionUserName(
+			this.<String>getColumnOriginalValue("versionUserName"));
+		ddlRecordSetImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		ddlRecordSetImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		ddlRecordSetImpl.setDDMStructureId(
+			this.<Long>getColumnOriginalValue("DDMStructureId"));
+		ddlRecordSetImpl.setRecordSetKey(
+			this.<String>getColumnOriginalValue("recordSetKey"));
+		ddlRecordSetImpl.setVersion(
+			this.<String>getColumnOriginalValue("version"));
+		ddlRecordSetImpl.setName(this.<String>getColumnOriginalValue("name"));
+		ddlRecordSetImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		ddlRecordSetImpl.setMinDisplayRows(
+			this.<Integer>getColumnOriginalValue("minDisplayRows"));
+		ddlRecordSetImpl.setScope(
+			this.<Integer>getColumnOriginalValue("scope"));
+		ddlRecordSetImpl.setSettings(
+			this.<String>getColumnOriginalValue("settings_"));
+		ddlRecordSetImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+
+		return ddlRecordSetImpl;
+	}
+
+	@Override
 	public int compareTo(DDLRecordSet ddlRecordSet) {
 		long primaryKey = ddlRecordSet.getPrimaryKey();
 
@@ -1479,7 +1528,7 @@ public class DDLRecordSetModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1490,9 +1539,26 @@ public class DDLRecordSetModelImpl
 			Function<DDLRecordSet, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((DDLRecordSet)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((DDLRecordSet)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

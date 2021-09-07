@@ -30,6 +30,7 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.sync.model.SyncDevice;
 import com.liferay.sync.model.SyncDeviceModel;
 import com.liferay.sync.model.SyncDeviceSoap;
@@ -39,6 +40,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -732,6 +734,35 @@ public class SyncDeviceModelImpl
 	}
 
 	@Override
+	public SyncDevice cloneWithOriginalValues() {
+		SyncDeviceImpl syncDeviceImpl = new SyncDeviceImpl();
+
+		syncDeviceImpl.setUuid(this.<String>getColumnOriginalValue("uuid_"));
+		syncDeviceImpl.setSyncDeviceId(
+			this.<Long>getColumnOriginalValue("syncDeviceId"));
+		syncDeviceImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		syncDeviceImpl.setUserId(this.<Long>getColumnOriginalValue("userId"));
+		syncDeviceImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		syncDeviceImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		syncDeviceImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		syncDeviceImpl.setType(this.<String>getColumnOriginalValue("type_"));
+		syncDeviceImpl.setBuildNumber(
+			this.<Long>getColumnOriginalValue("buildNumber"));
+		syncDeviceImpl.setFeatureSet(
+			this.<Integer>getColumnOriginalValue("featureSet"));
+		syncDeviceImpl.setHostname(
+			this.<String>getColumnOriginalValue("hostname"));
+		syncDeviceImpl.setStatus(
+			this.<Integer>getColumnOriginalValue("status"));
+
+		return syncDeviceImpl;
+	}
+
+	@Override
 	public int compareTo(SyncDevice syncDevice) {
 		long primaryKey = syncDevice.getPrimaryKey();
 
@@ -875,7 +906,7 @@ public class SyncDeviceModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -886,9 +917,26 @@ public class SyncDeviceModelImpl
 			Function<SyncDevice, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((SyncDevice)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((SyncDevice)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

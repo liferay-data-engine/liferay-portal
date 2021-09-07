@@ -190,6 +190,11 @@ public class CommerceNotificationTemplateWrapper
 	}
 
 	@Override
+	public CommerceNotificationTemplate cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
+	@Override
 	public String[] getAvailableLanguageIds() {
 		return model.getAvailableLanguageIds();
 	}

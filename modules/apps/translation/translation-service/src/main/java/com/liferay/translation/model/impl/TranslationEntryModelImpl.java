@@ -30,6 +30,7 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.translation.model.TranslationEntry;
@@ -41,6 +42,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1082,6 +1084,52 @@ public class TranslationEntryModelImpl
 	}
 
 	@Override
+	public TranslationEntry cloneWithOriginalValues() {
+		TranslationEntryImpl translationEntryImpl = new TranslationEntryImpl();
+
+		translationEntryImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		translationEntryImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		translationEntryImpl.setUuid(
+			this.<String>getColumnOriginalValue("uuid_"));
+		translationEntryImpl.setTranslationEntryId(
+			this.<Long>getColumnOriginalValue("translationEntryId"));
+		translationEntryImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		translationEntryImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		translationEntryImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		translationEntryImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		translationEntryImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		translationEntryImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		translationEntryImpl.setClassNameId(
+			this.<Long>getColumnOriginalValue("classNameId"));
+		translationEntryImpl.setClassPK(
+			this.<Long>getColumnOriginalValue("classPK"));
+		translationEntryImpl.setContent(
+			this.<String>getColumnOriginalValue("content"));
+		translationEntryImpl.setContentType(
+			this.<String>getColumnOriginalValue("contentType"));
+		translationEntryImpl.setLanguageId(
+			this.<String>getColumnOriginalValue("languageId"));
+		translationEntryImpl.setStatus(
+			this.<Integer>getColumnOriginalValue("status"));
+		translationEntryImpl.setStatusByUserId(
+			this.<Long>getColumnOriginalValue("statusByUserId"));
+		translationEntryImpl.setStatusByUserName(
+			this.<String>getColumnOriginalValue("statusByUserName"));
+		translationEntryImpl.setStatusDate(
+			this.<Date>getColumnOriginalValue("statusDate"));
+
+		return translationEntryImpl;
+	}
+
+	@Override
 	public int compareTo(TranslationEntry translationEntry) {
 		long primaryKey = translationEntry.getPrimaryKey();
 
@@ -1259,7 +1307,7 @@ public class TranslationEntryModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1270,9 +1318,27 @@ public class TranslationEntryModelImpl
 			Function<TranslationEntry, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((TranslationEntry)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(TranslationEntry)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

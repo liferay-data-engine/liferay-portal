@@ -136,6 +136,11 @@ public class JSONStorageEntryWrapper
 		}
 	}
 
+	@Override
+	public JSONStorageEntry cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the fully qualified class name of this json storage entry.
 	 *

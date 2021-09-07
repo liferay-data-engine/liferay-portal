@@ -20,13 +20,24 @@ import com.liferay.dynamic.data.mapping.annotations.DDMFormLayout;
 import com.liferay.dynamic.data.mapping.annotations.DDMFormLayoutColumn;
 import com.liferay.dynamic.data.mapping.annotations.DDMFormLayoutPage;
 import com.liferay.dynamic.data.mapping.annotations.DDMFormLayoutRow;
+import com.liferay.dynamic.data.mapping.annotations.DDMFormRule;
 import com.liferay.dynamic.data.mapping.form.field.type.DefaultDDMFormFieldTypeSettings;
 import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 
 /**
  * @author Marcellus Tavares
  */
-@DDMForm
+@DDMForm(
+	rules = {
+		@DDMFormRule(
+			actions = {
+				"setVisible('dataType', FALSE)",
+				"setVisible('requiredErrorMessage', getValue('required'))"
+			},
+			condition = "TRUE"
+		)
+	}
+)
 @DDMFormLayout(
 	paginationMode = com.liferay.dynamic.data.mapping.model.DDMFormLayout.TABBED_MODE,
 	value = {
@@ -38,7 +49,8 @@ import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 						@DDMFormLayoutColumn(
 							size = 12,
 							value = {
-								"label", "tip", "required", "showAsSwitcher"
+								"label", "tip", "required",
+								"requiredErrorMessage", "showAsSwitcher"
 							}
 						)
 					}
@@ -58,7 +70,7 @@ import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 								"objectFieldName", "fieldNamespace",
 								"indexType", "labelAtStructureLevel",
 								"localizable", "readOnly", "dataType", "type",
-								"showLabel", "repeatable"
+								"repeatable"
 							}
 						)
 					}
@@ -70,10 +82,19 @@ import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 public interface CheckboxDDMFormFieldTypeSettings
 	extends DefaultDDMFormFieldTypeSettings {
 
+	@DDMFormField(predefinedValue = "boolean")
+	@Override
+	public String dataType();
+
 	@DDMFormField(
-		dataType = "string", label = "%predefined-value",
-		properties = {"showAsSwitcher=true", "visualProperty=true"},
-		type = "checkbox"
+		label = "%predefined-value", optionLabels = {"%false", "%true"},
+		optionValues = {"false", "true"}, predefinedValue = "[\"false\"]",
+		properties = {
+			"placeholder=%enter-a-default-value",
+			"tooltip=%enter-a-default-value-that-is-submitted-if-no-other-value-is-entered",
+			"showEmptyOption=false", "visualProperty=true"
+		},
+		type = "select"
 	)
 	@Override
 	public LocalizedValue predefinedValue();
@@ -83,7 +104,17 @@ public interface CheckboxDDMFormFieldTypeSettings
 	public boolean repeatable();
 
 	@DDMFormField(
-		dataType = "boolean", label = "%show-as-a-switcher",
+		label = "%required-field",
+		properties = {
+			"showAsSwitcher=true", "tooltip=%only-true-will-be-accepted",
+			"visualProperty=true"
+		}
+	)
+	@Override
+	public boolean required();
+
+	@DDMFormField(
+		dataType = "boolean", label = "%show-as-a-switch",
 		properties = "showAsSwitcher=true", type = "checkbox"
 	)
 	public boolean showAsSwitcher();

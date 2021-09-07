@@ -76,7 +76,7 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 							"osgi.jaxrs.extension.select",
 							"(osgi.jaxrs.name=Liferay.Vulcan)"
 						).put(
-							"osgi.jaxrs.name", objectDefinition.getShortName()
+							"osgi.jaxrs.name", objectDefinition.getName()
 						).build()),
 					_objectEntryResourceComponentFactory.newInstance(
 						HashMapDictionaryBuilder.<String, Object>put(
@@ -85,13 +85,13 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 							"batch.engine.task.item.delegate", "true"
 						).put(
 							"batch.engine.task.item.delegate.name",
-							objectDefinition.getShortName()
-						).put(
-							"osgi.jaxrs.resource", "true"
+							objectDefinition.getName()
 						).put(
 							"osgi.jaxrs.application.select",
-							"(osgi.jaxrs.name=" +
-								objectDefinition.getShortName() + ")"
+							"(osgi.jaxrs.name=" + objectDefinition.getName() +
+								")"
+						).put(
+							"osgi.jaxrs.resource", "true"
 						).build())));
 
 			Collections.addAll(
@@ -100,13 +100,12 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 					ContextProvider.class,
 					new ObjectDefinitionContextProvider(this, _portal),
 					HashMapDictionaryBuilder.<String, Object>put(
+						"enabled", "false"
+					).put(
 						"osgi.jaxrs.application.select",
-						"(osgi.jaxrs.name=" + objectDefinition.getShortName() +
-							")"
+						"(osgi.jaxrs.name=" + objectDefinition.getName() + ")"
 					).put(
 						"osgi.jaxrs.extension", "true"
-					).put(
-						"enabled", "false"
 					).put(
 						"osgi.jaxrs.name",
 						objectDefinition.getRESTContextPath() +
@@ -117,8 +116,7 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 					new RequiredObjectFieldExceptionMapper(),
 					HashMapDictionaryBuilder.<String, Object>put(
 						"osgi.jaxrs.application.select",
-						"(osgi.jaxrs.name=" + objectDefinition.getShortName() +
-							")"
+						"(osgi.jaxrs.name=" + objectDefinition.getName() + ")"
 					).put(
 						"osgi.jaxrs.extension", "true"
 					).put(
@@ -173,10 +171,13 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 		Map<Long, ObjectDefinition> objectDefinitions =
 			_objectDefinitionsMap.get(objectDefinition.getRESTContextPath());
 
-		objectDefinitions.remove(objectDefinition.getCompanyId());
+		if (objectDefinitions != null) {
+			objectDefinitions.remove(objectDefinition.getCompanyId());
 
-		if (objectDefinitions.isEmpty()) {
-			_objectDefinitionsMap.remove(objectDefinition.getRESTContextPath());
+			if (objectDefinitions.isEmpty()) {
+				_objectDefinitionsMap.remove(
+					objectDefinition.getRESTContextPath());
+			}
 		}
 
 		if (!_objectDefinitionsMap.containsKey(
@@ -186,8 +187,10 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 				_componentInstancesMap.get(
 					objectDefinition.getRESTContextPath());
 
-			for (ComponentInstance componentInstance : componentInstances) {
-				componentInstance.dispose();
+			if (componentInstances != null) {
+				for (ComponentInstance componentInstance : componentInstances) {
+					componentInstance.dispose();
+				}
 			}
 		}
 	}

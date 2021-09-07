@@ -58,11 +58,7 @@ definition {
 
 		Form.saveElementSet();
 
-		FormsAdminNavigator.gotoBack();
-
-		Navigator.gotoNavItem(navItem = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -108,11 +104,7 @@ definition {
 
 		Form.save();
 
-		FormsAdminNavigator.gotoBack();
-
-		Navigator.gotoNavItem(navItem = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form1");
 
@@ -160,11 +152,7 @@ definition {
 
 		Form.saveElementSet();
 
-		FormsAdminNavigator.gotoBack();
-
-		Navigator.gotoNavItem(navItem = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -220,11 +208,7 @@ definition {
 
 		Form.saveElementSet();
 
-		FormsAdminNavigator.gotoBack();
-
-		Navigator.gotoNavItem(navItem = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -276,11 +260,7 @@ definition {
 
 		Form.saveElementSet();
 
-		FormsAdminNavigator.gotoBack();
-
-		Navigator.gotoNavItem(navItem = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -342,11 +322,7 @@ definition {
 
 		Form.saveElementSet();
 
-		FormsAdminNavigator.gotoBack();
-
-		Navigator.gotoNavItem(navItem = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -418,11 +394,7 @@ definition {
 
 		Form.saveElementSet();
 
-		FormsAdminNavigator.gotoBack();
-
-		Navigator.gotoNavItem(navItem = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -484,11 +456,7 @@ definition {
 
 		Form.saveElementSet();
 
-		FormsAdminNavigator.gotoBack();
-
-		Navigator.gotoNavItem(navItem = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -560,11 +528,7 @@ definition {
 
 		Form.saveElementSet();
 
-		FormsAdminNavigator.gotoBack();
-
-		Navigator.gotoNavItem(navItem = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -618,11 +582,7 @@ definition {
 
 		Form.saveElementSet();
 
-		FormsAdminNavigator.gotoBack();
-
-		Navigator.gotoNavItem(navItem = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -676,11 +636,7 @@ definition {
 
 		Form.saveElementSet();
 
-		FormsAdminNavigator.gotoBack();
-
-		Navigator.gotoNavItem(navItem = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -736,11 +692,7 @@ definition {
 
 		Form.saveElementSet();
 
-		FormsAdminNavigator.gotoBack();
-
-		Navigator.gotoNavItem(navItem = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -796,11 +748,7 @@ definition {
 
 		Form.saveElementSet();
 
-		FormsAdminNavigator.gotoBack();
-
-		Navigator.gotoNavItem(navItem = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -856,11 +804,7 @@ definition {
 
 		Form.saveElementSet();
 
-		FormsAdminNavigator.gotoBack();
-
-		Navigator.gotoNavItem(navItem = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -925,11 +869,7 @@ definition {
 
 		Form.saveElementSet();
 
-		FormsAdminNavigator.gotoBack();
-
-		Navigator.gotoNavItem(navItem = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -977,11 +917,7 @@ definition {
 
 		Form.saveElementSet();
 
-		FormsAdminNavigator.gotoBack();
-
-		Navigator.gotoNavItem(navItem = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -1085,11 +1021,7 @@ definition {
 
 		Form.saveElementSet();
 
-		FormsAdminNavigator.gotoBack();
-
-		Navigator.gotoNavItem(navItem = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -1280,11 +1212,7 @@ definition {
 
 		Form.saveElementSet();
 
-		FormsAdminNavigator.gotoBack();
-
-		Navigator.gotoNavItem(navItem = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -1363,11 +1291,7 @@ definition {
 
 		Form.saveElementSet();
 
-		FormsAdminNavigator.gotoBack();
-
-		Navigator.gotoNavItem(navItem = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -1379,7 +1303,7 @@ definition {
 
 		Form.gotoAutocompleteTab();
 
-		FormFields.viewSwitcherChecked(fieldName = "Autocomplete");
+		FormFields.viewSwitchChecked(fieldName = "Autocomplete");
 
 		FormFields.viewRadioValue(
 			fieldName = "dataSourceType",
@@ -1434,11 +1358,7 @@ definition {
 
 		Form.saveElementSet();
 
-		FormsAdminNavigator.gotoBack();
-
-		Navigator.gotoNavItem(navItem = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -1492,7 +1412,7 @@ definition {
 
 		Form.gotoAdvancedTab();
 
-		FormFields.disableSwitcher(fieldName = "Show Label");
+		FormFields.disableSwitch(fieldName = "Show Label");
 
 		Form.closeSidebar();
 
@@ -1500,11 +1420,7 @@ definition {
 
 		Form.saveElementSet();
 
-		FormsAdminNavigator.gotoBack();
-
-		Navigator.gotoNavItem(navItem = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -1567,7 +1483,7 @@ definition {
 
 		Form.gotoAdvancedTab();
 
-		FormFields.enableSwitcher(fieldName = "Inline");
+		FormFields.enableSwitch(fieldName = "Inline");
 
 		FormFields.viewOptionsPositionHorizontal(
 			key_text1 = "Option 1",
@@ -1575,11 +1491,7 @@ definition {
 
 		Form.save();
 
-		FormsAdminNavigator.gotoBack();
-
-		Navigator.gotoNavItem(navItem = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form1");
 
@@ -1643,15 +1555,11 @@ definition {
 
 		Form.gotoAdvancedTab();
 
-		FormFields.enableSwitcher(fieldName = "Allow Multiple Selections");
+		FormFields.enableSwitch(fieldName = "Allow Multiple Selections");
 
 		Form.saveElementSet();
 
-		FormsAdminNavigator.gotoBack();
-
-		Navigator.gotoNavItem(navItem = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -1669,7 +1577,7 @@ definition {
 
 		Form.gotoAdvancedTab();
 
-		FormFields.viewSwitcherChecked(fieldName = "Allow Multiple Selections");
+		FormFields.viewSwitchChecked(fieldName = "Allow Multiple Selections");
 
 		Form.save();
 
@@ -1721,11 +1629,7 @@ definition {
 
 		Form.saveElementSet();
 
-		FormsAdminNavigator.gotoBack();
-
-		Navigator.gotoNavItem(navItem = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -1783,11 +1687,7 @@ definition {
 
 		Form.saveElementSet();
 
-		FormsAdminNavigator.gotoBack();
-
-		Navigator.gotoNavItem(navItem = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -1838,7 +1738,7 @@ definition {
 
 		Form.gotoAdvancedTab();
 
-		FormFields.enableSwitcher(fieldName = "Repeatable");
+		FormFields.enableSwitch(fieldName = "Repeatable");
 
 		FormFields.viewFieldRepeatableButton(
 			fieldName = "Text",
@@ -1846,11 +1746,7 @@ definition {
 
 		Form.saveElementSet();
 
-		FormsAdminNavigator.gotoBack();
-
-		Navigator.gotoNavItem(navItem = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -1914,17 +1810,13 @@ definition {
 			fieldPositionNumber = "1",
 			fieldType = "Text");
 
-		FormFields.enableSwitcher(fieldName = "Required Field");
+		FormFields.enableSwitch(fieldName = "Required Field");
 
 		FormFields.viewRequiredAsteriskDataField(fieldFieldLabel = "Text");
 
 		Form.saveElementSet();
 
-		FormsAdminNavigator.gotoBack();
-
-		Navigator.gotoNavItem(navItem = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -1949,9 +1841,9 @@ definition {
 		FormPortlet.submitWithValidationError(validationErrorMessage = "This field is required.");
 	}
 
-	@description = "Verify that a Show as Switcher Property persists after being added to a Form via Fieldset"
+	@description = "Verify that a Show as Switch Property persists after being added to a Form via Fieldset"
 	@priority = "4"
-	test PreserveTheShowAsSwitcherProperty {
+	test PreserveTheShowAsSwitchProperty {
 		property forms.functional = "true";
 
 		ProductMenu.gotoPortlet(
@@ -1984,21 +1876,17 @@ definition {
 
 		Form.closeSidebar();
 
-		FormFields.viewSwitcherOption(
+		FormFields.viewSwitchOption(
 			fieldName = "MultipleSelection",
 			optionValue = "Option 1");
 
-		FormFields.viewSwitcherOption(
+		FormFields.viewSwitchOption(
 			fieldName = "MultipleSelection",
 			optionValue = "Option 2");
 
 		Form.saveElementSet();
 
-		FormsAdminNavigator.gotoBack();
-
-		Navigator.gotoNavItem(navItem = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -2008,11 +1896,11 @@ definition {
 
 		FormFields.viewField(fieldName = "MultipleSelection");
 
-		FormFields.viewSwitcherOption(
+		FormFields.viewSwitchOption(
 			fieldName = "MultipleSelection",
 			optionValue = "Option 1");
 
-		FormFields.viewSwitcherOption(
+		FormFields.viewSwitchOption(
 			fieldName = "MultipleSelection",
 			optionValue = "Option 2");
 
@@ -2022,11 +1910,11 @@ definition {
 
 		FormsAdminNavigator.gotoPublishedForm();
 
-		FormFields.viewSwitcherOption(
+		FormFields.viewSwitchOption(
 			fieldName = "MultipleSelection",
 			optionValue = "Option 1");
 
-		FormFields.viewSwitcherOption(
+		FormFields.viewSwitchOption(
 			fieldName = "MultipleSelection",
 			optionValue = "Option 2");
 	}

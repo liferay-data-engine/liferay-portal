@@ -1,7 +1,7 @@
 @component-name = "portal-user-management-and-portal-configuration"
 definition {
 
-	property portal.release = "false";
+	property portal.release = "true";
 	property portal.upstream = "true";
 	property testray.main.component.name = "Account";
 
@@ -46,6 +46,107 @@ definition {
 		AccountUsers.openAccountUsersAdmin();
 
 		LexiconEntry.viewEntryName(rowEntry = "userfn userln");
+	}
+
+	@description = "This test adds an account user to an account via Edit User page"
+	@priority = "4"
+	test CanAddUserToAccountViaEditUser {
+		for (var accountNumber : list "1,2") {
+			JSONAccountEntry.addAccountEntry(
+				accountEntryName = "Accounts Name ${accountNumber}",
+				accountEntryType = "Business");
+		}
+
+		AccountUsers.openAccountUsersAdmin();
+
+		AccountUsers.addUser(
+			accountName = "Accounts Name 1",
+			userEmailAddress = "userea@liferay.com",
+			userFirstName = "userfn",
+			userLastName = "userln",
+			userScreenName = "usersn");
+
+		AccountUsers.openAccountUsersAdmin();
+
+		LexiconEntry.gotoEntryMenuItem(
+			menuItem = "Edit",
+			rowEntry = "userfn userln");
+
+		AssertTextEquals.assertPartialText(
+			locator1 = "Portlet#HEADER",
+			value1 = "Edit User userfn userln");
+
+		Navigator.gotoNavNested(navNested = "Accounts");
+
+		AssertClick(
+			key_text = "Select",
+			locator1 = "Button#ANY",
+			value1 = "Select");
+
+		SelectFrame(
+			key_title = "Select Account",
+			locator1 = "IFrame#MODAL_ANY");
+
+		AssertClick(
+			key_accountName = "Accounts Name 2",
+			locator1 = "AccountUsers#SELECT_AN_ACCOUNT_CHOOSE_BUTTON",
+			value1 = "Choose");
+
+		Button.clickSave();
+
+		AccountUsers.openAccountUsersAdmin();
+
+		AccountUsers.viewEntryAccounts(
+			accountName = "Accounts Name 1, Accounts Name 2",
+			accountUserName = "userfn userln");
+	}
+
+	@description = "This test adds more than 4 account users and asserts correct pagination."
+	@priority = "3"
+	test CanChangePaginationInAccountUsersList {
+		JSONAccountEntry.addAccountEntry(
+			accountEntryName = "Account Name",
+			accountEntryType = "Business");
+
+		for (var accountUser : list "1,2,3,4,5,6") {
+			AccountUsers.openAccountUsersAdmin();
+
+			AccountUsers.addUser(
+				accountName = "Account Name",
+				userEmailAddress = "userea${accountUser}@liferay.com",
+				userFirstName = "userfn${accountUser}",
+				userLastName = "userln${accountUser}",
+				userScreenName = "usersn${accountUser}");
+		}
+
+		ApplicationsMenu.gotoPortlet(
+			category = "Accounts",
+			panel = "Applications",
+			portlet = "Account Users");
+
+		Pagination.changePagination(itemsPerPage = "4");
+
+		for (var accountUser : list "1,2,3,4") {
+			LexiconEntry.viewEntryName(rowEntry = "userfn${accountUser} userln${accountUser}");
+		}
+
+		for (var accountUser : list "5,6") {
+			LexiconEntry.viewNoEntry(rowEntry = "userfn${accountUser} userln${accountUser}");
+		}
+
+		Pagination.viewResults(results = "Showing 1 to 4 of 6 entries.");
+
+		Click(locator1 = "Pagination#NEXT_LINK");
+
+		for (var accountUser : list "5,6") {
+			LexiconEntry.viewEntryName(rowEntry = "userfn${accountUser} userln${accountUser}");
+		}
+
+		for (var accountUser : list "1,2,3,4") {
+			LexiconEntry.viewNoEntry(rowEntry = "userfn${accountUser} userln${accountUser}");
+		}
+
+		Pagination.viewResults(results = "Showing 5 to 6 of 6 entries.");
 	}
 
 	@description = "This test deactivates an active user"
@@ -323,6 +424,35 @@ definition {
 		User.impersonateCP(
 			siteName = "${siteName}",
 			userName = "userfn");
+	}
+
+	@description = "This test asserts that a person account cannot be selected in Edit User when a user is already assigned to a Person Account."
+	@priority = "4"
+	test CannotSelectPersonAccountWithUserAssigned {
+		JSONAccountEntry.addAccountEntry(
+			accountEntryName = "Person Account",
+			accountEntryType = "Person");
+
+		AccountUsers.openAccountUsersAdmin();
+
+		AccountUsers.addUser(
+			accountName = "Person Account",
+			userEmailAddress = "personuser@liferay.com",
+			userFirstName = "person",
+			userLastName = "user",
+			userScreenName = "personuser");
+
+		AccountUsers.openAccountUsersAdmin();
+
+		LexiconEntry.gotoAdd();
+
+		Pause(locator1 = "3000");
+
+		SelectFrame(locator1 = "IFrame#SELECT_ACCOUNT");
+
+		AssertElementPresent(
+			key_accountName = "Person Account",
+			locator1 = "AccountUsers#SELECT_AN_ACCOUNT_CHOOSE_BUTTON_DISABLED");
 	}
 
 	@description = "This test clicks on the cancel button and back icon upon account user creation. It then asserts that the account user was not saved."

@@ -36,12 +36,14 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1166,6 +1168,50 @@ public class CountryModelImpl
 	}
 
 	@Override
+	public Country cloneWithOriginalValues() {
+		CountryImpl countryImpl = new CountryImpl();
+
+		countryImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		countryImpl.setUuid(this.<String>getColumnOriginalValue("uuid_"));
+		countryImpl.setDefaultLanguageId(
+			this.<String>getColumnOriginalValue("defaultLanguageId"));
+		countryImpl.setCountryId(
+			this.<Long>getColumnOriginalValue("countryId"));
+		countryImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		countryImpl.setUserId(this.<Long>getColumnOriginalValue("userId"));
+		countryImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		countryImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		countryImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		countryImpl.setA2(this.<String>getColumnOriginalValue("a2"));
+		countryImpl.setA3(this.<String>getColumnOriginalValue("a3"));
+		countryImpl.setActive(this.<Boolean>getColumnOriginalValue("active_"));
+		countryImpl.setBillingAllowed(
+			this.<Boolean>getColumnOriginalValue("billingAllowed"));
+		countryImpl.setGroupFilterEnabled(
+			this.<Boolean>getColumnOriginalValue("groupFilterEnabled"));
+		countryImpl.setIdd(this.<String>getColumnOriginalValue("idd_"));
+		countryImpl.setName(this.<String>getColumnOriginalValue("name"));
+		countryImpl.setNumber(this.<String>getColumnOriginalValue("number_"));
+		countryImpl.setPosition(
+			this.<Double>getColumnOriginalValue("position"));
+		countryImpl.setShippingAllowed(
+			this.<Boolean>getColumnOriginalValue("shippingAllowed"));
+		countryImpl.setSubjectToVAT(
+			this.<Boolean>getColumnOriginalValue("subjectToVAT"));
+		countryImpl.setZipRequired(
+			this.<Boolean>getColumnOriginalValue("zipRequired"));
+		countryImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+
+		return countryImpl;
+	}
+
+	@Override
 	public int compareTo(Country country) {
 		int value = 0;
 
@@ -1358,7 +1404,7 @@ public class CountryModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1369,9 +1415,26 @@ public class CountryModelImpl
 			Function<Country, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((Country)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((Country)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

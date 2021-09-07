@@ -38,13 +38,7 @@ definition {
 		property portal.upstream = "true";
 		property test.name.skip.portal.instance = "FormsFields#AddingANewFieldCreatesADefaultLabel";
 
-		Navigator.openURL();
-
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.addTextField(fieldPositionNumber = "0");
 
@@ -76,13 +70,7 @@ definition {
 		property portal.upstream = "true";
 		property test.name.skip.portal.instance = "FormsFields#CanBeDuplicated";
 
-		Navigator.openURL();
-
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName();
 
@@ -121,13 +109,7 @@ definition {
 		property test.name.skip.portal.instance = "FormsFields#CanBeSubmittedWithAllFields";
 		property testray.component.names = "Training";
 
-		Navigator.openURL();
-
-		ProductMenu.gotoPortlet(
-			category = "Content & Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName();
 
@@ -168,7 +150,7 @@ definition {
 
 		FormFields.selectTextFieldLineOption(textFieldLineOption = "Multiple Lines");
 
-		FormFields.enableSwitcher(fieldName = "Required");
+		FormFields.enableSwitch(fieldName = "Required");
 
 		Form.closeSidebar();
 
@@ -210,7 +192,7 @@ definition {
 			optionValue = "Option 2",
 			rowNumber = "2");
 
-		FormFields.enableSwitcher(fieldName = "Required");
+		FormFields.enableSwitch(fieldName = "Required");
 
 		Form.closeSidebar();
 
@@ -242,7 +224,7 @@ definition {
 			optionValue = "Checkbox 2",
 			rowNumber = "2");
 
-		FormFields.enableSwitcher(fieldName = "Required");
+		FormFields.enableSwitch(fieldName = "Required");
 
 		Form.closeSidebar();
 
@@ -409,13 +391,7 @@ definition {
 		property portal.upstream = "true";
 		property test.name.skip.portal.instance = "FormsFields#ViewFieldValidationIsNotBypassedWhenNextButtonIsHitTwice";
 
-		Navigator.openURL();
-
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName();
 
@@ -447,7 +423,7 @@ definition {
 
 		Form.editFieldLabelMetal(fieldValue = "Text Field Page 2");
 
-		FormFields.enableSwitcher(fieldName = "Required");
+		FormFields.enableSwitch(fieldName = "Required");
 
 		Form.closeSidebar();
 

@@ -25,6 +25,7 @@ definition {
 		}
 	}
 
+	@description = "This is a use case for LRQA-7595."
 	@priority = "4"
 	test ValidateXSSVulnerabilities {
 		var portalURL = PropsUtil.get("portal.url");
@@ -104,6 +105,33 @@ definition {
 			value1 = "This portlet could not be found. Please redeploy it or remove it from the page.");
 	}
 
+	@description = "This is a use case for LPS-82204."
+	@priority = "5"
+	test ViewBlogsEntryWithXSSCustomAbstract {
+		var entryAbstractDescription = '''<script>alert(123)</script>''';
+		var key_entryAbstractDescription = "${entryAbstractDescription}";
+
+		JSONLayout.addPublicLayout(
+			groupName = "Guest",
+			layoutName = "Blogs Page");
+
+		Navigator.gotoPage(pageName = "Blogs Page");
+
+		Portlet.addPG(portletName = "Asset Publisher");
+
+		Blogs.addWithCustomAbstractViaAP(
+			entryAbstractDescription = "${entryAbstractDescription}",
+			entryContent = "Blogs Entry Content",
+			entryTitle = "Blogs Entry Title");
+
+		AssertAlertNotPresent();
+
+		AssertTextEquals.assertPartialText(
+			locator1 = "BlogsEntry#CONTENT_ABSTRACT_AP",
+			value1 = "${entryAbstractDescription}");
+	}
+
+	@description = "This is a use case for LPS-72807."
 	@priority = "3"
 	test ViewGoogleAnalyticsID {
 		Site.openSiteSettingsAdmin(siteURLKey = "guest");
@@ -115,6 +143,7 @@ definition {
 		AssertAlertNotPresent();
 	}
 
+	@description = "This is a use case for LRQA-10563."
 	@priority = "3"
 	test ViewJSONWS {
 		var portalURL = PropsUtil.get("portal.url");
@@ -145,6 +174,7 @@ definition {
 		AssertHTMLSourceTextPresent(value1 = "${escapedScript}");
 	}
 
+	@description = "This is a use case for LRQA-10563."
 	@priority = "4"
 	test ViewLiferayPortletList {
 		var portalURL = PropsUtil.get("portal.url");
@@ -172,6 +202,7 @@ definition {
 		AssertAlertNotPresent();
 	}
 
+	@description = "This is a use case for LRQA-10472."
 	@priority = "4"
 	test ViewLookAndFeel {
 		ProductMenu.gotoPortlet(
@@ -257,6 +288,7 @@ definition {
 		AssertConfirm(value1 = "123");
 	}
 
+	@description = "This is a use case for LRQA-10472."
 	@priority = "4"
 	test ViewRecycleBin {
 		var entryTitle = '''<script>alert(123);</script>''';
@@ -308,6 +340,7 @@ definition {
 		AssertHTMLSourceTextPresent(value1 = "${escapedScript}");
 	}
 
+	@description = "This is a use case for LPS-48990."
 	@priority = "4"
 	test ViewRoles {
 		ApplicationsMenu.gotoPortlet(
@@ -354,6 +387,7 @@ definition {
 		AssertHTMLSourceTextPresent(value1 = "${escapedScript}");
 	}
 
+	@description = "This is a use case for LRQA-30154."
 	@priority = "5"
 	test ViewSearchResults {
 		var siteName = '''<script>alert(123);</script>''';
@@ -388,6 +422,7 @@ definition {
 		AssertHTMLSourceTextPresent(value1 = "${escapedScript}");
 	}
 
+	@description = "This is a use case for LPS-45254."
 	@priority = "4"
 	test ViewURLValidate {
 		property test.name.skip.portal.instance = "XSSUsecase#ViewURLValidate";
@@ -485,6 +520,7 @@ definition {
 		AssertAlertNotPresent();
 	}
 
+	@description = "This is a use case for LPS-45254."
 	@priority = "5"
 	test ViewWiki {
 		Navigator.openURL();

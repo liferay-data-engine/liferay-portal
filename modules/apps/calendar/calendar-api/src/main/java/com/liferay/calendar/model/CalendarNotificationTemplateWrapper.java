@@ -181,6 +181,11 @@ public class CalendarNotificationTemplateWrapper
 		}
 	}
 
+	@Override
+	public CalendarNotificationTemplate cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the body of this calendar notification template.
 	 *

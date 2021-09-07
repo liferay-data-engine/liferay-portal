@@ -34,6 +34,7 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
@@ -41,6 +42,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1065,6 +1067,41 @@ public class CommerceShippingMethodModelImpl
 	}
 
 	@Override
+	public CommerceShippingMethod cloneWithOriginalValues() {
+		CommerceShippingMethodImpl commerceShippingMethodImpl =
+			new CommerceShippingMethodImpl();
+
+		commerceShippingMethodImpl.setCommerceShippingMethodId(
+			this.<Long>getColumnOriginalValue("commerceShippingMethodId"));
+		commerceShippingMethodImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		commerceShippingMethodImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		commerceShippingMethodImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		commerceShippingMethodImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		commerceShippingMethodImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		commerceShippingMethodImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		commerceShippingMethodImpl.setName(
+			this.<String>getColumnOriginalValue("name"));
+		commerceShippingMethodImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		commerceShippingMethodImpl.setImageId(
+			this.<Long>getColumnOriginalValue("imageId"));
+		commerceShippingMethodImpl.setEngineKey(
+			this.<String>getColumnOriginalValue("engineKey"));
+		commerceShippingMethodImpl.setPriority(
+			this.<Double>getColumnOriginalValue("priority"));
+		commerceShippingMethodImpl.setActive(
+			this.<Boolean>getColumnOriginalValue("active_"));
+
+		return commerceShippingMethodImpl;
+	}
+
+	@Override
 	public int compareTo(CommerceShippingMethod commerceShippingMethod) {
 		int value = 0;
 
@@ -1220,7 +1257,7 @@ public class CommerceShippingMethodModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1231,10 +1268,27 @@ public class CommerceShippingMethodModelImpl
 			Function<CommerceShippingMethod, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply((CommerceShippingMethod)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(CommerceShippingMethod)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

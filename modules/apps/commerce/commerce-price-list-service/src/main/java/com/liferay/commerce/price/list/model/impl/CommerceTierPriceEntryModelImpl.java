@@ -33,6 +33,7 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
 import java.io.Serializable;
@@ -42,6 +43,7 @@ import java.lang.reflect.InvocationHandler;
 
 import java.math.BigDecimal;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1242,6 +1244,63 @@ public class CommerceTierPriceEntryModelImpl
 	}
 
 	@Override
+	public CommerceTierPriceEntry cloneWithOriginalValues() {
+		CommerceTierPriceEntryImpl commerceTierPriceEntryImpl =
+			new CommerceTierPriceEntryImpl();
+
+		commerceTierPriceEntryImpl.setUuid(
+			this.<String>getColumnOriginalValue("uuid_"));
+		commerceTierPriceEntryImpl.setExternalReferenceCode(
+			this.<String>getColumnOriginalValue("externalReferenceCode"));
+		commerceTierPriceEntryImpl.setCommerceTierPriceEntryId(
+			this.<Long>getColumnOriginalValue("commerceTierPriceEntryId"));
+		commerceTierPriceEntryImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		commerceTierPriceEntryImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		commerceTierPriceEntryImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		commerceTierPriceEntryImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		commerceTierPriceEntryImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		commerceTierPriceEntryImpl.setCommercePriceEntryId(
+			this.<Long>getColumnOriginalValue("commercePriceEntryId"));
+		commerceTierPriceEntryImpl.setPrice(
+			this.<BigDecimal>getColumnOriginalValue("price"));
+		commerceTierPriceEntryImpl.setPromoPrice(
+			this.<BigDecimal>getColumnOriginalValue("promoPrice"));
+		commerceTierPriceEntryImpl.setDiscountDiscovery(
+			this.<Boolean>getColumnOriginalValue("discountDiscovery"));
+		commerceTierPriceEntryImpl.setDiscountLevel1(
+			this.<BigDecimal>getColumnOriginalValue("discountLevel1"));
+		commerceTierPriceEntryImpl.setDiscountLevel2(
+			this.<BigDecimal>getColumnOriginalValue("discountLevel2"));
+		commerceTierPriceEntryImpl.setDiscountLevel3(
+			this.<BigDecimal>getColumnOriginalValue("discountLevel3"));
+		commerceTierPriceEntryImpl.setDiscountLevel4(
+			this.<BigDecimal>getColumnOriginalValue("discountLevel4"));
+		commerceTierPriceEntryImpl.setMinQuantity(
+			this.<Integer>getColumnOriginalValue("minQuantity"));
+		commerceTierPriceEntryImpl.setDisplayDate(
+			this.<Date>getColumnOriginalValue("displayDate"));
+		commerceTierPriceEntryImpl.setExpirationDate(
+			this.<Date>getColumnOriginalValue("expirationDate"));
+		commerceTierPriceEntryImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+		commerceTierPriceEntryImpl.setStatus(
+			this.<Integer>getColumnOriginalValue("status"));
+		commerceTierPriceEntryImpl.setStatusByUserId(
+			this.<Long>getColumnOriginalValue("statusByUserId"));
+		commerceTierPriceEntryImpl.setStatusByUserName(
+			this.<String>getColumnOriginalValue("statusByUserName"));
+		commerceTierPriceEntryImpl.setStatusDate(
+			this.<Date>getColumnOriginalValue("statusDate"));
+
+		return commerceTierPriceEntryImpl;
+	}
+
+	@Override
 	public int compareTo(CommerceTierPriceEntry commerceTierPriceEntry) {
 		int value = 0;
 
@@ -1458,7 +1517,7 @@ public class CommerceTierPriceEntryModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1469,10 +1528,27 @@ public class CommerceTierPriceEntryModelImpl
 			Function<CommerceTierPriceEntry, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply((CommerceTierPriceEntry)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(CommerceTierPriceEntry)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

@@ -28,6 +28,7 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.segments.model.SegmentsExperimentRel;
 import com.liferay.segments.model.SegmentsExperimentRelModel;
 import com.liferay.segments.model.SegmentsExperimentRelSoap;
@@ -37,6 +38,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -728,6 +730,39 @@ public class SegmentsExperimentRelModelImpl
 	}
 
 	@Override
+	public SegmentsExperimentRel cloneWithOriginalValues() {
+		SegmentsExperimentRelImpl segmentsExperimentRelImpl =
+			new SegmentsExperimentRelImpl();
+
+		segmentsExperimentRelImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		segmentsExperimentRelImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		segmentsExperimentRelImpl.setSegmentsExperimentRelId(
+			this.<Long>getColumnOriginalValue("segmentsExperimentRelId"));
+		segmentsExperimentRelImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		segmentsExperimentRelImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		segmentsExperimentRelImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		segmentsExperimentRelImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		segmentsExperimentRelImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		segmentsExperimentRelImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		segmentsExperimentRelImpl.setSegmentsExperimentId(
+			this.<Long>getColumnOriginalValue("segmentsExperimentId"));
+		segmentsExperimentRelImpl.setSegmentsExperienceId(
+			this.<Long>getColumnOriginalValue("segmentsExperienceId"));
+		segmentsExperimentRelImpl.setSplit(
+			this.<Double>getColumnOriginalValue("split"));
+
+		return segmentsExperimentRelImpl;
+	}
+
+	@Override
 	public int compareTo(SegmentsExperimentRel segmentsExperimentRel) {
 		long primaryKey = segmentsExperimentRel.getPrimaryKey();
 
@@ -859,7 +894,7 @@ public class SegmentsExperimentRelModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -870,10 +905,27 @@ public class SegmentsExperimentRelModelImpl
 			Function<SegmentsExperimentRel, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply((SegmentsExperimentRel)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(SegmentsExperimentRel)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

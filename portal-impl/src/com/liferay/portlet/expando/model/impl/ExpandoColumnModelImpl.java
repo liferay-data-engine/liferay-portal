@@ -25,16 +25,19 @@ import com.liferay.portal.kernel.model.ModelWrapper;
 import com.liferay.portal.kernel.model.impl.BaseModelImpl;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -586,6 +589,31 @@ public class ExpandoColumnModelImpl
 	}
 
 	@Override
+	public ExpandoColumn cloneWithOriginalValues() {
+		ExpandoColumnImpl expandoColumnImpl = new ExpandoColumnImpl();
+
+		expandoColumnImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		expandoColumnImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		expandoColumnImpl.setColumnId(
+			this.<Long>getColumnOriginalValue("columnId"));
+		expandoColumnImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		expandoColumnImpl.setTableId(
+			this.<Long>getColumnOriginalValue("tableId"));
+		expandoColumnImpl.setName(this.<String>getColumnOriginalValue("name"));
+		expandoColumnImpl.setType(
+			this.<Integer>getColumnOriginalValue("type_"));
+		expandoColumnImpl.setDefaultData(
+			this.<String>getColumnOriginalValue("defaultData"));
+		expandoColumnImpl.setTypeSettings(
+			this.<String>getColumnOriginalValue("typeSettings"));
+
+		return expandoColumnImpl;
+	}
+
+	@Override
 	public int compareTo(ExpandoColumn expandoColumn) {
 		int value = 0;
 
@@ -700,7 +728,7 @@ public class ExpandoColumnModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -711,9 +739,26 @@ public class ExpandoColumnModelImpl
 			Function<ExpandoColumn, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((ExpandoColumn)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((ExpandoColumn)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

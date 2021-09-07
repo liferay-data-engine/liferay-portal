@@ -197,24 +197,6 @@ public class WorkflowInstanceManagerImpl implements WorkflowInstanceManager {
 			end, orderByComparator, serviceContext);
 	}
 
-	/**
-	 * @deprecated As of Mueller (7.2.x), replaced by {@link #search(long, Long,
-	 *             String, String, String, String, String, Boolean, int, int,
-	 *             OrderByComparator)}
-	 */
-	@Deprecated
-	@Override
-	public List<WorkflowInstance> search(
-			long companyId, Long userId, String assetType, String nodeName,
-			String kaleoDefinitionName, Boolean completed, int start, int end,
-			OrderByComparator<WorkflowInstance> orderByComparator)
-		throws WorkflowException {
-
-		return search(
-			companyId, userId, assetType, null, null, nodeName,
-			kaleoDefinitionName, completed, start, end, orderByComparator);
-	}
-
 	@Override
 	public List<WorkflowInstance> search(
 			long companyId, Long userId, String assetClassName,
@@ -231,22 +213,6 @@ public class WorkflowInstanceManagerImpl implements WorkflowInstanceManager {
 			userId, assetClassName, assetTitle, assetDescription, nodeName,
 			kaleoDefinitionName, completed, start, end, orderByComparator,
 			serviceContext);
-	}
-
-	/**
-	 * @deprecated As of Mueller (7.2.x), replaced by {@link #searchCount(long,
-	 *             Long, String, String, String, String, String, Boolean)}
-	 */
-	@Deprecated
-	@Override
-	public int searchCount(
-			long companyId, Long userId, String assetType, String nodeName,
-			String kaleoDefinitionName, Boolean completed)
-		throws WorkflowException {
-
-		return searchCount(
-			companyId, userId, assetType, null, null, nodeName,
-			kaleoDefinitionName, completed);
 	}
 
 	@Override
@@ -289,14 +255,26 @@ public class WorkflowInstanceManagerImpl implements WorkflowInstanceManager {
 			String transitionName, Map<String, Serializable> workflowContext)
 		throws WorkflowException {
 
+		return signalWorkflowInstance(
+			companyId, userId, workflowInstanceId, transitionName,
+			workflowContext, false);
+	}
+
+	@Override
+	public WorkflowInstance signalWorkflowInstance(
+			long companyId, long userId, long workflowInstanceId,
+			String transitionName, Map<String, Serializable> workflowContext,
+			boolean waitForCompletion)
+		throws WorkflowException {
+
 		ServiceContext serviceContext = new ServiceContext();
 
 		serviceContext.setCompanyId(companyId);
 		serviceContext.setUserId(userId);
 
 		return _workflowEngine.signalWorkflowInstance(
-			workflowInstanceId, transitionName, workflowContext,
-			serviceContext);
+			workflowInstanceId, transitionName, workflowContext, serviceContext,
+			waitForCompletion);
 	}
 
 	@Override
@@ -304,6 +282,19 @@ public class WorkflowInstanceManagerImpl implements WorkflowInstanceManager {
 			long companyId, long groupId, long userId,
 			String workflowDefinitionName, Integer workflowDefinitionVersion,
 			String transitionName, Map<String, Serializable> workflowContext)
+		throws WorkflowException {
+
+		return startWorkflowInstance(
+			companyId, groupId, userId, workflowDefinitionName,
+			workflowDefinitionVersion, transitionName, workflowContext, false);
+	}
+
+	@Override
+	public WorkflowInstance startWorkflowInstance(
+			long companyId, long groupId, long userId,
+			String workflowDefinitionName, Integer workflowDefinitionVersion,
+			String transitionName, Map<String, Serializable> workflowContext,
+			boolean waitForCompletion)
 		throws WorkflowException {
 
 		String className = WorkflowDefinition.class.getName();
@@ -327,7 +318,7 @@ public class WorkflowInstanceManagerImpl implements WorkflowInstanceManager {
 
 		return _workflowEngine.startWorkflowInstance(
 			workflowDefinitionName, workflowDefinitionVersion, transitionName,
-			workflowContext, serviceContext);
+			workflowContext, serviceContext, waitForCompletion);
 	}
 
 	@Override

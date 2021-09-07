@@ -36,6 +36,7 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
@@ -43,6 +44,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1235,6 +1237,48 @@ public class AssetCategoryModelImpl
 	}
 
 	@Override
+	public AssetCategory cloneWithOriginalValues() {
+		AssetCategoryImpl assetCategoryImpl = new AssetCategoryImpl();
+
+		assetCategoryImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		assetCategoryImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		assetCategoryImpl.setUuid(this.<String>getColumnOriginalValue("uuid_"));
+		assetCategoryImpl.setExternalReferenceCode(
+			this.<String>getColumnOriginalValue("externalReferenceCode"));
+		assetCategoryImpl.setCategoryId(
+			this.<Long>getColumnOriginalValue("categoryId"));
+		assetCategoryImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		assetCategoryImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		assetCategoryImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		assetCategoryImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		assetCategoryImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		assetCategoryImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		assetCategoryImpl.setParentCategoryId(
+			this.<Long>getColumnOriginalValue("parentCategoryId"));
+		assetCategoryImpl.setTreePath(
+			this.<String>getColumnOriginalValue("treePath"));
+		assetCategoryImpl.setName(this.<String>getColumnOriginalValue("name"));
+		assetCategoryImpl.setTitle(
+			this.<String>getColumnOriginalValue("title"));
+		assetCategoryImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		assetCategoryImpl.setVocabularyId(
+			this.<Long>getColumnOriginalValue("vocabularyId"));
+		assetCategoryImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+
+		return assetCategoryImpl;
+	}
+
+	@Override
 	public int compareTo(AssetCategory assetCategory) {
 		int value = 0;
 
@@ -1418,7 +1462,7 @@ public class AssetCategoryModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1429,9 +1473,26 @@ public class AssetCategoryModelImpl
 			Function<AssetCategory, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((AssetCategory)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((AssetCategory)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

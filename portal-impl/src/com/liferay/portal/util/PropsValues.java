@@ -28,6 +28,11 @@ import com.liferay.portal.kernel.util.Time;
  */
 public class PropsValues {
 
+	public static final boolean ACCESS_CONTROL_SANITIZE_SECURITY_EXCEPTION =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				PropsKeys.ACCESS_CONTROL_SANITIZE_SECURITY_EXCEPTION));
+
 	public static String[] ADMIN_ANALYTICS_TYPES = StringUtil.splitLines(
 		PropsUtil.get(PropsKeys.ADMIN_ANALYTICS_TYPES));
 

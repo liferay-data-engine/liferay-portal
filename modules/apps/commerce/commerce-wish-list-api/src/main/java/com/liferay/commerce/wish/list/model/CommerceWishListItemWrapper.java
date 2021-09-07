@@ -130,6 +130,11 @@ public class CommerceWishListItemWrapper
 	}
 
 	@Override
+	public CommerceWishListItem cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
+	@Override
 	public com.liferay.commerce.product.model.CPInstance fetchCPInstance()
 		throws com.liferay.portal.kernel.exception.PortalException {
 

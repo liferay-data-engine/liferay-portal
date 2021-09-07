@@ -36,6 +36,7 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
@@ -45,6 +46,7 @@ import java.lang.reflect.InvocationHandler;
 
 import java.math.BigDecimal;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1247,6 +1249,52 @@ public class CommerceCurrencyModelImpl
 	}
 
 	@Override
+	public CommerceCurrency cloneWithOriginalValues() {
+		CommerceCurrencyImpl commerceCurrencyImpl = new CommerceCurrencyImpl();
+
+		commerceCurrencyImpl.setUuid(
+			this.<String>getColumnOriginalValue("uuid_"));
+		commerceCurrencyImpl.setCommerceCurrencyId(
+			this.<Long>getColumnOriginalValue("commerceCurrencyId"));
+		commerceCurrencyImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		commerceCurrencyImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		commerceCurrencyImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		commerceCurrencyImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		commerceCurrencyImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		commerceCurrencyImpl.setCode(
+			this.<String>getColumnOriginalValue("code_"));
+		commerceCurrencyImpl.setName(
+			this.<String>getColumnOriginalValue("name"));
+		commerceCurrencyImpl.setSymbol(
+			this.<String>getColumnOriginalValue("symbol"));
+		commerceCurrencyImpl.setRate(
+			this.<BigDecimal>getColumnOriginalValue("rate"));
+		commerceCurrencyImpl.setFormatPattern(
+			this.<String>getColumnOriginalValue("formatPattern"));
+		commerceCurrencyImpl.setMaxFractionDigits(
+			this.<Integer>getColumnOriginalValue("maxFractionDigits"));
+		commerceCurrencyImpl.setMinFractionDigits(
+			this.<Integer>getColumnOriginalValue("minFractionDigits"));
+		commerceCurrencyImpl.setRoundingMode(
+			this.<String>getColumnOriginalValue("roundingMode"));
+		commerceCurrencyImpl.setPrimary(
+			this.<Boolean>getColumnOriginalValue("primary_"));
+		commerceCurrencyImpl.setPriority(
+			this.<Double>getColumnOriginalValue("priority"));
+		commerceCurrencyImpl.setActive(
+			this.<Boolean>getColumnOriginalValue("active_"));
+		commerceCurrencyImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+
+		return commerceCurrencyImpl;
+	}
+
+	@Override
 	public int compareTo(CommerceCurrency commerceCurrency) {
 		int value = 0;
 
@@ -1437,7 +1485,7 @@ public class CommerceCurrencyModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1448,9 +1496,27 @@ public class CommerceCurrencyModelImpl
 			Function<CommerceCurrency, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((CommerceCurrency)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(CommerceCurrency)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

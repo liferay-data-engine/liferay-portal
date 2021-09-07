@@ -26,15 +26,18 @@ import com.liferay.portal.kernel.model.impl.BaseModelImpl;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -638,6 +641,37 @@ public class CPDefinitionLocalizationModelImpl
 	}
 
 	@Override
+	public CPDefinitionLocalization cloneWithOriginalValues() {
+		CPDefinitionLocalizationImpl cpDefinitionLocalizationImpl =
+			new CPDefinitionLocalizationImpl();
+
+		cpDefinitionLocalizationImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		cpDefinitionLocalizationImpl.setCpDefinitionLocalizationId(
+			this.<Long>getColumnOriginalValue("cpDefinitionLocalizationId"));
+		cpDefinitionLocalizationImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		cpDefinitionLocalizationImpl.setCPDefinitionId(
+			this.<Long>getColumnOriginalValue("CPDefinitionId"));
+		cpDefinitionLocalizationImpl.setLanguageId(
+			this.<String>getColumnOriginalValue("languageId"));
+		cpDefinitionLocalizationImpl.setName(
+			this.<String>getColumnOriginalValue("name"));
+		cpDefinitionLocalizationImpl.setShortDescription(
+			this.<String>getColumnOriginalValue("shortDescription"));
+		cpDefinitionLocalizationImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		cpDefinitionLocalizationImpl.setMetaTitle(
+			this.<String>getColumnOriginalValue("metaTitle"));
+		cpDefinitionLocalizationImpl.setMetaDescription(
+			this.<String>getColumnOriginalValue("metaDescription"));
+		cpDefinitionLocalizationImpl.setMetaKeywords(
+			this.<String>getColumnOriginalValue("metaKeywords"));
+
+		return cpDefinitionLocalizationImpl;
+	}
+
+	@Override
 	public int compareTo(CPDefinitionLocalization cpDefinitionLocalization) {
 		long primaryKey = cpDefinitionLocalization.getPrimaryKey();
 
@@ -788,7 +822,7 @@ public class CPDefinitionLocalizationModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -799,10 +833,27 @@ public class CPDefinitionLocalizationModelImpl
 			Function<CPDefinitionLocalization, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply((CPDefinitionLocalization)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(CPDefinitionLocalization)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

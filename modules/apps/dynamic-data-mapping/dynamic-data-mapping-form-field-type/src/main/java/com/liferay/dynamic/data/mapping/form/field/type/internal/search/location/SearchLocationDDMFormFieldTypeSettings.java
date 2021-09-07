@@ -81,7 +81,8 @@ import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 							size = 12,
 							value = {
 								"dataType", "name", "fieldReference",
-								"showLabel", "repeatable", "readOnly"
+								"showLabel", "repeatable", "readOnly",
+								"rulesActionDisabled", "rulesConditionDisabled"
 							}
 						)
 					}
@@ -115,7 +116,7 @@ public interface SearchLocationDDMFormFieldTypeSettings
 		dataType = "",
 		ddmFormFieldProperties = {
 			@DDMFormFieldProperty(
-				name = "buttonLabel", value = "%third-party-applications"
+				name = "buttonLabel", value = "%google-places"
 			),
 			@DDMFormFieldProperty(
 				name = "messageArguments", value = {"<strong>", "</strong>"}
@@ -130,7 +131,7 @@ public interface SearchLocationDDMFormFieldTypeSettings
 			),
 			@DDMFormFieldProperty(
 				name = "parameters",
-				value = "configurationScreenKey=third-party-applications-places"
+				value = "configurationScreenKey=google-places-site-settings"
 			),
 			@DDMFormFieldProperty(
 				name = "portletId",

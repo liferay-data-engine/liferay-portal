@@ -117,6 +117,11 @@ public class CommerceDiscountUsageEntryWrapper
 		}
 	}
 
+	@Override
+	public CommerceDiscountUsageEntry cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the commerce account ID of this commerce discount usage entry.
 	 *

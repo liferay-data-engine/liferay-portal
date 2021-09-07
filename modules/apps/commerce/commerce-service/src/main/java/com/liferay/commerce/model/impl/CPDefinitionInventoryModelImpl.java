@@ -33,12 +33,14 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -996,6 +998,53 @@ public class CPDefinitionInventoryModelImpl
 	}
 
 	@Override
+	public CPDefinitionInventory cloneWithOriginalValues() {
+		CPDefinitionInventoryImpl cpDefinitionInventoryImpl =
+			new CPDefinitionInventoryImpl();
+
+		cpDefinitionInventoryImpl.setUuid(
+			this.<String>getColumnOriginalValue("uuid_"));
+		cpDefinitionInventoryImpl.setCPDefinitionInventoryId(
+			this.<Long>getColumnOriginalValue("CPDefinitionInventoryId"));
+		cpDefinitionInventoryImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		cpDefinitionInventoryImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		cpDefinitionInventoryImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		cpDefinitionInventoryImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		cpDefinitionInventoryImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		cpDefinitionInventoryImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		cpDefinitionInventoryImpl.setCPDefinitionId(
+			this.<Long>getColumnOriginalValue("CPDefinitionId"));
+		cpDefinitionInventoryImpl.setCPDefinitionInventoryEngine(
+			this.<String>getColumnOriginalValue("CPDefinitionInventoryEngine"));
+		cpDefinitionInventoryImpl.setLowStockActivity(
+			this.<String>getColumnOriginalValue("lowStockActivity"));
+		cpDefinitionInventoryImpl.setDisplayAvailability(
+			this.<Boolean>getColumnOriginalValue("displayAvailability"));
+		cpDefinitionInventoryImpl.setDisplayStockQuantity(
+			this.<Boolean>getColumnOriginalValue("displayStockQuantity"));
+		cpDefinitionInventoryImpl.setMinStockQuantity(
+			this.<Integer>getColumnOriginalValue("minStockQuantity"));
+		cpDefinitionInventoryImpl.setBackOrders(
+			this.<Boolean>getColumnOriginalValue("backOrders"));
+		cpDefinitionInventoryImpl.setMinOrderQuantity(
+			this.<Integer>getColumnOriginalValue("minOrderQuantity"));
+		cpDefinitionInventoryImpl.setMaxOrderQuantity(
+			this.<Integer>getColumnOriginalValue("maxOrderQuantity"));
+		cpDefinitionInventoryImpl.setAllowedOrderQuantities(
+			this.<String>getColumnOriginalValue("allowedOrderQuantities"));
+		cpDefinitionInventoryImpl.setMultipleOrderQuantity(
+			this.<Integer>getColumnOriginalValue("multipleOrderQuantity"));
+
+		return cpDefinitionInventoryImpl;
+	}
+
+	@Override
 	public int compareTo(CPDefinitionInventory cpDefinitionInventory) {
 		long primaryKey = cpDefinitionInventory.getPrimaryKey();
 
@@ -1179,7 +1228,7 @@ public class CPDefinitionInventoryModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1190,10 +1239,27 @@ public class CPDefinitionInventoryModelImpl
 			Function<CPDefinitionInventory, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply((CPDefinitionInventory)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(CPDefinitionInventory)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

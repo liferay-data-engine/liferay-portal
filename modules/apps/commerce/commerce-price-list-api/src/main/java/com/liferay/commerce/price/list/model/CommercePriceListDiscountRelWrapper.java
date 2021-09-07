@@ -133,6 +133,11 @@ public class CommercePriceListDiscountRelWrapper
 		}
 	}
 
+	@Override
+	public CommercePriceListDiscountRel cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the commerce discount ID of this commerce price list discount rel.
 	 *

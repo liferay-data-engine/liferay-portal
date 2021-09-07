@@ -18,7 +18,7 @@
 </tr>
 <tr>
 	<td>CARD_TIME_FILTER_DROPDOWN</td>
-	<td>//h5[contains(@class,'card-title')and text()='${key_cardName}']/..//div[contains(@class,'dropdown dropdown-range-key-root')]/button</td>
+	<td>//div[contains(@class,'card')][.//h5[contains(@class,'card-title')][normalize-space(text())='${key_cardName}']]//div[contains(@class,'dropdown-range')]//button</td>
 	<td></td>
 </tr>
 <tr>
@@ -59,6 +59,11 @@
 <tr>
 	<td>DATE_PICKER_DAY</td>
 	<td>//table[@class='calendar-root']//button[contains(@class,'day-root') and text()='${key_day}' and not(@disabled)]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>DATE_PICKER_RANGE_WARNING</td>
+	<td>//div[contains(@class,'date-picker-root')]//div[contains(@class,'range-warning')]</td>
 	<td></td>
 </tr>
 </tbody>

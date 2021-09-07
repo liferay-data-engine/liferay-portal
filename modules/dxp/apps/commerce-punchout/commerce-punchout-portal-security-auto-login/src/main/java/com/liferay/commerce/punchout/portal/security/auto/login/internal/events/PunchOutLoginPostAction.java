@@ -142,7 +142,7 @@ public class PunchOutLoginPostAction extends Action {
 		else {
 			commerceOrder = _commerceOrderLocalService.addCommerceOrder(
 				punchOutUserId, commerceChannelGroupId, commerceAccountId,
-				commerceCurrencyId);
+				commerceCurrencyId, 0);
 
 			commerceOrder = _commerceOrderLocalService.updateStatus(
 				punchOutUserId, commerceOrder.getCommerceOrderId(),
@@ -181,17 +181,10 @@ public class PunchOutLoginPostAction extends Action {
 			String key = mapElement.getKey();
 
 			if (_log.isDebugEnabled()) {
-				StringBundler sb = new StringBundler(7);
-
-				sb.append("Adding attribute to session (key=");
-				sb.append(key);
-				sb.append(StringPool.COMMA);
-				sb.append(StringPool.SPACE);
-				sb.append("value=");
-				sb.append(mapElement.getValue());
-				sb.append(StringPool.CLOSE_PARENTHESIS);
-
-				_log.debug(sb.toString());
+				_log.debug(
+					StringBundler.concat(
+						"Adding attribute to session (key=", key, ", value=",
+						mapElement.getValue(), StringPool.CLOSE_PARENTHESIS));
 			}
 
 			httpSession.setAttribute(key, mapElement.getValue());

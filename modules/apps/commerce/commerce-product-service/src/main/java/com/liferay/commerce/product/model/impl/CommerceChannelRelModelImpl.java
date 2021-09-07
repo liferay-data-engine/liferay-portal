@@ -33,6 +33,7 @@ import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
@@ -40,6 +41,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -689,6 +691,33 @@ public class CommerceChannelRelModelImpl
 	}
 
 	@Override
+	public CommerceChannelRel cloneWithOriginalValues() {
+		CommerceChannelRelImpl commerceChannelRelImpl =
+			new CommerceChannelRelImpl();
+
+		commerceChannelRelImpl.setCommerceChannelRelId(
+			this.<Long>getColumnOriginalValue("commerceChannelRelId"));
+		commerceChannelRelImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		commerceChannelRelImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		commerceChannelRelImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		commerceChannelRelImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		commerceChannelRelImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		commerceChannelRelImpl.setClassNameId(
+			this.<Long>getColumnOriginalValue("classNameId"));
+		commerceChannelRelImpl.setClassPK(
+			this.<Long>getColumnOriginalValue("classPK"));
+		commerceChannelRelImpl.setCommerceChannelId(
+			this.<Long>getColumnOriginalValue("commerceChannelId"));
+
+		return commerceChannelRelImpl;
+	}
+
+	@Override
 	public int compareTo(CommerceChannelRel commerceChannelRel) {
 		int value = 0;
 
@@ -811,7 +840,7 @@ public class CommerceChannelRelModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -822,9 +851,27 @@ public class CommerceChannelRelModelImpl
 			Function<CommerceChannelRel, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((CommerceChannelRel)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(CommerceChannelRel)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

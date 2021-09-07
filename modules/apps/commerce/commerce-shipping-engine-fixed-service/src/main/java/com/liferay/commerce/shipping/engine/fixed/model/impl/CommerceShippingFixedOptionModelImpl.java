@@ -34,6 +34,7 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
@@ -43,6 +44,7 @@ import java.lang.reflect.InvocationHandler;
 
 import java.math.BigDecimal;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1013,6 +1015,39 @@ public class CommerceShippingFixedOptionModelImpl
 	}
 
 	@Override
+	public CommerceShippingFixedOption cloneWithOriginalValues() {
+		CommerceShippingFixedOptionImpl commerceShippingFixedOptionImpl =
+			new CommerceShippingFixedOptionImpl();
+
+		commerceShippingFixedOptionImpl.setCommerceShippingFixedOptionId(
+			this.<Long>getColumnOriginalValue("commerceShippingFixedOptionId"));
+		commerceShippingFixedOptionImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		commerceShippingFixedOptionImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		commerceShippingFixedOptionImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		commerceShippingFixedOptionImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		commerceShippingFixedOptionImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		commerceShippingFixedOptionImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		commerceShippingFixedOptionImpl.setCommerceShippingMethodId(
+			this.<Long>getColumnOriginalValue("commerceShippingMethodId"));
+		commerceShippingFixedOptionImpl.setName(
+			this.<String>getColumnOriginalValue("name"));
+		commerceShippingFixedOptionImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		commerceShippingFixedOptionImpl.setAmount(
+			this.<BigDecimal>getColumnOriginalValue("amount"));
+		commerceShippingFixedOptionImpl.setPriority(
+			this.<Double>getColumnOriginalValue("priority"));
+
+		return commerceShippingFixedOptionImpl;
+	}
+
+	@Override
 	public int compareTo(
 		CommerceShippingFixedOption commerceShippingFixedOption) {
 
@@ -1165,7 +1200,7 @@ public class CommerceShippingFixedOptionModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1176,11 +1211,27 @@ public class CommerceShippingFixedOptionModelImpl
 			Function<CommerceShippingFixedOption, Object>
 				attributeGetterFunction = entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply(
-					(CommerceShippingFixedOption)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(CommerceShippingFixedOption)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

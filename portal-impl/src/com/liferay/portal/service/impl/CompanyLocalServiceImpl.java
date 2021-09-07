@@ -30,8 +30,8 @@ import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
 import com.liferay.portal.kernel.dao.orm.Property;
 import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
-import com.liferay.portal.kernel.exception.AccountNameException;
 import com.liferay.portal.kernel.exception.CompanyMxException;
+import com.liferay.portal.kernel.exception.CompanyNameException;
 import com.liferay.portal.kernel.exception.CompanyVirtualHostException;
 import com.liferay.portal.kernel.exception.CompanyWebIdException;
 import com.liferay.portal.kernel.exception.LocaleException;
@@ -44,7 +44,6 @@ import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.messaging.async.Async;
-import com.liferay.portal.kernel.model.Account;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.CompanyConstants;
 import com.liferay.portal.kernel.model.Contact;
@@ -191,6 +190,11 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 
 		Company company = companyPersistence.create(companyId);
 
+		company.setUserId(0);
+		company.setUserName(StringPool.BLANK);
+		company.setCreateDate(new Date());
+		company.setModifiedDate(new Date());
+
 		if (webId.equals(PropsValues.COMPANY_DEFAULT_WEB_ID)) {
 			DBPartitionUtil.setDefaultCompanyId(company.getCompanyId());
 		}
@@ -220,16 +224,13 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 					createBasicDocumentDLFileEntryType();
 			}
 
-			// Account
-
 			String name = webId;
 
 			if (webId.equals(PropsValues.COMPANY_DEFAULT_WEB_ID)) {
 				name = PropsValues.COMPANY_DEFAULT_NAME;
 			}
 
-			updateAccount(
-				company, name, null, null, null, null, null, null, null, null);
+			company.setName(name);
 
 			// Company info
 
@@ -885,13 +886,17 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 		PortalUtil.updateImageId(
 			company, hasLogo, logoBytes, "logoId", 0, 0, 0);
 
-		company = companyPersistence.update(company);
+		company.setName(name);
+		company.setLegalName(legalName);
+		company.setLegalId(legalId);
+		company.setLegalType(legalType);
+		company.setSicCode(sicCode);
+		company.setTickerSymbol(tickerSymbol);
+		company.setIndustry(industry);
+		company.setType(type);
+		company.setSize(size);
 
-		// Account
-
-		updateAccount(
-			company, name, legalName, legalId, legalType, sicCode, tickerSymbol,
-			industry, type, size);
+		companyPersistence.update(company);
 
 		// Virtual host
 
@@ -968,15 +973,11 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 					LocaleUtil.getDefault());
 
 				if (_log.isWarnEnabled()) {
-					StringBundler sb = new StringBundler(5);
-
-					sb.append("No name was found for locale ");
-					sb.append(locale);
-					sb.append(". Using \"");
-					sb.append(oldGroupDefaultName);
-					sb.append("\" as the name instead.");
-
-					_log.warn(sb.toString());
+					_log.warn(
+						StringBundler.concat(
+							"No name was found for locale ", locale,
+							". Using \"", oldGroupDefaultName,
+							"\" as the name instead."));
 				}
 
 				nameMap.put(locale, oldGroupDefaultName);
@@ -1238,8 +1239,7 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 		return searchContext;
 	}
 
-	protected Company doDeleteCompany(final long companyId)
-		throws PortalException {
+	protected Company doDeleteCompany(long companyId) throws PortalException {
 
 		// Company
 
@@ -1269,10 +1269,6 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 		companyPersistence.remove(company);
 
 		companyInfoPersistence.remove(company.getCompanyInfo());
-
-		// Account
-
-		accountLocalService.deleteAccount(company.getAccountId());
 
 		// Expando
 
@@ -1471,41 +1467,6 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 		}
 	}
 
-	protected void updateAccount(
-		Company company, String name, String legalName, String legalId,
-		String legalType, String sicCode, String tickerSymbol, String industry,
-		String type, String size) {
-
-		Account account = accountPersistence.fetchByPrimaryKey(
-			company.getAccountId());
-
-		if (account == null) {
-			long accountId = counterLocalService.increment();
-
-			account = accountPersistence.create(accountId);
-
-			account.setCompanyId(company.getCompanyId());
-			account.setUserId(0);
-			account.setUserName(StringPool.BLANK);
-
-			company.setAccountId(accountId);
-
-			companyPersistence.update(company);
-		}
-
-		account.setName(name);
-		account.setLegalName(legalName);
-		account.setLegalId(legalId);
-		account.setLegalType(legalType);
-		account.setSicCode(sicCode);
-		account.setTickerSymbol(tickerSymbol);
-		account.setIndustry(industry);
-		account.setType(type);
-		account.setSize(size);
-
-		accountPersistence.update(account);
-	}
-
 	protected Company updateVirtualHostname(
 			long companyId, String virtualHostname)
 		throws CompanyVirtualHostException {
@@ -1608,7 +1569,7 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 		Group group = groupLocalService.fetchGroup(companyId, name);
 
 		if ((group != null) || Validator.isNull(name)) {
-			throw new AccountNameException();
+			throw new CompanyNameException();
 		}
 	}
 
@@ -1912,7 +1873,6 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 		defaultContact.setUserName(StringPool.BLANK);
 		defaultContact.setClassName(User.class.getName());
 		defaultContact.setClassPK(defaultUser.getUserId());
-		defaultContact.setAccountId(company.getAccountId());
 		defaultContact.setParentContactId(
 			ContactConstants.DEFAULT_PARENT_CONTACT_ID);
 		defaultContact.setEmailAddress(defaultUser.getEmailAddress());

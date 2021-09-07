@@ -124,6 +124,11 @@ public class CommerceAccountGroupWrapper
 		}
 	}
 
+	@Override
+	public CommerceAccountGroup cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the commerce account group ID of this commerce account group.
 	 *

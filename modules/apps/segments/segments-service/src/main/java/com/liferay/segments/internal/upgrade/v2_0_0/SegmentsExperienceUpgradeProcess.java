@@ -15,7 +15,6 @@
 package com.liferay.segments.internal.upgrade.v2_0_0;
 
 import com.liferay.counter.kernel.service.CounterLocalService;
-import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
@@ -42,15 +41,9 @@ public class SegmentsExperienceUpgradeProcess extends UpgradeProcess {
 	private void _updateSegmentsExperience(
 		long segmentsExperienceId, String segmentsExperienceKey) {
 
-		StringBundler sb = new StringBundler(2);
-
-		sb.append("update SegmentsExperience set segmentsExperienceKey = ? ");
-		sb.append("where segmentsExperienceId = ?");
-
-		String sql = sb.toString();
-
 		try (PreparedStatement preparedStatement = connection.prepareStatement(
-				sql)) {
+				"update SegmentsExperience set segmentsExperienceKey = ? " +
+					"where segmentsExperienceId = ?")) {
 
 			preparedStatement.setString(1, segmentsExperienceKey);
 			preparedStatement.setLong(2, segmentsExperienceId);
@@ -65,12 +58,8 @@ public class SegmentsExperienceUpgradeProcess extends UpgradeProcess {
 	}
 
 	private void _updateSegmentsExperiences() throws Exception {
-		StringBundler sb = new StringBundler(1);
-
-		sb.append("select segmentsExperienceId from SegmentsExperience");
-
 		try (PreparedStatement preparedStatement = connection.prepareStatement(
-				sb.toString())) {
+				"select segmentsExperienceId from SegmentsExperience")) {
 
 			try (ResultSet resultSet = preparedStatement.executeQuery()) {
 				while (resultSet.next()) {

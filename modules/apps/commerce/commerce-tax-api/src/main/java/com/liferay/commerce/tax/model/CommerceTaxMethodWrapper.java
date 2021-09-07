@@ -133,6 +133,11 @@ public class CommerceTaxMethodWrapper
 		}
 	}
 
+	@Override
+	public CommerceTaxMethod cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the active of this commerce tax method.
 	 *

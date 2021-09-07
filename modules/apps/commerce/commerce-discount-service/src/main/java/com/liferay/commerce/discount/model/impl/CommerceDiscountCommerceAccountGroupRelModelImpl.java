@@ -32,12 +32,14 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -670,6 +672,34 @@ public class CommerceDiscountCommerceAccountGroupRelModelImpl
 	}
 
 	@Override
+	public CommerceDiscountCommerceAccountGroupRel cloneWithOriginalValues() {
+		CommerceDiscountCommerceAccountGroupRelImpl
+			commerceDiscountCommerceAccountGroupRelImpl =
+				new CommerceDiscountCommerceAccountGroupRelImpl();
+
+		commerceDiscountCommerceAccountGroupRelImpl.
+			setCommerceDiscountCommerceAccountGroupRelId(
+				this.<Long>getColumnOriginalValue(
+					"CDiscountCAccountGroupRelId"));
+		commerceDiscountCommerceAccountGroupRelImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		commerceDiscountCommerceAccountGroupRelImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		commerceDiscountCommerceAccountGroupRelImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		commerceDiscountCommerceAccountGroupRelImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		commerceDiscountCommerceAccountGroupRelImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		commerceDiscountCommerceAccountGroupRelImpl.setCommerceDiscountId(
+			this.<Long>getColumnOriginalValue("commerceDiscountId"));
+		commerceDiscountCommerceAccountGroupRelImpl.setCommerceAccountGroupId(
+			this.<Long>getColumnOriginalValue("commerceAccountGroupId"));
+
+		return commerceDiscountCommerceAccountGroupRelImpl;
+	}
+
+	@Override
 	public int compareTo(
 		CommerceDiscountCommerceAccountGroupRel
 			commerceDiscountCommerceAccountGroupRel) {
@@ -808,7 +838,7 @@ public class CommerceDiscountCommerceAccountGroupRelModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -821,11 +851,27 @@ public class CommerceDiscountCommerceAccountGroupRelModelImpl
 			Function<CommerceDiscountCommerceAccountGroupRel, Object>
 				attributeGetterFunction = entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply(
-					(CommerceDiscountCommerceAccountGroupRel)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(CommerceDiscountCommerceAccountGroupRel)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

@@ -282,6 +282,11 @@ public class CommerceSubscriptionEntryWrapper
 	}
 
 	@Override
+	public CommerceSubscriptionEntry cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
+	@Override
 	public CommerceOrderItem fetchCommerceOrderItem() {
 		return model.fetchCommerceOrderItem();
 	}

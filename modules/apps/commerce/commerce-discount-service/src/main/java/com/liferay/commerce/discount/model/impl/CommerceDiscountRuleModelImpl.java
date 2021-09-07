@@ -32,12 +32,14 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -678,6 +680,35 @@ public class CommerceDiscountRuleModelImpl
 	}
 
 	@Override
+	public CommerceDiscountRule cloneWithOriginalValues() {
+		CommerceDiscountRuleImpl commerceDiscountRuleImpl =
+			new CommerceDiscountRuleImpl();
+
+		commerceDiscountRuleImpl.setCommerceDiscountRuleId(
+			this.<Long>getColumnOriginalValue("commerceDiscountRuleId"));
+		commerceDiscountRuleImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		commerceDiscountRuleImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		commerceDiscountRuleImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		commerceDiscountRuleImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		commerceDiscountRuleImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		commerceDiscountRuleImpl.setName(
+			this.<String>getColumnOriginalValue("name"));
+		commerceDiscountRuleImpl.setCommerceDiscountId(
+			this.<Long>getColumnOriginalValue("commerceDiscountId"));
+		commerceDiscountRuleImpl.setType(
+			this.<String>getColumnOriginalValue("type_"));
+		commerceDiscountRuleImpl.setTypeSettings(
+			this.<String>getColumnOriginalValue("typeSettings"));
+
+		return commerceDiscountRuleImpl;
+	}
+
+	@Override
 	public int compareTo(CommerceDiscountRule commerceDiscountRule) {
 		int value = 0;
 
@@ -823,7 +854,7 @@ public class CommerceDiscountRuleModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -834,10 +865,27 @@ public class CommerceDiscountRuleModelImpl
 			Function<CommerceDiscountRule, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply((CommerceDiscountRule)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(CommerceDiscountRule)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

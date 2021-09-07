@@ -130,6 +130,11 @@ public class CommerceCatalogWrapper
 		}
 	}
 
+	@Override
+	public CommerceCatalog cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the catalog default language ID of this commerce catalog.
 	 *

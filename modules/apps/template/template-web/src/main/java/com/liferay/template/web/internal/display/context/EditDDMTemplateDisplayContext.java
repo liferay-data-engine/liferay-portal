@@ -35,6 +35,7 @@ import com.liferay.portal.kernel.template.TemplateVariableDefinition;
 import com.liferay.portal.kernel.template.TemplateVariableGroup;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
@@ -47,6 +48,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 import java.util.ResourceBundle;
+
+import javax.portlet.PortletConfig;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -137,7 +140,7 @@ public class EditDDMTemplateDisplayContext {
 		).put(
 			"script", _getScript()
 		).put(
-			"showLanguageChangeWarning", _getShowLanguageChangeWarning()
+			"showLanguageChangeWarning", _isShowLanguageChangeWarning()
 		).put(
 			"templateVariableGroups", _getTemplateVariableGroupJSONArray()
 		).build();
@@ -165,6 +168,22 @@ public class EditDDMTemplateDisplayContext {
 		return new String[] {
 			TemplateConstants.LANG_TYPE_FTL, TemplateConstants.LANG_TYPE_VM
 		};
+	}
+
+	public String getRefererWebDAVToken() {
+		if (_refererWebDAVToken != null) {
+			return _refererWebDAVToken;
+		}
+
+		PortletConfig portletConfig =
+			(PortletConfig)_httpServletRequest.getAttribute(
+				JavaConstants.JAVAX_PORTLET_CONFIG);
+
+		_refererWebDAVToken = ParamUtil.getString(
+			_httpServletRequest, "refererWebDAVToken",
+			portletConfig.getInitParameter("refererWebDAVToken"));
+
+		return _refererWebDAVToken;
 	}
 
 	public String getSmallImageSource() {
@@ -208,7 +227,7 @@ public class EditDDMTemplateDisplayContext {
 		}
 
 		_tabs1 = ParamUtil.getString(
-			_liferayPortletRequest, "tabs1", "information-templates");
+			_liferayPortletRequest, "tabs1", "widget-templates");
 
 		return _tabs1;
 	}
@@ -312,18 +331,6 @@ public class EditDDMTemplateDisplayContext {
 		return _script;
 	}
 
-	private boolean _getShowLanguageChangeWarning() {
-		DDMTemplate ddmTemplate = getDDMTemplate();
-
-		if ((ddmTemplate != null) && (getTemplateLanguageTypes().length > 1) &&
-			!Objects.equals(ddmTemplate.getLanguage(), getLanguageType())) {
-
-			return true;
-		}
-
-		return false;
-	}
-
 	private ResourceBundle _getTemplateHandlerResourceBundle() {
 		TemplateHandler templateHandler =
 			TemplateHandlerRegistryUtil.getTemplateHandler(getClassNameId());
@@ -392,6 +399,18 @@ public class EditDDMTemplateDisplayContext {
 		return templateVariableGroupJSONArray;
 	}
 
+	private boolean _isShowLanguageChangeWarning() {
+		DDMTemplate ddmTemplate = getDDMTemplate();
+
+		if ((ddmTemplate != null) && (getTemplateLanguageTypes().length > 1) &&
+			!Objects.equals(ddmTemplate.getLanguage(), getLanguageType())) {
+
+			return true;
+		}
+
+		return false;
+	}
+
 	private Long _classNameId;
 	private final DDMGroupServiceConfiguration _ddmGroupServiceConfiguration;
 	private DDMTemplate _ddmTemplate;
@@ -401,6 +420,7 @@ public class EditDDMTemplateDisplayContext {
 	private String _languageType;
 	private final LiferayPortletRequest _liferayPortletRequest;
 	private final LiferayPortletResponse _liferayPortletResponse;
+	private String _refererWebDAVToken;
 	private String _script;
 	private Boolean _smallImage;
 	private String _smallImageSource;

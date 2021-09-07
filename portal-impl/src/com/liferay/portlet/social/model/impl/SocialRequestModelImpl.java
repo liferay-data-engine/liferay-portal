@@ -29,6 +29,7 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.social.kernel.model.SocialRequest;
 import com.liferay.social.kernel.model.SocialRequestModel;
@@ -39,10 +40,12 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -908,6 +911,43 @@ public class SocialRequestModelImpl
 	}
 
 	@Override
+	public SocialRequest cloneWithOriginalValues() {
+		SocialRequestImpl socialRequestImpl = new SocialRequestImpl();
+
+		socialRequestImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		socialRequestImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		socialRequestImpl.setUuid(this.<String>getColumnOriginalValue("uuid_"));
+		socialRequestImpl.setRequestId(
+			this.<Long>getColumnOriginalValue("requestId"));
+		socialRequestImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		socialRequestImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		socialRequestImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		socialRequestImpl.setCreateDate(
+			this.<Long>getColumnOriginalValue("createDate"));
+		socialRequestImpl.setModifiedDate(
+			this.<Long>getColumnOriginalValue("modifiedDate"));
+		socialRequestImpl.setClassNameId(
+			this.<Long>getColumnOriginalValue("classNameId"));
+		socialRequestImpl.setClassPK(
+			this.<Long>getColumnOriginalValue("classPK"));
+		socialRequestImpl.setType(
+			this.<Integer>getColumnOriginalValue("type_"));
+		socialRequestImpl.setExtraData(
+			this.<String>getColumnOriginalValue("extraData"));
+		socialRequestImpl.setReceiverUserId(
+			this.<Long>getColumnOriginalValue("receiverUserId"));
+		socialRequestImpl.setStatus(
+			this.<Integer>getColumnOriginalValue("status"));
+
+		return socialRequestImpl;
+	}
+
+	@Override
 	public int compareTo(SocialRequest socialRequest) {
 		int value = 0;
 
@@ -1038,7 +1078,7 @@ public class SocialRequestModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1049,9 +1089,26 @@ public class SocialRequestModelImpl
 			Function<SocialRequest, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((SocialRequest)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((SocialRequest)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

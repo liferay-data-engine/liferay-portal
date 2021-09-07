@@ -33,6 +33,7 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.Http;
 import com.liferay.portal.kernel.util.InetAddressUtil;
 import com.liferay.portal.kernel.util.JavaConstants;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.SystemProperties;
@@ -1434,7 +1435,7 @@ public class HttpImpl implements Http {
 		RequestBuilder requestBuilder, Map<String, String> headers,
 		List<Http.FilePart> fileParts, Map<String, String> parts) {
 
-		if ((fileParts == null) || fileParts.isEmpty()) {
+		if (ListUtil.isEmpty(fileParts)) {
 			if (parts != null) {
 				for (Map.Entry<String, String> entry : parts.entrySet()) {
 					String value = entry.getValue();
@@ -1610,16 +1611,11 @@ public class HttpImpl implements Http {
 			long contentLengthLong = response.getContentLengthLong();
 
 			if (contentLengthLong > _MAX_BYTE_ARRAY_LENGTH) {
-				StringBundler sb = new StringBundler(5);
-
-				sb.append("Retrieving ");
-				sb.append(location);
-				sb.append(" yields a file of size ");
-				sb.append(contentLengthLong);
-				sb.append(
-					" bytes that is too large to convert to a byte array");
-
-				throw new OutOfMemoryError(sb.toString());
+				throw new OutOfMemoryError(
+					StringBundler.concat(
+						"Retrieving ", location, " yields a file of size ",
+						contentLengthLong,
+						" bytes that is too large to convert to a byte array"));
 			}
 
 			return FileUtil.getBytes(inputStream);

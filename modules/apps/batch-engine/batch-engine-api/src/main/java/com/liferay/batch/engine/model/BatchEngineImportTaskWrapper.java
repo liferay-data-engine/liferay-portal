@@ -215,6 +215,11 @@ public class BatchEngineImportTaskWrapper
 		}
 	}
 
+	@Override
+	public BatchEngineImportTask cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the batch engine import task ID of this batch engine import task.
 	 *

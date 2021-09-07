@@ -20,6 +20,8 @@ import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeServices
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeSettings;
 import com.liferay.dynamic.data.mapping.internal.io.DDMFormJSONDeserializer;
 import com.liferay.dynamic.data.mapping.internal.io.DDMFormJSONSerializer;
+import com.liferay.dynamic.data.mapping.internal.io.DDMFormLayoutJSONSerializer;
+import com.liferay.dynamic.data.mapping.internal.io.DDMFormValuesJSONSerializer;
 import com.liferay.dynamic.data.mapping.internal.util.DDMImpl;
 import com.liferay.dynamic.data.mapping.io.DDMFormDeserializerDeserializeRequest;
 import com.liferay.dynamic.data.mapping.io.DDMFormDeserializerDeserializeResponse;
@@ -30,6 +32,7 @@ import com.liferay.dynamic.data.mapping.model.DDMFormField;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.model.DDMTemplate;
 import com.liferay.dynamic.data.mapping.model.LocalizedValue;
+import com.liferay.dynamic.data.mapping.model.UnlocalizedValue;
 import com.liferay.dynamic.data.mapping.model.Value;
 import com.liferay.dynamic.data.mapping.model.impl.DDMStructureImpl;
 import com.liferay.dynamic.data.mapping.model.impl.DDMTemplateImpl;
@@ -40,6 +43,7 @@ import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
 import com.liferay.dynamic.data.mapping.storage.Field;
 import com.liferay.dynamic.data.mapping.storage.Fields;
 import com.liferay.dynamic.data.mapping.test.util.DDMFormFieldTypeSettingsTestUtil;
+import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMap;
 import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.portal.json.JSONFactoryImpl;
 import com.liferay.portal.kernel.configuration.Configuration;
@@ -51,7 +55,10 @@ import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PortalClassLoaderUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.ProxyFactory;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -82,6 +89,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.api.support.membermodification.MemberMatcher;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.core.classloader.annotations.SuppressStaticInitializationFor;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -108,6 +116,7 @@ public abstract class BaseDDMTestCase extends PowerMockito {
 	@Before
 	public void setUp() throws Exception {
 		setUpPortalClassLoaderUtil();
+		setUpPortalUtil();
 		setUpResourceBundleUtil();
 	}
 
@@ -187,6 +196,12 @@ public abstract class BaseDDMTestCase extends PowerMockito {
 		ddmFormFieldValue.setDDMFormValues(ddmFormValues);
 
 		return ddmFormFieldValue;
+	}
+
+	protected DDMFormFieldValue createDDMFormFieldValue(String name) {
+		return createDDMFormFieldValue(
+			StringUtil.randomString(), name,
+			new UnlocalizedValue(StringUtil.randomString()));
 	}
 
 	protected DDMFormFieldValue createDDMFormFieldValue(
@@ -515,6 +530,29 @@ public abstract class BaseDDMTestCase extends PowerMockito {
 		field.set(ddmFormJSONSerializer, new JSONFactoryImpl());
 	}
 
+	protected void setUpDDMFormLayoutJSONSerializer() throws Exception {
+		MemberMatcher.field(
+			DDMFormLayoutJSONSerializer.class, "_jsonFactory"
+		).set(
+			ddmFormLayoutJSONSerializer, new JSONFactoryImpl()
+		);
+	}
+
+	protected void setUpDDMFormValuesJSONSerializer() throws Exception {
+		field(
+			DDMFormValuesJSONSerializer.class, "_jsonFactory"
+		).set(
+			ddmFormValuesJSONSerializer, new JSONFactoryImpl()
+		);
+
+		field(
+			DDMFormValuesJSONSerializer.class, "_serviceTrackerMap"
+		).set(
+			ddmFormValuesJSONSerializer,
+			ProxyFactory.newDummyInstance(ServiceTrackerMap.class)
+		);
+	}
+
 	protected void setUpDDMStructureLocalServiceUtil() {
 		mockStatic(DDMStructureLocalServiceUtil.class);
 
@@ -619,14 +657,14 @@ public abstract class BaseDDMTestCase extends PowerMockito {
 
 		whenLanguageGetAvailableLocalesThen(availableLocales);
 
-		whenLanguageGet(LocaleUtil.BRAZIL, "no", "Não");
-		whenLanguageGet(LocaleUtil.BRAZIL, "yes", "Sim");
+		whenLanguageGet(LocaleUtil.BRAZIL, "false", "Falso");
+		whenLanguageGet(LocaleUtil.BRAZIL, "true", "Verdadeiro");
 		whenLanguageGet(LocaleUtil.SPAIN, "latitude", "Latitud");
 		whenLanguageGet(LocaleUtil.SPAIN, "longitude", "Longitud");
 		whenLanguageGet(LocaleUtil.US, "latitude", "Latitude");
 		whenLanguageGet(LocaleUtil.US, "longitude", "Longitude");
-		whenLanguageGet(LocaleUtil.US, "no", "No");
-		whenLanguageGet(LocaleUtil.US, "yes", "Yes");
+		whenLanguageGet(LocaleUtil.US, "false", "False");
+		whenLanguageGet(LocaleUtil.US, "true", "True");
 
 		whenLanguageGetLanguageId(LocaleUtil.BRAZIL, "pt_BR");
 		whenLanguageGetLanguageId(LocaleUtil.SPAIN, "es_ES");
@@ -641,6 +679,29 @@ public abstract class BaseDDMTestCase extends PowerMockito {
 		whenLanguageIsAvailableLocale(LocaleUtil.US);
 
 		LanguageUtil languageUtil = new LanguageUtil();
+
+		languageUtil.setLanguage(language);
+	}
+
+	protected void setUpLanguageUtil(Map<String, String> languageKeys) {
+		LanguageUtil languageUtil = new LanguageUtil();
+
+		when(
+			language.get(
+				Matchers.any(ResourceBundle.class), Matchers.anyString())
+		).then(
+			new Answer<String>() {
+
+				public String answer(InvocationOnMock invocationOnMock)
+					throws Throwable {
+
+					Object[] arguments = invocationOnMock.getArguments();
+
+					return languageKeys.get((String)arguments[1]);
+				}
+
+			}
+		);
 
 		languageUtil.setLanguage(language);
 	}
@@ -712,6 +773,22 @@ public abstract class BaseDDMTestCase extends PowerMockito {
 		).thenReturn(
 			_classLoader
 		);
+	}
+
+	protected void setUpPortalUtil() {
+		PortalUtil portalUtil = new PortalUtil();
+
+		Portal portal = mock(Portal.class);
+
+		ResourceBundle resourceBundle = mock(ResourceBundle.class);
+
+		when(
+			portal.getResourceBundle(Matchers.any(Locale.class))
+		).thenReturn(
+			resourceBundle
+		);
+
+		portalUtil.setPortal(portal);
 	}
 
 	protected void setUpPropsValues() {
@@ -794,6 +871,11 @@ public abstract class BaseDDMTestCase extends PowerMockito {
 			true
 		);
 	}
+
+	protected static final DDMFormLayoutJSONSerializer
+		ddmFormLayoutJSONSerializer = new DDMFormLayoutJSONSerializer();
+	protected static final DDMFormValuesJSONSerializer
+		ddmFormValuesJSONSerializer = new DDMFormValuesJSONSerializer();
 
 	protected final DDMFormJSONDeserializer ddmFormJSONDeserializer =
 		new DDMFormJSONDeserializer();

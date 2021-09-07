@@ -33,12 +33,14 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -830,6 +832,43 @@ public class FragmentCollectionModelImpl
 	}
 
 	@Override
+	public FragmentCollection cloneWithOriginalValues() {
+		FragmentCollectionImpl fragmentCollectionImpl =
+			new FragmentCollectionImpl();
+
+		fragmentCollectionImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		fragmentCollectionImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		fragmentCollectionImpl.setUuid(
+			this.<String>getColumnOriginalValue("uuid_"));
+		fragmentCollectionImpl.setFragmentCollectionId(
+			this.<Long>getColumnOriginalValue("fragmentCollectionId"));
+		fragmentCollectionImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		fragmentCollectionImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		fragmentCollectionImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		fragmentCollectionImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		fragmentCollectionImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		fragmentCollectionImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		fragmentCollectionImpl.setFragmentCollectionKey(
+			this.<String>getColumnOriginalValue("fragmentCollectionKey"));
+		fragmentCollectionImpl.setName(
+			this.<String>getColumnOriginalValue("name"));
+		fragmentCollectionImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		fragmentCollectionImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+
+		return fragmentCollectionImpl;
+	}
+
+	@Override
 	public int compareTo(FragmentCollection fragmentCollection) {
 		int value = 0;
 
@@ -995,7 +1034,7 @@ public class FragmentCollectionModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1006,9 +1045,27 @@ public class FragmentCollectionModelImpl
 			Function<FragmentCollection, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((FragmentCollection)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(FragmentCollection)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

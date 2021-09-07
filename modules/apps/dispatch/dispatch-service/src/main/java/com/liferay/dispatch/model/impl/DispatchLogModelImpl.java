@@ -32,12 +32,14 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -707,6 +709,38 @@ public class DispatchLogModelImpl
 	}
 
 	@Override
+	public DispatchLog cloneWithOriginalValues() {
+		DispatchLogImpl dispatchLogImpl = new DispatchLogImpl();
+
+		dispatchLogImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		dispatchLogImpl.setDispatchLogId(
+			this.<Long>getColumnOriginalValue("dispatchLogId"));
+		dispatchLogImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		dispatchLogImpl.setUserId(this.<Long>getColumnOriginalValue("userId"));
+		dispatchLogImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		dispatchLogImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		dispatchLogImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		dispatchLogImpl.setDispatchTriggerId(
+			this.<Long>getColumnOriginalValue("dispatchTriggerId"));
+		dispatchLogImpl.setEndDate(
+			this.<Date>getColumnOriginalValue("endDate"));
+		dispatchLogImpl.setError(this.<String>getColumnOriginalValue("error"));
+		dispatchLogImpl.setOutput(
+			this.<String>getColumnOriginalValue("output_"));
+		dispatchLogImpl.setStartDate(
+			this.<Date>getColumnOriginalValue("startDate"));
+		dispatchLogImpl.setStatus(
+			this.<Integer>getColumnOriginalValue("status"));
+
+		return dispatchLogImpl;
+	}
+
+	@Override
 	public int compareTo(DispatchLog dispatchLog) {
 		int value = 0;
 
@@ -862,7 +896,7 @@ public class DispatchLogModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -873,9 +907,26 @@ public class DispatchLogModelImpl
 			Function<DispatchLog, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((DispatchLog)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((DispatchLog)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

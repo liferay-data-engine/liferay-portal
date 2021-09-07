@@ -27,6 +27,7 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.style.book.model.StyleBookEntry;
 import com.liferay.style.book.model.StyleBookEntryVersion;
 import com.liferay.style.book.model.StyleBookEntryVersionModel;
@@ -36,6 +37,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
@@ -915,6 +917,49 @@ public class StyleBookEntryVersionModelImpl
 	}
 
 	@Override
+	public StyleBookEntryVersion cloneWithOriginalValues() {
+		StyleBookEntryVersionImpl styleBookEntryVersionImpl =
+			new StyleBookEntryVersionImpl();
+
+		styleBookEntryVersionImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		styleBookEntryVersionImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		styleBookEntryVersionImpl.setStyleBookEntryVersionId(
+			this.<Long>getColumnOriginalValue("styleBookEntryVersionId"));
+		styleBookEntryVersionImpl.setVersion(
+			this.<Integer>getColumnOriginalValue("version"));
+		styleBookEntryVersionImpl.setUuid(
+			this.<String>getColumnOriginalValue("uuid_"));
+		styleBookEntryVersionImpl.setStyleBookEntryId(
+			this.<Long>getColumnOriginalValue("styleBookEntryId"));
+		styleBookEntryVersionImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		styleBookEntryVersionImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		styleBookEntryVersionImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		styleBookEntryVersionImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		styleBookEntryVersionImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		styleBookEntryVersionImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		styleBookEntryVersionImpl.setDefaultStyleBookEntry(
+			this.<Boolean>getColumnOriginalValue("defaultStyleBookEntry"));
+		styleBookEntryVersionImpl.setFrontendTokensValues(
+			this.<String>getColumnOriginalValue("frontendTokensValues"));
+		styleBookEntryVersionImpl.setName(
+			this.<String>getColumnOriginalValue("name"));
+		styleBookEntryVersionImpl.setPreviewFileEntryId(
+			this.<Long>getColumnOriginalValue("previewFileEntryId"));
+		styleBookEntryVersionImpl.setStyleBookEntryKey(
+			this.<String>getColumnOriginalValue("styleBookEntryKey"));
+
+		return styleBookEntryVersionImpl;
+	}
+
+	@Override
 	public int compareTo(StyleBookEntryVersion styleBookEntryVersion) {
 		int value = 0;
 
@@ -1095,7 +1140,7 @@ public class StyleBookEntryVersionModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1106,10 +1151,27 @@ public class StyleBookEntryVersionModelImpl
 			Function<StyleBookEntryVersion, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply((StyleBookEntryVersion)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(StyleBookEntryVersion)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

@@ -33,6 +33,7 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
@@ -40,6 +41,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1225,6 +1227,66 @@ public class FragmentEntryLinkModelImpl
 	}
 
 	@Override
+	public FragmentEntryLink cloneWithOriginalValues() {
+		FragmentEntryLinkImpl fragmentEntryLinkImpl =
+			new FragmentEntryLinkImpl();
+
+		fragmentEntryLinkImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		fragmentEntryLinkImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		fragmentEntryLinkImpl.setUuid(
+			this.<String>getColumnOriginalValue("uuid_"));
+		fragmentEntryLinkImpl.setFragmentEntryLinkId(
+			this.<Long>getColumnOriginalValue("fragmentEntryLinkId"));
+		fragmentEntryLinkImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		fragmentEntryLinkImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		fragmentEntryLinkImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		fragmentEntryLinkImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		fragmentEntryLinkImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		fragmentEntryLinkImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		fragmentEntryLinkImpl.setOriginalFragmentEntryLinkId(
+			this.<Long>getColumnOriginalValue("originalFragmentEntryLinkId"));
+		fragmentEntryLinkImpl.setFragmentEntryId(
+			this.<Long>getColumnOriginalValue("fragmentEntryId"));
+		fragmentEntryLinkImpl.setSegmentsExperienceId(
+			this.<Long>getColumnOriginalValue("segmentsExperienceId"));
+		fragmentEntryLinkImpl.setClassNameId(
+			this.<Long>getColumnOriginalValue("classNameId"));
+		fragmentEntryLinkImpl.setClassPK(
+			this.<Long>getColumnOriginalValue("classPK"));
+		fragmentEntryLinkImpl.setPlid(
+			this.<Long>getColumnOriginalValue("plid"));
+		fragmentEntryLinkImpl.setCss(
+			this.<String>getColumnOriginalValue("css"));
+		fragmentEntryLinkImpl.setHtml(
+			this.<String>getColumnOriginalValue("html"));
+		fragmentEntryLinkImpl.setJs(this.<String>getColumnOriginalValue("js"));
+		fragmentEntryLinkImpl.setConfiguration(
+			this.<String>getColumnOriginalValue("configuration"));
+		fragmentEntryLinkImpl.setEditableValues(
+			this.<String>getColumnOriginalValue("editableValues"));
+		fragmentEntryLinkImpl.setNamespace(
+			this.<String>getColumnOriginalValue("namespace"));
+		fragmentEntryLinkImpl.setPosition(
+			this.<Integer>getColumnOriginalValue("position"));
+		fragmentEntryLinkImpl.setRendererKey(
+			this.<String>getColumnOriginalValue("rendererKey"));
+		fragmentEntryLinkImpl.setLastPropagationDate(
+			this.<Date>getColumnOriginalValue("lastPropagationDate"));
+		fragmentEntryLinkImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+
+		return fragmentEntryLinkImpl;
+	}
+
+	@Override
 	public int compareTo(FragmentEntryLink fragmentEntryLink) {
 		int value = 0;
 
@@ -1480,7 +1542,7 @@ public class FragmentEntryLinkModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1491,9 +1553,27 @@ public class FragmentEntryLinkModelImpl
 			Function<FragmentEntryLink, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((FragmentEntryLink)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(FragmentEntryLink)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

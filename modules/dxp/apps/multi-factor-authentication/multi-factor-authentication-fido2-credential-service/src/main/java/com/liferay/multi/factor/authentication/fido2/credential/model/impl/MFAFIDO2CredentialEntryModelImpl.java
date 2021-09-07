@@ -29,12 +29,14 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
@@ -683,6 +685,41 @@ public class MFAFIDO2CredentialEntryModelImpl
 	}
 
 	@Override
+	public MFAFIDO2CredentialEntry cloneWithOriginalValues() {
+		MFAFIDO2CredentialEntryImpl mfaFIDO2CredentialEntryImpl =
+			new MFAFIDO2CredentialEntryImpl();
+
+		mfaFIDO2CredentialEntryImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		mfaFIDO2CredentialEntryImpl.setMfaFIDO2CredentialEntryId(
+			this.<Long>getColumnOriginalValue("mfaFIDO2CredentialEntryId"));
+		mfaFIDO2CredentialEntryImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		mfaFIDO2CredentialEntryImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		mfaFIDO2CredentialEntryImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		mfaFIDO2CredentialEntryImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		mfaFIDO2CredentialEntryImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		mfaFIDO2CredentialEntryImpl.setCredentialKey(
+			this.<String>getColumnOriginalValue("credentialKey"));
+		mfaFIDO2CredentialEntryImpl.setCredentialKeyHash(
+			this.<Long>getColumnOriginalValue("credentialKeyHash"));
+		mfaFIDO2CredentialEntryImpl.setCredentialType(
+			this.<Integer>getColumnOriginalValue("credentialType"));
+		mfaFIDO2CredentialEntryImpl.setFailedAttempts(
+			this.<Integer>getColumnOriginalValue("failedAttempts"));
+		mfaFIDO2CredentialEntryImpl.setPublicKeyCOSE(
+			this.<String>getColumnOriginalValue("publicKeyCOSE"));
+		mfaFIDO2CredentialEntryImpl.setSignatureCount(
+			this.<Long>getColumnOriginalValue("signatureCount"));
+
+		return mfaFIDO2CredentialEntryImpl;
+	}
+
+	@Override
 	public int compareTo(MFAFIDO2CredentialEntry mfaFIDO2CredentialEntry) {
 		long primaryKey = mfaFIDO2CredentialEntry.getPrimaryKey();
 
@@ -827,7 +864,7 @@ public class MFAFIDO2CredentialEntryModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -838,10 +875,27 @@ public class MFAFIDO2CredentialEntryModelImpl
 			Function<MFAFIDO2CredentialEntry, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply((MFAFIDO2CredentialEntry)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(MFAFIDO2CredentialEntry)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

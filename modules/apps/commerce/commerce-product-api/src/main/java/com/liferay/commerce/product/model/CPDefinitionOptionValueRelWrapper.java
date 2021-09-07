@@ -178,6 +178,11 @@ public class CPDefinitionOptionValueRelWrapper
 	}
 
 	@Override
+	public CPDefinitionOptionValueRel cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
+	@Override
 	public CPInstance fetchCPInstance() {
 		return model.fetchCPInstance();
 	}

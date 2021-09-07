@@ -24,6 +24,7 @@ import com.liferay.portal.kernel.model.impl.BaseModelImpl;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.tools.service.builder.test.model.CacheMissEntry;
 import com.liferay.portal.tools.service.builder.test.model.CacheMissEntryModel;
 
@@ -32,9 +33,11 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -64,6 +67,7 @@ public class CacheMissEntryModelImpl
 	public static final String TABLE_NAME = "CacheMissEntry";
 
 	public static final Object[][] TABLE_COLUMNS = {
+		{"mvccVersion", Types.BIGINT}, {"ctCollectionId", Types.BIGINT},
 		{"cacheMissEntryId", Types.BIGINT}
 	};
 
@@ -71,11 +75,13 @@ public class CacheMissEntryModelImpl
 		new HashMap<String, Integer>();
 
 	static {
+		TABLE_COLUMNS_MAP.put("mvccVersion", Types.BIGINT);
+		TABLE_COLUMNS_MAP.put("ctCollectionId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("cacheMissEntryId", Types.BIGINT);
 	}
 
 	public static final String TABLE_SQL_CREATE =
-		"create table CacheMissEntry (cacheMissEntryId LONG not null primary key)";
+		"create table CacheMissEntry (mvccVersion LONG default 0 not null,ctCollectionId LONG default 0 not null,cacheMissEntryId LONG not null,primary key (cacheMissEntryId, ctCollectionId))";
 
 	public static final String TABLE_SQL_DROP = "drop table CacheMissEntry";
 
@@ -246,6 +252,17 @@ public class CacheMissEntryModelImpl
 			new LinkedHashMap<String, BiConsumer<CacheMissEntry, ?>>();
 
 		attributeGetterFunctions.put(
+			"mvccVersion", CacheMissEntry::getMvccVersion);
+		attributeSetterBiConsumers.put(
+			"mvccVersion",
+			(BiConsumer<CacheMissEntry, Long>)CacheMissEntry::setMvccVersion);
+		attributeGetterFunctions.put(
+			"ctCollectionId", CacheMissEntry::getCtCollectionId);
+		attributeSetterBiConsumers.put(
+			"ctCollectionId",
+			(BiConsumer<CacheMissEntry, Long>)
+				CacheMissEntry::setCtCollectionId);
+		attributeGetterFunctions.put(
 			"cacheMissEntryId", CacheMissEntry::getCacheMissEntryId);
 		attributeSetterBiConsumers.put(
 			"cacheMissEntryId",
@@ -256,6 +273,34 @@ public class CacheMissEntryModelImpl
 			attributeGetterFunctions);
 		_attributeSetterBiConsumers = Collections.unmodifiableMap(
 			(Map)attributeSetterBiConsumers);
+	}
+
+	@Override
+	public long getMvccVersion() {
+		return _mvccVersion;
+	}
+
+	@Override
+	public void setMvccVersion(long mvccVersion) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		_mvccVersion = mvccVersion;
+	}
+
+	@Override
+	public long getCtCollectionId() {
+		return _ctCollectionId;
+	}
+
+	@Override
+	public void setCtCollectionId(long ctCollectionId) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		_ctCollectionId = ctCollectionId;
 	}
 
 	@Override
@@ -328,9 +373,25 @@ public class CacheMissEntryModelImpl
 	public Object clone() {
 		CacheMissEntryImpl cacheMissEntryImpl = new CacheMissEntryImpl();
 
+		cacheMissEntryImpl.setMvccVersion(getMvccVersion());
+		cacheMissEntryImpl.setCtCollectionId(getCtCollectionId());
 		cacheMissEntryImpl.setCacheMissEntryId(getCacheMissEntryId());
 
 		cacheMissEntryImpl.resetOriginalValues();
+
+		return cacheMissEntryImpl;
+	}
+
+	@Override
+	public CacheMissEntry cloneWithOriginalValues() {
+		CacheMissEntryImpl cacheMissEntryImpl = new CacheMissEntryImpl();
+
+		cacheMissEntryImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		cacheMissEntryImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		cacheMissEntryImpl.setCacheMissEntryId(
+			this.<Long>getColumnOriginalValue("cacheMissEntryId"));
 
 		return cacheMissEntryImpl;
 	}
@@ -407,6 +468,10 @@ public class CacheMissEntryModelImpl
 		CacheMissEntryCacheModel cacheMissEntryCacheModel =
 			new CacheMissEntryCacheModel();
 
+		cacheMissEntryCacheModel.mvccVersion = getMvccVersion();
+
+		cacheMissEntryCacheModel.ctCollectionId = getCtCollectionId();
+
 		cacheMissEntryCacheModel.cacheMissEntryId = getCacheMissEntryId();
 
 		return cacheMissEntryCacheModel;
@@ -418,7 +483,7 @@ public class CacheMissEntryModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -429,9 +494,26 @@ public class CacheMissEntryModelImpl
 			Function<CacheMissEntry, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((CacheMissEntry)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((CacheMissEntry)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 
@@ -482,6 +564,8 @@ public class CacheMissEntryModelImpl
 
 	}
 
+	private long _mvccVersion;
+	private long _ctCollectionId;
 	private long _cacheMissEntryId;
 
 	public <T> T getColumnValue(String columnName) {
@@ -511,6 +595,8 @@ public class CacheMissEntryModelImpl
 	private void _setColumnOriginalValues() {
 		_columnOriginalValues = new HashMap<String, Object>();
 
+		_columnOriginalValues.put("mvccVersion", _mvccVersion);
+		_columnOriginalValues.put("ctCollectionId", _ctCollectionId);
 		_columnOriginalValues.put("cacheMissEntryId", _cacheMissEntryId);
 	}
 
@@ -525,7 +611,11 @@ public class CacheMissEntryModelImpl
 	static {
 		Map<String, Long> columnBitmasks = new HashMap<>();
 
-		columnBitmasks.put("cacheMissEntryId", 1L);
+		columnBitmasks.put("mvccVersion", 1L);
+
+		columnBitmasks.put("ctCollectionId", 2L);
+
+		columnBitmasks.put("cacheMissEntryId", 4L);
 
 		_columnBitmasks = Collections.unmodifiableMap(columnBitmasks);
 	}

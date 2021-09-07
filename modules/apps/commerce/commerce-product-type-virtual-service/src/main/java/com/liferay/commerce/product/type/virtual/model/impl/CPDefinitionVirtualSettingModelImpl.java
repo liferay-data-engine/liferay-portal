@@ -36,6 +36,7 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
@@ -43,6 +44,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1313,6 +1315,63 @@ public class CPDefinitionVirtualSettingModelImpl
 	}
 
 	@Override
+	public CPDefinitionVirtualSetting cloneWithOriginalValues() {
+		CPDefinitionVirtualSettingImpl cpDefinitionVirtualSettingImpl =
+			new CPDefinitionVirtualSettingImpl();
+
+		cpDefinitionVirtualSettingImpl.setUuid(
+			this.<String>getColumnOriginalValue("uuid_"));
+		cpDefinitionVirtualSettingImpl.setCPDefinitionVirtualSettingId(
+			this.<Long>getColumnOriginalValue("CPDefinitionVirtualSettingId"));
+		cpDefinitionVirtualSettingImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		cpDefinitionVirtualSettingImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		cpDefinitionVirtualSettingImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		cpDefinitionVirtualSettingImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		cpDefinitionVirtualSettingImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		cpDefinitionVirtualSettingImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		cpDefinitionVirtualSettingImpl.setClassNameId(
+			this.<Long>getColumnOriginalValue("classNameId"));
+		cpDefinitionVirtualSettingImpl.setClassPK(
+			this.<Long>getColumnOriginalValue("classPK"));
+		cpDefinitionVirtualSettingImpl.setFileEntryId(
+			this.<Long>getColumnOriginalValue("fileEntryId"));
+		cpDefinitionVirtualSettingImpl.setUrl(
+			this.<String>getColumnOriginalValue("url"));
+		cpDefinitionVirtualSettingImpl.setActivationStatus(
+			this.<Integer>getColumnOriginalValue("activationStatus"));
+		cpDefinitionVirtualSettingImpl.setDuration(
+			this.<Long>getColumnOriginalValue("duration"));
+		cpDefinitionVirtualSettingImpl.setMaxUsages(
+			this.<Integer>getColumnOriginalValue("maxUsages"));
+		cpDefinitionVirtualSettingImpl.setUseSample(
+			this.<Boolean>getColumnOriginalValue("useSample"));
+		cpDefinitionVirtualSettingImpl.setSampleFileEntryId(
+			this.<Long>getColumnOriginalValue("sampleFileEntryId"));
+		cpDefinitionVirtualSettingImpl.setSampleUrl(
+			this.<String>getColumnOriginalValue("sampleUrl"));
+		cpDefinitionVirtualSettingImpl.setTermsOfUseRequired(
+			this.<Boolean>getColumnOriginalValue("termsOfUseRequired"));
+		cpDefinitionVirtualSettingImpl.setTermsOfUseContent(
+			this.<String>getColumnOriginalValue("termsOfUseContent"));
+		cpDefinitionVirtualSettingImpl.
+			setTermsOfUseJournalArticleResourcePrimKey(
+				this.<Long>getColumnOriginalValue(
+					"termsOfUseArticleResourcePK"));
+		cpDefinitionVirtualSettingImpl.setOverride(
+			this.<Boolean>getColumnOriginalValue("override"));
+		cpDefinitionVirtualSettingImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+
+		return cpDefinitionVirtualSettingImpl;
+	}
+
+	@Override
 	public int compareTo(
 		CPDefinitionVirtualSetting cpDefinitionVirtualSetting) {
 
@@ -1508,7 +1567,7 @@ public class CPDefinitionVirtualSettingModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1519,11 +1578,27 @@ public class CPDefinitionVirtualSettingModelImpl
 			Function<CPDefinitionVirtualSetting, Object>
 				attributeGetterFunction = entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply(
-					(CPDefinitionVirtualSetting)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(CPDefinitionVirtualSetting)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

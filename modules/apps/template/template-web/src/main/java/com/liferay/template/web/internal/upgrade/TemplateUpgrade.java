@@ -25,14 +25,12 @@ import org.osgi.service.component.annotations.Component;
 /**
  * @author Lourdes Fernández Besada
  */
-@Component(
-	enabled = false, immediate = true, service = UpgradeStepRegistrator.class
-)
+@Component(immediate = true, service = UpgradeStepRegistrator.class)
 public class TemplateUpgrade implements UpgradeStepRegistrator {
 
 	@Override
 	public void register(Registry registry) {
-		registry.register("0.0.0", "1.0.0", new DummyUpgradeStep());
+		registry.register("0.0.0", "1.0.1", new DummyUpgradeStep());
 
 		registry.register(
 			"0.0.1", "1.0.1",

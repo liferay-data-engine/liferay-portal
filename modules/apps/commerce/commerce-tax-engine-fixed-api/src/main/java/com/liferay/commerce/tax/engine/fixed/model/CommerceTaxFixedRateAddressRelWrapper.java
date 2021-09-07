@@ -147,6 +147,11 @@ public class CommerceTaxFixedRateAddressRelWrapper
 		}
 	}
 
+	@Override
+	public CommerceTaxFixedRateAddressRel cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the commerce tax fixed rate address rel ID of this commerce tax fixed rate address rel.
 	 *

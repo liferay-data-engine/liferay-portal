@@ -123,6 +123,11 @@ public class CommerceInventoryAuditWrapper
 		}
 	}
 
+	@Override
+	public CommerceInventoryAudit cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the commerce inventory audit ID of this commerce inventory audit.
 	 *

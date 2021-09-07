@@ -26,15 +26,18 @@ import com.liferay.portal.kernel.model.impl.BaseModelImpl;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -416,6 +419,21 @@ public class CompanyInfoModelImpl
 	}
 
 	@Override
+	public CompanyInfo cloneWithOriginalValues() {
+		CompanyInfoImpl companyInfoImpl = new CompanyInfoImpl();
+
+		companyInfoImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		companyInfoImpl.setCompanyInfoId(
+			this.<Long>getColumnOriginalValue("companyInfoId"));
+		companyInfoImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		companyInfoImpl.setKey(this.<String>getColumnOriginalValue("key_"));
+
+		return companyInfoImpl;
+	}
+
+	@Override
 	public int compareTo(CompanyInfo companyInfo) {
 		long primaryKey = companyInfo.getPrimaryKey();
 
@@ -510,7 +528,7 @@ public class CompanyInfoModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -521,9 +539,26 @@ public class CompanyInfoModelImpl
 			Function<CompanyInfo, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((CompanyInfo)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((CompanyInfo)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

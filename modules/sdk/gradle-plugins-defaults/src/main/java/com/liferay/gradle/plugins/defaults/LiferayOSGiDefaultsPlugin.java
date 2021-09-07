@@ -327,7 +327,7 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 		final LiferayExtension liferayExtension = GradleUtil.getExtension(
 			project, LiferayExtension.class);
 
-		final GitRepo gitRepo = GitRepo.getGitRepo(project.getProjectDir());
+		GitRepo gitRepo = GitRepo.getGitRepo(project.getProjectDir());
 		boolean privateProject = GradlePluginsDefaultsUtil.isPrivateProject(
 			project);
 		final boolean testProject = GradlePluginsDefaultsUtil.isTestProject(
@@ -396,8 +396,10 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 				project, JavaPlugin.TEST_COMPILE_CLASSPATH_CONFIGURATION_NAME);
 			_configureConfigurationTest(
 				project, JavaPlugin.TEST_RUNTIME_CONFIGURATION_NAME);
-			_configureEclipse(project, portalTestConfiguration);
-			_configureIdea(project, portalTestConfiguration);
+			_configureEclipse(
+				project, portalConfiguration, portalTestConfiguration);
+			_configureIdea(
+				project, portalConfiguration, portalTestConfiguration);
 			_configureSourceSetTest(
 				project, portalConfiguration, portalTestConfiguration,
 				portalTestSnapshotConfiguration);
@@ -751,7 +753,7 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 	}
 
 	private CheckOSGiBundleStateTask _addTaskCheckOSGiBundleState(
-		final Project project, final BundleExtension bundleExtension) {
+		Project project, final BundleExtension bundleExtension) {
 
 		CheckOSGiBundleStateTask checkOSGiBundleStateTask = GradleUtil.addTask(
 			project, CHECK_OSGI_BUNDLE_STATE_TASK_NAME,
@@ -926,7 +928,7 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 	private Copy _addTaskDeployConfigs(
 		Project project, final LiferayExtension liferayExtension) {
 
-		final Copy copy = GradleUtil.addTask(
+		Copy copy = GradleUtil.addTask(
 			project, DEPLOY_CONFIGS_TASK_NAME, Copy.class);
 
 		GradleUtil.setProperty(
@@ -1625,7 +1627,7 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 	}
 
 	private ReplaceRegexTask _addTaskUpdateVersion(Project project) {
-		final ReplaceRegexTask replaceRegexTask = GradleUtil.addTask(
+		ReplaceRegexTask replaceRegexTask = GradleUtil.addTask(
 			project, LiferayRelengPlugin.UPDATE_VERSION_TASK_NAME,
 			ReplaceRegexTask.class);
 
@@ -2166,7 +2168,7 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 	}
 
 	private void _configureConfigurationJspC(
-		final Project project, final LiferayExtension liferayExtension) {
+		final Project project, LiferayExtension liferayExtension) {
 
 		final Logger logger = project.getLogger();
 
@@ -2818,7 +2820,8 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 	}
 
 	private void _configureEclipse(
-		Project project, Configuration portalTestConfiguration) {
+		Project project, Configuration portalConfiguration,
+		Configuration portalTestConfiguration) {
 
 		EclipseModel eclipseModel = GradleUtil.getExtension(
 			project, EclipseModel.class);
@@ -2828,11 +2831,13 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 		Collection<Configuration> plusConfigurations =
 			eclipseClasspath.getPlusConfigurations();
 
+		plusConfigurations.add(portalConfiguration);
 		plusConfigurations.add(portalTestConfiguration);
 	}
 
 	private void _configureIdea(
-		Project project, Configuration portalTestConfiguration) {
+		Project project, Configuration portalConfiguration,
+		Configuration portalTestConfiguration) {
 
 		IdeaModel ideaModel = GradleUtil.getExtension(project, IdeaModel.class);
 
@@ -2845,6 +2850,7 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 
 		Collection<Configuration> plusConfigurations = testScope.get("plus");
 
+		plusConfigurations.add(portalConfiguration);
 		plusConfigurations.add(portalTestConfiguration);
 	}
 
@@ -2923,8 +2929,8 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 			return;
 		}
 
-		if (logger.isLifecycleEnabled()) {
-			logger.lifecycle("Using local portal tool: {}", dir);
+		if (logger.isInfoEnabled()) {
+			logger.info("Using local portal tool: {}", dir);
 		}
 
 		Configuration configuration = GradleUtil.getConfiguration(
@@ -3047,20 +3053,15 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 			GradleUtil.getConfiguration(
 				project, JavaPlugin.COMPILE_CLASSPATH_CONFIGURATION_NAME);
 
-		Configuration testCompileClasspathConfiguration =
-			GradleUtil.getConfiguration(
-				project, sourceSet.getCompileClasspathConfigurationName());
-
-		testCompileClasspathConfiguration.extendsFrom(
-			compileClasspathConfiguration, portalTestConfiguration);
-
-		Configuration testRuntimeClasspathConfiguration =
-			GradleUtil.getConfiguration(
-				project, sourceSet.getRuntimeClasspathConfigurationName());
-
-		testRuntimeClasspathConfiguration.extendsFrom(
-			portalTestSnapshotConfiguration, compileClasspathConfiguration,
-			portalConfiguration, portalTestConfiguration);
+		sourceSet.setCompileClasspath(
+			FileUtil.join(
+				compileClasspathConfiguration, sourceSet.getCompileClasspath(),
+				portalTestConfiguration));
+		sourceSet.setRuntimeClasspath(
+			FileUtil.join(
+				portalTestSnapshotConfiguration, compileClasspathConfiguration,
+				portalConfiguration, sourceSet.getRuntimeClasspath(),
+				portalTestConfiguration));
 	}
 
 	private void _configureSourceSetTestIntegration(
@@ -3077,21 +3078,14 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 		Configuration compileOnlyConfiguration = GradleUtil.getConfiguration(
 			project, JavaPlugin.COMPILE_ONLY_CONFIGURATION_NAME);
 
-		Configuration testIntegrationCompileClasspathConfiguration =
-			GradleUtil.getConfiguration(
-				project, sourceSet.getCompileClasspathConfigurationName());
-
-		testIntegrationCompileClasspathConfiguration.extendsFrom(
-			portalConfiguration, compileOnlyConfiguration,
-			portalTestConfiguration);
-
-		Configuration testIntegrationRuntimeClasspathConfiguration =
-			GradleUtil.getConfiguration(
-				project, sourceSet.getRuntimeClasspathConfigurationName());
-
-		testIntegrationRuntimeClasspathConfiguration.extendsFrom(
-			portalConfiguration, compileOnlyConfiguration,
-			portalTestConfiguration);
+		sourceSet.setCompileClasspath(
+			FileUtil.join(
+				portalConfiguration, compileOnlyConfiguration,
+				sourceSet.getCompileClasspath(), portalTestConfiguration));
+		sourceSet.setRuntimeClasspath(
+			FileUtil.join(
+				portalConfiguration, compileOnlyConfiguration,
+				sourceSet.getRuntimeClasspath(), portalTestConfiguration));
 	}
 
 	private void _configureTaskBaselineSyncReleaseVersions(

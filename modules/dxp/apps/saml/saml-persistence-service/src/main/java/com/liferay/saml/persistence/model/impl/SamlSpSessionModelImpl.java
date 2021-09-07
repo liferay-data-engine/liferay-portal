@@ -27,6 +27,7 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.saml.persistence.model.SamlSpSession;
 import com.liferay.saml.persistence.model.SamlSpSessionModel;
 
@@ -35,6 +36,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
@@ -694,6 +696,38 @@ public class SamlSpSessionModelImpl
 	}
 
 	@Override
+	public SamlSpSession cloneWithOriginalValues() {
+		SamlSpSessionImpl samlSpSessionImpl = new SamlSpSessionImpl();
+
+		samlSpSessionImpl.setSamlSpSessionId(
+			this.<Long>getColumnOriginalValue("samlSpSessionId"));
+		samlSpSessionImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		samlSpSessionImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		samlSpSessionImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		samlSpSessionImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		samlSpSessionImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		samlSpSessionImpl.setSamlPeerBindingId(
+			this.<Long>getColumnOriginalValue("samlPeerBindingId"));
+		samlSpSessionImpl.setAssertionXml(
+			this.<String>getColumnOriginalValue("assertionXml"));
+		samlSpSessionImpl.setJSessionId(
+			this.<String>getColumnOriginalValue("jSessionId"));
+		samlSpSessionImpl.setSamlSpSessionKey(
+			this.<String>getColumnOriginalValue("samlSpSessionKey"));
+		samlSpSessionImpl.setSessionIndex(
+			this.<String>getColumnOriginalValue("sessionIndex"));
+		samlSpSessionImpl.setTerminated(
+			this.<Boolean>getColumnOriginalValue("terminated_"));
+
+		return samlSpSessionImpl;
+	}
+
+	@Override
 	public int compareTo(SamlSpSession samlSpSession) {
 		long primaryKey = samlSpSession.getPrimaryKey();
 
@@ -844,7 +878,7 @@ public class SamlSpSessionModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -855,9 +889,26 @@ public class SamlSpSessionModelImpl
 			Function<SamlSpSession, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((SamlSpSession)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((SamlSpSession)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

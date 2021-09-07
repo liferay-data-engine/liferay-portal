@@ -30,12 +30,14 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
@@ -819,6 +821,42 @@ public class MessageModelImpl
 	}
 
 	@Override
+	public Message cloneWithOriginalValues() {
+		MessageImpl messageImpl = new MessageImpl();
+
+		messageImpl.setMessageId(
+			this.<Long>getColumnOriginalValue("messageId"));
+		messageImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		messageImpl.setUserId(this.<Long>getColumnOriginalValue("userId"));
+		messageImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		messageImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		messageImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		messageImpl.setAccountId(
+			this.<Long>getColumnOriginalValue("accountId"));
+		messageImpl.setFolderId(this.<Long>getColumnOriginalValue("folderId"));
+		messageImpl.setSender(this.<String>getColumnOriginalValue("sender"));
+		messageImpl.setTo(this.<String>getColumnOriginalValue("to_"));
+		messageImpl.setCc(this.<String>getColumnOriginalValue("cc"));
+		messageImpl.setBcc(this.<String>getColumnOriginalValue("bcc"));
+		messageImpl.setSentDate(this.<Date>getColumnOriginalValue("sentDate"));
+		messageImpl.setSubject(this.<String>getColumnOriginalValue("subject"));
+		messageImpl.setPreview(this.<String>getColumnOriginalValue("preview"));
+		messageImpl.setBody(this.<String>getColumnOriginalValue("body"));
+		messageImpl.setFlags(this.<String>getColumnOriginalValue("flags"));
+		messageImpl.setSize(this.<Long>getColumnOriginalValue("size_"));
+		messageImpl.setRemoteMessageId(
+			this.<Long>getColumnOriginalValue("remoteMessageId"));
+		messageImpl.setContentType(
+			this.<String>getColumnOriginalValue("contentType"));
+
+		return messageImpl;
+	}
+
+	@Override
 	public int compareTo(Message message) {
 		int value = 0;
 
@@ -1019,7 +1057,7 @@ public class MessageModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1030,9 +1068,26 @@ public class MessageModelImpl
 			Function<Message, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((Message)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((Message)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

@@ -14,8 +14,10 @@
 
 package com.liferay.portal.tools;
 
+import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
+import com.liferay.petra.string.StringUtil;
 import com.liferay.portal.test.rule.LiferayUnitTestRule;
 
 import java.io.File;
@@ -29,20 +31,19 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.junit.Assert;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
 /**
  * @author Matthew Tambara
  */
-@Ignore
 public class ConfigurationEnvBuilderTest {
 
 	@ClassRule
@@ -80,15 +81,84 @@ public class ConfigurationEnvBuilderTest {
 
 			});
 
-		Assert.assertEquals(
-			"Run \"ant generate-configuration-env\" to regenerate " +
-				"modules/configuration-env.txt.",
+		List<String> expectedList = StringUtil.split(
 			ConfigurationEnvBuilder.buildContent(
 				configurationJavaFileNames.toArray(new String[0])),
-			new String(
-				Files.readAllBytes(
-					modulesDirPath.resolve("configuration-env.txt"))));
+			CharPool.NEW_LINE);
+
+		List<String> actualList = _readPortalOSGiConfigurationProperties();
+
+		Collections.sort(actualList);
+
+		Collections.sort(expectedList);
+
+		actualList = _formatList(actualList);
+
+		expectedList = _formatList(expectedList);
+
+		List<String> leftoverList = new ArrayList<>();
+
+		for (String line : actualList) {
+			if (!expectedList.remove(line)) {
+				leftoverList.add(line);
+			}
+		}
+
+		Assert.assertTrue(
+			StringBundler.concat(_MESSAGE, " Leftover: ", leftoverList),
+			leftoverList.isEmpty());
+
+		Assert.assertTrue(
+			StringBundler.concat(_MESSAGE, " Missing: ", expectedList),
+			expectedList.isEmpty());
 	}
+
+	private List<String> _formatList(List<String> lines) {
+		List<String> result = new ArrayList<>();
+
+		for (String line : lines) {
+			if (line.contains("configuration.override")) {
+				line = line.replace(StringPool.POUND, StringPool.BLANK);
+
+				result.add(line.trim());
+			}
+		}
+
+		return result;
+	}
+
+	private List<String> _readPortalOSGiConfigurationProperties()
+		throws IOException {
+
+		Path path = Paths.get(
+			"portal-impl/src/portal-osgi-configuration.properties");
+
+		List<String> lines = Files.readAllLines(path);
+
+		boolean skip = true;
+
+		List<String> result = new ArrayList<>();
+
+		result.add("##");
+
+		for (String line : lines) {
+			if (skip) {
+				if (line.equals("## OSGi Configuration Overrides")) {
+					skip = false;
+
+					result.add(line);
+				}
+			}
+			else if (!line.isEmpty()) {
+				result.add(line);
+			}
+		}
+
+		return result;
+	}
+
+	private static final String _MESSAGE =
+		"Run \"ant update-portal-osgi-configuration-properties\".";
 
 	private static final Pattern _pattern = Pattern.compile(
 		StringBundler.concat(

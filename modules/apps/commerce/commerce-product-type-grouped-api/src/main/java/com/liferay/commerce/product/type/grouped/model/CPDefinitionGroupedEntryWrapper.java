@@ -139,6 +139,11 @@ public class CPDefinitionGroupedEntryWrapper
 		}
 	}
 
+	@Override
+	public CPDefinitionGroupedEntry cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the company ID of this cp definition grouped entry.
 	 *

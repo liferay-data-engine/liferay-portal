@@ -33,12 +33,14 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -734,6 +736,36 @@ public class CPDAvailabilityEstimateModelImpl
 	}
 
 	@Override
+	public CPDAvailabilityEstimate cloneWithOriginalValues() {
+		CPDAvailabilityEstimateImpl cpdAvailabilityEstimateImpl =
+			new CPDAvailabilityEstimateImpl();
+
+		cpdAvailabilityEstimateImpl.setUuid(
+			this.<String>getColumnOriginalValue("uuid_"));
+		cpdAvailabilityEstimateImpl.setCPDAvailabilityEstimateId(
+			this.<Long>getColumnOriginalValue("CPDAvailabilityEstimateId"));
+		cpdAvailabilityEstimateImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		cpdAvailabilityEstimateImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		cpdAvailabilityEstimateImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		cpdAvailabilityEstimateImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		cpdAvailabilityEstimateImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		cpdAvailabilityEstimateImpl.setCommerceAvailabilityEstimateId(
+			this.<Long>getColumnOriginalValue(
+				"commerceAvailabilityEstimateId"));
+		cpdAvailabilityEstimateImpl.setCProductId(
+			this.<Long>getColumnOriginalValue("CProductId"));
+		cpdAvailabilityEstimateImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+
+		return cpdAvailabilityEstimateImpl;
+	}
+
+	@Override
 	public int compareTo(CPDAvailabilityEstimate cpdAvailabilityEstimate) {
 		long primaryKey = cpdAvailabilityEstimate.getPrimaryKey();
 
@@ -874,7 +906,7 @@ public class CPDAvailabilityEstimateModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -885,10 +917,27 @@ public class CPDAvailabilityEstimateModelImpl
 			Function<CPDAvailabilityEstimate, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply((CPDAvailabilityEstimate)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(CPDAvailabilityEstimate)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

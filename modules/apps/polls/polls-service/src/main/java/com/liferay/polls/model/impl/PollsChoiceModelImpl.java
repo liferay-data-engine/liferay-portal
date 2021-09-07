@@ -36,6 +36,7 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
@@ -43,6 +44,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -935,6 +937,37 @@ public class PollsChoiceModelImpl
 	}
 
 	@Override
+	public PollsChoice cloneWithOriginalValues() {
+		PollsChoiceImpl pollsChoiceImpl = new PollsChoiceImpl();
+
+		pollsChoiceImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		pollsChoiceImpl.setUuid(this.<String>getColumnOriginalValue("uuid_"));
+		pollsChoiceImpl.setChoiceId(
+			this.<Long>getColumnOriginalValue("choiceId"));
+		pollsChoiceImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		pollsChoiceImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		pollsChoiceImpl.setUserId(this.<Long>getColumnOriginalValue("userId"));
+		pollsChoiceImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		pollsChoiceImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		pollsChoiceImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		pollsChoiceImpl.setQuestionId(
+			this.<Long>getColumnOriginalValue("questionId"));
+		pollsChoiceImpl.setName(this.<String>getColumnOriginalValue("name"));
+		pollsChoiceImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		pollsChoiceImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+
+		return pollsChoiceImpl;
+	}
+
+	@Override
 	public int compareTo(PollsChoice pollsChoice) {
 		int value = 0;
 
@@ -1100,7 +1133,7 @@ public class PollsChoiceModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1111,9 +1144,26 @@ public class PollsChoiceModelImpl
 			Function<PollsChoice, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((PollsChoice)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((PollsChoice)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

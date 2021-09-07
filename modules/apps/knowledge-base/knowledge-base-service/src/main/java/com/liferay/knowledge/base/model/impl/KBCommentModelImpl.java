@@ -34,6 +34,7 @@ import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
@@ -41,6 +42,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -861,6 +863,39 @@ public class KBCommentModelImpl
 	}
 
 	@Override
+	public KBComment cloneWithOriginalValues() {
+		KBCommentImpl kbCommentImpl = new KBCommentImpl();
+
+		kbCommentImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		kbCommentImpl.setUuid(this.<String>getColumnOriginalValue("uuid_"));
+		kbCommentImpl.setKbCommentId(
+			this.<Long>getColumnOriginalValue("kbCommentId"));
+		kbCommentImpl.setGroupId(this.<Long>getColumnOriginalValue("groupId"));
+		kbCommentImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		kbCommentImpl.setUserId(this.<Long>getColumnOriginalValue("userId"));
+		kbCommentImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		kbCommentImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		kbCommentImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		kbCommentImpl.setClassNameId(
+			this.<Long>getColumnOriginalValue("classNameId"));
+		kbCommentImpl.setClassPK(this.<Long>getColumnOriginalValue("classPK"));
+		kbCommentImpl.setContent(
+			this.<String>getColumnOriginalValue("content"));
+		kbCommentImpl.setUserRating(
+			this.<Integer>getColumnOriginalValue("userRating"));
+		kbCommentImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+		kbCommentImpl.setStatus(this.<Integer>getColumnOriginalValue("status"));
+
+		return kbCommentImpl;
+	}
+
+	@Override
 	public int compareTo(KBComment kbComment) {
 		int value = 0;
 
@@ -1012,7 +1047,7 @@ public class KBCommentModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1023,9 +1058,26 @@ public class KBCommentModelImpl
 			Function<KBComment, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((KBComment)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((KBComment)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

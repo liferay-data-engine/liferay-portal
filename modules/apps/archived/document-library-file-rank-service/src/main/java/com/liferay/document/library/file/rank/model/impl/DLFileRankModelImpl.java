@@ -30,12 +30,14 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
@@ -568,6 +570,28 @@ public class DLFileRankModelImpl
 	}
 
 	@Override
+	public DLFileRank cloneWithOriginalValues() {
+		DLFileRankImpl dlFileRankImpl = new DLFileRankImpl();
+
+		dlFileRankImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		dlFileRankImpl.setFileRankId(
+			this.<Long>getColumnOriginalValue("fileRankId"));
+		dlFileRankImpl.setGroupId(this.<Long>getColumnOriginalValue("groupId"));
+		dlFileRankImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		dlFileRankImpl.setUserId(this.<Long>getColumnOriginalValue("userId"));
+		dlFileRankImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		dlFileRankImpl.setFileEntryId(
+			this.<Long>getColumnOriginalValue("fileEntryId"));
+		dlFileRankImpl.setActive(
+			this.<Boolean>getColumnOriginalValue("active_"));
+
+		return dlFileRankImpl;
+	}
+
+	@Override
 	public int compareTo(DLFileRank dlFileRank) {
 		int value = 0;
 
@@ -670,7 +694,7 @@ public class DLFileRankModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -681,9 +705,26 @@ public class DLFileRankModelImpl
 			Function<DLFileRank, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((DLFileRank)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((DLFileRank)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

@@ -32,12 +32,14 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -843,6 +845,46 @@ public class CommerceShipmentModelImpl
 	}
 
 	@Override
+	public CommerceShipment cloneWithOriginalValues() {
+		CommerceShipmentImpl commerceShipmentImpl = new CommerceShipmentImpl();
+
+		commerceShipmentImpl.setCommerceShipmentId(
+			this.<Long>getColumnOriginalValue("commerceShipmentId"));
+		commerceShipmentImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		commerceShipmentImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		commerceShipmentImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		commerceShipmentImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		commerceShipmentImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		commerceShipmentImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		commerceShipmentImpl.setCommerceAccountId(
+			this.<Long>getColumnOriginalValue("commerceAccountId"));
+		commerceShipmentImpl.setCommerceAddressId(
+			this.<Long>getColumnOriginalValue("commerceAddressId"));
+		commerceShipmentImpl.setCommerceShippingMethodId(
+			this.<Long>getColumnOriginalValue("commerceShippingMethodId"));
+		commerceShipmentImpl.setShippingOptionName(
+			this.<String>getColumnOriginalValue("shippingOptionName"));
+		commerceShipmentImpl.setCarrier(
+			this.<String>getColumnOriginalValue("carrier"));
+		commerceShipmentImpl.setTrackingNumber(
+			this.<String>getColumnOriginalValue("trackingNumber"));
+		commerceShipmentImpl.setShippingDate(
+			this.<Date>getColumnOriginalValue("shippingDate"));
+		commerceShipmentImpl.setExpectedDate(
+			this.<Date>getColumnOriginalValue("expectedDate"));
+		commerceShipmentImpl.setStatus(
+			this.<Integer>getColumnOriginalValue("status"));
+
+		return commerceShipmentImpl;
+	}
+
+	@Override
 	public int compareTo(CommerceShipment commerceShipment) {
 		int value = 0;
 
@@ -1014,7 +1056,7 @@ public class CommerceShipmentModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1025,9 +1067,27 @@ public class CommerceShipmentModelImpl
 			Function<CommerceShipment, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((CommerceShipment)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(CommerceShipment)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

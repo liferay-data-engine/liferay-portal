@@ -32,6 +32,7 @@ import java.util.Set;
 import java.util.SortedMap;
 
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleException;
 import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
@@ -48,10 +49,12 @@ public class AppResolverHook implements ResolverHook {
 
 	public AppResolverHook(
 		ServiceTracker<AppLicenseVerifier, AppLicenseVerifier> serviceTracker,
+		Set<String> allowedSymbolicNames,
 		Set<String> filteredBundleSymbolicNames,
 		Set<String> filteredProductIds) {
 
 		_serviceTracker = serviceTracker;
+		_allowedSymbolicNames = allowedSymbolicNames;
 		_filteredBundleSymbolicNames = filteredBundleSymbolicNames;
 		_filteredProductIds = filteredProductIds;
 	}
@@ -74,6 +77,23 @@ public class AppResolverHook implements ResolverHook {
 			BundleRevision bundleRevision = iterator.next();
 
 			Bundle bundle = bundleRevision.getBundle();
+
+			if (!_allowedSymbolicNames.isEmpty() &&
+				!_allowedSymbolicNames.contains(bundle.getSymbolicName())) {
+
+				iterator.remove();
+
+				_log.error("Filtered unknown bundle: " + bundle);
+
+				try {
+					bundle.uninstall();
+				}
+				catch (BundleException bundleException) {
+					_log.error("Unabled to uninstall bundle: " + bundle);
+				}
+
+				continue;
+			}
 
 			Properties properties = null;
 
@@ -113,14 +133,11 @@ public class AppResolverHook implements ResolverHook {
 				if (_filteredBundleSymbolicNames.add(
 						bundleRevision.getSymbolicName())) {
 
-					StringBundler sb = new StringBundler(4);
-
-					sb.append("Unable to resolve ");
-					sb.append(bundleRevision.getSymbolicName());
-					sb.append(": ");
-					sb.append(exception.getMessage());
-
-					_log.error(sb.toString());
+					_log.error(
+						StringBundler.concat(
+							"Unable to resolve ",
+							bundleRevision.getSymbolicName(), ": ",
+							exception.getMessage()));
 				}
 
 				iterator.remove();
@@ -205,6 +222,7 @@ public class AppResolverHook implements ResolverHook {
 	private static final Log _log = LogFactoryUtil.getLog(
 		AppResolverHook.class);
 
+	private final Set<String> _allowedSymbolicNames;
 	private final Set<String> _filteredBundleSymbolicNames;
 	private final Set<String> _filteredProductIds;
 	private final ServiceTracker<AppLicenseVerifier, AppLicenseVerifier>

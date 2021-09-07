@@ -14,6 +14,8 @@
 
 package com.liferay.headless.admin.taxonomy.internal.resource.v1_0;
 
+import com.liferay.asset.category.property.model.AssetCategoryProperty;
+import com.liferay.asset.category.property.service.AssetCategoryPropertyLocalService;
 import com.liferay.asset.kernel.model.AssetCategory;
 import com.liferay.asset.kernel.model.AssetCategoryConstants;
 import com.liferay.asset.kernel.model.AssetVocabulary;
@@ -21,12 +23,14 @@ import com.liferay.asset.kernel.service.AssetCategoryLocalService;
 import com.liferay.asset.kernel.service.AssetCategoryService;
 import com.liferay.asset.kernel.service.AssetVocabularyService;
 import com.liferay.headless.admin.taxonomy.dto.v1_0.TaxonomyCategory;
+import com.liferay.headless.admin.taxonomy.dto.v1_0.TaxonomyCategoryProperty;
 import com.liferay.headless.admin.taxonomy.internal.dto.v1_0.converter.TaxonomyCategoryDTOConverter;
 import com.liferay.headless.admin.taxonomy.internal.odata.entity.v1_0.CategoryEntityModel;
 import com.liferay.headless.admin.taxonomy.resource.v1_0.TaxonomyCategoryResource;
 import com.liferay.headless.common.spi.service.context.ServiceContextRequestUtil;
 import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.string.StringBundler;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.OrderFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
@@ -55,17 +59,24 @@ import com.liferay.portal.vulcan.resource.EntityModelResource;
 import com.liferay.portal.vulcan.util.ContentLanguageUtil;
 import com.liferay.portal.vulcan.util.LocalizedMapUtil;
 import com.liferay.portal.vulcan.util.SearchUtil;
+import com.liferay.portal.vulcan.util.TransformUtil;
 import com.liferay.portlet.asset.model.impl.AssetCategoryImpl;
 import com.liferay.portlet.asset.service.permission.AssetCategoriesPermission;
 import com.liferay.portlet.asset.service.permission.AssetCategoryPermission;
 
 import java.sql.Timestamp;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.MultivaluedMap;
@@ -267,7 +278,18 @@ public class TaxonomyCategoryResourceImpl
 			assetCategory.getCategoryId(), ActionKeys.UPDATE);
 
 		return _toTaxonomyCategory(
-			_assetCategoryLocalService.updateAssetCategory(assetCategory));
+			_assetCategoryLocalService.updateCategory(
+				contextUser.getUserId(), assetCategory.getCategoryId(),
+				assetCategory.getParentCategoryId(),
+				assetCategory.getTitleMap(), assetCategory.getDescriptionMap(),
+				assetCategory.getVocabularyId(),
+				_merge(
+					_assetCategoryPropertyLocalService.getCategoryProperties(
+						assetCategory.getCategoryId()),
+					taxonomyCategory.getTaxonomyCategoryProperties()),
+				ServiceContextRequestUtil.createServiceContext(
+					assetCategory.getGroupId(), contextHttpServletRequest,
+					taxonomyCategory.getViewableByAsString())));
 	}
 
 	@Override
@@ -331,7 +353,15 @@ public class TaxonomyCategoryResourceImpl
 			assetCategory.getCategoryId(), ActionKeys.UPDATE);
 
 		return _toTaxonomyCategory(
-			_assetCategoryLocalService.updateAssetCategory(assetCategory));
+			_assetCategoryLocalService.updateCategory(
+				contextUser.getUserId(), assetCategory.getCategoryId(),
+				assetCategory.getParentCategoryId(), titleMap, descriptionMap,
+				assetCategory.getVocabularyId(),
+				_toStringArray(
+					taxonomyCategory.getTaxonomyCategoryProperties()),
+				ServiceContextRequestUtil.createServiceContext(
+					assetCategory.getGroupId(), contextHttpServletRequest,
+					taxonomyCategory.getViewableByAsString())));
 	}
 
 	@Override
@@ -370,7 +400,8 @@ public class TaxonomyCategoryResourceImpl
 
 		AssetCategory assetCategory = _assetCategoryService.addCategory(
 			groupId, taxonomyCategoryId, titleMap, descriptionMap,
-			taxonomyVocabularyId, null,
+			taxonomyVocabularyId,
+			_toStringArray(taxonomyCategory.getTaxonomyCategoryProperties()),
 			ServiceContextRequestUtil.createServiceContext(
 				groupId, contextHttpServletRequest,
 				taxonomyCategory.getViewableByAsString()));
@@ -479,6 +510,41 @@ public class TaxonomyCategoryResourceImpl
 		return _assetCategoryLocalService.dynamicQueryCount(dynamicQuery);
 	}
 
+	private String[] _merge(
+		List<AssetCategoryProperty> assetCategoryProperties,
+		TaxonomyCategoryProperty[] taxonomyCategoryProperties) {
+
+		Stream<TaxonomyCategoryProperty> stream = Arrays.stream(
+			Optional.ofNullable(
+				taxonomyCategoryProperties
+			).orElse(
+				new TaxonomyCategoryProperty[0]
+			));
+
+		Map<String, String> map = stream.collect(
+			Collectors.toMap(
+				TaxonomyCategoryProperty::getKey,
+				TaxonomyCategoryProperty::getValue));
+
+		for (AssetCategoryProperty assetCategoryProperty :
+				assetCategoryProperties) {
+
+			map.putIfAbsent(
+				assetCategoryProperty.getKey(),
+				assetCategoryProperty.getValue());
+		}
+
+		Set<Map.Entry<String, String>> entries = map.entrySet();
+
+		Stream<Map.Entry<String, String>> entriesStream = entries.stream();
+
+		return entriesStream.map(
+			entry -> entry.getKey() + ":" + entry.getValue()
+		).toArray(
+			String[]::new
+		);
+	}
+
 	private AssetCategory _toAssetCategory(Object[] assetCategory) {
 		return new AssetCategoryImpl() {
 			{
@@ -496,6 +562,17 @@ public class TaxonomyCategoryResourceImpl
 
 	private Date _toDate(Timestamp timestamp) {
 		return new Date(timestamp.getTime());
+	}
+
+	private String[] _toStringArray(
+		TaxonomyCategoryProperty[] taxonomyCategoryProperties) {
+
+		return TransformUtil.transform(
+			taxonomyCategoryProperties,
+			taxonomyCategoryProperty -> StringBundler.concat(
+				taxonomyCategoryProperty.getKey(), StringPool.COLON,
+				taxonomyCategoryProperty.getValue()),
+			String.class);
 	}
 
 	private TaxonomyCategory _toTaxonomyCategory(AssetCategory assetCategory)
@@ -538,6 +615,10 @@ public class TaxonomyCategoryResourceImpl
 
 	@Reference
 	private AssetCategoryLocalService _assetCategoryLocalService;
+
+	@Reference
+	private AssetCategoryPropertyLocalService
+		_assetCategoryPropertyLocalService;
 
 	@Reference
 	private AssetCategoryService _assetCategoryService;

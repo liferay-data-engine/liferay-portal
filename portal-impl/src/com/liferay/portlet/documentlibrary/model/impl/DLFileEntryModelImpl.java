@@ -36,6 +36,7 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
@@ -44,6 +45,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1654,6 +1656,77 @@ public class DLFileEntryModelImpl
 	}
 
 	@Override
+	public DLFileEntry cloneWithOriginalValues() {
+		DLFileEntryImpl dlFileEntryImpl = new DLFileEntryImpl();
+
+		dlFileEntryImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		dlFileEntryImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		dlFileEntryImpl.setUuid(this.<String>getColumnOriginalValue("uuid_"));
+		dlFileEntryImpl.setExternalReferenceCode(
+			this.<String>getColumnOriginalValue("externalReferenceCode"));
+		dlFileEntryImpl.setFileEntryId(
+			this.<Long>getColumnOriginalValue("fileEntryId"));
+		dlFileEntryImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		dlFileEntryImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		dlFileEntryImpl.setUserId(this.<Long>getColumnOriginalValue("userId"));
+		dlFileEntryImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		dlFileEntryImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		dlFileEntryImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		dlFileEntryImpl.setClassNameId(
+			this.<Long>getColumnOriginalValue("classNameId"));
+		dlFileEntryImpl.setClassPK(
+			this.<Long>getColumnOriginalValue("classPK"));
+		dlFileEntryImpl.setRepositoryId(
+			this.<Long>getColumnOriginalValue("repositoryId"));
+		dlFileEntryImpl.setFolderId(
+			this.<Long>getColumnOriginalValue("folderId"));
+		dlFileEntryImpl.setTreePath(
+			this.<String>getColumnOriginalValue("treePath"));
+		dlFileEntryImpl.setName(this.<String>getColumnOriginalValue("name"));
+		dlFileEntryImpl.setFileName(
+			this.<String>getColumnOriginalValue("fileName"));
+		dlFileEntryImpl.setExtension(
+			this.<String>getColumnOriginalValue("extension"));
+		dlFileEntryImpl.setMimeType(
+			this.<String>getColumnOriginalValue("mimeType"));
+		dlFileEntryImpl.setTitle(this.<String>getColumnOriginalValue("title"));
+		dlFileEntryImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		dlFileEntryImpl.setExtraSettings(
+			this.<String>getColumnOriginalValue("extraSettings"));
+		dlFileEntryImpl.setFileEntryTypeId(
+			this.<Long>getColumnOriginalValue("fileEntryTypeId"));
+		dlFileEntryImpl.setVersion(
+			this.<String>getColumnOriginalValue("version"));
+		dlFileEntryImpl.setSize(this.<Long>getColumnOriginalValue("size_"));
+		dlFileEntryImpl.setSmallImageId(
+			this.<Long>getColumnOriginalValue("smallImageId"));
+		dlFileEntryImpl.setLargeImageId(
+			this.<Long>getColumnOriginalValue("largeImageId"));
+		dlFileEntryImpl.setCustom1ImageId(
+			this.<Long>getColumnOriginalValue("custom1ImageId"));
+		dlFileEntryImpl.setCustom2ImageId(
+			this.<Long>getColumnOriginalValue("custom2ImageId"));
+		dlFileEntryImpl.setManualCheckInRequired(
+			this.<Boolean>getColumnOriginalValue("manualCheckInRequired"));
+		dlFileEntryImpl.setExpirationDate(
+			this.<Date>getColumnOriginalValue("expirationDate"));
+		dlFileEntryImpl.setReviewDate(
+			this.<Date>getColumnOriginalValue("reviewDate"));
+		dlFileEntryImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+
+		return dlFileEntryImpl;
+	}
+
+	@Override
 	public int compareTo(DLFileEntry dlFileEntry) {
 		int value = 0;
 
@@ -1927,7 +2000,7 @@ public class DLFileEntryModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1938,9 +2011,26 @@ public class DLFileEntryModelImpl
 			Function<DLFileEntry, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((DLFileEntry)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((DLFileEntry)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

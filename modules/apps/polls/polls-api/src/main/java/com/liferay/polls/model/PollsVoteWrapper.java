@@ -142,6 +142,11 @@ public class PollsVoteWrapper
 	}
 
 	@Override
+	public PollsVote cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
+	@Override
 	public PollsChoice getChoice()
 		throws com.liferay.portal.kernel.exception.PortalException {
 

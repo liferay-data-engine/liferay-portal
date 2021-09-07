@@ -403,6 +403,11 @@ public class CPDefinitionWrapper
 	}
 
 	@Override
+	public CPDefinition cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
+	@Override
 	public boolean equals(Object object) {
 		return model.equals(object);
 	}

@@ -270,6 +270,11 @@ public class BlogsEntryWrapper
 		}
 	}
 
+	@Override
+	public BlogsEntry cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the allow pingbacks of this blogs entry.
 	 *

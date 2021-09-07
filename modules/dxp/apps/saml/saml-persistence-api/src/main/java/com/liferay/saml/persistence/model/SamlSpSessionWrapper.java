@@ -133,6 +133,11 @@ public class SamlSpSessionWrapper
 		}
 	}
 
+	@Override
+	public SamlSpSession cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the assertion xml of this saml sp session.
 	 *

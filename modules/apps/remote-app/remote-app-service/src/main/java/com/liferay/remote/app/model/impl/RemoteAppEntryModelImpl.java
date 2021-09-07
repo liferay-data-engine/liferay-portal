@@ -33,6 +33,7 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.remote.app.model.RemoteAppEntry;
 import com.liferay.remote.app.model.RemoteAppEntryModel;
@@ -42,6 +43,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
@@ -798,6 +800,32 @@ public class RemoteAppEntryModelImpl
 	}
 
 	@Override
+	public RemoteAppEntry cloneWithOriginalValues() {
+		RemoteAppEntryImpl remoteAppEntryImpl = new RemoteAppEntryImpl();
+
+		remoteAppEntryImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		remoteAppEntryImpl.setUuid(
+			this.<String>getColumnOriginalValue("uuid_"));
+		remoteAppEntryImpl.setRemoteAppEntryId(
+			this.<Long>getColumnOriginalValue("remoteAppEntryId"));
+		remoteAppEntryImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		remoteAppEntryImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		remoteAppEntryImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		remoteAppEntryImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		remoteAppEntryImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		remoteAppEntryImpl.setName(this.<String>getColumnOriginalValue("name"));
+		remoteAppEntryImpl.setUrl(this.<String>getColumnOriginalValue("url"));
+
+		return remoteAppEntryImpl;
+	}
+
+	@Override
 	public int compareTo(RemoteAppEntry remoteAppEntry) {
 		int value = 0;
 
@@ -936,7 +964,7 @@ public class RemoteAppEntryModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -947,9 +975,26 @@ public class RemoteAppEntryModelImpl
 			Function<RemoteAppEntry, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((RemoteAppEntry)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((RemoteAppEntry)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

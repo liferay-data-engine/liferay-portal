@@ -36,6 +36,7 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
@@ -43,6 +44,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1186,6 +1188,35 @@ public class RoleModelImpl extends BaseModelImpl<Role> implements RoleModel {
 	}
 
 	@Override
+	public Role cloneWithOriginalValues() {
+		RoleImpl roleImpl = new RoleImpl();
+
+		roleImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		roleImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		roleImpl.setUuid(this.<String>getColumnOriginalValue("uuid_"));
+		roleImpl.setRoleId(this.<Long>getColumnOriginalValue("roleId"));
+		roleImpl.setCompanyId(this.<Long>getColumnOriginalValue("companyId"));
+		roleImpl.setUserId(this.<Long>getColumnOriginalValue("userId"));
+		roleImpl.setUserName(this.<String>getColumnOriginalValue("userName"));
+		roleImpl.setCreateDate(this.<Date>getColumnOriginalValue("createDate"));
+		roleImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		roleImpl.setClassNameId(
+			this.<Long>getColumnOriginalValue("classNameId"));
+		roleImpl.setClassPK(this.<Long>getColumnOriginalValue("classPK"));
+		roleImpl.setName(this.<String>getColumnOriginalValue("name"));
+		roleImpl.setTitle(this.<String>getColumnOriginalValue("title"));
+		roleImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		roleImpl.setType(this.<Integer>getColumnOriginalValue("type_"));
+		roleImpl.setSubtype(this.<String>getColumnOriginalValue("subtype"));
+
+		return roleImpl;
+	}
+
+	@Override
 	public int compareTo(Role role) {
 		int value = 0;
 
@@ -1347,7 +1378,7 @@ public class RoleModelImpl extends BaseModelImpl<Role> implements RoleModel {
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1357,9 +1388,26 @@ public class RoleModelImpl extends BaseModelImpl<Role> implements RoleModel {
 			String attributeName = entry.getKey();
 			Function<Role, Object> attributeGetterFunction = entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((Role)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((Role)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

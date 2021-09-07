@@ -24,6 +24,7 @@ import com.liferay.portal.kernel.model.impl.BaseModelImpl;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.tools.service.builder.test.model.LVEntryLocalization;
 import com.liferay.portal.tools.service.builder.test.model.LVEntryLocalizationVersion;
 import com.liferay.portal.tools.service.builder.test.model.LVEntryLocalizationVersionModel;
@@ -33,9 +34,11 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -617,6 +620,31 @@ public class LVEntryLocalizationVersionModelImpl
 	}
 
 	@Override
+	public LVEntryLocalizationVersion cloneWithOriginalValues() {
+		LVEntryLocalizationVersionImpl lvEntryLocalizationVersionImpl =
+			new LVEntryLocalizationVersionImpl();
+
+		lvEntryLocalizationVersionImpl.setLvEntryLocalizationVersionId(
+			this.<Long>getColumnOriginalValue("lvEntryLocalizationVersionId"));
+		lvEntryLocalizationVersionImpl.setVersion(
+			this.<Integer>getColumnOriginalValue("version"));
+		lvEntryLocalizationVersionImpl.setLvEntryLocalizationId(
+			this.<Long>getColumnOriginalValue("lvEntryLocalizationId"));
+		lvEntryLocalizationVersionImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		lvEntryLocalizationVersionImpl.setLvEntryId(
+			this.<Long>getColumnOriginalValue("lvEntryId"));
+		lvEntryLocalizationVersionImpl.setLanguageId(
+			this.<String>getColumnOriginalValue("languageId"));
+		lvEntryLocalizationVersionImpl.setTitle(
+			this.<String>getColumnOriginalValue("title"));
+		lvEntryLocalizationVersionImpl.setContent(
+			this.<String>getColumnOriginalValue("content"));
+
+		return lvEntryLocalizationVersionImpl;
+	}
+
+	@Override
 	public int compareTo(
 		LVEntryLocalizationVersion lvEntryLocalizationVersion) {
 
@@ -745,7 +773,7 @@ public class LVEntryLocalizationVersionModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -756,11 +784,27 @@ public class LVEntryLocalizationVersionModelImpl
 			Function<LVEntryLocalizationVersion, Object>
 				attributeGetterFunction = entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply(
-					(LVEntryLocalizationVersion)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(LVEntryLocalizationVersion)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

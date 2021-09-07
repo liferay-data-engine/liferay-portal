@@ -248,6 +248,11 @@ public class CommercePriceEntryWrapper
 		}
 	}
 
+	@Override
+	public CommercePriceEntry cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the bulk pricing of this commerce price entry.
 	 *

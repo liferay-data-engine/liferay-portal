@@ -36,6 +36,7 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
@@ -43,6 +44,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -959,6 +961,37 @@ public class CPOptionValueModelImpl
 	}
 
 	@Override
+	public CPOptionValue cloneWithOriginalValues() {
+		CPOptionValueImpl cpOptionValueImpl = new CPOptionValueImpl();
+
+		cpOptionValueImpl.setUuid(this.<String>getColumnOriginalValue("uuid_"));
+		cpOptionValueImpl.setExternalReferenceCode(
+			this.<String>getColumnOriginalValue("externalReferenceCode"));
+		cpOptionValueImpl.setCPOptionValueId(
+			this.<Long>getColumnOriginalValue("CPOptionValueId"));
+		cpOptionValueImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		cpOptionValueImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		cpOptionValueImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		cpOptionValueImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		cpOptionValueImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		cpOptionValueImpl.setCPOptionId(
+			this.<Long>getColumnOriginalValue("CPOptionId"));
+		cpOptionValueImpl.setName(this.<String>getColumnOriginalValue("name"));
+		cpOptionValueImpl.setPriority(
+			this.<Double>getColumnOriginalValue("priority"));
+		cpOptionValueImpl.setKey(this.<String>getColumnOriginalValue("key_"));
+		cpOptionValueImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+
+		return cpOptionValueImpl;
+	}
+
+	@Override
 	public int compareTo(CPOptionValue cpOptionValue) {
 		int value = 0;
 
@@ -1134,7 +1167,7 @@ public class CPOptionValueModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1145,9 +1178,26 @@ public class CPOptionValueModelImpl
 			Function<CPOptionValue, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((CPOptionValue)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((CPOptionValue)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

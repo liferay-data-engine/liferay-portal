@@ -6,7 +6,38 @@ definition {
 		Click(locator1 = "ACSegments#SELECT_SEGMENT");
 	}
 
+	macro addAllMembers {
+		Click(locator1 = "ACSegments#ADD_MEMBERS_BUTTON");
+
+		KeyPress(
+			locator1 = "ACSettings#SELECT_ALL_CHECKBOX",
+			value1 = "\SPACE");
+
+		Click(locator1 = "ACSegments#ADD_BUTTON");
+	}
+
+	macro addNestedSegmentField {
+		Type(
+			locator1 = "ACSegments#SEARCH_SEGMENT",
+			value1 = "${segmentField}");
+
+		var key_SegmentField = "${segmentField}";
+
+		if (!(isSet(index))) {
+			var index = "1";
+		}
+
+		DragAndDrop.javaScriptDragAndDropToObject(
+			index = "${index}",
+			locator1 = "ACSegments#SEGMENT_CRITERION_ITEM",
+			locator2 = "ACSegments#CRITERIA_STATEMENT_BODY");
+	}
+
 	macro addSegmentField {
+		Type(
+			locator1 = "ACSegments#SEARCH_SEGMENT",
+			value1 = "${segmentField}");
+
 		var key_SegmentField = "${segmentField}";
 
 		DragAndDrop.javaScriptDragAndDropToObject(
@@ -24,6 +55,42 @@ definition {
 		Click(locator1 = "ACSegments#ADD_BUTTON");
 	}
 
+	macro addStaticMultiMember {
+		Click(locator1 = "ACSegments#ADD_MEMBERS_BUTTON");
+
+		for (var tableMember : list "${tableMember}") {
+			var key_TableMember = "${tableMember}";
+
+			Click(locator1 = "ACSegments#TABLE_CHECKBOX");
+		}
+
+		Click(locator1 = "ACSegments#ADD_BUTTON");
+	}
+
+	macro assertMember {
+		AssertElementPresent(
+			key_TableMember = "${memberName}",
+			locator1 = "ACSegments#TABLE_CHECKBOX");
+	}
+
+	macro assertMemberNotPresent {
+		AssertElementNotPresent(
+			key_TableMember = "${memberName}",
+			locator1 = "ACSegments#TABLE_CHECKBOX");
+	}
+
+	macro assertSegmentAttributeNotPresent {
+		var key_SegmentField = "${segmentField}";
+
+		AssertElementNotPresent(locator1 = "ACSegments#SEGMENT_CRITERION_ITEM");
+	}
+
+	macro assertSegmentAttributePresent {
+		var key_SegmentField = "${segmentField}";
+
+		AssertElementPresent(locator1 = "ACSegments#SEGMENT_CRITERION_ITEM");
+	}
+
 	macro assertSegmentPresent {
 		var key_segmentName = "${segmentName}";
 
@@ -32,6 +99,20 @@ definition {
 
 	macro cancelSegment {
 		Click(locator1 = "ACSegments#CANCEL_SEGMENT");
+	}
+
+	macro clickCheckboxMember {
+		var key_TableMember = "${tableMember}";
+
+		Click(locator1 = "ACSegments#TABLE_CHECKBOX");
+	}
+
+	macro clickMemberButton {
+		var key_TableMember = "${memberName}";
+
+		var key_ButtonName = "${buttonName}";
+
+		Click(locator1 = "ACSegments#MEMBER_GENERIC_BUTTON");
 	}
 
 	macro createDynamicSegment {
@@ -49,7 +130,7 @@ definition {
 	macro deleteSegment {
 		ACSegments.searchSegment(findSegment = "${searchTerm}");
 
-		Click(locator1 = "ACSegments#SEGMENT_ELLIPSIS");
+		ACUtils.clickKebab();
 
 		Click(locator1 = "ACSegments#DELETE_SEGMENT");
 
@@ -69,6 +150,14 @@ definition {
 		MenuItem.click(menuItem = "Delete");
 	}
 
+	macro deleteSegmentViaSegmentListInlineButton {
+		var key_segmentName = "${segmentName}";
+
+		Click.javaScriptClick(locator1 = "ACSegments#DELETE_SEGMENT_INLINE_BUTTON");
+
+		Click(locator1 = "ACSegments#CONFIRM_DELETION");
+	}
+
 	macro duplicateSegmentCriteria {
 		if (!(isSet(index))) {
 			var index = "1";
@@ -80,6 +169,16 @@ definition {
 			locator1 = "ACSegments#CRITERIA_ELLIPSIS");
 
 		MenuItem.click(menuItem = "Duplicate");
+	}
+
+	macro editConjunction {
+		if (!(isSet(index))) {
+			var index = "1";
+		}
+
+		Click(
+			index = "${index}",
+			locator1 = "ACSegments#CONJUNCTION_BUTTON");
 	}
 
 	macro editDateCriterion {
@@ -114,11 +213,24 @@ definition {
 		Click(locator1 = "ACSegments#FORM_CONTROL_CRITERION_OPTION");
 	}
 
+	macro editNumberCriterion {
+		if (!(isSet(index))) {
+			var index = "1";
+		}
+
+		Type(
+			index = "${index}",
+			locator1 = "ACSegments#NUMBER_INPUT",
+			value1 = "${numberInput}");
+
+		Click(locator1 = "ACSegments#TOTAL_MEMBERS");
+	}
+
 	macro editSegment {
 		if (!IsTextEqual.isPartialText(locator1 = "ACSegments#SEGMENT_LABEL", value1 = "SEGMENT")) {
 			ACSegments.searchSegment(findSegment = "${searchTerm}");
 
-			Click(locator1 = "ACSegments#SEGMENT_ELLIPSIS");
+			ACUtils.clickKebab();
 		}
 
 		Click(locator1 = "ACSegments#EDIT_SEGMENT");
@@ -137,6 +249,8 @@ definition {
 			index = "${index}",
 			locator1 = "ACSegments#TEXT_INPUT",
 			value1 = "${textInput}");
+
+		Click(locator1 = "ACSegments#TOTAL_MEMBERS");
 	}
 
 	macro editWebBehaviorCriterion {
@@ -218,6 +332,10 @@ definition {
 	macro filterAndOrderForSegLists {
 		var key_filterName = "${filterName}";
 
+		if (!(isSet(key_dropdownName))) {
+			var key_dropdownName = "Filter and Order";
+		}
+
 		Click(locator1 = "ACSegments#FILTER_AND_ORDER_BUTTON");
 
 		Click(
@@ -225,6 +343,12 @@ definition {
 			value1 = "${key_filterName}");
 
 		Click(locator1 = "ACSegments#FILTER_AND_ORDER_BUTTON");
+	}
+
+	macro filterKnownSegmentMembersList {
+		Click(locator1 = "ACSegments#KNOWN_SEGMENT_MEMBERS_FILTER");
+
+		AssertElementPresent(locator1 = "ACSegments#KNOWN_SEGMENT_MEMBERS_FILTER_ARROW_DESC");
 	}
 
 	macro goToSidebarAttributes {
@@ -256,13 +380,25 @@ definition {
 	}
 
 	macro previewSegmentMembership {
-		Click(locator1 = "ACSegments#SEGMENT_MEMBERSHIP_BUTTON");
+		WaitForElementNotPresent(locator1 = "ACSegments#FORM_HEADER_LOADING_ANIMATION");
+
+		Click(locator1 = "Icon#EYE_PREVIEW");
 	}
 
 	macro saveSegment {
 		Click(locator1 = "ACSegments#SAVE_SEGMENT");
 
 		Alert.viewSuccessMessage();
+	}
+
+	macro searchMember {
+		var searchTerm = "${findMember}";
+
+		Type(
+			locator1 = "ACSegments#SEARCH_MEMBER",
+			value1 = "${searchTerm}");
+
+		Click(locator1 = "ACUtils#CLEAR_SEARCH_BAR_BUTTON");
 	}
 
 	macro searchSegment {
@@ -275,6 +411,18 @@ definition {
 		KeyPress(
 			locator1 = "ACSettings#SEARCH_BAR",
 			value1 = "\ENTER");
+	}
+
+	macro selectDistributionByAttribute {
+		Click(locator1 = "ACSegments#ATTRIBUTE_TEXT_INPUT");
+
+		Type(
+			locator1 = "ACSegments#ATTRIBUTE_TEXT_INPUT",
+			value1 = "${attribute}");
+
+		Click(
+			locator1 = "ACSegments#ATTRIBUTE_DROPDOWN_MENU_ITEM",
+			menuItem = "${attribute}");
 	}
 
 	macro selectDocument {
@@ -320,6 +468,23 @@ definition {
 			value1 = "${pageNumber}");
 	}
 
+	macro viewBreakdownChartsEntry {
+		AssertTextEquals.assertPartialText(
+			locator1 = "ACSegments#BREAKDOWN_CHART",
+			value1 = "${key_entry}");
+	}
+
+	macro viewConjunction {
+		if (!(isSet(index))) {
+			var index = "1";
+		}
+
+		AssertTextEquals(
+			index = "${index}",
+			locator1 = "ACSegments#CONJUNCTION_BUTTON",
+			value1 = "${conjunction}");
+	}
+
 	macro viewDeletedCriteria {
 		AssertTextPresent(
 			locator1 = "ACSegments#DELETED_CRITERIA",
@@ -355,6 +520,19 @@ definition {
 
 	macro viewIncludeAnonymousLabel {
 		AssertElementPresent(locator1 = "ACSegments#ANONYMOUS_LABEL");
+	}
+
+	macro viewKnownSegmentMembersSpecificOrder {
+		var resultOrder = "0";
+
+		for (var username : list "${username}") {
+			var resultOrder = ${resultOrder} + 1;
+
+			AssertVisible(
+				key_userName = "${username}",
+				locator1 = "ACSegments#KNOWN_SEGMENT_MEMBERS_VIEW_SPECIFIC_ORDER",
+				resultOrder = "${resultOrder}");
+		}
 	}
 
 	macro viewSegmentComposition {
@@ -454,6 +632,25 @@ definition {
 		}
 	}
 
+	macro viewSegmentMembershipChartNumbers {
+		MouseOver(locator1 = "ACSegments#SEGMENT_MEMBERSHIP_CHART_HOVER");
+
+		AssertTextEquals(
+			key_memberType = "Added",
+			locator1 = "ACSegments#SEGMENT_MEMBERSHIP_CHART_HOVER_MEMBER_CHANGE",
+			value1 = "${addedMember}");
+
+		AssertTextEquals(
+			key_memberType = "Removed",
+			locator1 = "ACSegments#SEGMENT_MEMBERSHIP_CHART_HOVER_MEMBER_CHANGE",
+			value1 = "${removedMember}");
+
+		AssertTextEquals(
+			key_memberType = "Net Change",
+			locator1 = "ACSegments#SEGMENT_MEMBERSHIP_CHART_HOVER_MEMBER_CHANGE",
+			value1 = "${netChange}");
+	}
+
 	macro viewSegmentMembershipLegendNumbers {
 		AssertTextEquals(
 			key_memberType = "Known Members:",
@@ -491,6 +688,12 @@ definition {
 		AssertTextPresent(
 			locator1 = "ACSegments#SEGMENT_BREAKDOWN_CARD",
 			value1 = "Add a Breakdown by Attribute");
+	}
+
+	macro viewSegmentProfileTopInterestCard {
+		AssertTextPresent(
+			locator1 = "ACSegments#SEGMENT_TOP_INTERESTS_CARD",
+			value1 = "Top Interests");
 	}
 
 }

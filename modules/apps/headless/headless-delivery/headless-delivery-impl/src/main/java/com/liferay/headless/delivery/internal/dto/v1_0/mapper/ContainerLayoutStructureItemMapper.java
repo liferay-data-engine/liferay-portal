@@ -23,6 +23,7 @@ import com.liferay.headless.delivery.internal.dto.v1_0.mapper.util.FragmentMappe
 import com.liferay.headless.delivery.internal.dto.v1_0.mapper.util.LocalizedValueUtil;
 import com.liferay.layout.page.template.util.AlignConverter;
 import com.liferay.layout.page.template.util.BorderRadiusConverter;
+import com.liferay.layout.page.template.util.ContentDisplayConverter;
 import com.liferay.layout.page.template.util.JustifyConverter;
 import com.liferay.layout.page.template.util.MarginConverter;
 import com.liferay.layout.page.template.util.PaddingConverter;
@@ -154,19 +155,18 @@ public class ContainerLayoutStructureItemMapper
 
 		return new Layout() {
 			{
-				align = Align.create(
-					AlignConverter.convertToExternalValue(
-						containerStyledLayoutStructureItem.getAlign()));
-				borderRadius = BorderRadius.create(
-					BorderRadiusConverter.convertToExternalValue(
-						containerStyledLayoutStructureItem.getBorderRadius()));
-				justify = Justify.create(
-					JustifyConverter.convertToExternalValue(
-						containerStyledLayoutStructureItem.getJustify()));
-				shadow = Shadow.create(
-					ShadowConverter.convertToExternalValue(
-						containerStyledLayoutStructureItem.getShadow()));
+				setAlign(
+					() -> {
+						String align =
+							containerStyledLayoutStructureItem.getAlign();
 
+						if (Validator.isNull(align)) {
+							return null;
+						}
+
+						return Align.create(
+							AlignConverter.convertToExternalValue(align));
+					});
 				setBorderColor(
 					() -> {
 						String borderColor =
@@ -177,6 +177,20 @@ public class ContainerLayoutStructureItemMapper
 						}
 
 						return borderColor;
+					});
+				setBorderRadius(
+					() -> {
+						String borderRadius =
+							containerStyledLayoutStructureItem.
+								getBorderRadius();
+
+						if (Validator.isNull(borderRadius)) {
+							return null;
+						}
+
+						return BorderRadius.create(
+							BorderRadiusConverter.convertToExternalValue(
+								borderRadius));
 					});
 				setBorderWidth(
 					() -> {
@@ -200,7 +214,20 @@ public class ContainerLayoutStructureItemMapper
 						}
 
 						return ContentDisplay.create(
-							StringUtil.upperCaseFirstLetter(contentDisplay));
+							ContentDisplayConverter.convertToExternalValue(
+								contentDisplay));
+					});
+				setJustify(
+					() -> {
+						String justify =
+							containerStyledLayoutStructureItem.getJustify();
+
+						if (Validator.isNull(justify)) {
+							return null;
+						}
+
+						return Justify.create(
+							JustifyConverter.convertToExternalValue(justify));
 					});
 				setMarginBottom(
 					() -> {
@@ -317,6 +344,18 @@ public class ContainerLayoutStructureItemMapper
 						return GetterUtil.getInteger(
 							PaddingConverter.convertToExternalValue(
 								paddingTop));
+					});
+				setShadow(
+					() -> {
+						String shadow =
+							containerStyledLayoutStructureItem.getShadow();
+
+						if (Validator.isNull(shadow)) {
+							return null;
+						}
+
+						return Shadow.create(
+							ShadowConverter.convertToExternalValue(shadow));
 					});
 				setWidthType(
 					() -> {

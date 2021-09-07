@@ -30,12 +30,14 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
@@ -615,6 +617,33 @@ public class CommerceDiscountUsageEntryModelImpl
 	}
 
 	@Override
+	public CommerceDiscountUsageEntry cloneWithOriginalValues() {
+		CommerceDiscountUsageEntryImpl commerceDiscountUsageEntryImpl =
+			new CommerceDiscountUsageEntryImpl();
+
+		commerceDiscountUsageEntryImpl.setCommerceDiscountUsageEntryId(
+			this.<Long>getColumnOriginalValue("commerceDiscountUsageEntryId"));
+		commerceDiscountUsageEntryImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		commerceDiscountUsageEntryImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		commerceDiscountUsageEntryImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		commerceDiscountUsageEntryImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		commerceDiscountUsageEntryImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		commerceDiscountUsageEntryImpl.setCommerceAccountId(
+			this.<Long>getColumnOriginalValue("commerceAccountId"));
+		commerceDiscountUsageEntryImpl.setCommerceOrderId(
+			this.<Long>getColumnOriginalValue("commerceOrderId"));
+		commerceDiscountUsageEntryImpl.setCommerceDiscountId(
+			this.<Long>getColumnOriginalValue("commerceDiscountId"));
+
+		return commerceDiscountUsageEntryImpl;
+	}
+
+	@Override
 	public int compareTo(
 		CommerceDiscountUsageEntry commerceDiscountUsageEntry) {
 
@@ -746,7 +775,7 @@ public class CommerceDiscountUsageEntryModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -757,11 +786,27 @@ public class CommerceDiscountUsageEntryModelImpl
 			Function<CommerceDiscountUsageEntry, Object>
 				attributeGetterFunction = entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply(
-					(CommerceDiscountUsageEntry)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(CommerceDiscountUsageEntry)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

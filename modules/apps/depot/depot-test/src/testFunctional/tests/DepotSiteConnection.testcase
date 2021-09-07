@@ -259,9 +259,9 @@ definition {
 			depotName = "Test Depot Name",
 			groupName = "Site Name");
 
-		DepotNavigator.openDepotDocumentsAndMediaAdmin(depotName = "Test Depot Name");
-
-		DMNavigator.gotoDocumentCP(dmDocumentTitle = "DM Document Title");
+		DepotNavigator.openToDMEntryInDepot(
+			depotName = "Test Depot Name",
+			dmDocumentTitle = "DM Document Title");
 
 		DMDocument.viewCP(dmDocumentTitle = "DM Document Title");
 	}
@@ -292,11 +292,48 @@ definition {
 
 		Depot.connectSite(siteList = "Child Site Name");
 
-		DepotNavigator.openDepotDocumentsAndMediaAdmin(depotName = "Test Depot Name");
-
-		DMNavigator.gotoDocumentCP(dmDocumentTitle = "Document_1.jpg");
+		DepotNavigator.openToDMEntryInDepot(
+			depotName = "Test Depot Name",
+			dmDocumentTitle = "Document_1.jpg");
 
 		DMDocument.viewCP(dmDocumentTitle = "Document_1.jpg");
+	}
+
+	@description = "This test covers LPS-104832. It ensures that the repositories can not connect to repositories."
+	@priority = "5"
+	@refactorneeded
+	test ViewRestrictionWhenConnectingSites {
+		JSONDepot.addDepot(
+			depotDescription = "This is the description of a depot",
+			depotName = "Test Depot Name");
+
+		DepotNavigator.openDepotAdmin();
+
+		DepotNavigator.gotoEdit(depotName = "Test Depot Name");
+
+		DepotNavigator.gotoSites(depotName = "Test Depot Name");
+
+		Button.clickAdd();
+
+		if (IsElementNotPresent(locator1 = "IFrame#SELECT_SITES")) {
+			Button.clickAdd();
+		}
+
+		SelectFrame(locator1 = "IFrame#SELECT_SITES");
+
+		AssertVisible(
+			key_navItem = "Recent",
+			locator1 = "NavBar#NAV_ITEM_LINK",
+			value1 = "Recent");
+
+		AssertVisible(
+			key_navItem = "My Sites",
+			locator1 = "NavBar#NAV_ITEM_LINK",
+			value1 = "My Sites");
+
+		AssertElementNotPresent(
+			key_navItem = "Asset Libraries",
+			locator1 = "NavBar#NAV_ITEM_LINK");
 	}
 
 }

@@ -101,6 +101,11 @@ public class CommerceAccountUserRelWrapper
 		}
 	}
 
+	@Override
+	public CommerceAccountUserRel cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the commerce account ID of this commerce account user rel.
 	 *

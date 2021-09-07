@@ -16,6 +16,7 @@ package com.liferay.account.admin.web.internal.portlet.action;
 
 import com.liferay.account.constants.AccountConstants;
 import com.liferay.account.constants.AccountPortletKeys;
+import com.liferay.account.exception.DuplicateAccountEntryExternalReferenceCodeException;
 import com.liferay.account.model.AccountEntry;
 import com.liferay.account.service.AccountEntryLocalService;
 import com.liferay.account.service.AccountEntryUserRelLocalService;
@@ -29,6 +30,9 @@ import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.service.ServiceContextFactory;
 import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.transaction.Propagation;
+import com.liferay.portal.kernel.transaction.TransactionConfig;
+import com.liferay.portal.kernel.transaction.TransactionInvokerUtil;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.Http;
@@ -52,6 +56,7 @@ import org.osgi.service.component.annotations.Reference;
 	immediate = true,
 	property = {
 		"javax.portlet.name=" + AccountPortletKeys.ACCOUNT_ENTRIES_ADMIN,
+		"javax.portlet.name=" + AccountPortletKeys.ACCOUNT_ENTRIES_MANAGEMENT,
 		"mvc.command.name=/account_admin/edit_account_entry"
 	},
 	service = MVCActionCommand.class
@@ -81,13 +86,17 @@ public class EditAccountEntryMVCActionCommand extends BaseMVCActionCommand {
 			domains = ParamUtil.getStringValues(actionRequest, "domains");
 		}
 
-		return _accountEntryLocalService.addAccountEntry(
+		AccountEntry accountEntry = _accountEntryLocalService.addAccountEntry(
 			themeDisplay.getUserId(), AccountConstants.ACCOUNT_ENTRY_ID_DEFAULT,
 			name, description, domains, emailAddress,
 			_getLogoBytes(actionRequest), taxIdNumber, type,
 			_getStatus(actionRequest),
 			ServiceContextFactory.getInstance(
 				AccountEntry.class.getName(), actionRequest));
+
+		return _accountEntryLocalService.updateExternalReferenceCode(
+			accountEntry,
+			ParamUtil.getString(actionRequest, "externalReferenceCode"));
 	}
 
 	@Override
@@ -98,36 +107,56 @@ public class EditAccountEntryMVCActionCommand extends BaseMVCActionCommand {
 		String cmd = ParamUtil.getString(actionRequest, Constants.CMD);
 
 		try {
-			String redirect = ParamUtil.getString(actionRequest, "redirect");
+			TransactionInvokerUtil.invoke(
+				_transactionConfig,
+				() -> {
+					String redirect = ParamUtil.getString(
+						actionRequest, "redirect");
 
-			if (cmd.equals(Constants.ADD)) {
-				AccountEntry accountEntry = addAccountEntry(actionRequest);
+					if (cmd.equals(Constants.ADD)) {
+						AccountEntry accountEntry = addAccountEntry(
+							actionRequest);
 
-				redirect = _http.setParameter(
-					redirect, actionResponse.getNamespace() + "accountEntryId",
-					accountEntry.getAccountEntryId());
-			}
-			else if (cmd.equals(Constants.UPDATE)) {
-				updateAccountEntry(actionRequest);
-			}
+						redirect = _http.setParameter(
+							redirect,
+							actionResponse.getNamespace() + "accountEntryId",
+							accountEntry.getAccountEntryId());
+					}
+					else if (cmd.equals(Constants.UPDATE)) {
+						updateAccountEntry(actionRequest);
+					}
 
-			if (Validator.isNotNull(redirect)) {
-				sendRedirect(actionRequest, actionResponse, redirect);
-			}
+					if (Validator.isNotNull(redirect)) {
+						sendRedirect(actionRequest, actionResponse, redirect);
+					}
+
+					return null;
+				});
 		}
 		catch (Exception exception) {
-			String mvcPath = "/account_entries_admin/edit_account_entry.jsp";
-
 			if (exception instanceof PrincipalException) {
 				SessionErrors.add(actionRequest, exception.getClass());
 
-				mvcPath = "/account_entries_admin/error.jsp";
+				actionResponse.setRenderParameter(
+					"mvcPath", "/account_entries_admin/error.jsp");
+			}
+			else if (exception instanceof
+						DuplicateAccountEntryExternalReferenceCodeException) {
+
+				SessionErrors.add(actionRequest, exception.getClass());
+
+				hideDefaultErrorMessage(actionRequest);
+
+				actionResponse.setRenderParameter(
+					"mvcRenderCommandName",
+					"/account_admin/edit_account_entry");
 			}
 			else {
 				throw exception;
 			}
-
-			actionResponse.setRenderParameter("mvcPath", mvcPath);
+		}
+		catch (Throwable throwable) {
+			throw new Exception(throwable);
 		}
 	}
 
@@ -155,6 +184,10 @@ public class EditAccountEntryMVCActionCommand extends BaseMVCActionCommand {
 			_getStatus(actionRequest),
 			ServiceContextFactory.getInstance(
 				AccountEntry.class.getName(), actionRequest));
+
+		accountEntry = _accountEntryLocalService.updateExternalReferenceCode(
+			accountEntry,
+			ParamUtil.getString(actionRequest, "externalReferenceCode"));
 
 		if (Objects.equals(
 				AccountConstants.ACCOUNT_ENTRY_TYPE_PERSON,
@@ -199,6 +232,10 @@ public class EditAccountEntryMVCActionCommand extends BaseMVCActionCommand {
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		EditAccountEntryMVCActionCommand.class);
+
+	private static final TransactionConfig _transactionConfig =
+		TransactionConfig.Factory.create(
+			Propagation.REQUIRED, new Class<?>[] {Exception.class});
 
 	@Reference
 	private AccountEntryLocalService _accountEntryLocalService;

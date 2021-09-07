@@ -98,7 +98,7 @@ public class SearchLocationDDMFormFieldTypeSettingsTest
 			((Object[])redirectButtonDDMFormField.getProperty(
 				"mvcRenderCommandName"))[0]);
 		Assert.assertEquals(
-			"configurationScreenKey=third-party-applications-places",
+			"configurationScreenKey=google-places-site-settings",
 			((Object[])redirectButtonDDMFormField.getProperty("parameters"))
 				[0]);
 		Assert.assertEquals(
@@ -185,7 +185,8 @@ public class SearchLocationDDMFormFieldTypeSettingsTest
 					"redirectButton"),
 				DDMFormLayoutTestUtil.createDDMFormLayoutPage(
 					"dataType", "name", "fieldReference", "showLabel",
-					"repeatable", "readOnly")));
+					"repeatable", "readOnly", "rulesActionDisabled",
+					"rulesConditionDisabled")));
 	}
 
 	@Override

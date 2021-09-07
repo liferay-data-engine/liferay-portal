@@ -14,12 +14,12 @@
 
 import ClayIcon from '@clayui/icon';
 import ClayLabel from '@clayui/label';
-import ClayLayout from '@clayui/layout';
-import ClayLink from '@clayui/link';
 import ClaySticker from '@clayui/sticker';
 import classnames from 'classnames';
-import React, {useMemo} from 'react';
+import React from 'react';
 
+import DocumentPreview from './DocumentPreview';
+import ItemLanguages from './ItemLanguages';
 import Sidebar from './Sidebar';
 
 const formatDate = (date, languageTag) => {
@@ -44,58 +44,78 @@ const SidebarPanelInfoView = ({
 	data = {},
 	languageTag = 'en',
 	modifiedDate,
+	specificFields = {},
 	subType,
 	tags = [],
 	title,
+	type,
 	user,
 	versions = [],
 	viewURLs = [],
 }) => {
-	const sortedViewURLS = useMemo(
-		() =>
-			viewURLs
-				.sort((a, b) => {
-					if (a.languageId < b.languageId) {
-						return -1;
-					}
-
-					if (a.languageId > b.languageId) {
-						return 1;
-					}
-
-					return 0;
-				})
-				.sort((a) => {
-					if (a.default) {
-						return -1;
-					}
-
-					return 0;
-				}),
-		[viewURLs]
-	);
-
 	const stickerColor = parseInt(user.userId, 10) % 10;
+
+	const {
+		description,
+		downloadURL,
+		extension,
+		fileName,
+		previewImageURL,
+		previewURL,
+		size,
+		viewURL,
+	} = specificFields;
+
+	const itemDates = [
+		{
+			text: formatDate(data['display-date']?.value, languageTag),
+			title: Liferay.Language.get('display-date'),
+		},
+		{
+			text: formatDate(createDate, languageTag),
+			title: Liferay.Language.get('creation-date'),
+		},
+		{
+			text: formatDate(modifiedDate, languageTag),
+			title: Liferay.Language.get('modified-date'),
+		},
+		{
+			text: formatDate(data['expiration-date']?.value, languageTag),
+			title: Liferay.Language.get('expiration-date'),
+		},
+		{
+			text: formatDate(data['review-date']?.value, languageTag),
+			title: Liferay.Language.get('review-date'),
+		},
+		{
+			text: classPK,
+			title: Liferay.Language.get('id'),
+		},
+	];
+
+	const isADocument = type.toLowerCase() === 'document';
+
+	const documentIsAFile =
+		isADocument &&
+		!!downloadURL &&
+		!!extension &&
+		parseInt(size?.split(' ')[0], 10) > 0;
+
+	const documentUsesPreview = !!previewImageURL || documentIsAFile;
+
+	const showTaxonomies = !!categories?.length || !!tags?.length;
 
 	return (
 		<>
-			<Sidebar.Header title={Liferay.Language.get('content-info')} />
+			<Sidebar.Header title={title} />
 
 			<Sidebar.Body>
-				<div className="c-mb-4">
-					<div className="component-title text-truncate-inline">
-						<span
-							className="text-truncate"
-							data-tooltip-align="top"
-							title={title}
-						>
-							{title}
-						</span>
-					</div>
+				<div className="mb-2 sidebar-section">
+					{documentIsAFile && (
+						<p className="mb-1 text-secondary">{fileName}</p>
+					)}
 
-					<p className="component-subtitle font-weight-normal">
-						{subType}
-					</p>
+					<p className="mb-1 text-secondary">{subType}</p>
 
 					{versions.map((version) => (
 						<div key={version.version}>
@@ -111,7 +131,7 @@ const SidebarPanelInfoView = ({
 					))}
 				</div>
 
-				<div className="c-mb-4 sidebar-dl sidebar-section">
+				<div className="sidebar-dl sidebar-section">
 					<ClaySticker
 						className={classnames('sticker-user-icon', {
 							[`user-icon-color-${stickerColor}`]: !user.url,
@@ -128,96 +148,46 @@ const SidebarPanelInfoView = ({
 							<ClayIcon symbol="user" />
 						)}
 					</ClaySticker>
-					<span className="c-ml-2 h5">{user.name}</span>
+					<span className="ml-2 text-secondary">{user.name}</span>
 				</div>
 
-				{!!sortedViewURLS.length && (
-					<div className="c-mb-4 sidebar-dl sidebar-section">
-						<h5>
-							{Liferay.Language.get('languages-translated-into')}
+				{documentUsesPreview && (
+					<DocumentPreview
+						documentSrc={previewImageURL}
+						documentTitle={title}
+						downloadURL={downloadURL}
+						isFile={documentIsAFile}
+						viewURL={viewURL}
+					/>
+				)}
+
+				{description && (
+					<div className="sidebar-section">
+						<h5 className="font-weight-semi-bold mb-1">
+							{Liferay.Language.get('description')}
 						</h5>
-
-						{sortedViewURLS.map((language) => (
-							<ClayLayout.ContentRow
-								key={language.languageId}
-								verticalAlign="center"
-							>
-								<ClayLayout.ContentCol className="inline-item-before">
-									<ClayIcon
-										className="c-mt-1"
-										symbol={language.languageId.toLowerCase()}
-									/>
-								</ClayLayout.ContentCol>
-
-								<ClayLayout.ContentCol
-									expand={!!language.viewURL}
-								>
-									<ClayLayout.ContentRow
-										key={language.languageId}
-										verticalAlign="center"
-									>
-										<ClayLayout.ContentCol className="inline-item-before small">
-											{language.languageId}
-										</ClayLayout.ContentCol>
-
-										<ClayLayout.ContentCol>
-											{language.default && (
-												<ClayLabel
-													className="d-inline"
-													displayType="info"
-												>
-													{Liferay.Language.get(
-														'default'
-													)}
-												</ClayLabel>
-											)}
-										</ClayLayout.ContentCol>
-									</ClayLayout.ContentRow>
-								</ClayLayout.ContentCol>
-
-								{language.viewURL && (
-									<ClayLayout.ContentCol>
-										<ClayLink
-											borderless
-											data-tooltip-align="top"
-											displayType="secondary"
-											href={language.viewURL}
-											monospaced
-											outline
-											title={Liferay.Language.get('view')}
-										>
-											<ClayIcon symbol="view" />
-										</ClayLink>
-									</ClayLayout.ContentCol>
-								)}
-							</ClayLayout.ContentRow>
-						))}
+						<p className="text-secondary">{description}</p>
 					</div>
 				)}
 
-				{!!tags.length && (
-					<div className="c-mb-4 sidebar-dl sidebar-section">
-						<h5>{Liferay.Language.get('tags')}</h5>
-
-						<p>
-							{tags.map((tag) => (
-								<ClayLabel displayType="secondary" key={tag}>
-									{tag}
-								</ClayLabel>
-							))}
-						</p>
-					</div>
+				{showTaxonomies && (
+					<h6 className="font-weight-semi-bold sidebar-section-subtitle text-uppercase">
+						{Liferay.Language.get('categorization')}
+					</h6>
 				)}
 
 				{!!categories.length && (
 					<div className="c-mb-4 sidebar-dl sidebar-section">
-						<h5>{Liferay.Language.get('categories')}</h5>
+						<h5 className="font-weight-semi-bold mb-1">
+							{Liferay.Language.get('categories')}
+						</h5>
 
 						<p>
 							{categories.map((category) => (
 								<ClayLabel
 									displayType="secondary"
 									key={category}
+									large
 								>
 									{category}
 								</ClayLabel>
@@ -226,53 +196,69 @@ const SidebarPanelInfoView = ({
 					</div>
 				)}
 
-				{[
-					{
-						text: formatDate(
-							data['display-date']?.value,
-							languageTag
-						),
-						title: Liferay.Language.get('display-date'),
-					},
-					{
-						text: formatDate(createDate, languageTag),
-						title: Liferay.Language.get('creation-date'),
-					},
-					{
-						text: formatDate(modifiedDate, languageTag),
-						title: Liferay.Language.get('modified-date'),
-					},
-					{
-						text: formatDate(
-							data['expiration-date']?.value,
-							languageTag
-						),
-						title: Liferay.Language.get('expiration-date'),
-					},
-					{
-						text: formatDate(
-							data['review-date']?.value,
-							languageTag
-						),
-						title: Liferay.Language.get('review-date'),
-					},
-					{
-						text: classPK,
-						title: Liferay.Language.get('id'),
-					},
-				].map(
-					({text, title}) =>
-						text &&
-						title && (
-							<div
-								className="c-mb-4 sidebar-dl sidebar-section"
-								key={title}
-							>
-								<h5>{title}</h5>
+				{!!tags.length && (
+					<div className="c-mb-4 sidebar-dl sidebar-section">
+						<h5 className="font-weight-semi-bold mb-1">
+							{Liferay.Language.get('tags')}
+						</h5>
 
-								<p>{text}</p>
-							</div>
-						)
+						<p>
+							{tags.map((tag) => (
+								<ClayLabel
+									displayType="secondary"
+									key={tag}
+									large
+								>
+									{tag}
+								</ClayLabel>
+							))}
+						</p>
+					</div>
+				)}
+
+				<h6 className="font-weight-semi-bold sidebar-section-subtitle text-uppercase">
+					{Liferay.Language.get('details')}
+				</h6>
+
+				{documentIsAFile && (
+					<div className="sidebar-section">
+						<h5 className="font-weight-semi-bold mb-1">
+							{Liferay.Language.get('url')}
+						</h5>
+						<p className="text-secondary">{previewURL}</p>
+
+						<h5 className="font-weight-semi-bold mb-1">
+							{Liferay.Language.get('extension')}
+						</h5>
+						<p className="text-secondary">{extension}</p>
+
+						<h5 className="font-weight-semi-bold mb-1">
+							{Liferay.Language.get('size')}
+						</h5>
+						<p className="text-secondary">{size}</p>
+					</div>
+				)}
+
+				{!!itemDates.length &&
+					itemDates.map(
+						({text, title}) =>
+							text &&
+							title && (
+								<div
+									className="c-mb-4 sidebar-dl sidebar-section"
+									key={title}
+								>
+									<h5 className="font-weight-semi-bold mb-1">
+										{title}
+									</h5>
+
+									<p className="text-secondary">{text}</p>
+								</div>
+							)
+					)}
+
+				{!!viewURLs.length && !isADocument && (
+					<ItemLanguages urls={viewURLs} />
 				)}
 			</Sidebar.Body>
 		</>

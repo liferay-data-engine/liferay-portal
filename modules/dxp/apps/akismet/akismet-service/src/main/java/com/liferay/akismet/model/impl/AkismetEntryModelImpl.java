@@ -27,6 +27,7 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
@@ -34,6 +35,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
@@ -625,6 +627,33 @@ public class AkismetEntryModelImpl
 	}
 
 	@Override
+	public AkismetEntry cloneWithOriginalValues() {
+		AkismetEntryImpl akismetEntryImpl = new AkismetEntryImpl();
+
+		akismetEntryImpl.setAkismetEntryId(
+			this.<Long>getColumnOriginalValue("akismetEntryId"));
+		akismetEntryImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		akismetEntryImpl.setClassNameId(
+			this.<Long>getColumnOriginalValue("classNameId"));
+		akismetEntryImpl.setClassPK(
+			this.<Long>getColumnOriginalValue("classPK"));
+		akismetEntryImpl.setType(this.<String>getColumnOriginalValue("type_"));
+		akismetEntryImpl.setPermalink(
+			this.<String>getColumnOriginalValue("permalink"));
+		akismetEntryImpl.setReferrer(
+			this.<String>getColumnOriginalValue("referrer"));
+		akismetEntryImpl.setUserAgent(
+			this.<String>getColumnOriginalValue("userAgent"));
+		akismetEntryImpl.setUserIP(
+			this.<String>getColumnOriginalValue("userIP"));
+		akismetEntryImpl.setUserURL(
+			this.<String>getColumnOriginalValue("userURL"));
+
+		return akismetEntryImpl;
+	}
+
+	@Override
 	public int compareTo(AkismetEntry akismetEntry) {
 		long primaryKey = akismetEntry.getPrimaryKey();
 
@@ -770,7 +799,7 @@ public class AkismetEntryModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -781,9 +810,26 @@ public class AkismetEntryModelImpl
 			Function<AkismetEntry, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((AkismetEntry)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((AkismetEntry)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

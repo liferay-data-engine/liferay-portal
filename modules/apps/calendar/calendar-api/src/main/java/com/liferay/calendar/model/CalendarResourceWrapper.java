@@ -178,6 +178,11 @@ public class CalendarResourceWrapper
 		}
 	}
 
+	@Override
+	public CalendarResource cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the active of this calendar resource.
 	 *

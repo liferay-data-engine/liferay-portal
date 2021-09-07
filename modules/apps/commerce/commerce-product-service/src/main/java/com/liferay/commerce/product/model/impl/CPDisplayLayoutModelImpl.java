@@ -33,6 +33,7 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
@@ -40,6 +41,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -782,6 +784,36 @@ public class CPDisplayLayoutModelImpl
 	}
 
 	@Override
+	public CPDisplayLayout cloneWithOriginalValues() {
+		CPDisplayLayoutImpl cpDisplayLayoutImpl = new CPDisplayLayoutImpl();
+
+		cpDisplayLayoutImpl.setUuid(
+			this.<String>getColumnOriginalValue("uuid_"));
+		cpDisplayLayoutImpl.setCPDisplayLayoutId(
+			this.<Long>getColumnOriginalValue("CPDisplayLayoutId"));
+		cpDisplayLayoutImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		cpDisplayLayoutImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		cpDisplayLayoutImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		cpDisplayLayoutImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		cpDisplayLayoutImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		cpDisplayLayoutImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		cpDisplayLayoutImpl.setClassNameId(
+			this.<Long>getColumnOriginalValue("classNameId"));
+		cpDisplayLayoutImpl.setClassPK(
+			this.<Long>getColumnOriginalValue("classPK"));
+		cpDisplayLayoutImpl.setLayoutUuid(
+			this.<String>getColumnOriginalValue("layoutUuid"));
+
+		return cpDisplayLayoutImpl;
+	}
+
+	@Override
 	public int compareTo(CPDisplayLayout cpDisplayLayout) {
 		long primaryKey = cpDisplayLayout.getPrimaryKey();
 
@@ -918,7 +950,7 @@ public class CPDisplayLayoutModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -929,9 +961,26 @@ public class CPDisplayLayoutModelImpl
 			Function<CPDisplayLayout, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((CPDisplayLayout)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((CPDisplayLayout)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

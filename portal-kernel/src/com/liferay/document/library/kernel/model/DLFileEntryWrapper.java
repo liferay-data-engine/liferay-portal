@@ -300,6 +300,11 @@ public class DLFileEntryWrapper
 		return model.buildTreePath();
 	}
 
+	@Override
+	public DLFileEntry cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the fully qualified class name of this document library file entry.
 	 *

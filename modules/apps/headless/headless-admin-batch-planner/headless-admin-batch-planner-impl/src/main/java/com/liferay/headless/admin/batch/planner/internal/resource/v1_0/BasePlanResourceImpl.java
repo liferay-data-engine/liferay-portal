@@ -14,15 +14,20 @@
 
 package com.liferay.headless.admin.batch.planner.internal.resource.v1_0;
 
+import com.liferay.headless.admin.batch.planner.dto.v1_0.Log;
 import com.liferay.headless.admin.batch.planner.dto.v1_0.Plan;
 import com.liferay.headless.admin.batch.planner.resource.v1_0.PlanResource;
 import com.liferay.petra.function.UnsafeFunction;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.GroupedModel;
+import com.liferay.portal.kernel.search.filter.Filter;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ResourceActionLocalService;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
+import com.liferay.portal.odata.filter.ExpressionConvert;
+import com.liferay.portal.odata.filter.FilterParserProvider;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
@@ -54,9 +59,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 /**
@@ -96,19 +99,11 @@ public abstract class BasePlanResourceImpl implements PlanResource {
 	 */
 	@Consumes({"application/json", "application/xml"})
 	@Override
-	@Parameters(
-		value = {@Parameter(in = ParameterIn.QUERY, name = "fieldNameMapping")}
-	)
 	@Path("/plans")
 	@POST
 	@Produces({"application/json", "application/xml"})
 	@Tags(value = {@Tag(name = "Plan")})
-	public Plan postPlan(
-			@Parameter(hidden = true) @QueryParam("fieldNameMapping") String
-				fieldNameMapping,
-			Plan plan)
-		throws Exception {
-
+	public Plan postPlan(Plan plan) throws Exception {
 		return new Plan();
 	}
 
@@ -119,16 +114,13 @@ public abstract class BasePlanResourceImpl implements PlanResource {
 	 */
 	@DELETE
 	@Override
-	@Parameters(value = {@Parameter(in = ParameterIn.PATH, name = "id")})
+	@Parameters(value = {@Parameter(in = ParameterIn.PATH, name = "planId")})
 	@Path("/plans/{planId}")
+	@Produces({"application/json", "application/xml"})
 	@Tags(value = {@Tag(name = "Plan")})
-	public Response deletePlan(
-			@NotNull @Parameter(hidden = true) @PathParam("id") Long id)
+	public void deletePlan(
+			@NotNull @Parameter(hidden = true) @PathParam("planId") Long planId)
 		throws Exception {
-
-		Response.ResponseBuilder responseBuilder = Response.ok();
-
-		return responseBuilder.build();
 	}
 
 	/**
@@ -138,12 +130,12 @@ public abstract class BasePlanResourceImpl implements PlanResource {
 	 */
 	@GET
 	@Override
-	@Parameters(value = {@Parameter(in = ParameterIn.PATH, name = "id")})
+	@Parameters(value = {@Parameter(in = ParameterIn.PATH, name = "planId")})
 	@Path("/plans/{planId}")
 	@Produces({"application/json", "application/xml"})
 	@Tags(value = {@Tag(name = "Plan")})
 	public Plan getPlan(
-			@NotNull @Parameter(hidden = true) @PathParam("id") Long id)
+			@NotNull @Parameter(hidden = true) @PathParam("planId") Long planId)
 		throws Exception {
 
 		return new Plan();
@@ -156,18 +148,17 @@ public abstract class BasePlanResourceImpl implements PlanResource {
 	 */
 	@Consumes({"application/json", "application/xml"})
 	@Override
-	@Parameters(value = {@Parameter(in = ParameterIn.PATH, name = "id")})
+	@Parameters(value = {@Parameter(in = ParameterIn.PATH, name = "planId")})
 	@PATCH
 	@Path("/plans/{planId}")
+	@Produces({"application/json", "application/xml"})
 	@Tags(value = {@Tag(name = "Plan")})
-	public Response patchPlan(
-			@NotNull @Parameter(hidden = true) @PathParam("id") Long id,
+	public Plan patchPlan(
+			@NotNull @Parameter(hidden = true) @PathParam("planId") Long planId,
 			Plan plan)
 		throws Exception {
 
-		Response.ResponseBuilder responseBuilder = Response.ok();
-
-		return responseBuilder.build();
+		return new Plan();
 	}
 
 	public void setContextAcceptLanguage(AcceptLanguage contextAcceptLanguage) {
@@ -202,8 +193,32 @@ public abstract class BasePlanResourceImpl implements PlanResource {
 		this.contextUser = contextUser;
 	}
 
+	public void setExpressionConvert(
+		ExpressionConvert<Filter> expressionConvert) {
+
+		this.expressionConvert = expressionConvert;
+	}
+
+	public void setFilterParserProvider(
+		FilterParserProvider filterParserProvider) {
+
+		this.filterParserProvider = filterParserProvider;
+	}
+
 	public void setGroupLocalService(GroupLocalService groupLocalService) {
 		this.groupLocalService = groupLocalService;
+	}
+
+	public void setResourceActionLocalService(
+		ResourceActionLocalService resourceActionLocalService) {
+
+		this.resourceActionLocalService = resourceActionLocalService;
+	}
+
+	public void setResourcePermissionLocalService(
+		ResourcePermissionLocalService resourcePermissionLocalService) {
+
+		this.resourcePermissionLocalService = resourcePermissionLocalService;
 	}
 
 	public void setRoleLocalService(RoleLocalService roleLocalService) {
@@ -279,9 +294,14 @@ public abstract class BasePlanResourceImpl implements PlanResource {
 	protected Object contextScopeChecker;
 	protected UriInfo contextUriInfo;
 	protected com.liferay.portal.kernel.model.User contextUser;
+	protected ExpressionConvert<Filter> expressionConvert;
+	protected FilterParserProvider filterParserProvider;
 	protected GroupLocalService groupLocalService;
 	protected ResourceActionLocalService resourceActionLocalService;
 	protected ResourcePermissionLocalService resourcePermissionLocalService;
 	protected RoleLocalService roleLocalService;
+
+	private static final com.liferay.portal.kernel.log.Log _log =
+		LogFactoryUtil.getLog(BasePlanResourceImpl.class);
 
 }

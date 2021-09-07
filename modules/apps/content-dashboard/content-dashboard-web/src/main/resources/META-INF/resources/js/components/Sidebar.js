@@ -32,27 +32,25 @@ const SidebarHeader = ({title}) => {
 	const {onClose} = useContext(SidebarContext);
 
 	return (
-		<div className="sidebar-header">
-			<ClayLayout.ContentRow
-				className="sidebar-section"
-				verticalAlign="center"
-			>
+		<section className="sidebar-header">
+			<ClayLayout.ContentRow className="sidebar-section">
 				<ClayLayout.ContentCol expand>
-					<div className="font-weight-bold text-truncate-inline">
-						<span className="text-truncate">{title}</span>
-					</div>
+					<h2 className="font-weight-bold mb-0 pr-2 small">
+						{title}
+					</h2>
 				</ClayLayout.ContentCol>
 
 				<ClayLayout.ContentCol>
 					<ClayButtonWithIcon
-						className="text-secondary"
+						aria-label="Close"
+						className="mt-n2 text-secondary"
 						displayType="unstyled"
 						onClick={onClose}
 						symbol="times"
 					/>
 				</ClayLayout.ContentCol>
 			</ClayLayout.ContentRow>
-		</div>
+		</section>
 	);
 };
 

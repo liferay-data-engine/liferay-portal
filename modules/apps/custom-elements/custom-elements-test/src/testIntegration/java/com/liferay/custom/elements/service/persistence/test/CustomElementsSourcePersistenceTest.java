@@ -15,7 +15,7 @@
 package com.liferay.custom.elements.service.persistence.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
-import com.liferay.custom.elements.exception.NoSuchSourceException;
+import com.liferay.custom.elements.exception.NoSuchCustomElementsSourceException;
 import com.liferay.custom.elements.model.CustomElementsSource;
 import com.liferay.custom.elements.service.CustomElementsSourceLocalServiceUtil;
 import com.liferay.custom.elements.service.persistence.CustomElementsSourcePersistence;
@@ -26,6 +26,8 @@ import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.Session;
+import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.transaction.Propagation;
@@ -144,7 +146,7 @@ public class CustomElementsSourcePersistenceTest {
 
 		newCustomElementsSource.setName(RandomTestUtil.randomString());
 
-		newCustomElementsSource.setURL(RandomTestUtil.randomString());
+		newCustomElementsSource.setURLs(RandomTestUtil.randomString());
 
 		_customElementsSources.add(
 			_persistence.update(newCustomElementsSource));
@@ -186,8 +188,8 @@ public class CustomElementsSourcePersistenceTest {
 			existingCustomElementsSource.getName(),
 			newCustomElementsSource.getName());
 		Assert.assertEquals(
-			existingCustomElementsSource.getURL(),
-			newCustomElementsSource.getURL());
+			existingCustomElementsSource.getURLs(),
+			newCustomElementsSource.getURLs());
 	}
 
 	@Test
@@ -216,12 +218,12 @@ public class CustomElementsSourcePersistenceTest {
 	}
 
 	@Test
-	public void testCountByName() throws Exception {
-		_persistence.countByName("");
+	public void testCountByC_H() throws Exception {
+		_persistence.countByC_H(RandomTestUtil.nextLong(), "");
 
-		_persistence.countByName("null");
+		_persistence.countByC_H(0L, "null");
 
-		_persistence.countByName((String)null);
+		_persistence.countByC_H(0L, (String)null);
 	}
 
 	@Test
@@ -237,7 +239,7 @@ public class CustomElementsSourcePersistenceTest {
 			existingCustomElementsSource, newCustomElementsSource);
 	}
 
-	@Test(expected = NoSuchSourceException.class)
+	@Test(expected = NoSuchCustomElementsSourceException.class)
 	public void testFindByPrimaryKeyMissing() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
@@ -255,7 +257,7 @@ public class CustomElementsSourcePersistenceTest {
 			"CustomElementsSource", "mvccVersion", true, "uuid", true,
 			"customElementsSourceId", true, "companyId", true, "userId", true,
 			"userName", true, "createDate", true, "modifiedDate", true,
-			"htmlElementName", true, "name", true, "url", true);
+			"htmlElementName", true, "name", true);
 	}
 
 	@Test
@@ -492,6 +494,75 @@ public class CustomElementsSourcePersistenceTest {
 		Assert.assertEquals(0, result.size());
 	}
 
+	@Test
+	public void testResetOriginalValues() throws Exception {
+		CustomElementsSource newCustomElementsSource =
+			addCustomElementsSource();
+
+		_persistence.clearCache();
+
+		_assertOriginalValues(
+			_persistence.findByPrimaryKey(
+				newCustomElementsSource.getPrimaryKey()));
+	}
+
+	@Test
+	public void testResetOriginalValuesWithDynamicQueryLoadFromDatabase()
+		throws Exception {
+
+		_testResetOriginalValuesWithDynamicQuery(true);
+	}
+
+	@Test
+	public void testResetOriginalValuesWithDynamicQueryLoadFromSession()
+		throws Exception {
+
+		_testResetOriginalValuesWithDynamicQuery(false);
+	}
+
+	private void _testResetOriginalValuesWithDynamicQuery(boolean clearSession)
+		throws Exception {
+
+		CustomElementsSource newCustomElementsSource =
+			addCustomElementsSource();
+
+		if (clearSession) {
+			Session session = _persistence.openSession();
+
+			session.flush();
+
+			session.clear();
+		}
+
+		DynamicQuery dynamicQuery = DynamicQueryFactoryUtil.forClass(
+			CustomElementsSource.class, _dynamicQueryClassLoader);
+
+		dynamicQuery.add(
+			RestrictionsFactoryUtil.eq(
+				"customElementsSourceId",
+				newCustomElementsSource.getCustomElementsSourceId()));
+
+		List<CustomElementsSource> result = _persistence.findWithDynamicQuery(
+			dynamicQuery);
+
+		_assertOriginalValues(result.get(0));
+	}
+
+	private void _assertOriginalValues(
+		CustomElementsSource customElementsSource) {
+
+		Assert.assertEquals(
+			Long.valueOf(customElementsSource.getCompanyId()),
+			ReflectionTestUtil.<Long>invoke(
+				customElementsSource, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "companyId"));
+		Assert.assertEquals(
+			customElementsSource.getHTMLElementName(),
+			ReflectionTestUtil.invoke(
+				customElementsSource, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "htmlElementName"));
+	}
+
 	protected CustomElementsSource addCustomElementsSource() throws Exception {
 		long pk = RandomTestUtil.nextLong();
 
@@ -515,7 +586,7 @@ public class CustomElementsSourcePersistenceTest {
 
 		customElementsSource.setName(RandomTestUtil.randomString());
 
-		customElementsSource.setURL(RandomTestUtil.randomString());
+		customElementsSource.setURLs(RandomTestUtil.randomString());
 
 		_customElementsSources.add(_persistence.update(customElementsSource));
 

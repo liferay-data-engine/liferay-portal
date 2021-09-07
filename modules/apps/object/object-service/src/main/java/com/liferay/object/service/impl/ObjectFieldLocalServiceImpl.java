@@ -37,7 +37,6 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
 import java.util.List;
 import java.util.Locale;
@@ -61,8 +60,8 @@ public class ObjectFieldLocalServiceImpl
 
 	@Override
 	public ObjectField addCustomObjectField(
-			long userId, long objectDefinitionId, boolean indexed,
-			boolean indexedAsKeyword, String indexedLanguageId,
+			long userId, long listTypeDefinitionId, long objectDefinitionId,
+			boolean indexed, boolean indexedAsKeyword, String indexedLanguageId,
 			Map<Locale, String> labelMap, String name, boolean required,
 			String type)
 		throws PortalException {
@@ -74,16 +73,16 @@ public class ObjectFieldLocalServiceImpl
 
 		String dbTableName = objectDefinition.getDBTableName();
 
-		if (objectDefinition.getStatus() == WorkflowConstants.STATUS_APPROVED) {
+		if (objectDefinition.isApproved()) {
 			dbTableName = objectDefinition.getExtensionDBTableName();
 		}
 
 		ObjectField objectField = _addObjectField(
-			userId, objectDefinitionId, name + StringPool.UNDERLINE,
-			dbTableName, indexed, indexedAsKeyword, indexedLanguageId, labelMap,
-			name, required, type);
+			userId, listTypeDefinitionId, objectDefinitionId,
+			name + StringPool.UNDERLINE, dbTableName, indexed, indexedAsKeyword,
+			indexedLanguageId, labelMap, name, required, type);
 
-		if (objectDefinition.getStatus() == WorkflowConstants.STATUS_APPROVED) {
+		if (objectDefinition.isApproved()) {
 			runSQL(
 				_getAlterTableAddColumnSQL(
 					dbTableName, objectField.getDBColumnName(), type));
@@ -110,7 +109,7 @@ public class ObjectFieldLocalServiceImpl
 		}
 
 		return _addObjectField(
-			userId, objectDefinitionId, dbColumnName,
+			userId, 0, objectDefinitionId, dbColumnName,
 			objectDefinition.getDBTableName(), indexed, indexedAsKeyword,
 			indexedLanguageId, labelMap, name, required, type);
 	}
@@ -136,9 +135,10 @@ public class ObjectFieldLocalServiceImpl
 
 	@Override
 	public ObjectField updateCustomObjectField(
-			long objectFieldId, boolean indexed, boolean indexedAsKeyword,
-			String indexedLanguageId, Map<Locale, String> labelMap,
-			boolean required)
+			long objectFieldId, long listTypeDefinitionId, boolean indexed,
+			boolean indexedAsKeyword, String indexedLanguageId,
+			Map<Locale, String> labelMap, String name, boolean required,
+			String type)
 		throws PortalException {
 
 		ObjectField objectField = objectFieldPersistence.findByPrimaryKey(
@@ -152,17 +152,25 @@ public class ObjectFieldLocalServiceImpl
 			throw new ObjectDefinitionStatusException();
 		}
 
-		_validateIndexed(
-			indexed, indexedAsKeyword, indexedLanguageId,
-			objectField.getType());
-
 		_validateLabel(labelMap, LocaleUtil.getSiteDefault());
 
+		objectField.setLabelMap(labelMap, LocaleUtil.getSiteDefault());
+
+		if (objectDefinition.isApproved()) {
+			return objectFieldPersistence.update(objectField);
+		}
+
+		_validateIndexed(indexed, indexedAsKeyword, indexedLanguageId, type);
+		_validateName(objectFieldId, objectDefinition, name);
+		validateType(type);
+
+		objectField.setListTypeDefinitionId(listTypeDefinitionId);
 		objectField.setIndexed(indexed);
 		objectField.setIndexedAsKeyword(indexedAsKeyword);
 		objectField.setIndexedLanguageId(indexedLanguageId);
-		objectField.setLabelMap(labelMap, LocaleUtil.getSiteDefault());
+		objectField.setName(name);
 		objectField.setRequired(required);
+		objectField.setType(type);
 
 		return objectFieldPersistence.update(objectField);
 	}
@@ -175,10 +183,11 @@ public class ObjectFieldLocalServiceImpl
 	}
 
 	private ObjectField _addObjectField(
-			long userId, long objectDefinitionId, String dbColumnName,
-			String dbTableName, boolean indexed, boolean indexedAsKeyword,
-			String indexedLanguageId, Map<Locale, String> labelMap, String name,
-			boolean required, String type)
+			long userId, long listTypeDefinitionId, long objectDefinitionId,
+			String dbColumnName, String dbTableName, boolean indexed,
+			boolean indexedAsKeyword, String indexedLanguageId,
+			Map<Locale, String> labelMap, String name, boolean required,
+			String type)
 		throws PortalException {
 
 		ObjectDefinition objectDefinition =
@@ -186,7 +195,7 @@ public class ObjectFieldLocalServiceImpl
 
 		_validateIndexed(indexed, indexedAsKeyword, indexedLanguageId, type);
 		_validateLabel(labelMap, LocaleUtil.getSiteDefault());
-		_validateName(objectDefinition, name);
+		_validateName(0, objectDefinition, name);
 		validateType(type);
 
 		ObjectField objectField = objectFieldPersistence.create(
@@ -198,6 +207,7 @@ public class ObjectFieldLocalServiceImpl
 		objectField.setUserId(user.getUserId());
 		objectField.setUserName(user.getFullName());
 
+		objectField.setListTypeDefinitionId(listTypeDefinitionId);
 		objectField.setObjectDefinitionId(objectDefinitionId);
 		objectField.setDBColumnName(dbColumnName);
 		objectField.setDBTableName(dbTableName);
@@ -218,18 +228,11 @@ public class ObjectFieldLocalServiceImpl
 	private String _getAlterTableAddColumnSQL(
 		String tableName, String columnName, String type) {
 
-		StringBundler sb = new StringBundler(8);
-
-		sb.append("alter table ");
-		sb.append(tableName);
-		sb.append(" add ");
-		sb.append(columnName);
-		sb.append(StringPool.SPACE);
-		sb.append(DynamicObjectDefinitionTable.getDataType(type));
-		sb.append(DynamicObjectDefinitionTable.getSQLColumnNull(type));
-		sb.append(StringPool.SEMICOLON);
-
-		String sql = sb.toString();
+		String sql = StringBundler.concat(
+			"alter table ", tableName, " add ", columnName, StringPool.SPACE,
+			DynamicObjectDefinitionTable.getDataType(type),
+			DynamicObjectDefinitionTable.getSQLColumnNull(type),
+			StringPool.SEMICOLON);
 
 		if (_log.isDebugEnabled()) {
 			_log.debug("SQL: " + sql);
@@ -268,7 +271,8 @@ public class ObjectFieldLocalServiceImpl
 		}
 	}
 
-	private void _validateName(ObjectDefinition objectDefinition, String name)
+	private void _validateName(
+			long objectFieldId, ObjectDefinition objectDefinition, String name)
 		throws PortalException {
 
 		if (Validator.isNull(name)) {
@@ -304,7 +308,9 @@ public class ObjectFieldLocalServiceImpl
 		ObjectField objectField = objectFieldPersistence.fetchByODI_N(
 			objectDefinition.getObjectDefinitionId(), name);
 
-		if (objectField != null) {
+		if ((objectField != null) &&
+			(objectField.getObjectFieldId() != objectFieldId)) {
+
 			throw new DuplicateObjectFieldException("Duplicate name " + name);
 		}
 	}

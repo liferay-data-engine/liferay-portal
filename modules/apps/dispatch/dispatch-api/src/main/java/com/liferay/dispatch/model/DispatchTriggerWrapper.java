@@ -172,6 +172,11 @@ public class DispatchTriggerWrapper
 		}
 	}
 
+	@Override
+	public DispatchTrigger cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the active of this dispatch trigger.
 	 *

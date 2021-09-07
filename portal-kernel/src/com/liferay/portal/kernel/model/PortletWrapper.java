@@ -167,6 +167,11 @@ public class PortletWrapper
 		return new PortletWrapper((Portlet)model.clone());
 	}
 
+	@Override
+	public Portlet cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Compares this portlet to the specified object.
 	 *

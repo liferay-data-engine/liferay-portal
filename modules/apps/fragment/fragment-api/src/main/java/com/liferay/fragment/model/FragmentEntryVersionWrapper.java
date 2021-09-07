@@ -251,6 +251,11 @@ public class FragmentEntryVersionWrapper
 		}
 	}
 
+	@Override
+	public FragmentEntryVersion cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the cacheable of this fragment entry version.
 	 *

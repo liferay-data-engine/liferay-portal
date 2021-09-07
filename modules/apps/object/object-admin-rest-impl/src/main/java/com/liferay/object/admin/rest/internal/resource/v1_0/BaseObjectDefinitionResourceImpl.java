@@ -16,7 +16,9 @@ package com.liferay.object.admin.rest.internal.resource.v1_0;
 
 import com.liferay.object.admin.rest.dto.v1_0.ObjectDefinition;
 import com.liferay.object.admin.rest.resource.v1_0.ObjectDefinitionResource;
+import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.function.UnsafeFunction;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.GroupedModel;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.search.filter.Filter;
@@ -27,6 +29,9 @@ import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.odata.entity.EntityModel;
+import com.liferay.portal.odata.filter.ExpressionConvert;
+import com.liferay.portal.odata.filter.FilterParser;
+import com.liferay.portal.odata.filter.FilterParserProvider;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
 import com.liferay.portal.vulcan.batch.engine.VulcanBatchEngineTaskItemDelegate;
 import com.liferay.portal.vulcan.batch.engine.resource.VulcanBatchEngineImportTaskResource;
@@ -59,7 +64,9 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.PATCH;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -106,7 +113,7 @@ public abstract class BaseObjectDefinitionResourceImpl
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -X 'POST' 'http://localhost:8080/o/object-admin/v1.0/object-definitions' -d $'{"label": ___, "name": ___, "objectFields": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 * curl -X 'POST' 'http://localhost:8080/o/object-admin/v1.0/object-definitions' -d $'{"label": ___, "name": ___, "objectFields": ___, "panelAppOrder": ___, "panelCategoryKey": ___, "pluralLabel": ___, "scope": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
 	 */
 	@Consumes({"application/json", "application/xml"})
 	@Override
@@ -236,6 +243,139 @@ public abstract class BaseObjectDefinitionResourceImpl
 	/**
 	 * Invoke this method with the command line:
 	 *
+	 * curl -X 'PATCH' 'http://localhost:8080/o/object-admin/v1.0/object-definitions/{objectDefinitionId}' -d $'{"label": ___, "name": ___, "objectFields": ___, "panelAppOrder": ___, "panelCategoryKey": ___, "pluralLabel": ___, "scope": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 */
+	@Consumes({"application/json", "application/xml"})
+	@Override
+	@Parameters(
+		value = {@Parameter(in = ParameterIn.PATH, name = "objectDefinitionId")}
+	)
+	@PATCH
+	@Path("/object-definitions/{objectDefinitionId}")
+	@Produces({"application/json", "application/xml"})
+	@Tags(value = {@Tag(name = "ObjectDefinition")})
+	public ObjectDefinition patchObjectDefinition(
+			@NotNull @Parameter(hidden = true) @PathParam("objectDefinitionId")
+				Long objectDefinitionId,
+			ObjectDefinition objectDefinition)
+		throws Exception {
+
+		ObjectDefinition existingObjectDefinition = getObjectDefinition(
+			objectDefinitionId);
+
+		if (objectDefinition.getActions() != null) {
+			existingObjectDefinition.setActions(objectDefinition.getActions());
+		}
+
+		if (objectDefinition.getDateCreated() != null) {
+			existingObjectDefinition.setDateCreated(
+				objectDefinition.getDateCreated());
+		}
+
+		if (objectDefinition.getDateModified() != null) {
+			existingObjectDefinition.setDateModified(
+				objectDefinition.getDateModified());
+		}
+
+		if (objectDefinition.getLabel() != null) {
+			existingObjectDefinition.setLabel(objectDefinition.getLabel());
+		}
+
+		if (objectDefinition.getName() != null) {
+			existingObjectDefinition.setName(objectDefinition.getName());
+		}
+
+		if (objectDefinition.getPanelAppOrder() != null) {
+			existingObjectDefinition.setPanelAppOrder(
+				objectDefinition.getPanelAppOrder());
+		}
+
+		if (objectDefinition.getPanelCategoryKey() != null) {
+			existingObjectDefinition.setPanelCategoryKey(
+				objectDefinition.getPanelCategoryKey());
+		}
+
+		if (objectDefinition.getPluralLabel() != null) {
+			existingObjectDefinition.setPluralLabel(
+				objectDefinition.getPluralLabel());
+		}
+
+		if (objectDefinition.getScope() != null) {
+			existingObjectDefinition.setScope(objectDefinition.getScope());
+		}
+
+		if (objectDefinition.getSystem() != null) {
+			existingObjectDefinition.setSystem(objectDefinition.getSystem());
+		}
+
+		preparePatch(objectDefinition, existingObjectDefinition);
+
+		return putObjectDefinition(
+			objectDefinitionId, existingObjectDefinition);
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'PUT' 'http://localhost:8080/o/object-admin/v1.0/object-definitions/{objectDefinitionId}' -d $'{"label": ___, "name": ___, "objectFields": ___, "panelAppOrder": ___, "panelCategoryKey": ___, "pluralLabel": ___, "scope": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 */
+	@Consumes({"application/json", "application/xml"})
+	@Override
+	@Parameters(
+		value = {@Parameter(in = ParameterIn.PATH, name = "objectDefinitionId")}
+	)
+	@Path("/object-definitions/{objectDefinitionId}")
+	@Produces({"application/json", "application/xml"})
+	@PUT
+	@Tags(value = {@Tag(name = "ObjectDefinition")})
+	public ObjectDefinition putObjectDefinition(
+			@NotNull @Parameter(hidden = true) @PathParam("objectDefinitionId")
+				Long objectDefinitionId,
+			ObjectDefinition objectDefinition)
+		throws Exception {
+
+		return new ObjectDefinition();
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'PUT' 'http://localhost:8080/o/object-admin/v1.0/object-definitions/batch'  -u 'test@liferay.com:test'
+	 */
+	@Consumes("application/json")
+	@Override
+	@Parameters(
+		value = {@Parameter(in = ParameterIn.QUERY, name = "callbackURL")}
+	)
+	@Path("/object-definitions/batch")
+	@Produces("application/json")
+	@PUT
+	@Tags(value = {@Tag(name = "ObjectDefinition")})
+	public Response putObjectDefinitionBatch(
+			@Parameter(hidden = true) @QueryParam("callbackURL") String
+				callbackURL,
+			Object object)
+		throws Exception {
+
+		vulcanBatchEngineImportTaskResource.setContextAcceptLanguage(
+			contextAcceptLanguage);
+		vulcanBatchEngineImportTaskResource.setContextCompany(contextCompany);
+		vulcanBatchEngineImportTaskResource.setContextHttpServletRequest(
+			contextHttpServletRequest);
+		vulcanBatchEngineImportTaskResource.setContextUriInfo(contextUriInfo);
+		vulcanBatchEngineImportTaskResource.setContextUser(contextUser);
+
+		Response.ResponseBuilder responseBuilder = Response.accepted();
+
+		return responseBuilder.entity(
+			vulcanBatchEngineImportTaskResource.putImportTask(
+				ObjectDefinition.class.getName(), callbackURL, object)
+		).build();
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
 	 * curl -X 'POST' 'http://localhost:8080/o/object-admin/v1.0/object-definitions/{objectDefinitionId}/publish'  -u 'test@liferay.com:test'
 	 */
 	@Override
@@ -259,8 +399,12 @@ public abstract class BaseObjectDefinitionResourceImpl
 			Map<String, Serializable> parameters)
 		throws Exception {
 
+		UnsafeConsumer<ObjectDefinition, Exception>
+			objectDefinitionUnsafeConsumer =
+				objectDefinition -> postObjectDefinition(objectDefinition);
+
 		for (ObjectDefinition objectDefinition : objectDefinitions) {
-			postObjectDefinition(objectDefinition);
+			objectDefinitionUnsafeConsumer.accept(objectDefinition);
 		}
 	}
 
@@ -326,6 +470,14 @@ public abstract class BaseObjectDefinitionResourceImpl
 			java.util.Collection<ObjectDefinition> objectDefinitions,
 			Map<String, Serializable> parameters)
 		throws Exception {
+
+		for (ObjectDefinition objectDefinition : objectDefinitions) {
+			putObjectDefinition(
+				objectDefinition.getId() != null ? objectDefinition.getId() :
+					Long.parseLong(
+						(String)parameters.get("objectDefinitionId")),
+				objectDefinition);
+		}
 	}
 
 	public void setContextAcceptLanguage(AcceptLanguage contextAcceptLanguage) {
@@ -360,12 +512,63 @@ public abstract class BaseObjectDefinitionResourceImpl
 		this.contextUser = contextUser;
 	}
 
+	public void setExpressionConvert(
+		ExpressionConvert<Filter> expressionConvert) {
+
+		this.expressionConvert = expressionConvert;
+	}
+
+	public void setFilterParserProvider(
+		FilterParserProvider filterParserProvider) {
+
+		this.filterParserProvider = filterParserProvider;
+	}
+
 	public void setGroupLocalService(GroupLocalService groupLocalService) {
 		this.groupLocalService = groupLocalService;
 	}
 
+	public void setResourceActionLocalService(
+		ResourceActionLocalService resourceActionLocalService) {
+
+		this.resourceActionLocalService = resourceActionLocalService;
+	}
+
+	public void setResourcePermissionLocalService(
+		ResourcePermissionLocalService resourcePermissionLocalService) {
+
+		this.resourcePermissionLocalService = resourcePermissionLocalService;
+	}
+
 	public void setRoleLocalService(RoleLocalService roleLocalService) {
 		this.roleLocalService = roleLocalService;
+	}
+
+	@Override
+	public Filter toFilter(
+		String filterString, Map<String, List<String>> multivaluedMap) {
+
+		try {
+			EntityModel entityModel = getEntityModel(multivaluedMap);
+
+			FilterParser filterParser = filterParserProvider.provide(
+				entityModel);
+
+			com.liferay.portal.odata.filter.Filter oDataFilter =
+				new com.liferay.portal.odata.filter.Filter(
+					filterParser.parse(filterString));
+
+			return expressionConvert.convert(
+				oDataFilter.getExpression(),
+				contextAcceptLanguage.getPreferredLocale(), entityModel);
+		}
+		catch (Exception exception) {
+			if (_log.isDebugEnabled()) {
+				_log.debug("Invalid filter " + filterString, exception);
+			}
+		}
+
+		return null;
 	}
 
 	protected Map<String, String> addAction(
@@ -400,6 +603,11 @@ public abstract class BaseObjectDefinitionResourceImpl
 
 		return addAction(
 			actionName, siteId, methodName, null, permissionName, siteId);
+	}
+
+	protected void preparePatch(
+		ObjectDefinition objectDefinition,
+		ObjectDefinition existingObjectDefinition) {
 	}
 
 	protected <T, R> List<R> transform(
@@ -437,11 +645,16 @@ public abstract class BaseObjectDefinitionResourceImpl
 	protected Object contextScopeChecker;
 	protected UriInfo contextUriInfo;
 	protected com.liferay.portal.kernel.model.User contextUser;
+	protected ExpressionConvert<Filter> expressionConvert;
+	protected FilterParserProvider filterParserProvider;
 	protected GroupLocalService groupLocalService;
 	protected ResourceActionLocalService resourceActionLocalService;
 	protected ResourcePermissionLocalService resourcePermissionLocalService;
 	protected RoleLocalService roleLocalService;
 	protected VulcanBatchEngineImportTaskResource
 		vulcanBatchEngineImportTaskResource;
+
+	private static final com.liferay.portal.kernel.log.Log _log =
+		LogFactoryUtil.getLog(BaseObjectDefinitionResourceImpl.class);
 
 }

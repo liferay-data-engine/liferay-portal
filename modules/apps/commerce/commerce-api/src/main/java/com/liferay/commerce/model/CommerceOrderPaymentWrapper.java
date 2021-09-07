@@ -131,6 +131,11 @@ public class CommerceOrderPaymentWrapper
 		}
 	}
 
+	@Override
+	public CommerceOrderPayment cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the commerce order ID of this commerce order payment.
 	 *

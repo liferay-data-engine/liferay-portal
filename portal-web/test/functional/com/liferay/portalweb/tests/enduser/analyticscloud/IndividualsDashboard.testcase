@@ -2,21 +2,46 @@
 definition {
 
 	property analytics.cloud.enabled = "true";
-	property minimum.slave.ram = "32";
+	property custom.properties = "jsonws.web.service.paths.excludes=";
+	property minimum.slave.ram = "24";
 	property portal.release = "false";
 	property portal.upstream = "true";
+	property slave.label = "slave-1";
 	property testray.main.component.name = "Analytics Cloud";
 
 	setUp {
-		ACUtils.launchAC();
+		task ("Copy the token from AC") {
+			ACUtils.launchAC();
 
-		ACSettings.takeTokenFromAnalyticsCloud();
+			ACSettings.takeTokenFromAnalyticsCloud();
+		}
 
-		TestCase.setUpPortalInstance();
+		task ("Set up instance and sign in DXP") {
+			TestCase.setUpPortalInstance();
 
-		ACUtils.launchDXP();
+			ACUtils.launchDXP();
+		}
 
-		ACUtils.addSiteAndPage();
+		task ("Add a new site with a public widget page") {
+			ACUtils.addSiteAndPage();
+		}
+
+		task ("Add a new user") {
+			JSONUser.addUser(
+				userEmailAddress = "userea@liferay.com",
+				userFirstName = "userfn",
+				userLastName = "userln",
+				userScreenName = "usersn");
+
+			JSONUser.setFirstPassword(
+				agreeToTermsAndAnswerReminderQuery = "true",
+				requireReset = "false",
+				userEmailAddress = "userea@liferay.com");
+		}
+
+		task ("Connect the DXP to AC") {
+			ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
+		}
 	}
 
 	tearDown {
@@ -27,17 +52,123 @@ definition {
 		if ("${testPortalInstance}" == "true") {
 			PortalInstances.tearDownCP();
 		}
+
 		else {
 			JSONGroup.deleteGroupByName(groupName = "Site Name");
+
+			JSONUser.tearDownNonAdminUsers();
 		}
 
 		ACUtils.tearDownAC();
 	}
 
+	@description = "Feature ID: Legacy | Automation ID: LRAC-8901 | Test Summary: As a Business User, I should be able to change individual overview time filter to Custom Range"
+	@priority = "5"
+	test CanUseCustomRangeTimeFilterOnActiveIndividualsChart {
+		task ("Get site assigned property name") {
+			var propertyName = ACDXPSettings.getAssignedPropertyName(siteName = "Site Name");
+		}
+
+		task ("Switch to new property in AC") {
+			ACUtils.launchAC();
+
+			ACProperties.switchProperty(propertyName = "${propertyName}");
+		}
+
+		task ("Navigate to the Overview on the Individuals dashboard") {
+			ACNavigation.goToIndividuals();
+
+			ACIndividualsDashboard.goToOverviewTab();
+		}
+
+		task ("Select a Custom Range time period in Active Individuals chart") {
+			ACTimeFilter.setCustomRange(
+				cardName = "Active Individuals",
+				endDay = "13",
+				endMonth = "July",
+				endYear = "2020",
+				startDay = "1",
+				startMonth = "July",
+				startYear = "2020");
+		}
+
+		task ("View the time period in Active Individuals chart is Jul 1, 2020 - Jul 13, 2020") {
+			ACTimeFilter.assertCurrentTimeFilterRange(timeFilterRange = "Jul 1, 2020 - Jul 13, 2020");
+		}
+
+		task ("View the xAxis ticks start with Jul 1 and end with Jul 13") {
+			ACCards.assertAxisTick(
+				axis = "xAxis",
+				cardName = "Active Individuals",
+				tick = "Jul 1");
+
+			ACCards.assertAxisTick(
+				axis = "xAxis",
+				cardName = "Active Individuals",
+				index = "7",
+				tick = "Jul 13");
+
+			AssertElementNotPresent(
+				index = "8",
+				key_cardTitle = "Active Individuals",
+				locator1 = "ACCards#RECHARTS_CARTESIAN_X_AXIS_TICK");
+		}
+	}
+
+	@description = "Feature ID: Legacy | Automation ID: LRAC-8909 | Test Summary: As a Business User, I should be able to change individual time filter to 180 days"
+	@priority = "3"
+	test CanUseLast180DaysTimeFilterOnActiveIndividualsChart {
+		task ("Get site assigned property name") {
+			var propertyName = ACDXPSettings.getAssignedPropertyName(siteName = "Site Name");
+		}
+
+		task ("Switch to new property in AC") {
+			ACUtils.launchAC();
+
+			ACProperties.switchProperty(propertyName = "${propertyName}");
+		}
+
+		task ("Navigate to the Overview on the Individuals dashboard") {
+			ACNavigation.goToIndividuals();
+
+			ACIndividualsDashboard.goToOverviewTab();
+		}
+
+		task ("Select the Last 180 days time period in Active Individuals chart") {
+			ACTimeFilter.clickTimeFilterButton(cardName = "Active Individuals");
+
+			ACTimeFilter.setLast180Days();
+		}
+
+		task ("View the time period in Active Individuals chart is Last 180 days") {
+			ACTimeFilter.assertCurrentTimeFilterRange(timeFilterRange = "Last 180 days");
+		}
+
+		task ("View only 6 xAxis ticks shown in Active Individuals chart") {
+			var n = "0";
+
+			while ("${n}" != "6") {
+				var n = ${n} + 1;
+
+				AssertVisible(
+					index = "${n}",
+					key_cardTitle = "Active Individuals",
+					locator1 = "ACCards#RECHARTS_CARTESIAN_X_AXIS_TICK");
+			}
+
+			AssertElementNotPresent(
+				index = "7",
+				key_cardTitle = "Active Individuals",
+				locator1 = "ACCards#RECHARTS_CARTESIAN_X_AXIS_TICK");
+		}
+	}
+
 	@description = "Total Individuals increase by one when a new individual is added via event"
 	@priority = "5"
 	test CanViewTotalIndividualsIncreaseByOne {
-		var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
+		task ("Get site assigned property name") {
+			var propertyName = ACDXPSettings.getAssignedPropertyName(siteName = "Site Name");
+		}
 
 		ACUtils.launchAC();
 
@@ -45,21 +176,17 @@ definition {
 
 		ACNavigation.goToIndividuals();
 
-		ACIndividualsDashboard.viewTotalIndividualsCount(individualCount = "0");
+		ACCards.viewTotalCount(
+			cardName = "Total Individuals",
+			count = "0");
 
 		ACUtils.launchDXP();
 
-		JSONUser.addUser(
-			userEmailAddress = "ac@liferay.com",
-			userFirstName = "ac",
-			userLastName = "ac",
-			userScreenName = "ac");
-
-		ACDXPSettings.syncNewContactData();
-
-		User.logoutAndLoginPG(
-			userLoginEmailAddress = "ac@liferay.com",
-			userLoginFullName = "ac ac");
+		task ("Sign in as new user") {
+			User.logoutAndLoginPG(
+				userLoginEmailAddress = "userea@liferay.com",
+				userLoginFullName = "userfn userln");
+		}
 
 		Navigator.gotoSitePage(
 			pageName = "AC Page",
@@ -73,7 +200,379 @@ definition {
 
 		ACNavigation.goToIndividuals();
 
-		ACIndividualsDashboard.viewTotalIndividualsCount(individualCount = "1");
+		ACCards.viewTotalCount(
+			cardName = "Total Individuals",
+			count = "1");
+	}
+
+	@description = "Feature ID: Legacy | Automation ID: LRAC-8907 | Test Summary: Clicking an activity navigates to page in Individuals overview"
+	@priority = "3"
+	test NavigateToVisitedPageOverviewViaIndividualActivity {
+		task ("Get site assigned property name") {
+			var propertyName = ACDXPSettings.getAssignedPropertyName(siteName = "Site Name");
+		}
+
+		task ("Sign in as new user") {
+			User.logoutAndLoginPG(
+				userLoginEmailAddress = "userea@liferay.com",
+				userLoginFullName = "userfn userln");
+		}
+
+		task ("View the site page") {
+			Navigator.gotoSitePage(
+				pageName = "AC Page",
+				siteName = "Site Name");
+		}
+
+		task ("Wait for sending requests") {
+			Pause(locator1 = "5000");
+		}
+
+		task ("Switch to new property in AC") {
+			ACUtils.launchAC();
+
+			ACProperties.switchProperty(propertyName = "${propertyName}");
+		}
+
+		task ("Navigate to the Known Individuals on the Individuals dashboard") {
+			ACNavigation.goToIndividuals();
+
+			ACIndividualsDashboard.goToKnownIndividualsTab();
+		}
+
+		task ("Navigate to the individuals page of new user") {
+			ACUtils.searchBar(searchItem = "userfn userln");
+
+			ACNavigation.openItem(itemName = "userfn userln");
+		}
+
+		task ("Select Last 24 hours time period in Individuals Activities chart") {
+			ACTimeFilter.clickTimeFilterButton(cardName = "Individual Activities");
+
+			ACTimeFilter.setLast24Hours();
+		}
+
+		task ("Navigate to the visited page overview via individual activity") {
+			var portalURL = PropsUtil.get("portal.url");
+			var portalURL = StringUtil.replace("${portalURL}", "http://", "");
+			var portalURL = StringUtil.replace("${portalURL}", ":8080", "");
+
+			ACIndividualsDashboard.goToVisitedPageOverviewViaIndividualActivity(
+				itemName = "${portalURL}",
+				pageName = "AC Page - Site Name - Liferay DXP");
+		}
+
+		task ("View access to the visited page overview") {
+			ACNavigation.assertPageHeader(headerTitle = "AC Page - Site Name - Liferay DXP");
+
+			ACNavigation.viewActiveSwitchTab(tabName = "Overview");
+		}
+
+		task ("View the cards in the Overview tab") {
+			for (var cardTitle : list "Visitors Behavior,Audience,Views by Location,Views by Technology,Displayed Assets") {
+				ACCards.viewCards(cardTitle = "${cardTitle}");
+			}
+		}
+	}
+
+	@description = "Feature ID: Legacy | Automation ID: LRAC-8906 | Test Summary: As a Business User, I should be able to select a point on individual overview activities graph"
+	@priority = "3"
+	test SelectDataOnIndividualsActivitiesChart {
+		task ("Get site assigned property name") {
+			var propertyName = ACDXPSettings.getAssignedPropertyName(siteName = "Site Name");
+		}
+
+		task ("Sign in as new user") {
+			User.logoutAndLoginPG(
+				userLoginEmailAddress = "userea@liferay.com",
+				userLoginFullName = "userfn userln");
+		}
+
+		task ("View the site page") {
+			Navigator.gotoSitePage(
+				pageName = "AC Page",
+				siteName = "Site Name");
+		}
+
+		task ("Wait for sending requests") {
+			Pause(locator1 = "5000");
+		}
+
+		task ("Switch to new property in AC") {
+			ACUtils.launchAC();
+
+			ACProperties.switchProperty(propertyName = "${propertyName}");
+		}
+
+		task ("Navigate to the Known Individuals on the Individuals dashboard") {
+			ACNavigation.goToIndividuals();
+
+			ACIndividualsDashboard.goToKnownIndividualsTab();
+		}
+
+		task ("Navigate to the individuals page of new user") {
+			ACUtils.searchBar(searchItem = "userfn userln");
+
+			ACNavigation.openItem(itemName = "userfn userln");
+		}
+
+		task ("Select Last 24 hours time period in Individuals Activities chart") {
+			ACTimeFilter.clickTimeFilterButton(cardName = "Individual Activities");
+
+			ACTimeFilter.setLast24Hours();
+		}
+
+		task ("Select the data on Individuals Activities chart") {
+			ACIndividualsDashboard.selectDataOnIndividualsActivitiesChart();
+		}
+
+		task ("View the Clear Data Selection button shown") {
+			Button.viewPresent(button = "Clear Date Selection");
+		}
+
+		task ("View the details of timeline item") {
+			var portalURL = PropsUtil.get("portal.url");
+			var portalURL = StringUtil.replace("${portalURL}", "http://", "");
+			var portalURL = StringUtil.replace("${portalURL}", ":8080", "");
+
+			ACIndividualsDashboard.viewTimelineItem(
+				itemName = "${portalURL}",
+				visits = "1 Visit");
+		}
+	}
+
+	@description = "Feature ID: Legacy | Automation ID: LRAC-8905 | Test Summary: As a Business User, I should be able to see the last 5 activity entries of an individual when set pagination to 5"
+	@priority = "3"
+	test ShowLast5ActivitiesOnIndividualsActivitiesChartWhenSetPaginationTo5 {
+		property portal.upstream = "quarantine";
+
+		// AC Refactor: data doesn't appear on time
+		// AC Refactor ticket: LRAC-8951
+
+		task ("Get site assigned property name") {
+			var propertyName = ACDXPSettings.getAssignedPropertyName(siteName = "Site Name");
+		}
+
+		task ("Repeatly view the site page as new user 6 times") {
+			var n = "0";
+
+			while ("${n}" != "6") {
+				var n = ${n} + 1;
+
+				User.logoutAndLoginPG(
+					userLoginEmailAddress = "userea@liferay.com",
+					userLoginFullName = "userfn userln");
+
+				Navigator.gotoSitePage(
+					pageName = "AC Page",
+					siteName = "Site Name");
+
+				Pause(locator1 = "5000");
+
+				UserBar.signOut();
+
+				ACUtils.closeAllSessions();
+			}
+		}
+
+		task ("Switch to new property in AC") {
+			ACUtils.launchAC();
+
+			ACProperties.switchProperty(propertyName = "${propertyName}");
+		}
+
+		task ("Navigate to the Known Individuals on the Individuals dashboard") {
+			ACNavigation.goToIndividuals();
+
+			ACIndividualsDashboard.goToKnownIndividualsTab();
+		}
+
+		task ("Navigate to the individuals page of new user") {
+			ACUtils.searchBar(searchItem = "userfn userln");
+
+			ACNavigation.openItem(itemName = "userfn userln");
+		}
+
+		task ("Select Last 24 hours time period in Individuals Activities chart") {
+			ACTimeFilter.clickTimeFilterButton(cardName = "Individual Activities");
+
+			ACTimeFilter.setLast24Hours();
+		}
+
+		task ("Select the 5 items in pagination of Individuals Activities chart") {
+			ACUtils.changePagination(itemsPerPage = "5");
+		}
+
+		task ("View only the last 5 activities shown in page 1") {
+			var portalURL = PropsUtil.get("portal.url");
+			var portalURL = StringUtil.replace("${portalURL}", "http://", "");
+			var portalURL = StringUtil.replace("${portalURL}", ":8080", "");
+
+			var n = "0";
+
+			while ("${n}" != "5") {
+				ACIndividualsDashboard.viewTimelineItem(
+					index = "${n}",
+					itemName = "${portalURL}",
+					visits = "1 Visit");
+			}
+		}
+
+		task ("Navigate to page 2") {
+			ACUtils.checkAnyPage(pageNumber = "2");
+		}
+
+		task ("View the activity shown in page 2") {
+			ACIndividualsDashboard.viewTimelineItem(
+				itemName = "${portalURL}",
+				visits = "1 Visit");
+		}
+	}
+
+	@description = "Feature ID: Legacy | Automation ID: LRAC-8903 | Test Summary: As an Business User, I should be able to assert the cards on the Overview tab of the Individual's Dashboard page"
+	@priority = "4"
+	test ViewCardsInTheOverviewTabOfIndividualsDashBoard {
+		task ("Get site assigned property name") {
+			var propertyName = ACDXPSettings.getAssignedPropertyName(siteName = "Site Name");
+		}
+
+		task ("Sign in as new user") {
+			User.logoutAndLoginPG(
+				userLoginEmailAddress = "userea@liferay.com",
+				userLoginFullName = "userfn userln");
+		}
+
+		task ("View the site page") {
+			Navigator.gotoSitePage(
+				pageName = "AC Page",
+				siteName = "Site Name");
+		}
+
+		task ("Wait for sending requests") {
+			Pause(locator1 = "5000");
+		}
+
+		task ("Switch to new property in AC") {
+			ACUtils.launchAC();
+
+			ACProperties.switchProperty(propertyName = "${propertyName}");
+		}
+
+		task ("Navigate to the Overview on the Individuals dashboard") {
+			ACNavigation.goToIndividuals();
+
+			ACIndividualsDashboard.goToOverviewTab();
+		}
+
+		task ("View the cards in the Overview tab") {
+			for (var cardTitle : list "Total Individuals,Known,Anonymous,Enriched Profiles,Active Individuals,Top Interests as of Today") {
+				ACCards.viewCards(cardTitle = "${cardTitle}");
+			}
+		}
+	}
+
+	@description = "Feature ID: Legacy | Automation ID: LRAC-8902 | Test Summary: As an Business User, I should be able to assert the cards on the Overview tab of an Individual's page"
+	@priority = "4"
+	test ViewCardsInTheOverviewTabOfIndividualsPage {
+		task ("Get site assigned property name") {
+			var propertyName = ACDXPSettings.getAssignedPropertyName(siteName = "Site Name");
+		}
+
+		task ("Sign in as new user") {
+			User.logoutAndLoginPG(
+				userLoginEmailAddress = "userea@liferay.com",
+				userLoginFullName = "userfn userln");
+		}
+
+		task ("View the site page") {
+			Navigator.gotoSitePage(
+				pageName = "AC Page",
+				siteName = "Site Name");
+		}
+
+		task ("Wait for sending requests") {
+			Pause(locator1 = "5000");
+		}
+
+		task ("Switch to new property in AC") {
+			ACUtils.launchAC();
+
+			ACProperties.switchProperty(propertyName = "${propertyName}");
+		}
+
+		task ("Navigate to the Known Individuals on the Individuals dashboard") {
+			ACNavigation.goToIndividuals();
+
+			ACIndividualsDashboard.goToKnownIndividualsTab();
+		}
+
+		task ("Navigate to the individuals page of new user") {
+			ACUtils.searchBar(searchItem = "userfn userln");
+
+			ACNavigation.openItem(itemName = "userfn userln");
+		}
+
+		task ("Navigate to the Overview tab") {
+			ACIndividualsDashboard.goToOverviewTab();
+		}
+
+		task ("View the cards in the Overview tab") {
+			for (var cardTitle : list "Individual Activities,Current Interests,Associated Segments") {
+				ACCards.viewCards(cardTitle = "${cardTitle}");
+			}
+		}
+
+		task ("View the individual details card") {
+			ACIndividualsDashboard.viewIndividualDetailsCard(
+				fullName = "userfn userln",
+				userEmailAddress = "userea@liferay.com");
+		}
+	}
+
+	@description = "Feature ID: Legacy | Automation ID: LRAC-8904 | Test Summary: As a Business User, I should be able to view individuals name at top of page"
+	@priority = "4"
+	test ViewIndividualNameAtTheTopOfIndividualsPage {
+		task ("Get site assigned property name") {
+			var propertyName = ACDXPSettings.getAssignedPropertyName(siteName = "Site Name");
+		}
+
+		task ("Sign in as new user") {
+			User.logoutAndLoginPG(
+				userLoginEmailAddress = "userea@liferay.com",
+				userLoginFullName = "userfn userln");
+		}
+
+		task ("View the site page") {
+			Navigator.gotoSitePage(
+				pageName = "AC Page",
+				siteName = "Site Name");
+		}
+
+		task ("Wait for sending requests") {
+			Pause(locator1 = "5000");
+		}
+
+		task ("Switch to new property in AC") {
+			ACUtils.launchAC();
+
+			ACProperties.switchProperty(propertyName = "${propertyName}");
+		}
+
+		task ("Navigate to the Known Individuals on the Individuals dashboard") {
+			ACNavigation.goToIndividuals();
+
+			ACIndividualsDashboard.goToKnownIndividualsTab();
+		}
+
+		task ("Navigate to the individuals page of new user") {
+			ACUtils.searchBar(searchItem = "userfn userln");
+
+			ACNavigation.openItem(itemName = "userfn userln");
+		}
+
+		task ("View the individual name at the top of individuals page") {
+			ACNavigation.assertPageHeader(headerTitle = "userfn userln");
+		}
 	}
 
 }

@@ -751,10 +751,11 @@ public class CPDefinitionLocalServiceWrapper
 
 	@Override
 	public com.liferay.commerce.product.model.CPAttachmentFileEntry
-			getDefaultImage(long cpDefinitionId)
+			getDefaultImageCPAttachmentFileEntry(long cpDefinitionId)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
-		return _cpDefinitionLocalService.getDefaultImage(cpDefinitionId);
+		return _cpDefinitionLocalService.getDefaultImageCPAttachmentFileEntry(
+			cpDefinitionId);
 	}
 
 	@Override
@@ -898,14 +899,15 @@ public class CPDefinitionLocalServiceWrapper
 	public com.liferay.portal.kernel.search.BaseModelSearchResult
 		<com.liferay.commerce.product.model.CPDefinition>
 				searchCPDefinitionsByChannelGroupId(
-					long companyId, long[] groupIds, long channelGroupId,
-					String keywords, int status, int start, int end,
+					long companyId, long[] groupIds,
+					long commerceChannelGroupId, String keywords, int status,
+					int start, int end,
 					com.liferay.portal.kernel.search.Sort sort)
 			throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _cpDefinitionLocalService.searchCPDefinitionsByChannelGroupId(
-			companyId, groupIds, channelGroupId, keywords, status, start, end,
-			sort);
+			companyId, groupIds, commerceChannelGroupId, keywords, status,
+			start, end, sort);
 	}
 
 	@Override

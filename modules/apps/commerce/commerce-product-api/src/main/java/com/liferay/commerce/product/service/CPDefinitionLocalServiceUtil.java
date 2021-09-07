@@ -656,10 +656,11 @@ public class CPDefinitionLocalServiceUtil {
 	}
 
 	public static com.liferay.commerce.product.model.CPAttachmentFileEntry
-			getDefaultImage(long cpDefinitionId)
+			getDefaultImageCPAttachmentFileEntry(long cpDefinitionId)
 		throws PortalException {
 
-		return getService().getDefaultImage(cpDefinitionId);
+		return getService().getDefaultImageCPAttachmentFileEntry(
+			cpDefinitionId);
 	}
 
 	public static com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery
@@ -776,14 +777,14 @@ public class CPDefinitionLocalServiceUtil {
 
 	public static com.liferay.portal.kernel.search.BaseModelSearchResult
 		<CPDefinition> searchCPDefinitionsByChannelGroupId(
-				long companyId, long[] groupIds, long channelGroupId,
+				long companyId, long[] groupIds, long commerceChannelGroupId,
 				String keywords, int status, int start, int end,
 				com.liferay.portal.kernel.search.Sort sort)
 			throws PortalException {
 
 		return getService().searchCPDefinitionsByChannelGroupId(
-			companyId, groupIds, channelGroupId, keywords, status, start, end,
-			sort);
+			companyId, groupIds, commerceChannelGroupId, keywords, status,
+			start, end, sort);
 	}
 
 	public static void updateAsset(

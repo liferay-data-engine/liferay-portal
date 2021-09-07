@@ -30,12 +30,14 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -971,6 +973,51 @@ public class OAuth2AuthorizationModelImpl
 	}
 
 	@Override
+	public OAuth2Authorization cloneWithOriginalValues() {
+		OAuth2AuthorizationImpl oAuth2AuthorizationImpl =
+			new OAuth2AuthorizationImpl();
+
+		oAuth2AuthorizationImpl.setOAuth2AuthorizationId(
+			this.<Long>getColumnOriginalValue("oAuth2AuthorizationId"));
+		oAuth2AuthorizationImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		oAuth2AuthorizationImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		oAuth2AuthorizationImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		oAuth2AuthorizationImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		oAuth2AuthorizationImpl.setOAuth2ApplicationId(
+			this.<Long>getColumnOriginalValue("oAuth2ApplicationId"));
+		oAuth2AuthorizationImpl.setOAuth2ApplicationScopeAliasesId(
+			this.<Long>getColumnOriginalValue("oA2AScopeAliasesId"));
+		oAuth2AuthorizationImpl.setAccessTokenContent(
+			this.<String>getColumnOriginalValue("accessTokenContent"));
+		oAuth2AuthorizationImpl.setAccessTokenContentHash(
+			this.<Long>getColumnOriginalValue("accessTokenContentHash"));
+		oAuth2AuthorizationImpl.setAccessTokenCreateDate(
+			this.<Date>getColumnOriginalValue("accessTokenCreateDate"));
+		oAuth2AuthorizationImpl.setAccessTokenExpirationDate(
+			this.<Date>getColumnOriginalValue("accessTokenExpirationDate"));
+		oAuth2AuthorizationImpl.setRemoteHostInfo(
+			this.<String>getColumnOriginalValue("remoteHostInfo"));
+		oAuth2AuthorizationImpl.setRemoteIPInfo(
+			this.<String>getColumnOriginalValue("remoteIPInfo"));
+		oAuth2AuthorizationImpl.setRefreshTokenContent(
+			this.<String>getColumnOriginalValue("refreshTokenContent"));
+		oAuth2AuthorizationImpl.setRefreshTokenContentHash(
+			this.<Long>getColumnOriginalValue("refreshTokenContentHash"));
+		oAuth2AuthorizationImpl.setRefreshTokenCreateDate(
+			this.<Date>getColumnOriginalValue("refreshTokenCreateDate"));
+		oAuth2AuthorizationImpl.setRefreshTokenExpirationDate(
+			this.<Date>getColumnOriginalValue("refreshTokenExpirationDate"));
+		oAuth2AuthorizationImpl.setRememberDeviceContent(
+			this.<String>getColumnOriginalValue("rememberDeviceContent"));
+
+		return oAuth2AuthorizationImpl;
+	}
+
+	@Override
 	public int compareTo(OAuth2Authorization oAuth2Authorization) {
 		long primaryKey = oAuth2Authorization.getPrimaryKey();
 
@@ -1183,7 +1230,7 @@ public class OAuth2AuthorizationModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1194,9 +1241,27 @@ public class OAuth2AuthorizationModelImpl
 			Function<OAuth2Authorization, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((OAuth2Authorization)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(OAuth2Authorization)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

@@ -35,6 +35,28 @@ public class Account implements Cloneable, Serializable {
 		return AccountSerDes.toDTO(json);
 	}
 
+	public UserAccount[] getAccountUserAccounts() {
+		return accountUserAccounts;
+	}
+
+	public void setAccountUserAccounts(UserAccount[] accountUserAccounts) {
+		this.accountUserAccounts = accountUserAccounts;
+	}
+
+	public void setAccountUserAccounts(
+		UnsafeSupplier<UserAccount[], Exception>
+			accountUserAccountsUnsafeSupplier) {
+
+		try {
+			accountUserAccounts = accountUserAccountsUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected UserAccount[] accountUserAccounts;
+
 	public Map<String, Map<String, String>> getActions() {
 		return actions;
 	}
@@ -158,6 +180,27 @@ public class Account implements Cloneable, Serializable {
 
 	protected String name;
 
+	public Integer getNumberOfUsers() {
+		return numberOfUsers;
+	}
+
+	public void setNumberOfUsers(Integer numberOfUsers) {
+		this.numberOfUsers = numberOfUsers;
+	}
+
+	public void setNumberOfUsers(
+		UnsafeSupplier<Integer, Exception> numberOfUsersUnsafeSupplier) {
+
+		try {
+			numberOfUsers = numberOfUsersUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected Integer numberOfUsers;
+
 	public Long[] getOrganizationIds() {
 		return organizationIds;
 	}
@@ -221,6 +264,33 @@ public class Account implements Cloneable, Serializable {
 
 	protected Integer status;
 
+	public Type getType() {
+		return type;
+	}
+
+	public String getTypeAsString() {
+		if (type == null) {
+			return null;
+		}
+
+		return type.toString();
+	}
+
+	public void setType(Type type) {
+		this.type = type;
+	}
+
+	public void setType(UnsafeSupplier<Type, Exception> typeUnsafeSupplier) {
+		try {
+			type = typeUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected Type type;
+
 	@Override
 	public Account clone() throws CloneNotSupportedException {
 		return (Account)super.clone();
@@ -250,6 +320,39 @@ public class Account implements Cloneable, Serializable {
 
 	public String toString() {
 		return AccountSerDes.toJSON(this);
+	}
+
+	public static enum Type {
+
+		BUSINESS("business"), GUEST("guest"), PERSON("person");
+
+		public static Type create(String value) {
+			for (Type type : values()) {
+				if (Objects.equals(type.getValue(), value) ||
+					Objects.equals(type.name(), value)) {
+
+					return type;
+				}
+			}
+
+			return null;
+		}
+
+		public String getValue() {
+			return _value;
+		}
+
+		@Override
+		public String toString() {
+			return _value;
+		}
+
+		private Type(String value) {
+			_value = value;
+		}
+
+		private final String _value;
+
 	}
 
 }

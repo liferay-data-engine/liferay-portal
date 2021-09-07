@@ -36,6 +36,7 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
@@ -43,6 +44,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1148,6 +1150,42 @@ public class MDRActionModelImpl
 	}
 
 	@Override
+	public MDRAction cloneWithOriginalValues() {
+		MDRActionImpl mdrActionImpl = new MDRActionImpl();
+
+		mdrActionImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		mdrActionImpl.setUuid(this.<String>getColumnOriginalValue("uuid_"));
+		mdrActionImpl.setActionId(
+			this.<Long>getColumnOriginalValue("actionId"));
+		mdrActionImpl.setGroupId(this.<Long>getColumnOriginalValue("groupId"));
+		mdrActionImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		mdrActionImpl.setUserId(this.<Long>getColumnOriginalValue("userId"));
+		mdrActionImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		mdrActionImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		mdrActionImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		mdrActionImpl.setClassNameId(
+			this.<Long>getColumnOriginalValue("classNameId"));
+		mdrActionImpl.setClassPK(this.<Long>getColumnOriginalValue("classPK"));
+		mdrActionImpl.setRuleGroupInstanceId(
+			this.<Long>getColumnOriginalValue("ruleGroupInstanceId"));
+		mdrActionImpl.setName(this.<String>getColumnOriginalValue("name"));
+		mdrActionImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		mdrActionImpl.setType(this.<String>getColumnOriginalValue("type_"));
+		mdrActionImpl.setTypeSettings(
+			this.<String>getColumnOriginalValue("typeSettings"));
+		mdrActionImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+
+		return mdrActionImpl;
+	}
+
+	@Override
 	public int compareTo(MDRAction mdrAction) {
 		long primaryKey = mdrAction.getPrimaryKey();
 
@@ -1320,7 +1358,7 @@ public class MDRActionModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1331,9 +1369,26 @@ public class MDRActionModelImpl
 			Function<MDRAction, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((MDRAction)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((MDRAction)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

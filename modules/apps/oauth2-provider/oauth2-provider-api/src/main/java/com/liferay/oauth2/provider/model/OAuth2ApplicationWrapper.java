@@ -210,6 +210,11 @@ public class OAuth2ApplicationWrapper
 		}
 	}
 
+	@Override
+	public OAuth2Application cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the allowed grant types of this o auth2 application.
 	 *

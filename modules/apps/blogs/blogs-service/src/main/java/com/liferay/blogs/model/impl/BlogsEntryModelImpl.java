@@ -37,6 +37,7 @@ import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
@@ -45,6 +46,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1540,6 +1542,71 @@ public class BlogsEntryModelImpl
 	}
 
 	@Override
+	public BlogsEntry cloneWithOriginalValues() {
+		BlogsEntryImpl blogsEntryImpl = new BlogsEntryImpl();
+
+		blogsEntryImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		blogsEntryImpl.setUuid(this.<String>getColumnOriginalValue("uuid_"));
+		blogsEntryImpl.setExternalReferenceCode(
+			this.<String>getColumnOriginalValue("externalReferenceCode"));
+		blogsEntryImpl.setEntryId(this.<Long>getColumnOriginalValue("entryId"));
+		blogsEntryImpl.setGroupId(this.<Long>getColumnOriginalValue("groupId"));
+		blogsEntryImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		blogsEntryImpl.setUserId(this.<Long>getColumnOriginalValue("userId"));
+		blogsEntryImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		blogsEntryImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		blogsEntryImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		blogsEntryImpl.setTitle(this.<String>getColumnOriginalValue("title"));
+		blogsEntryImpl.setSubtitle(
+			this.<String>getColumnOriginalValue("subtitle"));
+		blogsEntryImpl.setUrlTitle(
+			this.<String>getColumnOriginalValue("urlTitle"));
+		blogsEntryImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		blogsEntryImpl.setContent(
+			this.<String>getColumnOriginalValue("content"));
+		blogsEntryImpl.setDisplayDate(
+			this.<Date>getColumnOriginalValue("displayDate"));
+		blogsEntryImpl.setAllowPingbacks(
+			this.<Boolean>getColumnOriginalValue("allowPingbacks"));
+		blogsEntryImpl.setAllowTrackbacks(
+			this.<Boolean>getColumnOriginalValue("allowTrackbacks"));
+		blogsEntryImpl.setTrackbacks(
+			this.<String>getColumnOriginalValue("trackbacks"));
+		blogsEntryImpl.setCoverImageCaption(
+			this.<String>getColumnOriginalValue("coverImageCaption"));
+		blogsEntryImpl.setCoverImageFileEntryId(
+			this.<Long>getColumnOriginalValue("coverImageFileEntryId"));
+		blogsEntryImpl.setCoverImageURL(
+			this.<String>getColumnOriginalValue("coverImageURL"));
+		blogsEntryImpl.setSmallImage(
+			this.<Boolean>getColumnOriginalValue("smallImage"));
+		blogsEntryImpl.setSmallImageFileEntryId(
+			this.<Long>getColumnOriginalValue("smallImageFileEntryId"));
+		blogsEntryImpl.setSmallImageId(
+			this.<Long>getColumnOriginalValue("smallImageId"));
+		blogsEntryImpl.setSmallImageURL(
+			this.<String>getColumnOriginalValue("smallImageURL"));
+		blogsEntryImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+		blogsEntryImpl.setStatus(
+			this.<Integer>getColumnOriginalValue("status"));
+		blogsEntryImpl.setStatusByUserId(
+			this.<Long>getColumnOriginalValue("statusByUserId"));
+		blogsEntryImpl.setStatusByUserName(
+			this.<String>getColumnOriginalValue("statusByUserName"));
+		blogsEntryImpl.setStatusDate(
+			this.<Date>getColumnOriginalValue("statusDate"));
+
+		return blogsEntryImpl;
+	}
+
+	@Override
 	public int compareTo(BlogsEntry blogsEntry) {
 		int value = 0;
 
@@ -1808,7 +1875,7 @@ public class BlogsEntryModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1819,9 +1886,26 @@ public class BlogsEntryModelImpl
 			Function<BlogsEntry, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((BlogsEntry)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((BlogsEntry)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

@@ -66,6 +66,18 @@ public class WorkflowTaskManagerUtil {
 			workflowContext);
 	}
 
+	public static WorkflowTask completeWorkflowTask(
+			long companyId, long userId, long workflowTaskId,
+			String transitionName, String comment,
+			Map<String, Serializable> workflowContext,
+			boolean waitForCompletion)
+		throws WorkflowException {
+
+		return _workflowTaskManager.completeWorkflowTask(
+			companyId, userId, workflowTaskId, transitionName, comment,
+			workflowContext, waitForCompletion);
+	}
+
 	public static WorkflowTask fetchWorkflowTask(
 			long companyId, long workflowTaskId)
 		throws WorkflowException {
@@ -88,30 +100,6 @@ public class WorkflowTaskManagerUtil {
 
 		return _workflowTaskManager.getNextTransitionNames(
 			companyId, userId, workflowTaskId);
-	}
-
-	/**
-	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
-	 *             #getAssignableUsers(long, long)}
-	 */
-	@Deprecated
-	public static List<User> getPooledActors(
-			long companyId, long workflowTaskId)
-		throws WorkflowException {
-
-		return _workflowTaskManager.getPooledActors(companyId, workflowTaskId);
-	}
-
-	/**
-	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
-	 *             #getAssignableUsers(long, long)}
-	 */
-	@Deprecated
-	public static long[] getPooledActorsIds(long companyId, long workflowTaskId)
-		throws WorkflowException {
-
-		return _workflowTaskManager.getPooledActorsIds(
-			companyId, workflowTaskId);
 	}
 
 	public static WorkflowTask getWorkflowTask(
@@ -245,118 +233,6 @@ public class WorkflowTaskManagerUtil {
 			companyId, workflowTaskId);
 	}
 
-	/**
-	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
-	 *             #hasAssignableUsers(long, long)}
-	 */
-	@Deprecated
-	public static boolean hasOtherAssignees(long workflowTaskId, long userId)
-		throws WorkflowException {
-
-		return _workflowTaskManager.hasOtherAssignees(workflowTaskId, userId);
-	}
-
-	/**
-	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #search(long,
-	 *             long, String, String[], String[], Long[], String, Long[],
-	 *             Date, Date, Boolean, Boolean, Long, Long[], Boolean, int,
-	 *             int, OrderByComparator)}
-	 */
-	@Deprecated
-	public static List<WorkflowTask> search(
-			long companyId, long userId, String keywords, Boolean completed,
-			Boolean searchByUserRoles, int start, int end,
-			OrderByComparator<WorkflowTask> orderByComparator)
-		throws WorkflowException {
-
-		return _workflowTaskManager.search(
-			companyId, userId, keywords, completed, searchByUserRoles, start,
-			end, orderByComparator);
-	}
-
-	/**
-	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #search(long,
-	 *             long, String, String[], String[], Long[], String, Long[],
-	 *             Date, Date, Boolean, Boolean, Long, Long[], Boolean, int,
-	 *             int, OrderByComparator)}
-	 */
-	@Deprecated
-	public static List<WorkflowTask> search(
-			long companyId, long userId, String taskName, String assetType,
-			Long[] assetPrimaryKeys, Date dueDateGT, Date dueDateLT,
-			Boolean completed, Boolean searchByUserRoles, boolean andOperator,
-			int start, int end,
-			OrderByComparator<WorkflowTask> orderByComparator)
-		throws WorkflowException {
-
-		return _workflowTaskManager.search(
-			companyId, userId, taskName, assetType, assetPrimaryKeys, dueDateGT,
-			dueDateLT, completed, searchByUserRoles, andOperator, start, end,
-			orderByComparator);
-	}
-
-	/**
-	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #search(long,
-	 *             long, String, String[], String[], Long[], String, Long[],
-	 *             Date, Date, Boolean, Boolean, Long, Long[], Boolean, int,
-	 *             int, OrderByComparator)}
-	 */
-	@Deprecated
-	public static List<WorkflowTask> search(
-			long companyId, long userId, String assetTitle, String taskName,
-			String[] assetTypes, Long[] assetPrimaryKeys, Date dueDateGT,
-			Date dueDateLT, Boolean completed, Boolean searchByUserRoles,
-			Boolean andOperator, int start, int end,
-			OrderByComparator<WorkflowTask> orderByComparator)
-		throws WorkflowException {
-
-		return _workflowTaskManager.search(
-			companyId, userId, assetTitle, taskName, assetTypes,
-			assetPrimaryKeys, dueDateGT, dueDateLT, completed,
-			searchByUserRoles, andOperator, start, end, orderByComparator);
-	}
-
-	/**
-	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #search(long,
-	 *             long, String, String[], String[], Long[], String, Long[],
-	 *             Date, Date, Boolean, Boolean, Long, Long[], Boolean, int,
-	 *             int, OrderByComparator)}
-	 */
-	@Deprecated
-	public static List<WorkflowTask> search(
-			long companyId, long userId, String keywords, String[] assetTypes,
-			Boolean completed, Boolean searchByUserRoles, int start, int end,
-			OrderByComparator<WorkflowTask> orderByComparator)
-		throws WorkflowException {
-
-		return _workflowTaskManager.search(
-			companyId, userId, keywords, assetTypes, completed,
-			searchByUserRoles, start, end, orderByComparator);
-	}
-
-	/**
-	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #search(long,
-	 *             long, String, String[], String[], Long[], String, Long[],
-	 *             Date, Date, Boolean, Boolean, Long, Long[], Boolean, int,
-	 *             int, OrderByComparator)}
-	 */
-	@Deprecated
-	public static List<WorkflowTask> search(
-			long companyId, long userId, String assetTitle, String[] taskNames,
-			String[] assetTypes, Long[] assetPrimaryKeys,
-			Long[] assigneeUserIds, Date dueDateGT, Date dueDateLT,
-			Boolean completed, Boolean searchByUserRoles,
-			Long[] workflowInstanceIds, Boolean andOperator, int start, int end,
-			OrderByComparator<WorkflowTask> orderByComparator)
-		throws WorkflowException {
-
-		return _workflowTaskManager.search(
-			companyId, userId, assetTitle, taskNames, assetTypes,
-			assetPrimaryKeys, assigneeUserIds, dueDateGT, dueDateLT, completed,
-			searchByUserRoles, workflowInstanceIds, andOperator, start, end,
-			orderByComparator);
-	}
-
 	public static List<WorkflowTask> search(
 			long companyId, long userId, String assetTitle, String[] taskNames,
 			String[] assetTypes, Long[] assetPrimaryKeys,
@@ -372,98 +248,6 @@ public class WorkflowTaskManagerUtil {
 			assetPrimaryKeys, assigneeClassName, assigneeUserIds, dueDateGT,
 			dueDateLT, completed, searchByUserRoles, workflowDefinitionId,
 			workflowInstanceIds, andOperator, start, end, orderByComparator);
-	}
-
-	/**
-	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
-	 *             #searchCount(long, long, String, String[], String[], Long[],
-	 *             String, Long[], Date, Date, Boolean, Boolean, Long, Long[],
-	 *             Boolean)}
-	 */
-	@Deprecated
-	public static int searchCount(
-			long companyId, long userId, String keywords, Boolean completed,
-			Boolean searchByUserRoles)
-		throws WorkflowException {
-
-		return _workflowTaskManager.searchCount(
-			companyId, userId, keywords, completed, searchByUserRoles);
-	}
-
-	/**
-	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
-	 *             #searchCount(long, long, String, String[], String[], Long[],
-	 *             String, Long[], Date, Date, Boolean, Boolean, Long, Long[],
-	 *             Boolean)}
-	 */
-	@Deprecated
-	public static int searchCount(
-			long companyId, long userId, String taskName, String assetType,
-			Long[] assetPrimaryKeys, Date dueDateGT, Date dueDateLT,
-			Boolean completed, Boolean searchByUserRoles, boolean andOperator)
-		throws WorkflowException {
-
-		return _workflowTaskManager.searchCount(
-			companyId, userId, taskName, assetType, assetPrimaryKeys, dueDateGT,
-			dueDateLT, completed, searchByUserRoles, andOperator);
-	}
-
-	/**
-	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
-	 *             #searchCount(long, long, String, String[], String[], Long[],
-	 *             String, Long[], Date, Date, Boolean, Boolean, Long, Long[],
-	 *             Boolean)}
-	 */
-	@Deprecated
-	public static int searchCount(
-			long companyId, long userId, String assetTitle, String taskName,
-			String[] assetTypes, Long[] assetPrimaryKeys, Date dueDateGT,
-			Date dueDateLT, Boolean completed, Boolean searchByUserRoles,
-			Boolean andOperator)
-		throws WorkflowException {
-
-		return _workflowTaskManager.searchCount(
-			companyId, userId, assetTitle, taskName, assetTypes,
-			assetPrimaryKeys, dueDateGT, dueDateLT, completed,
-			searchByUserRoles, andOperator);
-	}
-
-	/**
-	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
-	 *             #searchCount(long, long, String, String[], String[], Long[],
-	 *             String, Long[], Date, Date, Boolean, Boolean, Long, Long[],
-	 *             Boolean)}
-	 */
-	@Deprecated
-	public static int searchCount(
-			long companyId, long userId, String keywords, String[] assetTypes,
-			Boolean completed, Boolean searchByUserRoles)
-		throws WorkflowException {
-
-		return _workflowTaskManager.searchCount(
-			companyId, userId, keywords, assetTypes, completed,
-			searchByUserRoles);
-	}
-
-	/**
-	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
-	 *             #searchCount(long, long, String, String[], String[], Long[],
-	 *             String, Long[], Date, Date, Boolean, Boolean, Long, Long[],
-	 *             Boolean)}
-	 */
-	@Deprecated
-	public static int searchCount(
-			long companyId, long userId, String assetTitle, String[] taskNames,
-			String[] assetTypes, Long[] assetPrimaryKeys,
-			Long[] assigneeUserIds, Date dueDateGT, Date dueDateLT,
-			Boolean completed, Boolean searchByUserRoles,
-			Long[] workflowInstanceIds, Boolean andOperator)
-		throws WorkflowException {
-
-		return _workflowTaskManager.searchCount(
-			companyId, userId, assetTitle, taskNames, assetTypes,
-			assetPrimaryKeys, assigneeUserIds, dueDateGT, dueDateLT, completed,
-			searchByUserRoles, workflowInstanceIds, andOperator);
 	}
 
 	public static int searchCount(

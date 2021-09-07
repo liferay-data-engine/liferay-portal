@@ -186,6 +186,11 @@ public class WikiNodeWrapper
 	}
 
 	@Override
+	public WikiNode cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
+	@Override
 	public long getAttachmentsFolderId() {
 		return model.getAttachmentsFolderId();
 	}

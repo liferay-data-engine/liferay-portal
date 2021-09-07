@@ -28,6 +28,7 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.push.notifications.model.PushNotificationsDevice;
 import com.liferay.push.notifications.model.PushNotificationsDeviceModel;
 import com.liferay.push.notifications.model.PushNotificationsDeviceSoap;
@@ -37,6 +38,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -591,6 +593,27 @@ public class PushNotificationsDeviceModelImpl
 	}
 
 	@Override
+	public PushNotificationsDevice cloneWithOriginalValues() {
+		PushNotificationsDeviceImpl pushNotificationsDeviceImpl =
+			new PushNotificationsDeviceImpl();
+
+		pushNotificationsDeviceImpl.setPushNotificationsDeviceId(
+			this.<Long>getColumnOriginalValue("pushNotificationsDeviceId"));
+		pushNotificationsDeviceImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		pushNotificationsDeviceImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		pushNotificationsDeviceImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		pushNotificationsDeviceImpl.setPlatform(
+			this.<String>getColumnOriginalValue("platform"));
+		pushNotificationsDeviceImpl.setToken(
+			this.<String>getColumnOriginalValue("token"));
+
+		return pushNotificationsDeviceImpl;
+	}
+
+	@Override
 	public int compareTo(PushNotificationsDevice pushNotificationsDevice) {
 		long primaryKey = pushNotificationsDevice.getPrimaryKey();
 
@@ -704,7 +727,7 @@ public class PushNotificationsDeviceModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -715,10 +738,27 @@ public class PushNotificationsDeviceModelImpl
 			Function<PushNotificationsDevice, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply((PushNotificationsDevice)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(PushNotificationsDevice)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

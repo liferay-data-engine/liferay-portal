@@ -140,6 +140,11 @@ public class CPDefinitionDiagramSettingWrapper
 		}
 	}
 
+	@Override
+	public CPDefinitionDiagramSetting cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the color of this cp definition diagram setting.
 	 *

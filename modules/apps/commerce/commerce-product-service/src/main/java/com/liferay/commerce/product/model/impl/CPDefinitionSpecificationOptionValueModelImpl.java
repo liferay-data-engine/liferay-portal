@@ -36,6 +36,7 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
@@ -43,6 +44,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1073,6 +1075,46 @@ public class CPDefinitionSpecificationOptionValueModelImpl
 	}
 
 	@Override
+	public CPDefinitionSpecificationOptionValue cloneWithOriginalValues() {
+		CPDefinitionSpecificationOptionValueImpl
+			cpDefinitionSpecificationOptionValueImpl =
+				new CPDefinitionSpecificationOptionValueImpl();
+
+		cpDefinitionSpecificationOptionValueImpl.setUuid(
+			this.<String>getColumnOriginalValue("uuid_"));
+		cpDefinitionSpecificationOptionValueImpl.
+			setCPDefinitionSpecificationOptionValueId(
+				this.<Long>getColumnOriginalValue(
+					"CPDSpecificationOptionValueId"));
+		cpDefinitionSpecificationOptionValueImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		cpDefinitionSpecificationOptionValueImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		cpDefinitionSpecificationOptionValueImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		cpDefinitionSpecificationOptionValueImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		cpDefinitionSpecificationOptionValueImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		cpDefinitionSpecificationOptionValueImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		cpDefinitionSpecificationOptionValueImpl.setCPDefinitionId(
+			this.<Long>getColumnOriginalValue("CPDefinitionId"));
+		cpDefinitionSpecificationOptionValueImpl.setCPSpecificationOptionId(
+			this.<Long>getColumnOriginalValue("CPSpecificationOptionId"));
+		cpDefinitionSpecificationOptionValueImpl.setCPOptionCategoryId(
+			this.<Long>getColumnOriginalValue("CPOptionCategoryId"));
+		cpDefinitionSpecificationOptionValueImpl.setValue(
+			this.<String>getColumnOriginalValue("value"));
+		cpDefinitionSpecificationOptionValueImpl.setPriority(
+			this.<Double>getColumnOriginalValue("priority"));
+		cpDefinitionSpecificationOptionValueImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+
+		return cpDefinitionSpecificationOptionValueImpl;
+	}
+
+	@Override
 	public int compareTo(
 		CPDefinitionSpecificationOptionValue
 			cpDefinitionSpecificationOptionValue) {
@@ -1251,7 +1293,7 @@ public class CPDefinitionSpecificationOptionValueModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1263,11 +1305,27 @@ public class CPDefinitionSpecificationOptionValueModelImpl
 			Function<CPDefinitionSpecificationOptionValue, Object>
 				attributeGetterFunction = entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply(
-					(CPDefinitionSpecificationOptionValue)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(CPDefinitionSpecificationOptionValue)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

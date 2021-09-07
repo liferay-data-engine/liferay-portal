@@ -13,6 +13,7 @@
  */
 
 export const OPERATOR_OPTIONS_TYPES = {
+	boolean: 'boolean',
 	double: 'number',
 	integer: 'number',
 	text: 'text',
@@ -20,6 +21,7 @@ export const OPERATOR_OPTIONS_TYPES = {
 };
 
 export const RIGHT_TYPES = {
+	checkbox: 'checkbox',
 	checkbox_multiple: 'option',
 	grid: 'json',
 	radio: 'option',
@@ -27,6 +29,7 @@ export const RIGHT_TYPES = {
 };
 
 export const RIGHT_OPERAND_TYPES = {
+	checkbox: 'select',
 	checkbox_multiple: 'select',
 	field: 'select',
 	grid: 'grid',

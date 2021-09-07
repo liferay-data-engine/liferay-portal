@@ -115,6 +115,11 @@ public class CommercePricingClassCPDefinitionRelWrapper
 	}
 
 	@Override
+	public CommercePricingClassCPDefinitionRel cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
+	@Override
 	public CommercePricingClass getCommercePricingClass()
 		throws com.liferay.portal.kernel.exception.PortalException {
 

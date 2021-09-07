@@ -32,12 +32,14 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -613,6 +615,29 @@ public class AnnouncementsFlagModelImpl
 	}
 
 	@Override
+	public AnnouncementsFlag cloneWithOriginalValues() {
+		AnnouncementsFlagImpl announcementsFlagImpl =
+			new AnnouncementsFlagImpl();
+
+		announcementsFlagImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		announcementsFlagImpl.setFlagId(
+			this.<Long>getColumnOriginalValue("flagId"));
+		announcementsFlagImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		announcementsFlagImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		announcementsFlagImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		announcementsFlagImpl.setEntryId(
+			this.<Long>getColumnOriginalValue("entryId"));
+		announcementsFlagImpl.setValue(
+			this.<Integer>getColumnOriginalValue("value"));
+
+		return announcementsFlagImpl;
+	}
+
+	@Override
 	public int compareTo(AnnouncementsFlag announcementsFlag) {
 		int value = 0;
 
@@ -727,7 +752,7 @@ public class AnnouncementsFlagModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -738,9 +763,27 @@ public class AnnouncementsFlagModelImpl
 			Function<AnnouncementsFlag, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((AnnouncementsFlag)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(AnnouncementsFlag)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

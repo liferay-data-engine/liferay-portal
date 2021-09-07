@@ -230,6 +230,11 @@ public class CPAttachmentFileEntryWrapper
 	}
 
 	@Override
+	public CPAttachmentFileEntry cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
+	@Override
 	public com.liferay.portal.kernel.repository.model.FileEntry fetchFileEntry()
 		throws com.liferay.portal.kernel.exception.PortalException {
 

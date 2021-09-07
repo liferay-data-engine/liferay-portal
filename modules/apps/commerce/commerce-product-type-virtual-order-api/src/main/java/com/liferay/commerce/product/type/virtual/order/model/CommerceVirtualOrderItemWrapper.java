@@ -181,6 +181,11 @@ public class CommerceVirtualOrderItemWrapper
 		}
 	}
 
+	@Override
+	public CommerceVirtualOrderItem cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the activation status of this commerce virtual order item.
 	 *

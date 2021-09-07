@@ -28,6 +28,7 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.sync.model.SyncDLObject;
 import com.liferay.sync.model.SyncDLObjectModel;
 import com.liferay.sync.model.SyncDLObjectSoap;
@@ -37,6 +38,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1218,6 +1220,64 @@ public class SyncDLObjectModelImpl
 	}
 
 	@Override
+	public SyncDLObject cloneWithOriginalValues() {
+		SyncDLObjectImpl syncDLObjectImpl = new SyncDLObjectImpl();
+
+		syncDLObjectImpl.setSyncDLObjectId(
+			this.<Long>getColumnOriginalValue("syncDLObjectId"));
+		syncDLObjectImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		syncDLObjectImpl.setUserId(this.<Long>getColumnOriginalValue("userId"));
+		syncDLObjectImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		syncDLObjectImpl.setCreateTime(
+			this.<Long>getColumnOriginalValue("createTime"));
+		syncDLObjectImpl.setModifiedTime(
+			this.<Long>getColumnOriginalValue("modifiedTime"));
+		syncDLObjectImpl.setRepositoryId(
+			this.<Long>getColumnOriginalValue("repositoryId"));
+		syncDLObjectImpl.setParentFolderId(
+			this.<Long>getColumnOriginalValue("parentFolderId"));
+		syncDLObjectImpl.setTreePath(
+			this.<String>getColumnOriginalValue("treePath"));
+		syncDLObjectImpl.setName(this.<String>getColumnOriginalValue("name"));
+		syncDLObjectImpl.setExtension(
+			this.<String>getColumnOriginalValue("extension"));
+		syncDLObjectImpl.setMimeType(
+			this.<String>getColumnOriginalValue("mimeType"));
+		syncDLObjectImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		syncDLObjectImpl.setChangeLog(
+			this.<String>getColumnOriginalValue("changeLog"));
+		syncDLObjectImpl.setExtraSettings(
+			this.<String>getColumnOriginalValue("extraSettings"));
+		syncDLObjectImpl.setVersion(
+			this.<String>getColumnOriginalValue("version"));
+		syncDLObjectImpl.setVersionId(
+			this.<Long>getColumnOriginalValue("versionId"));
+		syncDLObjectImpl.setSize(this.<Long>getColumnOriginalValue("size_"));
+		syncDLObjectImpl.setChecksum(
+			this.<String>getColumnOriginalValue("checksum"));
+		syncDLObjectImpl.setEvent(this.<String>getColumnOriginalValue("event"));
+		syncDLObjectImpl.setLanTokenKey(
+			this.<String>getColumnOriginalValue("lanTokenKey"));
+		syncDLObjectImpl.setLastPermissionChangeDate(
+			this.<Date>getColumnOriginalValue("lastPermissionChangeDate"));
+		syncDLObjectImpl.setLockExpirationDate(
+			this.<Date>getColumnOriginalValue("lockExpirationDate"));
+		syncDLObjectImpl.setLockUserId(
+			this.<Long>getColumnOriginalValue("lockUserId"));
+		syncDLObjectImpl.setLockUserName(
+			this.<String>getColumnOriginalValue("lockUserName"));
+		syncDLObjectImpl.setType(this.<String>getColumnOriginalValue("type_"));
+		syncDLObjectImpl.setTypePK(this.<Long>getColumnOriginalValue("typePK"));
+		syncDLObjectImpl.setTypeUuid(
+			this.<String>getColumnOriginalValue("typeUuid"));
+
+		return syncDLObjectImpl;
+	}
+
+	@Override
 	public int compareTo(SyncDLObject syncDLObject) {
 		int value = 0;
 
@@ -1480,7 +1540,7 @@ public class SyncDLObjectModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1491,9 +1551,26 @@ public class SyncDLObjectModelImpl
 			Function<SyncDLObject, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((SyncDLObject)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((SyncDLObject)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

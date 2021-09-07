@@ -134,12 +134,6 @@ public class CommerceAccountGroupLocalServiceImpl
 			throw new SystemCommerceAccountGroupException();
 		}
 
-		// Commerce account rels
-
-		commerceAccountGroupCommerceAccountRelLocalService.
-			deleteCommerceAccountGroupCommerceAccountRelByCAccountGroupId(
-				commerceAccountGroup.getCommerceAccountGroupId());
-
 		// Commerce account group generic rels
 
 		commerceAccountGroupRelLocalService.deleteCommerceAccountGroupRels(
@@ -231,8 +225,9 @@ public class CommerceAccountGroupLocalServiceImpl
 
 		List<CommerceAccountGroupCommerceAccountRel>
 			commerceAccountGroupCommerceAccountRels =
-				commerceAccountGroupCommerceAccountRelPersistence.
-					findByCommerceAccountId(commerceAccountId);
+				commerceAccountGroupCommerceAccountRelLocalService.
+					getCommerceAccountGroupCommerceAccountRels(
+						commerceAccountId);
 
 		if (commerceAccountGroupCommerceAccountRels.isEmpty()) {
 			return new ArrayList<>();
@@ -281,7 +276,7 @@ public class CommerceAccountGroupLocalServiceImpl
 	}
 
 	@Override
-	public List<CommerceAccountGroup> searchCommerceAccountGroups(
+	public List<CommerceAccountGroup> search(
 			long companyId, String keywords, int start, int end, Sort sort)
 		throws PortalException {
 

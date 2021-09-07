@@ -369,6 +369,11 @@ public class CPInstanceWrapper
 	}
 
 	@Override
+	public CPInstance cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
+	@Override
 	public CommerceCatalog getCommerceCatalog()
 		throws com.liferay.portal.kernel.exception.PortalException {
 

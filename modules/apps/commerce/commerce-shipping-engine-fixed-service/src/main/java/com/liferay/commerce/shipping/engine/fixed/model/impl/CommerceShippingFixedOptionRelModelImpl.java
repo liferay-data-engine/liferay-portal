@@ -31,6 +31,7 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
@@ -39,6 +40,7 @@ import java.lang.reflect.InvocationHandler;
 
 import java.math.BigDecimal;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -917,6 +919,51 @@ public class CommerceShippingFixedOptionRelModelImpl
 	}
 
 	@Override
+	public CommerceShippingFixedOptionRel cloneWithOriginalValues() {
+		CommerceShippingFixedOptionRelImpl commerceShippingFixedOptionRelImpl =
+			new CommerceShippingFixedOptionRelImpl();
+
+		commerceShippingFixedOptionRelImpl.setCommerceShippingFixedOptionRelId(
+			this.<Long>getColumnOriginalValue("CShippingFixedOptionRelId"));
+		commerceShippingFixedOptionRelImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		commerceShippingFixedOptionRelImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		commerceShippingFixedOptionRelImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		commerceShippingFixedOptionRelImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		commerceShippingFixedOptionRelImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		commerceShippingFixedOptionRelImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		commerceShippingFixedOptionRelImpl.setCommerceShippingMethodId(
+			this.<Long>getColumnOriginalValue("commerceShippingMethodId"));
+		commerceShippingFixedOptionRelImpl.setCommerceShippingFixedOptionId(
+			this.<Long>getColumnOriginalValue("commerceShippingFixedOptionId"));
+		commerceShippingFixedOptionRelImpl.setCommerceInventoryWarehouseId(
+			this.<Long>getColumnOriginalValue("commerceInventoryWarehouseId"));
+		commerceShippingFixedOptionRelImpl.setCountryId(
+			this.<Long>getColumnOriginalValue("countryId"));
+		commerceShippingFixedOptionRelImpl.setRegionId(
+			this.<Long>getColumnOriginalValue("regionId"));
+		commerceShippingFixedOptionRelImpl.setZip(
+			this.<String>getColumnOriginalValue("zip"));
+		commerceShippingFixedOptionRelImpl.setWeightFrom(
+			this.<Double>getColumnOriginalValue("weightFrom"));
+		commerceShippingFixedOptionRelImpl.setWeightTo(
+			this.<Double>getColumnOriginalValue("weightTo"));
+		commerceShippingFixedOptionRelImpl.setFixedPrice(
+			this.<BigDecimal>getColumnOriginalValue("fixedPrice"));
+		commerceShippingFixedOptionRelImpl.setRateUnitWeightPrice(
+			this.<BigDecimal>getColumnOriginalValue("rateUnitWeightPrice"));
+		commerceShippingFixedOptionRelImpl.setRatePercentage(
+			this.<Double>getColumnOriginalValue("ratePercentage"));
+
+		return commerceShippingFixedOptionRelImpl;
+	}
+
+	@Override
 	public int compareTo(
 		CommerceShippingFixedOptionRel commerceShippingFixedOptionRel) {
 
@@ -1084,7 +1131,7 @@ public class CommerceShippingFixedOptionRelModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1095,11 +1142,27 @@ public class CommerceShippingFixedOptionRelModelImpl
 			Function<CommerceShippingFixedOptionRel, Object>
 				attributeGetterFunction = entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply(
-					(CommerceShippingFixedOptionRel)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(CommerceShippingFixedOptionRel)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

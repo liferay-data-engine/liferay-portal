@@ -36,6 +36,7 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
@@ -43,6 +44,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1031,6 +1033,45 @@ public class CPMeasurementUnitModelImpl
 	}
 
 	@Override
+	public CPMeasurementUnit cloneWithOriginalValues() {
+		CPMeasurementUnitImpl cpMeasurementUnitImpl =
+			new CPMeasurementUnitImpl();
+
+		cpMeasurementUnitImpl.setUuid(
+			this.<String>getColumnOriginalValue("uuid_"));
+		cpMeasurementUnitImpl.setCPMeasurementUnitId(
+			this.<Long>getColumnOriginalValue("CPMeasurementUnitId"));
+		cpMeasurementUnitImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		cpMeasurementUnitImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		cpMeasurementUnitImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		cpMeasurementUnitImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		cpMeasurementUnitImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		cpMeasurementUnitImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		cpMeasurementUnitImpl.setName(
+			this.<String>getColumnOriginalValue("name"));
+		cpMeasurementUnitImpl.setKey(
+			this.<String>getColumnOriginalValue("key_"));
+		cpMeasurementUnitImpl.setRate(
+			this.<Double>getColumnOriginalValue("rate"));
+		cpMeasurementUnitImpl.setPrimary(
+			this.<Boolean>getColumnOriginalValue("primary_"));
+		cpMeasurementUnitImpl.setPriority(
+			this.<Double>getColumnOriginalValue("priority"));
+		cpMeasurementUnitImpl.setType(
+			this.<Integer>getColumnOriginalValue("type_"));
+		cpMeasurementUnitImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+
+		return cpMeasurementUnitImpl;
+	}
+
+	@Override
 	public int compareTo(CPMeasurementUnit cpMeasurementUnit) {
 		int value = 0;
 
@@ -1196,7 +1237,7 @@ public class CPMeasurementUnitModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1207,9 +1248,27 @@ public class CPMeasurementUnitModelImpl
 			Function<CPMeasurementUnit, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((CPMeasurementUnit)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(CPMeasurementUnit)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

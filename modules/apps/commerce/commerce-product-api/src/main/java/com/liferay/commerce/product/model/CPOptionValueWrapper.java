@@ -143,6 +143,11 @@ public class CPOptionValueWrapper
 	}
 
 	@Override
+	public CPOptionValue cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
+	@Override
 	public String[] getAvailableLanguageIds() {
 		return model.getAvailableLanguageIds();
 	}

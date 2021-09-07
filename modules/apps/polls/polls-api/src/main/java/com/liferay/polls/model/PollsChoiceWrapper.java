@@ -142,6 +142,11 @@ public class PollsChoiceWrapper
 	}
 
 	@Override
+	public PollsChoice cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
+	@Override
 	public String[] getAvailableLanguageIds() {
 		return model.getAvailableLanguageIds();
 	}

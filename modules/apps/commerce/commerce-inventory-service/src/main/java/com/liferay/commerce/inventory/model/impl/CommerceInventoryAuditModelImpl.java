@@ -32,12 +32,14 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -704,6 +706,35 @@ public class CommerceInventoryAuditModelImpl
 	}
 
 	@Override
+	public CommerceInventoryAudit cloneWithOriginalValues() {
+		CommerceInventoryAuditImpl commerceInventoryAuditImpl =
+			new CommerceInventoryAuditImpl();
+
+		commerceInventoryAuditImpl.setCommerceInventoryAuditId(
+			this.<Long>getColumnOriginalValue("CIAuditId"));
+		commerceInventoryAuditImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		commerceInventoryAuditImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		commerceInventoryAuditImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		commerceInventoryAuditImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		commerceInventoryAuditImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		commerceInventoryAuditImpl.setSku(
+			this.<String>getColumnOriginalValue("sku"));
+		commerceInventoryAuditImpl.setLogType(
+			this.<String>getColumnOriginalValue("logType"));
+		commerceInventoryAuditImpl.setLogTypeSettings(
+			this.<String>getColumnOriginalValue("logTypeSettings"));
+		commerceInventoryAuditImpl.setQuantity(
+			this.<Integer>getColumnOriginalValue("quantity"));
+
+		return commerceInventoryAuditImpl;
+	}
+
+	@Override
 	public int compareTo(CommerceInventoryAudit commerceInventoryAudit) {
 		int value = 0;
 
@@ -849,7 +880,7 @@ public class CommerceInventoryAuditModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -860,10 +891,27 @@ public class CommerceInventoryAuditModelImpl
 			Function<CommerceInventoryAudit, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply((CommerceInventoryAudit)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(CommerceInventoryAudit)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

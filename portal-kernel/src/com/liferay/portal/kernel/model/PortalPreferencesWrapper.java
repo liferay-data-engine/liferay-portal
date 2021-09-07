@@ -82,6 +82,11 @@ public class PortalPreferencesWrapper
 		}
 	}
 
+	@Override
+	public PortalPreferences cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the company ID of this portal preferences.
 	 *

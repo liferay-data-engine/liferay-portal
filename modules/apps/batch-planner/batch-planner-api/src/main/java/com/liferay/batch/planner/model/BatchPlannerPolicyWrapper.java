@@ -120,6 +120,11 @@ public class BatchPlannerPolicyWrapper
 		}
 	}
 
+	@Override
+	public BatchPlannerPolicy cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the batch planner plan ID of this batch planner policy.
 	 *

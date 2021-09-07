@@ -105,6 +105,11 @@ public class SamlIdpSpSessionWrapper
 		}
 	}
 
+	@Override
+	public SamlIdpSpSession cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the company ID of this saml idp sp session.
 	 *

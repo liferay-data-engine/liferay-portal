@@ -27,6 +27,7 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.workflow.kaleo.model.KaleoNotification;
 import com.liferay.portal.workflow.kaleo.model.KaleoNotificationModel;
 
@@ -35,6 +36,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
@@ -882,6 +884,53 @@ public class KaleoNotificationModelImpl
 	}
 
 	@Override
+	public KaleoNotification cloneWithOriginalValues() {
+		KaleoNotificationImpl kaleoNotificationImpl =
+			new KaleoNotificationImpl();
+
+		kaleoNotificationImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		kaleoNotificationImpl.setKaleoNotificationId(
+			this.<Long>getColumnOriginalValue("kaleoNotificationId"));
+		kaleoNotificationImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		kaleoNotificationImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		kaleoNotificationImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		kaleoNotificationImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		kaleoNotificationImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		kaleoNotificationImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		kaleoNotificationImpl.setKaleoClassName(
+			this.<String>getColumnOriginalValue("kaleoClassName"));
+		kaleoNotificationImpl.setKaleoClassPK(
+			this.<Long>getColumnOriginalValue("kaleoClassPK"));
+		kaleoNotificationImpl.setKaleoDefinitionId(
+			this.<Long>getColumnOriginalValue("kaleoDefinitionId"));
+		kaleoNotificationImpl.setKaleoDefinitionVersionId(
+			this.<Long>getColumnOriginalValue("kaleoDefinitionVersionId"));
+		kaleoNotificationImpl.setKaleoNodeName(
+			this.<String>getColumnOriginalValue("kaleoNodeName"));
+		kaleoNotificationImpl.setName(
+			this.<String>getColumnOriginalValue("name"));
+		kaleoNotificationImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		kaleoNotificationImpl.setExecutionType(
+			this.<String>getColumnOriginalValue("executionType"));
+		kaleoNotificationImpl.setTemplate(
+			this.<String>getColumnOriginalValue("template"));
+		kaleoNotificationImpl.setTemplateLanguage(
+			this.<String>getColumnOriginalValue("templateLanguage"));
+		kaleoNotificationImpl.setNotificationTypes(
+			this.<String>getColumnOriginalValue("notificationTypes"));
+
+		return kaleoNotificationImpl;
+	}
+
+	@Override
 	public int compareTo(KaleoNotification kaleoNotification) {
 		int value = 0;
 
@@ -1083,7 +1132,7 @@ public class KaleoNotificationModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1094,9 +1143,27 @@ public class KaleoNotificationModelImpl
 			Function<KaleoNotification, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((KaleoNotification)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(KaleoNotification)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

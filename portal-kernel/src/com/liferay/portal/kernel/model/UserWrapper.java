@@ -374,6 +374,11 @@ public class UserWrapper
 	}
 
 	@Override
+	public User cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
+	@Override
 	public Contact fetchContact() {
 		return model.fetchContact();
 	}
@@ -1453,6 +1458,11 @@ public class UserWrapper
 	@Override
 	public void setCompanyId(long companyId) {
 		model.setCompanyId(companyId);
+	}
+
+	@Override
+	public void setContact(Contact contact) {
+		model.setContact(contact);
 	}
 
 	/**

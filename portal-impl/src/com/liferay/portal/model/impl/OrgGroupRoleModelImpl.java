@@ -24,15 +24,18 @@ import com.liferay.portal.kernel.model.impl.BaseModelImpl;
 import com.liferay.portal.kernel.service.persistence.OrgGroupRolePK;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -435,6 +438,23 @@ public class OrgGroupRoleModelImpl
 	}
 
 	@Override
+	public OrgGroupRole cloneWithOriginalValues() {
+		OrgGroupRoleImpl orgGroupRoleImpl = new OrgGroupRoleImpl();
+
+		orgGroupRoleImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		orgGroupRoleImpl.setOrganizationId(
+			this.<Long>getColumnOriginalValue("organizationId"));
+		orgGroupRoleImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		orgGroupRoleImpl.setRoleId(this.<Long>getColumnOriginalValue("roleId"));
+		orgGroupRoleImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+
+		return orgGroupRoleImpl;
+	}
+
+	@Override
 	public int compareTo(OrgGroupRole orgGroupRole) {
 		OrgGroupRolePK primaryKey = orgGroupRole.getPrimaryKey();
 
@@ -519,7 +539,7 @@ public class OrgGroupRoleModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -530,9 +550,26 @@ public class OrgGroupRoleModelImpl
 			Function<OrgGroupRole, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((OrgGroupRole)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((OrgGroupRole)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

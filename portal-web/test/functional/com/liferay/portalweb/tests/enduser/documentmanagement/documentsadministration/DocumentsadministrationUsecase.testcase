@@ -131,7 +131,7 @@ definition {
 
 		SelectFrame(value1 = "relative=top");
 
-		Alert.viewSuccessMessageText(successMessage = "Changes saved.");
+		Alert.viewSuccessMessageText(successMessage = "Changes Saved");
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
@@ -1294,6 +1294,7 @@ definition {
 	}
 
 	@description = "This test ensures that the DM widgets follow W3C accessibility standards."
+	@ignore = "true"
 	@priority = "4"
 	test WidgetsFollowAccessibilityStandards {
 		JSONLayout.addPublicLayout(

@@ -31,12 +31,14 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -714,6 +716,37 @@ public class AssetCategoryPropertyModelImpl
 	}
 
 	@Override
+	public AssetCategoryProperty cloneWithOriginalValues() {
+		AssetCategoryPropertyImpl assetCategoryPropertyImpl =
+			new AssetCategoryPropertyImpl();
+
+		assetCategoryPropertyImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		assetCategoryPropertyImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		assetCategoryPropertyImpl.setCategoryPropertyId(
+			this.<Long>getColumnOriginalValue("categoryPropertyId"));
+		assetCategoryPropertyImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		assetCategoryPropertyImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		assetCategoryPropertyImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		assetCategoryPropertyImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		assetCategoryPropertyImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		assetCategoryPropertyImpl.setCategoryId(
+			this.<Long>getColumnOriginalValue("categoryId"));
+		assetCategoryPropertyImpl.setKey(
+			this.<String>getColumnOriginalValue("key_"));
+		assetCategoryPropertyImpl.setValue(
+			this.<String>getColumnOriginalValue("value"));
+
+		return assetCategoryPropertyImpl;
+	}
+
+	@Override
 	public int compareTo(AssetCategoryProperty assetCategoryProperty) {
 		int value = 0;
 
@@ -851,7 +884,7 @@ public class AssetCategoryPropertyModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -862,10 +895,27 @@ public class AssetCategoryPropertyModelImpl
 			Function<AssetCategoryProperty, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply((AssetCategoryProperty)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(AssetCategoryProperty)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

@@ -32,12 +32,14 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -925,6 +927,48 @@ public class DispatchTriggerModelImpl
 	}
 
 	@Override
+	public DispatchTrigger cloneWithOriginalValues() {
+		DispatchTriggerImpl dispatchTriggerImpl = new DispatchTriggerImpl();
+
+		dispatchTriggerImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		dispatchTriggerImpl.setDispatchTriggerId(
+			this.<Long>getColumnOriginalValue("dispatchTriggerId"));
+		dispatchTriggerImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		dispatchTriggerImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		dispatchTriggerImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		dispatchTriggerImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		dispatchTriggerImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		dispatchTriggerImpl.setActive(
+			this.<Boolean>getColumnOriginalValue("active_"));
+		dispatchTriggerImpl.setCronExpression(
+			this.<String>getColumnOriginalValue("cronExpression"));
+		dispatchTriggerImpl.setDispatchTaskClusterMode(
+			this.<Integer>getColumnOriginalValue("dispatchTaskClusterMode"));
+		dispatchTriggerImpl.setDispatchTaskExecutorType(
+			this.<String>getColumnOriginalValue("dispatchTaskExecutorType"));
+		dispatchTriggerImpl.setDispatchTaskSettings(
+			this.<String>getColumnOriginalValue("dispatchTaskSettings"));
+		dispatchTriggerImpl.setEndDate(
+			this.<Date>getColumnOriginalValue("endDate"));
+		dispatchTriggerImpl.setName(
+			this.<String>getColumnOriginalValue("name"));
+		dispatchTriggerImpl.setOverlapAllowed(
+			this.<Boolean>getColumnOriginalValue("overlapAllowed"));
+		dispatchTriggerImpl.setStartDate(
+			this.<Date>getColumnOriginalValue("startDate"));
+		dispatchTriggerImpl.setSystem(
+			this.<Boolean>getColumnOriginalValue("system_"));
+
+		return dispatchTriggerImpl;
+	}
+
+	@Override
 	public int compareTo(DispatchTrigger dispatchTrigger) {
 		int value = 0;
 
@@ -1109,7 +1153,7 @@ public class DispatchTriggerModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1120,9 +1164,26 @@ public class DispatchTriggerModelImpl
 			Function<DispatchTrigger, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((DispatchTrigger)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((DispatchTrigger)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

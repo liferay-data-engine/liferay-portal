@@ -122,6 +122,11 @@ public class CommerceDiscountRuleWrapper
 		}
 	}
 
+	@Override
+	public CommerceDiscountRule cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the commerce discount ID of this commerce discount rule.
 	 *

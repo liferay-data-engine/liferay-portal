@@ -19,11 +19,13 @@ import React, {useState} from 'react';
 
 const DiagramHeader = ({
 	addNewPinState,
+	importPinSchema,
 	isAdmin,
 	namespace,
 	newPinSettings,
 	setAddNewPinState,
 	setAddPinHandler,
+	type,
 }) => {
 	const RADIUS_CHOICE = [
 		{
@@ -121,7 +123,7 @@ const DiagramHeader = ({
 
 						<ClayDropDown.Caption>
 							<ClayForm>
-								<ClayForm.Group className="form-group-sm">
+								<ClayForm.Group small>
 									<label htmlFor="slider">
 										{Liferay.Language.get('custom-radius')}
 									</label>
@@ -147,16 +149,17 @@ const DiagramHeader = ({
 							</ClayForm>
 						</ClayDropDown.Caption>
 					</ClayDropDown>
+					<ClayButton
+						aria-label={Liferay.Language.get('auto-mapping')}
+						className="ml-3 select-diameter"
+						disabled={type === 'diagram.type.svg' ? false : true}
+						displayType="secondary"
+						onClick={() => importPinSchema()}
+					>
+						{Liferay.Language.get('auto-mapping')}
+					</ClayButton>
 				</div>
 			)}
-
-			<ClayButton
-				aria-label={Liferay.Language.get('auto-mapping')}
-				className="auto-mapping my-auto pull-right"
-				displayType="secondary"
-			>
-				{Liferay.Language.get('auto-mapping')}
-			</ClayButton>
 		</div>
 	);
 };

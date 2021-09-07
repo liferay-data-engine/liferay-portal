@@ -36,6 +36,7 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
@@ -43,6 +44,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1131,6 +1133,42 @@ public class CPOptionModelImpl
 	}
 
 	@Override
+	public CPOption cloneWithOriginalValues() {
+		CPOptionImpl cpOptionImpl = new CPOptionImpl();
+
+		cpOptionImpl.setUuid(this.<String>getColumnOriginalValue("uuid_"));
+		cpOptionImpl.setExternalReferenceCode(
+			this.<String>getColumnOriginalValue("externalReferenceCode"));
+		cpOptionImpl.setCPOptionId(
+			this.<Long>getColumnOriginalValue("CPOptionId"));
+		cpOptionImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		cpOptionImpl.setUserId(this.<Long>getColumnOriginalValue("userId"));
+		cpOptionImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		cpOptionImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		cpOptionImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		cpOptionImpl.setName(this.<String>getColumnOriginalValue("name"));
+		cpOptionImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		cpOptionImpl.setDDMFormFieldTypeName(
+			this.<String>getColumnOriginalValue("DDMFormFieldTypeName"));
+		cpOptionImpl.setFacetable(
+			this.<Boolean>getColumnOriginalValue("facetable"));
+		cpOptionImpl.setRequired(
+			this.<Boolean>getColumnOriginalValue("required"));
+		cpOptionImpl.setSkuContributor(
+			this.<Boolean>getColumnOriginalValue("skuContributor"));
+		cpOptionImpl.setKey(this.<String>getColumnOriginalValue("key_"));
+		cpOptionImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+
+		return cpOptionImpl;
+	}
+
+	@Override
 	public int compareTo(CPOption cpOption) {
 		int value = 0;
 
@@ -1309,7 +1347,7 @@ public class CPOptionModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1320,9 +1358,26 @@ public class CPOptionModelImpl
 			Function<CPOption, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((CPOption)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((CPOption)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

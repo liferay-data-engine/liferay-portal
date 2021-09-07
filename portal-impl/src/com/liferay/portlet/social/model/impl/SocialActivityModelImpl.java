@@ -29,6 +29,7 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.social.kernel.model.SocialActivity;
 import com.liferay.social.kernel.model.SocialActivityModel;
@@ -39,10 +40,12 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -947,6 +950,46 @@ public class SocialActivityModelImpl
 	}
 
 	@Override
+	public SocialActivity cloneWithOriginalValues() {
+		SocialActivityImpl socialActivityImpl = new SocialActivityImpl();
+
+		socialActivityImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		socialActivityImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		socialActivityImpl.setActivityId(
+			this.<Long>getColumnOriginalValue("activityId"));
+		socialActivityImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		socialActivityImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		socialActivityImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		socialActivityImpl.setCreateDate(
+			this.<Long>getColumnOriginalValue("createDate"));
+		socialActivityImpl.setActivitySetId(
+			this.<Long>getColumnOriginalValue("activitySetId"));
+		socialActivityImpl.setMirrorActivityId(
+			this.<Long>getColumnOriginalValue("mirrorActivityId"));
+		socialActivityImpl.setClassNameId(
+			this.<Long>getColumnOriginalValue("classNameId"));
+		socialActivityImpl.setClassPK(
+			this.<Long>getColumnOriginalValue("classPK"));
+		socialActivityImpl.setParentClassNameId(
+			this.<Long>getColumnOriginalValue("parentClassNameId"));
+		socialActivityImpl.setParentClassPK(
+			this.<Long>getColumnOriginalValue("parentClassPK"));
+		socialActivityImpl.setType(
+			this.<Integer>getColumnOriginalValue("type_"));
+		socialActivityImpl.setExtraData(
+			this.<String>getColumnOriginalValue("extraData"));
+		socialActivityImpl.setReceiverUserId(
+			this.<Long>getColumnOriginalValue("receiverUserId"));
+
+		return socialActivityImpl;
+	}
+
+	@Override
 	public int compareTo(SocialActivity socialActivity) {
 		int value = 0;
 
@@ -1073,7 +1116,7 @@ public class SocialActivityModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1084,9 +1127,26 @@ public class SocialActivityModelImpl
 			Function<SocialActivity, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((SocialActivity)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((SocialActivity)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

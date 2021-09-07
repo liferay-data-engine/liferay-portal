@@ -1,5 +1,45 @@
 definition {
 
+	macro viewActivitiesDuration {
+		var valueNumber = "";
+		var timeUnit = "";
+		var flag = "1";
+
+		for (var current : list "${date}") {
+			valueNumber = StringUtil.extractFirst("${current}","-");
+			timeUnit = StringUtil.extractLast("${current}","-");
+
+			if ("${flag}" == "1") {
+				AssertElementPresent(
+					key_number = "${valueNumber}",
+					key_unit = "${timeUnit}",
+					locator1 = "ACSites#ACTIVITIES_CARD_SESSION_DURATION_FIRST_VALUE");
+				flag = MathUtil.difference("${flag}","1");
+			}
+			else {
+				AssertElementPresent(
+					key_number = "${valueNumber}",
+					key_unit = "${timeUnit}",
+					locator1 = "ACSites#ACTIVITIES_CARD_SESSION_DURATION_FOLLOWING_VALUE");
+			}
+		}
+	}
+
+	macro viewActivitiesPercentage {
+		AssertElementPresent(
+			key_entry = "${entryName}",
+			key_number = "${valueNumber}",
+			locator1 = "ACSites#ACTIVITIES_CARD_ATRIBUTE_AND_VALUE");
+	}
+
+	macro viewGeomapAnalyticsLocationNames {
+		for (var locationName : list "${locationList}") {
+			AssertElementPresent(
+				key_entry = "${locationName}",
+				locator1 = "ACSites#GEOMAP_ANALYTICS_LOCATIONS_NAME");
+		}
+	}
+
 	macro viewSiteOverviewDashboardCards {
 		WaitForElementPresent(locator1 = "ACSites#ACTIVITIES_CARD");
 
@@ -18,6 +58,15 @@ definition {
 		AssertElementPresent(locator1 = "ACSites#SESSION_TECHNOLOGY_CARD");
 
 		AssertElementPresent(locator1 = "ACSites#COHORT_ANALYSIS_CARD");
+	}
+
+	macro viewVisitedTopPages {
+		var key_index = StringUtil.extractFirst("${current}","-");
+		var value = StringUtil.extractLast("${current}","-");
+
+		AssertTextEquals(
+			locator1 = "ACSites#VISITED_TOP_PAGES_CARD",
+			value1 = "${value}");
 	}
 
 }

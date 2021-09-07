@@ -556,18 +556,14 @@ public class ImageToolImpl implements ImageTool {
 			throw new IOException("Unable to decode image");
 		}
 
-		String type = imageBag.getType();
-
-		int height = renderedImage.getHeight();
-		int width = renderedImage.getWidth();
 		int size = bytes.length;
 
 		Image image = new ImageImpl();
 
 		image.setTextObj(bytes);
-		image.setType(type);
-		image.setHeight(height);
-		image.setWidth(width);
+		image.setType(imageBag.getType());
+		image.setHeight(renderedImage.getHeight());
+		image.setWidth(renderedImage.getWidth());
 		image.setSize(size);
 
 		return image;
@@ -637,19 +633,14 @@ public class ImageToolImpl implements ImageTool {
 						((PropsValues.IMAGE_TOOL_IMAGE_MAX_WIDTH > 0) &&
 						 (width > PropsValues.IMAGE_TOOL_IMAGE_MAX_WIDTH))) {
 
-						StringBundler sb = new StringBundler(9);
-
-						sb.append("Image's dimensions (");
-						sb.append(height);
-						sb.append(" px high and ");
-						sb.append(width);
-						sb.append(" px wide) exceed max dimensions (");
-						sb.append(PropsValues.IMAGE_TOOL_IMAGE_MAX_HEIGHT);
-						sb.append(" px high and ");
-						sb.append(PropsValues.IMAGE_TOOL_IMAGE_MAX_WIDTH);
-						sb.append(" px wide)");
-
-						throw new ImageResolutionException(sb.toString());
+						throw new ImageResolutionException(
+							StringBundler.concat(
+								"Image's dimensions (", height, " px high and ",
+								width, " px wide) exceed max dimensions (",
+								PropsValues.IMAGE_TOOL_IMAGE_MAX_HEIGHT,
+								" px high and ",
+								PropsValues.IMAGE_TOOL_IMAGE_MAX_WIDTH,
+								" px wide)"));
 					}
 
 					renderedImage = imageReader.read(0);

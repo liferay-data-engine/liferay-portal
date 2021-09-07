@@ -37,6 +37,7 @@ import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
@@ -45,6 +46,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1615,6 +1617,68 @@ public class MBMessageModelImpl
 	}
 
 	@Override
+	public MBMessage cloneWithOriginalValues() {
+		MBMessageImpl mbMessageImpl = new MBMessageImpl();
+
+		mbMessageImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		mbMessageImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		mbMessageImpl.setUuid(this.<String>getColumnOriginalValue("uuid_"));
+		mbMessageImpl.setExternalReferenceCode(
+			this.<String>getColumnOriginalValue("externalReferenceCode"));
+		mbMessageImpl.setMessageId(
+			this.<Long>getColumnOriginalValue("messageId"));
+		mbMessageImpl.setGroupId(this.<Long>getColumnOriginalValue("groupId"));
+		mbMessageImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		mbMessageImpl.setUserId(this.<Long>getColumnOriginalValue("userId"));
+		mbMessageImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		mbMessageImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		mbMessageImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		mbMessageImpl.setClassNameId(
+			this.<Long>getColumnOriginalValue("classNameId"));
+		mbMessageImpl.setClassPK(this.<Long>getColumnOriginalValue("classPK"));
+		mbMessageImpl.setCategoryId(
+			this.<Long>getColumnOriginalValue("categoryId"));
+		mbMessageImpl.setThreadId(
+			this.<Long>getColumnOriginalValue("threadId"));
+		mbMessageImpl.setRootMessageId(
+			this.<Long>getColumnOriginalValue("rootMessageId"));
+		mbMessageImpl.setParentMessageId(
+			this.<Long>getColumnOriginalValue("parentMessageId"));
+		mbMessageImpl.setTreePath(
+			this.<String>getColumnOriginalValue("treePath"));
+		mbMessageImpl.setSubject(
+			this.<String>getColumnOriginalValue("subject"));
+		mbMessageImpl.setUrlSubject(
+			this.<String>getColumnOriginalValue("urlSubject"));
+		mbMessageImpl.setBody(this.<String>getColumnOriginalValue("body"));
+		mbMessageImpl.setFormat(this.<String>getColumnOriginalValue("format"));
+		mbMessageImpl.setAnonymous(
+			this.<Boolean>getColumnOriginalValue("anonymous"));
+		mbMessageImpl.setPriority(
+			this.<Double>getColumnOriginalValue("priority"));
+		mbMessageImpl.setAllowPingbacks(
+			this.<Boolean>getColumnOriginalValue("allowPingbacks"));
+		mbMessageImpl.setAnswer(this.<Boolean>getColumnOriginalValue("answer"));
+		mbMessageImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+		mbMessageImpl.setStatus(this.<Integer>getColumnOriginalValue("status"));
+		mbMessageImpl.setStatusByUserId(
+			this.<Long>getColumnOriginalValue("statusByUserId"));
+		mbMessageImpl.setStatusByUserName(
+			this.<String>getColumnOriginalValue("statusByUserName"));
+		mbMessageImpl.setStatusDate(
+			this.<Date>getColumnOriginalValue("statusDate"));
+
+		return mbMessageImpl;
+	}
+
+	@Override
 	public int compareTo(MBMessage mbMessage) {
 		int value = 0;
 
@@ -1855,7 +1919,7 @@ public class MBMessageModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1866,9 +1930,26 @@ public class MBMessageModelImpl
 			Function<MBMessage, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((MBMessage)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((MBMessage)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

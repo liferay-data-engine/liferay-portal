@@ -33,12 +33,14 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -767,6 +769,38 @@ public class CommercePriceListDiscountRelModelImpl
 	}
 
 	@Override
+	public CommercePriceListDiscountRel cloneWithOriginalValues() {
+		CommercePriceListDiscountRelImpl commercePriceListDiscountRelImpl =
+			new CommercePriceListDiscountRelImpl();
+
+		commercePriceListDiscountRelImpl.setUuid(
+			this.<String>getColumnOriginalValue("uuid_"));
+		commercePriceListDiscountRelImpl.setCommercePriceListDiscountRelId(
+			this.<Long>getColumnOriginalValue(
+				"commercePriceListDiscountRelId"));
+		commercePriceListDiscountRelImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		commercePriceListDiscountRelImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		commercePriceListDiscountRelImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		commercePriceListDiscountRelImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		commercePriceListDiscountRelImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		commercePriceListDiscountRelImpl.setCommerceDiscountId(
+			this.<Long>getColumnOriginalValue("commerceDiscountId"));
+		commercePriceListDiscountRelImpl.setCommercePriceListId(
+			this.<Long>getColumnOriginalValue("commercePriceListId"));
+		commercePriceListDiscountRelImpl.setOrder(
+			this.<Integer>getColumnOriginalValue("order_"));
+		commercePriceListDiscountRelImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+
+		return commercePriceListDiscountRelImpl;
+	}
+
+	@Override
 	public int compareTo(
 		CommercePriceListDiscountRel commercePriceListDiscountRel) {
 
@@ -922,7 +956,7 @@ public class CommercePriceListDiscountRelModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -933,11 +967,27 @@ public class CommercePriceListDiscountRelModelImpl
 			Function<CommercePriceListDiscountRel, Object>
 				attributeGetterFunction = entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply(
-					(CommercePriceListDiscountRel)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(CommercePriceListDiscountRel)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

@@ -1,3 +1,13 @@
+@import 'atlas-variables';
+
+.admin-tooltip {
+	background-color: #fff;
+	height: 300px;
+	position: absolute;
+	width: 400px;
+	z-index: 1; //$zindex-tooltip;
+}
+
 .diagram {
 	.diagram-header {
 		height: 58px;

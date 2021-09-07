@@ -32,6 +32,7 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
@@ -39,6 +40,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -689,6 +691,34 @@ public class AccountGroupRelModelImpl
 	}
 
 	@Override
+	public AccountGroupRel cloneWithOriginalValues() {
+		AccountGroupRelImpl accountGroupRelImpl = new AccountGroupRelImpl();
+
+		accountGroupRelImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		accountGroupRelImpl.setAccountGroupRelId(
+			this.<Long>getColumnOriginalValue("accountGroupRelId"));
+		accountGroupRelImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		accountGroupRelImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		accountGroupRelImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		accountGroupRelImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		accountGroupRelImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		accountGroupRelImpl.setAccountGroupId(
+			this.<Long>getColumnOriginalValue("accountGroupId"));
+		accountGroupRelImpl.setClassNameId(
+			this.<Long>getColumnOriginalValue("classNameId"));
+		accountGroupRelImpl.setClassPK(
+			this.<Long>getColumnOriginalValue("classPK"));
+
+		return accountGroupRelImpl;
+	}
+
+	@Override
 	public int compareTo(AccountGroupRel accountGroupRel) {
 		long primaryKey = accountGroupRel.getPrimaryKey();
 
@@ -811,7 +841,7 @@ public class AccountGroupRelModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -822,9 +852,26 @@ public class AccountGroupRelModelImpl
 			Function<AccountGroupRel, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((AccountGroupRel)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((AccountGroupRel)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

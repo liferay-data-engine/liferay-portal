@@ -195,6 +195,11 @@ public class AccountEntryWrapper
 	}
 
 	@Override
+	public AccountEntry cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
+	@Override
 	public com.liferay.portal.kernel.model.Group getAccountEntryGroup() {
 		return model.getAccountEntryGroup();
 	}

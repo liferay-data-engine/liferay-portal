@@ -68,9 +68,18 @@ public class DDMFormInstanceRecordXLSWriter
 			CellStyle headerCellStyle = createCellStyle(
 				workbook, true, "Courier New", (short)14);
 
-			createRow(
-				rowIndex++, headerCellStyle, ddmFormFieldsLabel.values(),
-				sheet);
+			Collection<String> values = ddmFormFieldsLabel.values();
+
+			if ((values.size() > _COLUMNS_MAX_COUNT) && _log.isWarnEnabled()) {
+				_log.warn(
+					StringBundler.concat(
+						"Form has ", values.size(),
+						" fields. Due to XLS file format limitations, the ",
+						"first ", _COLUMNS_MAX_COUNT,
+						" will be included in the exported file."));
+			}
+
+			createRow(rowIndex++, headerCellStyle, values, sheet);
 
 			CellStyle rowCellStyle = createCellStyle(
 				workbook, false, "Courier New", (short)12);
@@ -130,17 +139,11 @@ public class DDMFormInstanceRecordXLSWriter
 				value = value.substring(0, _CELL_MAX_LENGTH - 1);
 
 				if (_log.isWarnEnabled()) {
-					StringBundler sb = new StringBundler(7);
-
-					sb.append("Cell ");
-					sb.append(rowIndex);
-					sb.append(",");
-					sb.append(cellIndex);
-					sb.append(" value trimmed to ");
-					sb.append(_CELL_MAX_LENGTH);
-					sb.append(" characters");
-
-					_log.warn(sb.toString());
+					_log.warn(
+						StringBundler.concat(
+							"Cell ", rowIndex, ",", cellIndex,
+							" value trimmed to ", _CELL_MAX_LENGTH,
+							" characters"));
 				}
 			}
 
@@ -148,6 +151,10 @@ public class DDMFormInstanceRecordXLSWriter
 
 			cell.setCellStyle(cellStyle);
 			cell.setCellValue(value);
+
+			if (cellIndex == _COLUMNS_MAX_COUNT) {
+				break;
+			}
 		}
 	}
 
@@ -156,6 +163,8 @@ public class DDMFormInstanceRecordXLSWriter
 	}
 
 	private static final int _CELL_MAX_LENGTH = 32767;
+
+	private static final int _COLUMNS_MAX_COUNT = 256;
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		DDMFormInstanceRecordXLSWriter.class);

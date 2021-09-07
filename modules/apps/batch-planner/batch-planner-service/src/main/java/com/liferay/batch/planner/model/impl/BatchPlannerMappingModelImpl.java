@@ -32,12 +32,14 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -785,6 +787,41 @@ public class BatchPlannerMappingModelImpl
 	}
 
 	@Override
+	public BatchPlannerMapping cloneWithOriginalValues() {
+		BatchPlannerMappingImpl batchPlannerMappingImpl =
+			new BatchPlannerMappingImpl();
+
+		batchPlannerMappingImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		batchPlannerMappingImpl.setBatchPlannerMappingId(
+			this.<Long>getColumnOriginalValue("batchPlannerMappingId"));
+		batchPlannerMappingImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		batchPlannerMappingImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		batchPlannerMappingImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		batchPlannerMappingImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		batchPlannerMappingImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		batchPlannerMappingImpl.setBatchPlannerPlanId(
+			this.<Long>getColumnOriginalValue("batchPlannerPlanId"));
+		batchPlannerMappingImpl.setExternalFieldName(
+			this.<String>getColumnOriginalValue("externalFieldName"));
+		batchPlannerMappingImpl.setExternalFieldType(
+			this.<String>getColumnOriginalValue("externalFieldType"));
+		batchPlannerMappingImpl.setInternalFieldName(
+			this.<String>getColumnOriginalValue("internalFieldName"));
+		batchPlannerMappingImpl.setInternalFieldType(
+			this.<String>getColumnOriginalValue("internalFieldType"));
+		batchPlannerMappingImpl.setScript(
+			this.<String>getColumnOriginalValue("script"));
+
+		return batchPlannerMappingImpl;
+	}
+
+	@Override
 	public int compareTo(BatchPlannerMapping batchPlannerMapping) {
 		int value = 0;
 
@@ -954,7 +991,7 @@ public class BatchPlannerMappingModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -965,9 +1002,27 @@ public class BatchPlannerMappingModelImpl
 			Function<BatchPlannerMapping, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((BatchPlannerMapping)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(BatchPlannerMapping)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

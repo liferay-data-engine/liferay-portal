@@ -29,12 +29,14 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
@@ -627,6 +629,34 @@ public class BlogsStatsUserModelImpl
 	}
 
 	@Override
+	public BlogsStatsUser cloneWithOriginalValues() {
+		BlogsStatsUserImpl blogsStatsUserImpl = new BlogsStatsUserImpl();
+
+		blogsStatsUserImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		blogsStatsUserImpl.setStatsUserId(
+			this.<Long>getColumnOriginalValue("statsUserId"));
+		blogsStatsUserImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		blogsStatsUserImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		blogsStatsUserImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		blogsStatsUserImpl.setEntryCount(
+			this.<Integer>getColumnOriginalValue("entryCount"));
+		blogsStatsUserImpl.setLastPostDate(
+			this.<Date>getColumnOriginalValue("lastPostDate"));
+		blogsStatsUserImpl.setRatingsTotalEntries(
+			this.<Integer>getColumnOriginalValue("ratingsTotalEntries"));
+		blogsStatsUserImpl.setRatingsTotalScore(
+			this.<Double>getColumnOriginalValue("ratingsTotalScore"));
+		blogsStatsUserImpl.setRatingsAverageScore(
+			this.<Double>getColumnOriginalValue("ratingsAverageScore"));
+
+		return blogsStatsUserImpl;
+	}
+
+	@Override
 	public int compareTo(BlogsStatsUser blogsStatsUser) {
 		int value = 0;
 
@@ -742,7 +772,7 @@ public class BlogsStatsUserModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -753,9 +783,26 @@ public class BlogsStatsUserModelImpl
 			Function<BlogsStatsUser, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((BlogsStatsUser)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((BlogsStatsUser)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

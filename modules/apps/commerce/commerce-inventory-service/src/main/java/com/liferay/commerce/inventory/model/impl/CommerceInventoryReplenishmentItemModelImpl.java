@@ -31,12 +31,14 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -771,6 +773,39 @@ public class CommerceInventoryReplenishmentItemModelImpl
 	}
 
 	@Override
+	public CommerceInventoryReplenishmentItem cloneWithOriginalValues() {
+		CommerceInventoryReplenishmentItemImpl
+			commerceInventoryReplenishmentItemImpl =
+				new CommerceInventoryReplenishmentItemImpl();
+
+		commerceInventoryReplenishmentItemImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		commerceInventoryReplenishmentItemImpl.
+			setCommerceInventoryReplenishmentItemId(
+				this.<Long>getColumnOriginalValue("CIReplenishmentItemId"));
+		commerceInventoryReplenishmentItemImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		commerceInventoryReplenishmentItemImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		commerceInventoryReplenishmentItemImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		commerceInventoryReplenishmentItemImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		commerceInventoryReplenishmentItemImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		commerceInventoryReplenishmentItemImpl.setCommerceInventoryWarehouseId(
+			this.<Long>getColumnOriginalValue("commerceInventoryWarehouseId"));
+		commerceInventoryReplenishmentItemImpl.setSku(
+			this.<String>getColumnOriginalValue("sku"));
+		commerceInventoryReplenishmentItemImpl.setAvailabilityDate(
+			this.<Date>getColumnOriginalValue("availabilityDate"));
+		commerceInventoryReplenishmentItemImpl.setQuantity(
+			this.<Integer>getColumnOriginalValue("quantity"));
+
+		return commerceInventoryReplenishmentItemImpl;
+	}
+
+	@Override
 	public int compareTo(
 		CommerceInventoryReplenishmentItem commerceInventoryReplenishmentItem) {
 
@@ -922,7 +957,7 @@ public class CommerceInventoryReplenishmentItemModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -934,11 +969,27 @@ public class CommerceInventoryReplenishmentItemModelImpl
 			Function<CommerceInventoryReplenishmentItem, Object>
 				attributeGetterFunction = entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply(
-					(CommerceInventoryReplenishmentItem)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(CommerceInventoryReplenishmentItem)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

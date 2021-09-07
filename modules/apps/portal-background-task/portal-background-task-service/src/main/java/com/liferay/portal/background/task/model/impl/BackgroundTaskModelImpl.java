@@ -32,12 +32,14 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -880,6 +882,45 @@ public class BackgroundTaskModelImpl
 	}
 
 	@Override
+	public BackgroundTask cloneWithOriginalValues() {
+		BackgroundTaskImpl backgroundTaskImpl = new BackgroundTaskImpl();
+
+		backgroundTaskImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		backgroundTaskImpl.setBackgroundTaskId(
+			this.<Long>getColumnOriginalValue("backgroundTaskId"));
+		backgroundTaskImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		backgroundTaskImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		backgroundTaskImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		backgroundTaskImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		backgroundTaskImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		backgroundTaskImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		backgroundTaskImpl.setName(this.<String>getColumnOriginalValue("name"));
+		backgroundTaskImpl.setServletContextNames(
+			this.<String>getColumnOriginalValue("servletContextNames"));
+		backgroundTaskImpl.setTaskExecutorClassName(
+			this.<String>getColumnOriginalValue("taskExecutorClassName"));
+		backgroundTaskImpl.setTaskContextMap(
+			this.<Map>getColumnOriginalValue("taskContextMap"));
+		backgroundTaskImpl.setCompleted(
+			this.<Boolean>getColumnOriginalValue("completed"));
+		backgroundTaskImpl.setCompletionDate(
+			this.<Date>getColumnOriginalValue("completionDate"));
+		backgroundTaskImpl.setStatus(
+			this.<Integer>getColumnOriginalValue("status"));
+		backgroundTaskImpl.setStatusMessage(
+			this.<String>getColumnOriginalValue("statusMessage"));
+
+		return backgroundTaskImpl;
+	}
+
+	@Override
 	public int compareTo(BackgroundTask backgroundTask) {
 		int value = 0;
 
@@ -1051,7 +1092,7 @@ public class BackgroundTaskModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1062,9 +1103,26 @@ public class BackgroundTaskModelImpl
 			Function<BackgroundTask, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((BackgroundTask)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((BackgroundTask)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

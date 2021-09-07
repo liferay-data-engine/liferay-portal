@@ -137,6 +137,11 @@ public class SamlPeerBindingWrapper
 		}
 	}
 
+	@Override
+	public SamlPeerBinding cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the company ID of this saml peer binding.
 	 *

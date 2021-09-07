@@ -127,6 +127,13 @@ public class CommerceNotificationTemplateCommerceAccountGroupRelWrapper
 		}
 	}
 
+	@Override
+	public CommerceNotificationTemplateCommerceAccountGroupRel
+		cloneWithOriginalValues() {
+
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the commerce account group ID of this commerce notification template commerce account group rel.
 	 *

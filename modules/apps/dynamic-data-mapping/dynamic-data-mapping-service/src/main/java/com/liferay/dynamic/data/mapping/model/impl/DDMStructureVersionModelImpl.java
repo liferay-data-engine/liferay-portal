@@ -34,6 +34,7 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
@@ -42,6 +43,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1329,6 +1331,55 @@ public class DDMStructureVersionModelImpl
 	}
 
 	@Override
+	public DDMStructureVersion cloneWithOriginalValues() {
+		DDMStructureVersionImpl ddmStructureVersionImpl =
+			new DDMStructureVersionImpl();
+
+		ddmStructureVersionImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		ddmStructureVersionImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		ddmStructureVersionImpl.setStructureVersionId(
+			this.<Long>getColumnOriginalValue("structureVersionId"));
+		ddmStructureVersionImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		ddmStructureVersionImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		ddmStructureVersionImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		ddmStructureVersionImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		ddmStructureVersionImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		ddmStructureVersionImpl.setStructureId(
+			this.<Long>getColumnOriginalValue("structureId"));
+		ddmStructureVersionImpl.setVersion(
+			this.<String>getColumnOriginalValue("version"));
+		ddmStructureVersionImpl.setParentStructureId(
+			this.<Long>getColumnOriginalValue("parentStructureId"));
+		ddmStructureVersionImpl.setName(
+			this.<String>getColumnOriginalValue("name"));
+		ddmStructureVersionImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		ddmStructureVersionImpl.setDefinition(
+			this.<String>getColumnOriginalValue("definition"));
+		ddmStructureVersionImpl.setStorageType(
+			this.<String>getColumnOriginalValue("storageType"));
+		ddmStructureVersionImpl.setType(
+			this.<Integer>getColumnOriginalValue("type_"));
+		ddmStructureVersionImpl.setStatus(
+			this.<Integer>getColumnOriginalValue("status"));
+		ddmStructureVersionImpl.setStatusByUserId(
+			this.<Long>getColumnOriginalValue("statusByUserId"));
+		ddmStructureVersionImpl.setStatusByUserName(
+			this.<String>getColumnOriginalValue("statusByUserName"));
+		ddmStructureVersionImpl.setStatusDate(
+			this.<Date>getColumnOriginalValue("statusDate"));
+
+		return ddmStructureVersionImpl;
+	}
+
+	@Override
 	public int compareTo(DDMStructureVersion ddmStructureVersion) {
 		long primaryKey = ddmStructureVersion.getPrimaryKey();
 
@@ -1512,7 +1563,7 @@ public class DDMStructureVersionModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1523,9 +1574,27 @@ public class DDMStructureVersionModelImpl
 			Function<DDMStructureVersion, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((DDMStructureVersion)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(DDMStructureVersion)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

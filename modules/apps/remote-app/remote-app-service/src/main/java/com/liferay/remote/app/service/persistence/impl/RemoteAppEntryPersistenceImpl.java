@@ -16,7 +16,6 @@ package com.liferay.remote.app.service.persistence.impl;
 
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.configuration.Configuration;
-import com.liferay.portal.kernel.dao.orm.ArgumentsResolver;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -27,19 +26,17 @@ import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.dao.orm.SessionFactory;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.model.BaseModel;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
-import com.liferay.portal.kernel.util.HashMapDictionary;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.uuid.PortalUUIDUtil;
-import com.liferay.remote.app.exception.NoSuchEntryException;
+import com.liferay.remote.app.exception.NoSuchRemoteAppEntryException;
 import com.liferay.remote.app.model.RemoteAppEntry;
 import com.liferay.remote.app.model.RemoteAppEntryTable;
 import com.liferay.remote.app.model.impl.RemoteAppEntryImpl;
@@ -57,12 +54,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.sql.DataSource;
 
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -281,12 +275,12 @@ public class RemoteAppEntryPersistenceImpl
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching remote app entry
-	 * @throws NoSuchEntryException if a matching remote app entry could not be found
+	 * @throws NoSuchRemoteAppEntryException if a matching remote app entry could not be found
 	 */
 	@Override
 	public RemoteAppEntry findByUuid_First(
 			String uuid, OrderByComparator<RemoteAppEntry> orderByComparator)
-		throws NoSuchEntryException {
+		throws NoSuchRemoteAppEntryException {
 
 		RemoteAppEntry remoteAppEntry = fetchByUuid_First(
 			uuid, orderByComparator);
@@ -304,7 +298,7 @@ public class RemoteAppEntryPersistenceImpl
 
 		sb.append("}");
 
-		throw new NoSuchEntryException(sb.toString());
+		throw new NoSuchRemoteAppEntryException(sb.toString());
 	}
 
 	/**
@@ -333,12 +327,12 @@ public class RemoteAppEntryPersistenceImpl
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching remote app entry
-	 * @throws NoSuchEntryException if a matching remote app entry could not be found
+	 * @throws NoSuchRemoteAppEntryException if a matching remote app entry could not be found
 	 */
 	@Override
 	public RemoteAppEntry findByUuid_Last(
 			String uuid, OrderByComparator<RemoteAppEntry> orderByComparator)
-		throws NoSuchEntryException {
+		throws NoSuchRemoteAppEntryException {
 
 		RemoteAppEntry remoteAppEntry = fetchByUuid_Last(
 			uuid, orderByComparator);
@@ -356,7 +350,7 @@ public class RemoteAppEntryPersistenceImpl
 
 		sb.append("}");
 
-		throw new NoSuchEntryException(sb.toString());
+		throw new NoSuchRemoteAppEntryException(sb.toString());
 	}
 
 	/**
@@ -393,13 +387,13 @@ public class RemoteAppEntryPersistenceImpl
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next remote app entry
-	 * @throws NoSuchEntryException if a remote app entry with the primary key could not be found
+	 * @throws NoSuchRemoteAppEntryException if a remote app entry with the primary key could not be found
 	 */
 	@Override
 	public RemoteAppEntry[] findByUuid_PrevAndNext(
 			long remoteAppEntryId, String uuid,
 			OrderByComparator<RemoteAppEntry> orderByComparator)
-		throws NoSuchEntryException {
+		throws NoSuchRemoteAppEntryException {
 
 		uuid = Objects.toString(uuid, "");
 
@@ -830,13 +824,13 @@ public class RemoteAppEntryPersistenceImpl
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching remote app entry
-	 * @throws NoSuchEntryException if a matching remote app entry could not be found
+	 * @throws NoSuchRemoteAppEntryException if a matching remote app entry could not be found
 	 */
 	@Override
 	public RemoteAppEntry findByUuid_C_First(
 			String uuid, long companyId,
 			OrderByComparator<RemoteAppEntry> orderByComparator)
-		throws NoSuchEntryException {
+		throws NoSuchRemoteAppEntryException {
 
 		RemoteAppEntry remoteAppEntry = fetchByUuid_C_First(
 			uuid, companyId, orderByComparator);
@@ -857,7 +851,7 @@ public class RemoteAppEntryPersistenceImpl
 
 		sb.append("}");
 
-		throw new NoSuchEntryException(sb.toString());
+		throw new NoSuchRemoteAppEntryException(sb.toString());
 	}
 
 	/**
@@ -890,13 +884,13 @@ public class RemoteAppEntryPersistenceImpl
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching remote app entry
-	 * @throws NoSuchEntryException if a matching remote app entry could not be found
+	 * @throws NoSuchRemoteAppEntryException if a matching remote app entry could not be found
 	 */
 	@Override
 	public RemoteAppEntry findByUuid_C_Last(
 			String uuid, long companyId,
 			OrderByComparator<RemoteAppEntry> orderByComparator)
-		throws NoSuchEntryException {
+		throws NoSuchRemoteAppEntryException {
 
 		RemoteAppEntry remoteAppEntry = fetchByUuid_C_Last(
 			uuid, companyId, orderByComparator);
@@ -917,7 +911,7 @@ public class RemoteAppEntryPersistenceImpl
 
 		sb.append("}");
 
-		throw new NoSuchEntryException(sb.toString());
+		throw new NoSuchRemoteAppEntryException(sb.toString());
 	}
 
 	/**
@@ -957,13 +951,13 @@ public class RemoteAppEntryPersistenceImpl
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next remote app entry
-	 * @throws NoSuchEntryException if a remote app entry with the primary key could not be found
+	 * @throws NoSuchRemoteAppEntryException if a remote app entry with the primary key could not be found
 	 */
 	@Override
 	public RemoteAppEntry[] findByUuid_C_PrevAndNext(
 			long remoteAppEntryId, String uuid, long companyId,
 			OrderByComparator<RemoteAppEntry> orderByComparator)
-		throws NoSuchEntryException {
+		throws NoSuchRemoteAppEntryException {
 
 		uuid = Objects.toString(uuid, "");
 
@@ -1218,16 +1212,16 @@ public class RemoteAppEntryPersistenceImpl
 	private FinderPath _finderPathCountByC_U;
 
 	/**
-	 * Returns the remote app entry where companyId = &#63; and url = &#63; or throws a <code>NoSuchEntryException</code> if it could not be found.
+	 * Returns the remote app entry where companyId = &#63; and url = &#63; or throws a <code>NoSuchRemoteAppEntryException</code> if it could not be found.
 	 *
 	 * @param companyId the company ID
 	 * @param url the url
 	 * @return the matching remote app entry
-	 * @throws NoSuchEntryException if a matching remote app entry could not be found
+	 * @throws NoSuchRemoteAppEntryException if a matching remote app entry could not be found
 	 */
 	@Override
 	public RemoteAppEntry findByC_U(long companyId, String url)
-		throws NoSuchEntryException {
+		throws NoSuchRemoteAppEntryException {
 
 		RemoteAppEntry remoteAppEntry = fetchByC_U(companyId, url);
 
@@ -1248,7 +1242,7 @@ public class RemoteAppEntryPersistenceImpl
 				_log.debug(sb.toString());
 			}
 
-			throw new NoSuchEntryException(sb.toString());
+			throw new NoSuchRemoteAppEntryException(sb.toString());
 		}
 
 		return remoteAppEntry;
@@ -1378,7 +1372,7 @@ public class RemoteAppEntryPersistenceImpl
 	 */
 	@Override
 	public RemoteAppEntry removeByC_U(long companyId, String url)
-		throws NoSuchEntryException {
+		throws NoSuchRemoteAppEntryException {
 
 		RemoteAppEntry remoteAppEntry = findByC_U(companyId, url);
 
@@ -1594,11 +1588,11 @@ public class RemoteAppEntryPersistenceImpl
 	 *
 	 * @param remoteAppEntryId the primary key of the remote app entry
 	 * @return the remote app entry that was removed
-	 * @throws NoSuchEntryException if a remote app entry with the primary key could not be found
+	 * @throws NoSuchRemoteAppEntryException if a remote app entry with the primary key could not be found
 	 */
 	@Override
 	public RemoteAppEntry remove(long remoteAppEntryId)
-		throws NoSuchEntryException {
+		throws NoSuchRemoteAppEntryException {
 
 		return remove((Serializable)remoteAppEntryId);
 	}
@@ -1608,11 +1602,11 @@ public class RemoteAppEntryPersistenceImpl
 	 *
 	 * @param primaryKey the primary key of the remote app entry
 	 * @return the remote app entry that was removed
-	 * @throws NoSuchEntryException if a remote app entry with the primary key could not be found
+	 * @throws NoSuchRemoteAppEntryException if a remote app entry with the primary key could not be found
 	 */
 	@Override
 	public RemoteAppEntry remove(Serializable primaryKey)
-		throws NoSuchEntryException {
+		throws NoSuchRemoteAppEntryException {
 
 		Session session = null;
 
@@ -1627,13 +1621,13 @@ public class RemoteAppEntryPersistenceImpl
 					_log.debug(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 				}
 
-				throw new NoSuchEntryException(
+				throw new NoSuchRemoteAppEntryException(
 					_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 			}
 
 			return remove(remoteAppEntry);
 		}
-		catch (NoSuchEntryException noSuchEntityException) {
+		catch (NoSuchRemoteAppEntryException noSuchEntityException) {
 			throw noSuchEntityException;
 		}
 		catch (Exception exception) {
@@ -1768,11 +1762,11 @@ public class RemoteAppEntryPersistenceImpl
 	 *
 	 * @param primaryKey the primary key of the remote app entry
 	 * @return the remote app entry
-	 * @throws NoSuchEntryException if a remote app entry with the primary key could not be found
+	 * @throws NoSuchRemoteAppEntryException if a remote app entry with the primary key could not be found
 	 */
 	@Override
 	public RemoteAppEntry findByPrimaryKey(Serializable primaryKey)
-		throws NoSuchEntryException {
+		throws NoSuchRemoteAppEntryException {
 
 		RemoteAppEntry remoteAppEntry = fetchByPrimaryKey(primaryKey);
 
@@ -1781,7 +1775,7 @@ public class RemoteAppEntryPersistenceImpl
 				_log.debug(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 			}
 
-			throw new NoSuchEntryException(
+			throw new NoSuchRemoteAppEntryException(
 				_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 		}
 
@@ -1789,15 +1783,15 @@ public class RemoteAppEntryPersistenceImpl
 	}
 
 	/**
-	 * Returns the remote app entry with the primary key or throws a <code>NoSuchEntryException</code> if it could not be found.
+	 * Returns the remote app entry with the primary key or throws a <code>NoSuchRemoteAppEntryException</code> if it could not be found.
 	 *
 	 * @param remoteAppEntryId the primary key of the remote app entry
 	 * @return the remote app entry
-	 * @throws NoSuchEntryException if a remote app entry with the primary key could not be found
+	 * @throws NoSuchRemoteAppEntryException if a remote app entry with the primary key could not be found
 	 */
 	@Override
 	public RemoteAppEntry findByPrimaryKey(long remoteAppEntryId)
-		throws NoSuchEntryException {
+		throws NoSuchRemoteAppEntryException {
 
 		return findByPrimaryKey((Serializable)remoteAppEntryId);
 	}
@@ -2022,13 +2016,7 @@ public class RemoteAppEntryPersistenceImpl
 	 * Initializes the remote app entry persistence.
 	 */
 	@Activate
-	public void activate(BundleContext bundleContext) {
-		_bundleContext = bundleContext;
-
-		_argumentsResolverServiceRegistration = _bundleContext.registerService(
-			ArgumentsResolver.class, new RemoteAppEntryModelArgumentsResolver(),
-			new HashMapDictionary<>());
-
+	public void activate() {
 		_finderPathWithPaginationFindAll = new FinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findAll", new String[0],
 			new String[0], true);
@@ -2092,8 +2080,6 @@ public class RemoteAppEntryPersistenceImpl
 	@Deactivate
 	public void deactivate() {
 		entityCache.removeCache(RemoteAppEntryImpl.class.getName());
-
-		_argumentsResolverServiceRegistration.unregister();
 	}
 
 	@Override
@@ -2121,8 +2107,6 @@ public class RemoteAppEntryPersistenceImpl
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		super.setSessionFactory(sessionFactory);
 	}
-
-	private BundleContext _bundleContext;
 
 	@Reference
 	protected EntityCache entityCache;
@@ -2161,114 +2145,8 @@ public class RemoteAppEntryPersistenceImpl
 		return finderCache;
 	}
 
-	private ServiceRegistration<ArgumentsResolver>
-		_argumentsResolverServiceRegistration;
-
-	private static class RemoteAppEntryModelArgumentsResolver
-		implements ArgumentsResolver {
-
-		@Override
-		public Object[] getArguments(
-			FinderPath finderPath, BaseModel<?> baseModel, boolean checkColumn,
-			boolean original) {
-
-			String[] columnNames = finderPath.getColumnNames();
-
-			if ((columnNames == null) || (columnNames.length == 0)) {
-				if (baseModel.isNew()) {
-					return FINDER_ARGS_EMPTY;
-				}
-
-				return null;
-			}
-
-			RemoteAppEntryModelImpl remoteAppEntryModelImpl =
-				(RemoteAppEntryModelImpl)baseModel;
-
-			long columnBitmask = remoteAppEntryModelImpl.getColumnBitmask();
-
-			if (!checkColumn || (columnBitmask == 0)) {
-				return _getValue(
-					remoteAppEntryModelImpl, columnNames, original);
-			}
-
-			Long finderPathColumnBitmask = _finderPathColumnBitmasksCache.get(
-				finderPath);
-
-			if (finderPathColumnBitmask == null) {
-				finderPathColumnBitmask = 0L;
-
-				for (String columnName : columnNames) {
-					finderPathColumnBitmask |=
-						remoteAppEntryModelImpl.getColumnBitmask(columnName);
-				}
-
-				if (finderPath.isBaseModelResult() &&
-					(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION ==
-						finderPath.getCacheName())) {
-
-					finderPathColumnBitmask |= _ORDER_BY_COLUMNS_BITMASK;
-				}
-
-				_finderPathColumnBitmasksCache.put(
-					finderPath, finderPathColumnBitmask);
-			}
-
-			if ((columnBitmask & finderPathColumnBitmask) != 0) {
-				return _getValue(
-					remoteAppEntryModelImpl, columnNames, original);
-			}
-
-			return null;
-		}
-
-		@Override
-		public String getClassName() {
-			return RemoteAppEntryImpl.class.getName();
-		}
-
-		@Override
-		public String getTableName() {
-			return RemoteAppEntryTable.INSTANCE.getTableName();
-		}
-
-		private static Object[] _getValue(
-			RemoteAppEntryModelImpl remoteAppEntryModelImpl,
-			String[] columnNames, boolean original) {
-
-			Object[] arguments = new Object[columnNames.length];
-
-			for (int i = 0; i < arguments.length; i++) {
-				String columnName = columnNames[i];
-
-				if (original) {
-					arguments[i] =
-						remoteAppEntryModelImpl.getColumnOriginalValue(
-							columnName);
-				}
-				else {
-					arguments[i] = remoteAppEntryModelImpl.getColumnValue(
-						columnName);
-				}
-			}
-
-			return arguments;
-		}
-
-		private static final Map<FinderPath, Long>
-			_finderPathColumnBitmasksCache = new ConcurrentHashMap<>();
-
-		private static final long _ORDER_BY_COLUMNS_BITMASK;
-
-		static {
-			long orderByColumnsBitmask = 0;
-
-			orderByColumnsBitmask |= RemoteAppEntryModelImpl.getColumnBitmask(
-				"name");
-
-			_ORDER_BY_COLUMNS_BITMASK = orderByColumnsBitmask;
-		}
-
-	}
+	@Reference
+	private RemoteAppEntryModelArgumentsResolver
+		_remoteAppEntryModelArgumentsResolver;
 
 }

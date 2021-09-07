@@ -36,6 +36,7 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
@@ -44,6 +45,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1843,6 +1845,83 @@ public class JournalArticleModelImpl
 	}
 
 	@Override
+	public JournalArticle cloneWithOriginalValues() {
+		JournalArticleImpl journalArticleImpl = new JournalArticleImpl();
+
+		journalArticleImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		journalArticleImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		journalArticleImpl.setUuid(
+			this.<String>getColumnOriginalValue("uuid_"));
+		journalArticleImpl.setId(this.<Long>getColumnOriginalValue("id_"));
+		journalArticleImpl.setResourcePrimKey(
+			this.<Long>getColumnOriginalValue("resourcePrimKey"));
+		journalArticleImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		journalArticleImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		journalArticleImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		journalArticleImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		journalArticleImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		journalArticleImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		journalArticleImpl.setExternalReferenceCode(
+			this.<String>getColumnOriginalValue("externalReferenceCode"));
+		journalArticleImpl.setFolderId(
+			this.<Long>getColumnOriginalValue("folderId"));
+		journalArticleImpl.setClassNameId(
+			this.<Long>getColumnOriginalValue("classNameId"));
+		journalArticleImpl.setClassPK(
+			this.<Long>getColumnOriginalValue("classPK"));
+		journalArticleImpl.setTreePath(
+			this.<String>getColumnOriginalValue("treePath"));
+		journalArticleImpl.setArticleId(
+			this.<String>getColumnOriginalValue("articleId"));
+		journalArticleImpl.setVersion(
+			this.<Double>getColumnOriginalValue("version"));
+		journalArticleImpl.setUrlTitle(
+			this.<String>getColumnOriginalValue("urlTitle"));
+		journalArticleImpl.setDDMStructureKey(
+			this.<String>getColumnOriginalValue("DDMStructureKey"));
+		journalArticleImpl.setDDMTemplateKey(
+			this.<String>getColumnOriginalValue("DDMTemplateKey"));
+		journalArticleImpl.setDefaultLanguageId(
+			this.<String>getColumnOriginalValue("defaultLanguageId"));
+		journalArticleImpl.setLayoutUuid(
+			this.<String>getColumnOriginalValue("layoutUuid"));
+		journalArticleImpl.setDisplayDate(
+			this.<Date>getColumnOriginalValue("displayDate"));
+		journalArticleImpl.setExpirationDate(
+			this.<Date>getColumnOriginalValue("expirationDate"));
+		journalArticleImpl.setReviewDate(
+			this.<Date>getColumnOriginalValue("reviewDate"));
+		journalArticleImpl.setIndexable(
+			this.<Boolean>getColumnOriginalValue("indexable"));
+		journalArticleImpl.setSmallImage(
+			this.<Boolean>getColumnOriginalValue("smallImage"));
+		journalArticleImpl.setSmallImageId(
+			this.<Long>getColumnOriginalValue("smallImageId"));
+		journalArticleImpl.setSmallImageURL(
+			this.<String>getColumnOriginalValue("smallImageURL"));
+		journalArticleImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+		journalArticleImpl.setStatus(
+			this.<Integer>getColumnOriginalValue("status"));
+		journalArticleImpl.setStatusByUserId(
+			this.<Long>getColumnOriginalValue("statusByUserId"));
+		journalArticleImpl.setStatusByUserName(
+			this.<String>getColumnOriginalValue("statusByUserName"));
+		journalArticleImpl.setStatusDate(
+			this.<Date>getColumnOriginalValue("statusDate"));
+
+		return journalArticleImpl;
+	}
+
+	@Override
 	public int compareTo(JournalArticle journalArticle) {
 		int value = 0;
 
@@ -2139,7 +2218,7 @@ public class JournalArticleModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -2150,9 +2229,26 @@ public class JournalArticleModelImpl
 			Function<JournalArticle, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((JournalArticle)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((JournalArticle)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

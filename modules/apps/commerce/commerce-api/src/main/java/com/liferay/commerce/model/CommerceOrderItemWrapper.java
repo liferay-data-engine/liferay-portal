@@ -500,6 +500,11 @@ public class CommerceOrderItemWrapper
 	}
 
 	@Override
+	public CommerceOrderItem cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
+	@Override
 	public com.liferay.commerce.product.model.CPInstance fetchCPInstance() {
 		return model.fetchCPInstance();
 	}

@@ -32,12 +32,14 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -763,6 +765,41 @@ public class CommerceNotificationTemplateCommerceAccountGroupRelModelImpl
 	}
 
 	@Override
+	public CommerceNotificationTemplateCommerceAccountGroupRel
+		cloneWithOriginalValues() {
+
+		CommerceNotificationTemplateCommerceAccountGroupRelImpl
+			commerceNotificationTemplateCommerceAccountGroupRelImpl =
+				new CommerceNotificationTemplateCommerceAccountGroupRelImpl();
+
+		commerceNotificationTemplateCommerceAccountGroupRelImpl.
+			setCommerceNotificationTemplateCommerceAccountGroupRelId(
+				this.<Long>getColumnOriginalValue(
+					"CNTemplateCAccountGroupRelId"));
+		commerceNotificationTemplateCommerceAccountGroupRelImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		commerceNotificationTemplateCommerceAccountGroupRelImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		commerceNotificationTemplateCommerceAccountGroupRelImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		commerceNotificationTemplateCommerceAccountGroupRelImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		commerceNotificationTemplateCommerceAccountGroupRelImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		commerceNotificationTemplateCommerceAccountGroupRelImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		commerceNotificationTemplateCommerceAccountGroupRelImpl.
+			setCommerceNotificationTemplateId(
+				this.<Long>getColumnOriginalValue(
+					"commerceNotificationTemplateId"));
+		commerceNotificationTemplateCommerceAccountGroupRelImpl.
+			setCommerceAccountGroupId(
+				this.<Long>getColumnOriginalValue("commerceAccountGroupId"));
+
+		return commerceNotificationTemplateCommerceAccountGroupRelImpl;
+	}
+
+	@Override
 	public int compareTo(
 		CommerceNotificationTemplateCommerceAccountGroupRel
 			commerceNotificationTemplateCommerceAccountGroupRel) {
@@ -916,7 +953,7 @@ public class CommerceNotificationTemplateCommerceAccountGroupRelModelImpl
 					attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -931,11 +968,27 @@ public class CommerceNotificationTemplateCommerceAccountGroupRelModelImpl
 				<CommerceNotificationTemplateCommerceAccountGroupRel, Object>
 					attributeGetterFunction = entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply(
-					(CommerceNotificationTemplateCommerceAccountGroupRel)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(CommerceNotificationTemplateCommerceAccountGroupRel)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

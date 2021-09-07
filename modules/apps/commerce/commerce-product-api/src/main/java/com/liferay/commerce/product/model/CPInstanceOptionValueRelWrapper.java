@@ -135,6 +135,11 @@ public class CPInstanceOptionValueRelWrapper
 		}
 	}
 
+	@Override
+	public CPInstanceOptionValueRel cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the company ID of this cp instance option value rel.
 	 *

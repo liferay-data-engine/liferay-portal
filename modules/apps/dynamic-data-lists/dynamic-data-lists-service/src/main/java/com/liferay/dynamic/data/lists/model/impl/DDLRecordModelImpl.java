@@ -33,12 +33,14 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1001,6 +1003,50 @@ public class DDLRecordModelImpl
 	}
 
 	@Override
+	public DDLRecord cloneWithOriginalValues() {
+		DDLRecordImpl ddlRecordImpl = new DDLRecordImpl();
+
+		ddlRecordImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		ddlRecordImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		ddlRecordImpl.setUuid(this.<String>getColumnOriginalValue("uuid_"));
+		ddlRecordImpl.setRecordId(
+			this.<Long>getColumnOriginalValue("recordId"));
+		ddlRecordImpl.setGroupId(this.<Long>getColumnOriginalValue("groupId"));
+		ddlRecordImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		ddlRecordImpl.setUserId(this.<Long>getColumnOriginalValue("userId"));
+		ddlRecordImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		ddlRecordImpl.setVersionUserId(
+			this.<Long>getColumnOriginalValue("versionUserId"));
+		ddlRecordImpl.setVersionUserName(
+			this.<String>getColumnOriginalValue("versionUserName"));
+		ddlRecordImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		ddlRecordImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		ddlRecordImpl.setDDMStorageId(
+			this.<Long>getColumnOriginalValue("DDMStorageId"));
+		ddlRecordImpl.setRecordSetId(
+			this.<Long>getColumnOriginalValue("recordSetId"));
+		ddlRecordImpl.setRecordSetVersion(
+			this.<String>getColumnOriginalValue("recordSetVersion"));
+		ddlRecordImpl.setClassName(
+			this.<String>getColumnOriginalValue("className"));
+		ddlRecordImpl.setClassPK(this.<Long>getColumnOriginalValue("classPK"));
+		ddlRecordImpl.setVersion(
+			this.<String>getColumnOriginalValue("version"));
+		ddlRecordImpl.setDisplayIndex(
+			this.<Integer>getColumnOriginalValue("displayIndex"));
+		ddlRecordImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+
+		return ddlRecordImpl;
+	}
+
+	@Override
 	public int compareTo(DDLRecord ddlRecord) {
 		long primaryKey = ddlRecord.getPrimaryKey();
 
@@ -1179,7 +1225,7 @@ public class DDLRecordModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1190,9 +1236,26 @@ public class DDLRecordModelImpl
 			Function<DDLRecord, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((DDLRecord)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((DDLRecord)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

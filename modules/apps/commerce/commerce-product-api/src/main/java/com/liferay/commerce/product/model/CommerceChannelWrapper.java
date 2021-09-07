@@ -150,6 +150,11 @@ public class CommerceChannelWrapper
 		}
 	}
 
+	@Override
+	public CommerceChannel cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the commerce channel ID of this commerce channel.
 	 *

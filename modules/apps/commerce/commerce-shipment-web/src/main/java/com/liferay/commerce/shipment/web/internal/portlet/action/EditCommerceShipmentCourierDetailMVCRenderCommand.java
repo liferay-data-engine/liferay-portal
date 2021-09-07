@@ -66,7 +66,7 @@ public class EditCommerceShipmentCourierDetailMVCRenderCommand
 		renderRequest.setAttribute(
 			WebKeys.PORTLET_DISPLAY_CONTEXT, commerceShipmentDisplayContext);
 
-		return "/shipment/edit_commerce_shipment_courier_detail.jsp";
+		return "/commerce_shipment/edit_commerce_shipment_courier_detail.jsp";
 	}
 
 	@Reference
@@ -94,7 +94,7 @@ public class EditCommerceShipmentCourierDetailMVCRenderCommand
 	private Portal _portal;
 
 	@Reference(
-		target = "(resource.name=" + CommerceConstants.RESOURCE_NAME_SHIPMENT + ")"
+		target = "(resource.name=" + CommerceConstants.RESOURCE_NAME_COMMERCE_SHIPMENT + ")"
 	)
 	private PortletResourcePermission _portletResourcePermission;
 

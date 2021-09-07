@@ -98,7 +98,6 @@ export interface Config {
 	editFragmentEntryLinkCommentURL: string;
 	editFragmentEntryLinkURL: string;
 	editSegmentsEntryURL: string;
-	fragmentsHidingEnabled: boolean;
 	frontendTokens: {
 		[key: string]: {
 			cssVariable: string;
@@ -154,6 +153,7 @@ export interface Config {
 	publishURL: string;
 	redirectURL: string;
 	renderFragmentEntryURL: string;
+	restoreCollectionDisplayConfigURL: string;
 	searchContainerPageMaxDelta: number;
 	selectedSegmentsEntryId: string;
 
@@ -188,6 +188,7 @@ export interface Config {
 
 	unmarkItemForDeletionURL: string;
 	updateConfigurationValuesURL: string;
+	updateCollectionDisplayConfigURL: string;
 	updateItemConfigURL: string;
 	updateLayoutPageTemplateDataURL: string;
 	updateRowColumnsURL: string;

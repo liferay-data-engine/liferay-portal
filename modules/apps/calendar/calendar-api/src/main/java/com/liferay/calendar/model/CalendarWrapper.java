@@ -186,6 +186,11 @@ public class CalendarWrapper
 	}
 
 	@Override
+	public Calendar cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
+	@Override
 	public String[] getAvailableLanguageIds() {
 		return model.getAvailableLanguageIds();
 	}

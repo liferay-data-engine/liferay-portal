@@ -70,7 +70,7 @@
 				input="${env.HOSTNAME}"
 				override="true"
 				property="short.hostname"
-				regexp="(cloud-[^\.]+)(\.lax\.liferay\.com)?"
+				regexp="(cloud-[^\.]+|test-\d+-\d+-\d+)(\.lax\.liferay\.com)?"
 				replace="\1"
 			/>
 
@@ -84,6 +84,26 @@ networks:
             name: ${short.hostname}]]></echo>
 				</then>
 			</if>
+		</sequential>
+	</macrodef>
+
+	<macrodef name="pull-docker-image-dependencies">
+		<attribute name="analytics.cloud.repository.dir" />
+
+		<sequential>
+			<beanshell>
+				<![CDATA[
+					import com.liferay.jenkins.results.parser.JenkinsResultsParserUtil;
+
+					String excludedImageNames = project.getProperty("analytics.cloud.image.names.excludes");
+
+					if (excludedImageNames == null) {
+						excludedImageNames = "";
+					}
+
+					JenkinsResultsParserUtil.pullDockerImageDependencies(new File("@{analytics.cloud.repository.dir}"), excludedImageNames.split(","));
+				]]>
+			</beanshell>
 		</sequential>
 	</macrodef>
 
@@ -126,6 +146,8 @@ OSB_FARO_FRONTEND_URL=${analytics.cloud.faro.frontend.url}</echo>
 			<if>
 				<equals arg1="${analytics.cloud.asah.build}" arg2="true" />
 				<then>
+					<pull-docker-image-dependencies analytics.cloud.repository.dir="${analytics.cloud.asah.dir}" />
+
 					<execute dir="${analytics.cloud.asah.dir}">
 						./gradlew jar -Dliferay.ci=true
 
@@ -139,6 +161,8 @@ OSB_FARO_FRONTEND_URL=${analytics.cloud.faro.frontend.url}</echo>
 			<if>
 				<equals arg1="${analytics.cloud.faro.build}" arg2="true" />
 				<then>
+					<pull-docker-image-dependencies analytics.cloud.repository.dir="${analytics.cloud.faro.dir}" />
+
 					<local name="portal.gradlew" />
 
 					<property location="${project.dir}/gradlew" name="portal.gradlew" />
@@ -181,9 +205,26 @@ OSB_FARO_FRONTEND_URL=${analytics.cloud.faro.frontend.url}</echo>
 				docker volume prune -f
 			</echo>
 
-			<exec dir="${analytics.cloud.asah.dir}" executable="/bin/bash">
-				<arg value="${analytics.cloud.start.sh}" />
-			</exec>
+			<retry retrycount="3" retrydelay="30000">
+				<sequential>
+					<local name="analytics.cloud.start.result" />
+
+					<exec dir="${analytics.cloud.asah.dir}" executable="/bin/bash" resultproperty="analytics.cloud.start.result" timeout="${analytics.cloud.start.timeout}">
+						<arg value="${analytics.cloud.start.sh}" />
+					</exec>
+
+					<if>
+						<not>
+							<equals arg1="${analytics.cloud.start.result}" arg2="0" />
+						</not>
+						<then>
+							<fail message="Failed to start analytics cloud with error code ${analytics.cloud.start.result}" />
+
+							<stop-analytics-cloud />
+						</then>
+					</if>
+				</sequential>
+			</retry>
 
 			<delete file="${analytics.cloud.start.sh}" />
 		</sequential>

@@ -165,6 +165,11 @@ public class ObjectEntryWrapper
 		}
 	}
 
+	@Override
+	public ObjectEntry cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the company ID of this object entry.
 	 *
@@ -593,6 +598,11 @@ public class ObjectEntryWrapper
 	@Override
 	public void setStatusDate(Date statusDate) {
 		model.setStatusDate(statusDate);
+	}
+
+	@Override
+	public void setTransientValues(Map<String, Serializable> values) {
+		model.setTransientValues(values);
 	}
 
 	/**

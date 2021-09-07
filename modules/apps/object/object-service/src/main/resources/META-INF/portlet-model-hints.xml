@@ -10,12 +10,20 @@
 		<field name="userName" type="String" />
 		<field name="createDate" type="Date" />
 		<field name="modifiedDate" type="Date" />
-		<field name="DBTableName" type="String" />
-		<field localized="true" name="label" type="String" />
+		<field name="DBTableName" type="String">
+			<validator name="required" />
+		</field>
+		<field localized="true" name="label" type="String">
+			<validator name="required" />
+		</field>
 		<field name="name" type="String" />
+		<field name="panelAppOrder" type="String" />
+		<field name="panelCategoryKey" type="String" />
 		<field name="PKObjectFieldDBColumnName" type="String" />
 		<field name="PKObjectFieldName" type="String" />
-		<field localized="true" name="pluralLabel" type="String" />
+		<field localized="true" name="pluralLabel" type="String">
+			<validator name="required" />
+		</field>
 		<field name="scope" type="String" />
 		<field name="system" type="boolean" />
 		<field name="version" type="int" />
@@ -48,6 +56,7 @@
 		<field name="userName" type="String" />
 		<field name="createDate" type="Date" />
 		<field name="modifiedDate" type="Date" />
+		<field name="listTypeDefinitionId" type="long" />
 		<field name="objectDefinitionId" type="long" />
 		<field name="DBColumnName" type="String" />
 		<field name="DBTableName" type="String" />
@@ -69,6 +78,9 @@
 		<field name="userName" type="String" />
 		<field name="createDate" type="Date" />
 		<field name="modifiedDate" type="Date" />
+		<field name="objectDefinitionId" type="long" />
+		<field name="defaultObjectLayout" type="boolean" />
+		<field localized="true" name="name" type="String" />
 	</model>
 	<model name="com.liferay.object.model.ObjectLayoutBox">
 		<field name="mvccVersion" type="long" />
@@ -79,6 +91,35 @@
 		<field name="userName" type="String" />
 		<field name="createDate" type="Date" />
 		<field name="modifiedDate" type="Date" />
+		<field name="objectLayoutTabId" type="long" />
+		<field name="collapsable" type="boolean" />
+		<field localized="true" name="name" type="String" />
+		<field name="priority" type="int" />
+	</model>
+	<model name="com.liferay.object.model.ObjectLayoutBoxColumn">
+		<field name="mvccVersion" type="long" />
+		<field name="uuid" type="String" />
+		<field name="objectLayoutBoxColumnId" type="long" />
+		<field name="companyId" type="long" />
+		<field name="userId" type="long" />
+		<field name="userName" type="String" />
+		<field name="createDate" type="Date" />
+		<field name="modifiedDate" type="Date" />
+		<field name="objectFieldId" type="long" />
+		<field name="objectLayoutBoxRowId" type="long" />
+		<field name="priority" type="int" />
+	</model>
+	<model name="com.liferay.object.model.ObjectLayoutBoxRow">
+		<field name="mvccVersion" type="long" />
+		<field name="uuid" type="String" />
+		<field name="objectLayoutBoxRowId" type="long" />
+		<field name="companyId" type="long" />
+		<field name="userId" type="long" />
+		<field name="userName" type="String" />
+		<field name="createDate" type="Date" />
+		<field name="modifiedDate" type="Date" />
+		<field name="objectLayoutBoxId" type="long" />
+		<field name="priority" type="int" />
 	</model>
 	<model name="com.liferay.object.model.ObjectLayoutTab">
 		<field name="mvccVersion" type="long" />
@@ -89,6 +130,9 @@
 		<field name="userName" type="String" />
 		<field name="createDate" type="Date" />
 		<field name="modifiedDate" type="Date" />
+		<field name="objectLayoutId" type="long" />
+		<field localized="true" name="name" type="String" />
+		<field name="priority" type="int" />
 	</model>
 	<model name="com.liferay.object.model.ObjectRelationship">
 		<field name="mvccVersion" type="long" />

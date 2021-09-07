@@ -28,16 +28,19 @@ import com.liferay.portal.kernel.model.impl.BaseModelImpl;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -530,6 +533,23 @@ public class PortletModelImpl
 	}
 
 	@Override
+	public Portlet cloneWithOriginalValues() {
+		PortletImpl portletImpl = new PortletImpl();
+
+		portletImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		portletImpl.setId(this.<Long>getColumnOriginalValue("id_"));
+		portletImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		portletImpl.setPortletId(
+			this.<String>getColumnOriginalValue("portletId"));
+		portletImpl.setRoles(this.<String>getColumnOriginalValue("roles"));
+		portletImpl.setActive(this.<Boolean>getColumnOriginalValue("active_"));
+
+		return portletImpl;
+	}
+
+	@Override
 	public int compareTo(Portlet portlet) {
 		long primaryKey = portlet.getPrimaryKey();
 
@@ -633,7 +653,7 @@ public class PortletModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -644,9 +664,26 @@ public class PortletModelImpl
 			Function<Portlet, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((Portlet)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((Portlet)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

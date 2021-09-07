@@ -26,12 +26,14 @@ import com.liferay.portal.kernel.model.impl.BaseModelImpl;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
@@ -573,6 +575,35 @@ public class ReleaseModelImpl
 	}
 
 	@Override
+	public Release cloneWithOriginalValues() {
+		ReleaseImpl releaseImpl = new ReleaseImpl();
+
+		releaseImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		releaseImpl.setReleaseId(
+			this.<Long>getColumnOriginalValue("releaseId"));
+		releaseImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		releaseImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		releaseImpl.setServletContextName(
+			this.<String>getColumnOriginalValue("servletContextName"));
+		releaseImpl.setSchemaVersion(
+			this.<String>getColumnOriginalValue("schemaVersion"));
+		releaseImpl.setBuildNumber(
+			this.<Integer>getColumnOriginalValue("buildNumber"));
+		releaseImpl.setBuildDate(
+			this.<Date>getColumnOriginalValue("buildDate"));
+		releaseImpl.setVerified(
+			this.<Boolean>getColumnOriginalValue("verified"));
+		releaseImpl.setState(this.<Integer>getColumnOriginalValue("state_"));
+		releaseImpl.setTestString(
+			this.<String>getColumnOriginalValue("testString"));
+
+		return releaseImpl;
+	}
+
+	@Override
 	public int compareTo(Release release) {
 		long primaryKey = release.getPrimaryKey();
 
@@ -717,7 +748,7 @@ public class ReleaseModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -728,9 +759,26 @@ public class ReleaseModelImpl
 			Function<Release, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((Release)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((Release)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

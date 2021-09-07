@@ -158,6 +158,11 @@ public class CPDefinitionSpecificationOptionValueWrapper
 	}
 
 	@Override
+	public CPDefinitionSpecificationOptionValue cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
+	@Override
 	public String[] getAvailableLanguageIds() {
 		return model.getAvailableLanguageIds();
 	}

@@ -223,6 +223,11 @@ public class GroupWrapper
 		model.clearStagingGroup();
 	}
 
+	@Override
+	public Group cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the active of this group.
 	 *

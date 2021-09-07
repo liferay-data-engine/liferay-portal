@@ -190,23 +190,13 @@ public class LayoutsTreeImpl implements LayoutsTree {
 		throws Exception {
 
 		if (_log.isDebugEnabled()) {
-			StringBundler sb = new StringBundler(13);
-
-			sb.append("getLayoutsJSON(groupId=");
-			sb.append(groupId);
-			sb.append(", privateLayout=");
-			sb.append(privateLayout);
-			sb.append(", parentLayoutId=");
-			sb.append(parentLayoutId);
-			sb.append(", expandedLayoutIds=");
-			sb.append(expandedLayoutIds);
-			sb.append(", incomplete=");
-			sb.append(incomplete);
-			sb.append(", treeId=");
-			sb.append(treeId);
-			sb.append(StringPool.CLOSE_PARENTHESIS);
-
-			_log.debug(sb.toString());
+			_log.debug(
+				StringBundler.concat(
+					"getLayoutsJSON(groupId=", groupId, ", privateLayout=",
+					privateLayout, ", parentLayoutId=", parentLayoutId,
+					", expandedLayoutIds=", expandedLayoutIds, ", incomplete=",
+					incomplete, ", treeId=", treeId,
+					StringPool.CLOSE_PARENTHESIS));
 		}
 
 		LayoutTreeNodes layoutTreeNodes = _getLayoutTreeNodes(
@@ -232,15 +222,10 @@ public class LayoutsTreeImpl implements LayoutsTree {
 		throws Exception {
 
 		if (_log.isDebugEnabled()) {
-			StringBundler sb = new StringBundler(5);
-
-			sb.append("getLayoutsJSON(groupId=");
-			sb.append(groupId);
-			sb.append(", treeId=");
-			sb.append(treeId);
-			sb.append(StringPool.CLOSE_PARENTHESIS);
-
-			_log.debug(sb.toString());
+			_log.debug(
+				StringBundler.concat(
+					"getLayoutsJSON(groupId=", groupId, ", treeId=", treeId,
+					StringPool.CLOSE_PARENTHESIS));
 		}
 
 		LayoutTreeNodes layoutTreeNodes = new LayoutTreeNodes();
@@ -267,23 +252,13 @@ public class LayoutsTreeImpl implements LayoutsTree {
 		throws Exception {
 
 		if (_log.isDebugEnabled()) {
-			StringBundler sb = new StringBundler(13);
-
-			sb.append("_getLayoutTreeNodes(groupId=");
-			sb.append(groupId);
-			sb.append(", privateLayout=");
-			sb.append(privateLayout);
-			sb.append(", parentLayoutId=");
-			sb.append(parentLayoutId);
-			sb.append(", expandedLayoutIds=");
-			sb.append(expandedLayoutIds);
-			sb.append(", incomplete=");
-			sb.append(incomplete);
-			sb.append(", treeId=");
-			sb.append(treeId);
-			sb.append(StringPool.CLOSE_PARENTHESIS);
-
-			_log.debug(sb.toString());
+			_log.debug(
+				StringBundler.concat(
+					"_getLayoutTreeNodes(groupId=", groupId, ", privateLayout=",
+					privateLayout, ", parentLayoutId=", parentLayoutId,
+					", expandedLayoutIds=", expandedLayoutIds, ", incomplete=",
+					incomplete, ", treeId=", treeId,
+					StringPool.CLOSE_PARENTHESIS));
 		}
 
 		List<LayoutTreeNode> layoutTreeNodes = new ArrayList<>();
@@ -332,17 +307,9 @@ public class LayoutsTreeImpl implements LayoutsTree {
 			long layoutId, String treeId)
 		throws Exception {
 
-		StringBundler sb = new StringBundler(7);
-
-		sb.append(treeId);
-		sb.append(StringPool.COLON);
-		sb.append(groupId);
-		sb.append(StringPool.COLON);
-		sb.append(privateLayout);
-		sb.append(StringPool.COLON);
-		sb.append("Pagination");
-
-		String key = sb.toString();
+		String key = StringBundler.concat(
+			treeId, StringPool.COLON, groupId, StringPool.COLON, privateLayout,
+			":Pagination");
 
 		String paginationJSON = SessionClicks.get(
 			session, key, JSONFactoryUtil.getNullJSON());
@@ -351,19 +318,12 @@ public class LayoutsTreeImpl implements LayoutsTree {
 			paginationJSON);
 
 		if (_log.isDebugEnabled()) {
-			sb = new StringBundler(9);
-
-			sb.append("_getLoadedLayoutsCount(key=");
-			sb.append(key);
-			sb.append(", layoutId=");
-			sb.append(layoutId);
-			sb.append(", paginationJSON=");
-			sb.append(paginationJSON);
-			sb.append(", paginationJSONObject");
-			sb.append(paginationJSONObject);
-			sb.append(StringPool.CLOSE_PARENTHESIS);
-
-			_log.debug(sb.toString());
+			_log.debug(
+				StringBundler.concat(
+					"_getLoadedLayoutsCount(key=", key, ", layoutId=", layoutId,
+					", paginationJSON=", paginationJSON,
+					", paginationJSONObject", paginationJSONObject,
+					StringPool.CLOSE_PARENTHESIS));
 		}
 
 		return paginationJSONObject.getInt(String.valueOf(layoutId), 0);
@@ -400,17 +360,11 @@ public class LayoutsTreeImpl implements LayoutsTree {
 		end = Math.max(start, Math.min(end, count));
 
 		if (_log.isDebugEnabled()) {
-			StringBundler sb = new StringBundler(7);
-
-			sb.append("_getPaginatedLayouts(loadedLayoutsCount=");
-			sb.append(loadedLayoutsCount);
-			sb.append(", start=");
-			sb.append(start);
-			sb.append(", end=");
-			sb.append(end);
-			sb.append(StringPool.CLOSE_PARENTHESIS);
-
-			_log.debug(sb.toString());
+			_log.debug(
+				StringBundler.concat(
+					"_getPaginatedLayouts(loadedLayoutsCount=",
+					loadedLayoutsCount, ", start=", start, ", end=", end,
+					StringPool.CLOSE_PARENTHESIS));
 		}
 
 		if (childLayout &&
@@ -506,15 +460,10 @@ public class LayoutsTreeImpl implements LayoutsTree {
 		throws Exception {
 
 		if (_log.isDebugEnabled()) {
-			StringBundler sb = new StringBundler(5);
-
-			sb.append("_toJSON(groupId=");
-			sb.append(groupId);
-			sb.append(", layoutTreeNodes=");
-			sb.append(layoutTreeNodes);
-			sb.append(StringPool.CLOSE_PARENTHESIS);
-
-			_log.debug(sb.toString());
+			_log.debug(
+				StringBundler.concat(
+					"_toJSON(groupId=", groupId, ", layoutTreeNodes=",
+					layoutTreeNodes, StringPool.CLOSE_PARENTHESIS));
 		}
 
 		ThemeDisplay themeDisplay =
@@ -533,12 +482,11 @@ public class LayoutsTreeImpl implements LayoutsTree {
 				httpServletRequest, groupId,
 				layoutTreeNode.getChildLayoutTreeNodes(), layoutSetBranch);
 
-			JSONObject jsonObject = JSONUtil.put(
-				"children", childrenJSONObject);
-
 			Layout layout = layoutTreeNode.getLayout();
 
-			jsonObject.put(
+			JSONObject jsonObject = JSONUtil.put(
+				"children", childrenJSONObject
+			).put(
 				"contentDisplayPage", layout.isContentDisplayPage()
 			).put(
 				"deleteable",
@@ -717,15 +665,9 @@ public class LayoutsTreeImpl implements LayoutsTree {
 
 		@Override
 		public String toString() {
-			StringBundler sb = new StringBundler(5);
-
-			sb.append("{childLayoutTreeNodes=");
-			sb.append(_childLayoutTreeNodes);
-			sb.append(", layout=");
-			sb.append(_layout);
-			sb.append(StringPool.CLOSE_CURLY_BRACE);
-
-			return sb.toString();
+			return StringBundler.concat(
+				"{childLayoutTreeNodes=", _childLayoutTreeNodes, ", layout=",
+				_layout, StringPool.CLOSE_CURLY_BRACE);
 		}
 
 		private LayoutTreeNodes _childLayoutTreeNodes = new LayoutTreeNodes();
@@ -768,15 +710,9 @@ public class LayoutsTreeImpl implements LayoutsTree {
 
 		@Override
 		public String toString() {
-			StringBundler sb = new StringBundler(5);
-
-			sb.append("{layoutTreeNodesList=");
-			sb.append(_layoutTreeNodesList);
-			sb.append(", total=");
-			sb.append(_total);
-			sb.append(StringPool.CLOSE_CURLY_BRACE);
-
-			return sb.toString();
+			return StringBundler.concat(
+				"{layoutTreeNodesList=", _layoutTreeNodesList, ", total=",
+				_total, StringPool.CLOSE_CURLY_BRACE);
 		}
 
 		private final List<LayoutTreeNode> _layoutTreeNodesList;

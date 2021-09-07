@@ -36,6 +36,7 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
@@ -43,6 +44,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1034,6 +1036,38 @@ public class CPOptionCategoryModelImpl
 	}
 
 	@Override
+	public CPOptionCategory cloneWithOriginalValues() {
+		CPOptionCategoryImpl cpOptionCategoryImpl = new CPOptionCategoryImpl();
+
+		cpOptionCategoryImpl.setUuid(
+			this.<String>getColumnOriginalValue("uuid_"));
+		cpOptionCategoryImpl.setCPOptionCategoryId(
+			this.<Long>getColumnOriginalValue("CPOptionCategoryId"));
+		cpOptionCategoryImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		cpOptionCategoryImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		cpOptionCategoryImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		cpOptionCategoryImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		cpOptionCategoryImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		cpOptionCategoryImpl.setTitle(
+			this.<String>getColumnOriginalValue("title"));
+		cpOptionCategoryImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		cpOptionCategoryImpl.setPriority(
+			this.<Double>getColumnOriginalValue("priority"));
+		cpOptionCategoryImpl.setKey(
+			this.<String>getColumnOriginalValue("key_"));
+		cpOptionCategoryImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+
+		return cpOptionCategoryImpl;
+	}
+
+	@Override
 	public int compareTo(CPOptionCategory cpOptionCategory) {
 		int value = 0;
 
@@ -1204,7 +1238,7 @@ public class CPOptionCategoryModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1215,9 +1249,27 @@ public class CPOptionCategoryModelImpl
 			Function<CPOptionCategory, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((CPOptionCategory)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(CPOptionCategory)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

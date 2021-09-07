@@ -51,13 +51,18 @@ definition {
 			PageEditor.addFragment(
 				collectionName = "Basic Components",
 				fragmentName = "Heading");
+
+			PageEditor.clickPublish();
+		}
+		task ("Remove Heading fragment") {
+			PageEditor.removeFragment(fragmentName = "Heading");
 		}
 		task ("Assert the actions order for content pages") {
 			SitePages.openPagesAdmin(siteURLKey = "test-site-name");
 
 			SitePages.clickPageMenu(pageName = "Test Content Page Name");
 
-			MenuItem.viewOrder(menuItemList = "Edit,View,-,Discard Draft,Orphan Widgets,-,Copy Page,-,Configure,Permissions,-,Delete");
+			MenuItem.viewOrder(menuItemList = "Edit,Translate,View,-,Discard Draft,Orphan Widgets,-,Copy Page,Export for Translation,Import Translation,-,Configure,Permissions,-,Delete");
 		}
 	}
 

@@ -124,6 +124,11 @@ public class CommerceAddressRestrictionWrapper
 		}
 	}
 
+	@Override
+	public CommerceAddressRestriction cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the fully qualified class name of this commerce address restriction.
 	 *

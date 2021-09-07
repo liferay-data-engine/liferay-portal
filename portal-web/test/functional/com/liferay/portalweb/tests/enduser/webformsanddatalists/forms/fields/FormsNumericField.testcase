@@ -36,11 +36,7 @@ definition {
 	test CanBeCreated {
 		property forms.functional = "true";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -66,11 +62,7 @@ definition {
 	test CanBeDeleted {
 		property forms.functional = "true";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -103,11 +95,7 @@ definition {
 	test CanBeDuplicated {
 		property forms.functional = "true";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -149,11 +137,7 @@ definition {
 	test CanBeEdited {
 		property forms.functional = "true";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -189,11 +173,7 @@ definition {
 	test CanBeRequired {
 		property forms.functional = "true";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -202,7 +182,7 @@ definition {
 			fieldType = "Numeric",
 			formPageNumber = "0");
 
-		FormFields.enableSwitcher(fieldName = "Required Field");
+		FormFields.enableSwitch(fieldName = "Required Field");
 
 		Form.save();
 
@@ -228,12 +208,7 @@ definition {
 	test CanBeSetToAcceptDecimals {
 		property forms.functional = "true";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
-
+		FormsAdmin.addForm();
 		Form.editName(formName = "Form 1");
 
 		Form.gotoAddField(
@@ -267,11 +242,7 @@ definition {
 	test CanBeSetToRepeatable {
 		property forms.functional = "true";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -282,7 +253,7 @@ definition {
 
 		Form.gotoAdvancedTab();
 
-		FormFields.enableSwitcher(fieldName = "Repeatable");
+		FormFields.enableSwitch(fieldName = "Repeatable");
 
 		FormFields.viewFieldRepeatableButton(
 			fieldName = "Numeric",
@@ -317,11 +288,7 @@ definition {
 	test CanBeSubmitted {
 		property forms.functional = "true";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -367,11 +334,7 @@ definition {
 	test CanBeValidatedUsingIsEqualTo {
 		property forms.functional = "true";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -381,7 +344,7 @@ definition {
 
 		Form.gotoAdvancedTab();
 
-		FormViewBuilder.checkSwitcher(propertyName = "Validation");
+		FormViewBuilder.checkSwitch(propertyName = "Validation");
 
 		FormFields.editValidationTargetArgument(
 			validationArgument = "Is equal to",
@@ -418,11 +381,7 @@ definition {
 	test CanBeValidatedUsingIsGreaterThan {
 		property forms.functional = "true";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -469,11 +428,7 @@ definition {
 	test CanBeValidatedUsingIsGreaterThanOrEqualTo {
 		property forms.functional = "true";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -520,11 +475,7 @@ definition {
 	test CanBeValidatedUsingIsLessThan {
 		property forms.functional = "true";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -571,11 +522,7 @@ definition {
 	test CanBeValidatedUsingIsLessThanOrEqualTo {
 		property forms.functional = "true";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -622,11 +569,7 @@ definition {
 	test CanBeValidatedUsingIsNotEqualTo {
 		property forms.functional = "true";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -684,11 +627,7 @@ definition {
 	test DoesNotAcceptDecimalsByDefault {
 		property forms.functional = "true";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -721,11 +660,7 @@ definition {
 	test HelpTextCanBeAdded {
 		property forms.functional = "true";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -757,16 +692,120 @@ definition {
 			successPageTitle = "Thank you.");
 	}
 
-	@description = "Verify that the Field Label can be edited"
+	@description = "LPS-129411 - Verify that a field can be hidden"
 	@priority = "5"
-	test LabelCanBeEdited {
-		property forms.functional = "true";
+	test HiddenFieldCanBeEnabled {
+		FormsAdmin.addForm();
+
+		Form.editName(formName = "Form 1");
+
+		Form.gotoAddField(
+			fieldPositionNumber = "0",
+			fieldType = "Numeric",
+			formPageNumber = "0");
+
+		Form.gotoAdvancedTab();
+
+		FormFields.enableSwitch(fieldName = "Hide Field");
+
+		Form.viewHiddenField(fieldLabel = "Numeric");
+
+		for (var switchName : list "Show Label,Repeatable,Require Confirmation,Validation,Input Mask") {
+			AssertElementPresent(
+				key_switchOption = "${switchName}",
+				locator1 = "FormFields#SWITCH_NOT_VISIBLE");
+		}
+	}
+
+	@description = "LPS-129411 - Verify that hidden field is working on Forms Rules"
+	@priority = "5"
+	test HiddenFieldIWorkingOnRules {
+		FormsAdmin.addForm();
+
+		Form.editName(formName = "Form 1");
+
+		Form.gotoAddField(
+			fieldPositionNumber = "0",
+			fieldType = "Numeric",
+			formPageNumber = "0");
+
+		Form.editFieldLabelMetal(fieldValue = "Numeric 1");
+
+		Form.gotoAdvancedTab();
+
+		FormFields.enableSwitch(fieldName = "Hide Field");
+
+		Form.viewHiddenField(fieldLabel = "Numeric 1");
+
+		Form.closeSidebar();
+
+		Form.gotoAddField(
+			fieldPositionNumber = "1",
+			fieldType = "Numeric",
+			formPageNumber = "0");
+
+		Form.editFieldLabelMetal(fieldValue = "Numeric 2");
+
+		FormsAdminNavigator.gotoRules();
+
+		FormRules.addRule();
+
+		FormRules.selectConditionField(
+			conditionField = "Numeric 2",
+			conditionRowNumber = "1");
+
+		FormRules.selectConditionOperator(
+			conditionOperator = "Is not empty",
+			conditionRowNumber = "1");
+
+		FormRules.configureActionOptions(
+			action = "Calculate",
+			actionRowNumber = "1",
+			actionTarget = "Numeric 1");
+
+		FormRules.clickOnCalculatorNumbersKeyboard(buttonName = "2");
+
+		FormRules.clickOnCalculatorNumbersKeyboard(buttonName = "+");
+
+		FormRules.clickOnCalculatorNumbersKeyboard(buttonName = "2");
+
+		FormRules.save();
+
+		FormsAdminNavigator.gotoFormBuilder();
+
+		Form.publishForm();
+
+		FormsAdminNavigator.gotoPublishedForm();
+
+		FormViewBuilder.editText(
+			fieldName = "Numeric 2",
+			fieldValue = "1");
+
+		FormPortlet.submitSuccessfullyAndViewSuccessPage();
+
+		Navigator.openURL();
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
 			portlet = "Forms");
 
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdminNavigator.gotoViewEntries();
+
+		FormsAdmin.viewFormTableEntry(
+			fieldLabel = "Numeric 1",
+			fieldValue = "4");
+
+		FormsAdmin.viewFormTableEntry(
+			fieldLabel = "Numeric 2",
+			fieldValue = "1");
+	}
+
+	@description = "Verify that the Field Label can be edited"
+	@priority = "5"
+	test LabelCanBeEdited {
+		property forms.functional = "true";
+
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -793,11 +832,7 @@ definition {
 	test LabelCanBeHidden {
 		property forms.functional = "true";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -812,7 +847,7 @@ definition {
 
 		Form.gotoAdvancedTab();
 
-		FormFields.disableSwitcher(fieldName = "Show Label");
+		FormFields.disableSwitch(fieldName = "Show Label");
 
 		FormFields.viewFieldLabelNotPresent(fieldLabel = "Numeric");
 
@@ -830,11 +865,7 @@ definition {
 	test OnlyAcceptsNumbers {
 		property forms.functional = "true";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -863,11 +894,7 @@ definition {
 	test PlaceholderTextCanBeSet {
 		property forms.functional = "true";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -901,11 +928,7 @@ definition {
 	test PredefinedValueCanBeSet {
 		property forms.functional = "true";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -937,11 +960,7 @@ definition {
 	test PredefinedValueHasHigherPriorityThanPlaceholderText {
 		property forms.functional = "true";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -979,11 +998,7 @@ definition {
 	test PredefinedValueIsReplacedByPlaceholderText {
 		property forms.functional = "true";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -1013,11 +1028,7 @@ definition {
 	test ReferenceCanBeEdited {
 		property forms.functional = "true";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 

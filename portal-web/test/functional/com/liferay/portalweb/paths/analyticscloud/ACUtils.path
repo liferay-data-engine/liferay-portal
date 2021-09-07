@@ -10,10 +10,41 @@
 </thead>
 
 <tbody>
+<tr>
+	<td>LABEL</td>
+	<td>//label[normalize-space()='${label}']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>LOADING_ANIMATION</td>
+	<td>//span[contains(@class,'loading-animation')]</td>
+	<td></td>
+</tr>
 <!-- CLOSE MODAL -->
 <tr>
 	<td>MODAL_CLOSE_BUTTON</td>
 	<td>//button[contains(@class, 'close')]</td>
+	<td></td>
+</tr>
+<!-- FILTER ORDER -->
+<tr>
+	<td>ORDER_ARROW_BUTTON_ASC</td>
+	<td>//a[contains(@class, 'nav-link-monospaced btn-outline-borderless')][*[name()='svg'][contains(@class,'lexicon-icon-order-arrow-ascending')]]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>ORDER_ARROW_BUTTON_DES</td>
+	<td>//a[contains(@class, 'nav-link-monospaced btn-outline-borderless')][*[name()='svg'][contains(@class,'lexicon-icon-order-arrow-descending')]]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>ORDER_ARROW_TABLE_BUTTON_UP</td>
+	<td>//a[contains(@class, 'text-truncate-inline')]/span[contains(@class, 'inline-item-after')][*[name()='svg'][contains(@class,'lexicon-icon-order-arrow-up')]]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>ORDER_ARROW_TABLE_BUTTON_DOWN</td>
+	<td>//a[contains(@class, 'text-truncate-inline')]/span[contains(@class, 'inline-item-after')][*[name()='svg'][contains(@class,'lexicon-icon-order-arrow-down')]]</td>
 	<td></td>
 </tr>
 <!-- PAGE_PAGINATION-->
@@ -48,7 +79,16 @@
 	<td>//div[contains(@class, 'input-group-item')]//button[contains(@class, 'button-root')]</td>
 	<td></td>
 </tr>
-
+<tr>
+	<td>GENERIC_BUTTON</td>
+	<td>//button[contains(@class,'button-root')and text()='${key_buttonName}']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>PAGE_TITLE</td>
+	<td>//span[@class='text-truncate'and text()='${key_pageTitle}']</td>
+	<td></td>
+</tr>
 <!-- SVG_TIMED_GRAPH -->
 <tr>
 	<td>SVG_TIMED_GRAPH</td>
@@ -58,6 +98,12 @@
 <tr>
 	<td>METRIC_VALUE_PERCENTAGE</td>
 	<td>xpath=(//*[contains(@class,'recharts-pie-labels')])[${key_index}]//*[contains(text(),'${key_percentage}')]</td>
+	<td></td>
+</tr>
+<!-- CLICKABLE -->
+<tr>
+	<td>DROPDOWN_ITEM</td>
+	<td>//div[contains(@class, 'dropdown-menu show')]//*[text()='${key_dropdownItem}']</td>
 	<td></td>
 </tr>
 </tbody>

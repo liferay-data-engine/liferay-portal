@@ -24,6 +24,7 @@ import com.liferay.portal.kernel.model.impl.BaseModelImpl;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.tools.service.builder.test.model.VersionedEntry;
 import com.liferay.portal.tools.service.builder.test.model.VersionedEntryModel;
 import com.liferay.portal.tools.service.builder.test.model.VersionedEntryVersion;
@@ -33,9 +34,11 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -478,6 +481,22 @@ public class VersionedEntryModelImpl
 	}
 
 	@Override
+	public VersionedEntry cloneWithOriginalValues() {
+		VersionedEntryImpl versionedEntryImpl = new VersionedEntryImpl();
+
+		versionedEntryImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		versionedEntryImpl.setHeadId(
+			this.<Long>getColumnOriginalValue("headId"));
+		versionedEntryImpl.setVersionedEntryId(
+			this.<Long>getColumnOriginalValue("versionedEntryId"));
+		versionedEntryImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+
+		return versionedEntryImpl;
+	}
+
+	@Override
 	public int compareTo(VersionedEntry versionedEntry) {
 		long primaryKey = versionedEntry.getPrimaryKey();
 
@@ -568,7 +587,7 @@ public class VersionedEntryModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -579,9 +598,26 @@ public class VersionedEntryModelImpl
 			Function<VersionedEntry, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((VersionedEntry)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((VersionedEntry)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

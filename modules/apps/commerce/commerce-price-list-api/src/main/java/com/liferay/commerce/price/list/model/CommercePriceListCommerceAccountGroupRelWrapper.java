@@ -137,6 +137,11 @@ public class CommercePriceListCommerceAccountGroupRelWrapper
 	}
 
 	@Override
+	public CommercePriceListCommerceAccountGroupRel cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
+	@Override
 	public com.liferay.commerce.account.model.CommerceAccountGroup
 			getCommerceAccountGroup()
 		throws com.liferay.portal.kernel.exception.PortalException {

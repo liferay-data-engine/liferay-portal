@@ -36,6 +36,7 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
@@ -44,6 +45,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1250,6 +1252,52 @@ public class JournalFolderModelImpl
 	}
 
 	@Override
+	public JournalFolder cloneWithOriginalValues() {
+		JournalFolderImpl journalFolderImpl = new JournalFolderImpl();
+
+		journalFolderImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		journalFolderImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		journalFolderImpl.setUuid(this.<String>getColumnOriginalValue("uuid_"));
+		journalFolderImpl.setFolderId(
+			this.<Long>getColumnOriginalValue("folderId"));
+		journalFolderImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		journalFolderImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		journalFolderImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		journalFolderImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		journalFolderImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		journalFolderImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		journalFolderImpl.setParentFolderId(
+			this.<Long>getColumnOriginalValue("parentFolderId"));
+		journalFolderImpl.setTreePath(
+			this.<String>getColumnOriginalValue("treePath"));
+		journalFolderImpl.setName(this.<String>getColumnOriginalValue("name"));
+		journalFolderImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		journalFolderImpl.setRestrictionType(
+			this.<Integer>getColumnOriginalValue("restrictionType"));
+		journalFolderImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+		journalFolderImpl.setStatus(
+			this.<Integer>getColumnOriginalValue("status"));
+		journalFolderImpl.setStatusByUserId(
+			this.<Long>getColumnOriginalValue("statusByUserId"));
+		journalFolderImpl.setStatusByUserName(
+			this.<String>getColumnOriginalValue("statusByUserName"));
+		journalFolderImpl.setStatusDate(
+			this.<Date>getColumnOriginalValue("statusDate"));
+
+		return journalFolderImpl;
+	}
+
+	@Override
 	public int compareTo(JournalFolder journalFolder) {
 		int value = 0;
 
@@ -1448,7 +1496,7 @@ public class JournalFolderModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1459,9 +1507,26 @@ public class JournalFolderModelImpl
 			Function<JournalFolder, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((JournalFolder)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((JournalFolder)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

@@ -179,6 +179,21 @@ import org.osgi.service.component.annotations.Reference;
 	</#if>
 </#list>
 
+<#if entity.localizedEntity??>
+	<#assign localizedEntity = entity.localizedEntity />
+
+	import ${apiPackagePath}.service.persistence.${localizedEntity.name}Persistence;
+</#if>
+
+<#if entity.versionedEntity?? && entity.versionedEntity.localizedEntity??>
+	<#assign
+		versionedEntity = entity.versionedEntity
+		localizedVersionEntity = versionedEntity.localizedEntity.versionEntity
+	/>
+
+	import ${apiPackagePath}.service.persistence.${localizedVersionEntity.name}Persistence;
+</#if>
+
 /**
  * The persistence implementation for the ${entity.humanName} service.
  *
@@ -688,6 +703,25 @@ public class ${entity.name}PersistenceImpl extends BasePersistenceImpl<${entity.
 				${entity.variableName}To${referenceEntity.name}TableMapper.deleteLeftPrimaryKeyTableMappings(${entity.variableName}.getPrimaryKey());
 			</#if>
 		</#list>
+
+		<#if entity.localizedEntity??>
+			<#assign
+				localizedEntity = entity.localizedEntity
+				pkEntityColumn = entity.PKEntityColumns?first
+			/>
+
+			${localizedEntity.variableName}Persistence.removeBy${pkEntityColumn.methodName}(${entity.variableName}.get${pkEntityColumn.methodName}());
+		</#if>
+
+		<#if entity.versionedEntity?? && entity.versionedEntity.localizedEntity??>
+			<#assign
+				versionedEntity = entity.versionedEntity
+				localizedVersionEntity = versionedEntity.localizedEntity.versionEntity
+				pkEntityColumn = versionedEntity.PKEntityColumns?first
+			/>
+
+			${localizedVersionEntity.variableName}Persistence.removeBy${pkEntityColumn.methodName}_Version(${entity.variableName}.getVersionedModelId(), ${entity.variableName}.getVersion());
+		</#if>
 
 		Session session = null;
 
@@ -1258,6 +1292,24 @@ public class ${entity.name}PersistenceImpl extends BasePersistenceImpl<${entity.
 					return map;
 				}
 
+				<#if serviceBuilder.isVersionGTE_7_1_0()>
+					if ((databaseInMaxParameters > 0) && (primaryKeys.size() > databaseInMaxParameters)) {
+						Iterator<Serializable> iterator = primaryKeys.iterator();
+
+						while (iterator.hasNext()) {
+							Set<Serializable> page = new HashSet<>();
+
+							for (int i = 0; (i < databaseInMaxParameters) && iterator.hasNext(); i++) {
+								page.add(iterator.next());
+							}
+
+							map.putAll(fetchByPrimaryKeys(page));
+						}
+
+						return map;
+					}
+				</#if>
+
 				Set<Serializable> uncachedPrimaryKeys = null;
 
 				for (Serializable primaryKey : primaryKeys) {
@@ -1364,6 +1416,22 @@ public class ${entity.name}PersistenceImpl extends BasePersistenceImpl<${entity.
 
 				if (${entity.variableName} != null) {
 					map.put(primaryKey, ${entity.variableName});
+				}
+
+				return map;
+			}
+
+			if ((databaseInMaxParameters > 0) && (primaryKeys.size() > databaseInMaxParameters)) {
+				Iterator<Serializable> iterator = primaryKeys.iterator();
+
+				while (iterator.hasNext()) {
+					Set<Serializable> page = new HashSet<>();
+
+					for (int i = 0; (i < databaseInMaxParameters) && iterator.hasNext();i++) {
+						page.add(iterator.next());
+					}
+
+					map.putAll(fetchByPrimaryKeys(page));
 				}
 
 				return map;
@@ -2326,7 +2394,9 @@ public class ${entity.name}PersistenceImpl extends BasePersistenceImpl<${entity.
 	 */
 	<#if dependencyInjectorDS>
 		@Activate
-		<#if serviceBuilder.isVersionGTE_7_3_0()>
+		<#if serviceBuilder.isVersionGTE_7_4_0()>
+			public void activate() {
+		<#elseif serviceBuilder.isVersionGTE_7_3_0()>
 			public void activate(BundleContext bundleContext) {
 				_bundleContext = bundleContext;
 		<#else>
@@ -2337,8 +2407,7 @@ public class ${entity.name}PersistenceImpl extends BasePersistenceImpl<${entity.
 	<#else>
 		public void afterPropertiesSet() {
 	</#if>
-
-		<#if serviceBuilder.isVersionGTE_7_3_0()>
+		<#if serviceBuilder.isVersionGTE_7_3_0() && serviceBuilder.isVersionLTE_7_3_0()>
 			<#if osgiModule>
 				<#if !dependencyInjectorDS>
 					Bundle bundle = FrameworkUtil.getBundle(${entity.name}PersistenceImpl.class);
@@ -2348,23 +2417,15 @@ public class ${entity.name}PersistenceImpl extends BasePersistenceImpl<${entity.
 
 				_argumentsResolverServiceRegistration = _bundleContext.registerService(
 					ArgumentsResolver.class, new ${entity.name}ModelArgumentsResolver(),
-					<#if serviceBuilder.isVersionGTE_7_4_0()>
-						new HashMapDictionary<>()
-					<#else>
-						MapUtil.singletonDictionary("model.class.name", ${entity.name}.class.getName())
-					</#if>
-				);
+						MapUtil.singletonDictionary("model.class.name", ${entity.name}.class.getName()));
 			<#else>
 				Registry registry = RegistryUtil.getRegistry();
 
 				_argumentsResolverServiceRegistration = registry.registerService(
-					ArgumentsResolver.class, new ${entity.name}ModelArgumentsResolver()
-					<#if serviceBuilder.isVersionLTE_7_3_0()>
-						,
+					ArgumentsResolver.class, new ${entity.name}ModelArgumentsResolver(),
 						HashMapBuilder.<String, Object>put(
 							"model.class.name", ${entity.name}.class.getName()
-						).build()
-					</#if>);
+						).build());
 			</#if>
 		</#if>
 
@@ -2759,17 +2820,15 @@ public class ${entity.name}PersistenceImpl extends BasePersistenceImpl<${entity.
 
 		${entityCache}.removeCache(${entity.name}Impl.class.getName());
 
-		<#if serviceBuilder.isVersionGTE_7_3_0()>
+		<#if serviceBuilder.isVersionGTE_7_3_0() && serviceBuilder.isVersionLTE_7_3_0()>
 			_argumentsResolverServiceRegistration.unregister();
 
-			<#if !serviceBuilder.isVersionGTE_7_4_0()>
-				for (ServiceRegistration<FinderPath> serviceRegistration :
-					_serviceRegistrations) {
+			for (ServiceRegistration<FinderPath> serviceRegistration :
+				_serviceRegistrations) {
 
-					serviceRegistration.unregister();
-				}
-			</#if>
-		<#else>
+				serviceRegistration.unregister();
+			}
+		<#elseif serviceBuilder.isVersionLTE_7_2_0()>
 			${finderCache}.removeCache(FINDER_CLASS_NAME_ENTITY);
 			${finderCache}.removeCache(FINDER_CLASS_NAME_LIST_WITH_PAGINATION);
 			${finderCache}.removeCache(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION);
@@ -2795,7 +2854,7 @@ public class ${entity.name}PersistenceImpl extends BasePersistenceImpl<${entity.
 	</#if>
 
 	<#if osgiModule>
-		<#if serviceBuilder.isVersionGTE_7_3_0()>
+		<#if serviceBuilder.isVersionGTE_7_3_0() && serviceBuilder.isVersionLTE_7_3_0()>
 			private BundleContext _bundleContext;
 		</#if>
 
@@ -2838,6 +2897,33 @@ public class ${entity.name}PersistenceImpl extends BasePersistenceImpl<${entity.
 			protected TableMapper<${entity.name}, ${referenceEntity.apiPackagePath}.model.${referenceEntity.name}> ${entity.variableName}To${referenceEntity.name}TableMapper;
 		</#if>
 	</#list>
+
+	<#if entity.localizedEntity??>
+		<#assign localizedEntity = entity.localizedEntity />
+
+		<#if dependencyInjectorDS>
+			@Reference
+		<#else>
+			@BeanReference(type = ${localizedEntity.name}Persistence.class)
+		</#if>
+
+		protected ${localizedEntity.name}Persistence ${localizedEntity.variableName}Persistence;
+	</#if>
+
+	<#if entity.versionedEntity?? && entity.versionedEntity.localizedEntity??>
+		<#assign
+			versionedEntity = entity.versionedEntity
+			localizedVersionEntity = versionedEntity.localizedEntity.versionEntity
+		/>
+
+		<#if dependencyInjectorDS>
+			@Reference
+		<#else>
+			@BeanReference(type = ${localizedVersionEntity.name}Persistence.class)
+		</#if>
+
+		protected ${localizedVersionEntity.name}Persistence ${localizedVersionEntity.variableName}Persistence;
+	</#if>
 
 	<#if entity.isHierarchicalTree()>
 		protected NestedSetsTreeManager<${entity.name}> nestedSetsTreeManager = new PersistenceNestedSetsTreeManager<${entity.name}>(this, "${entity.table}", "${entity.name}", ${entity.name}Impl.class, "${pkEntityColumn.DBName}", "${scopeEntityColumn.DBName}", "left${pkEntityColumn.methodName}", "right${pkEntityColumn.methodName}");
@@ -2961,179 +3047,41 @@ public class ${entity.name}PersistenceImpl extends BasePersistenceImpl<${entity.
 		}
 	</#if>
 
-	<#if serviceBuilder.isVersionGTE_7_3_0()>
-		<#if serviceBuilder.isVersionLTE_7_3_0()>
-			private FinderPath _createFinderPath(
-				String cacheName, String methodName, String[] params,
-				String[] columnNames, boolean baseModelResult) {
+	<#if serviceBuilder.isVersionGTE_7_3_0() && serviceBuilder.isVersionLTE_7_3_0()>
+		private FinderPath _createFinderPath(
+			String cacheName, String methodName, String[] params,
+			String[] columnNames, boolean baseModelResult) {
 
-				FinderPath finderPath = new FinderPath(cacheName, methodName, params, columnNames, baseModelResult);
+			FinderPath finderPath = new FinderPath(cacheName, methodName, params, columnNames, baseModelResult);
 
-				if (!cacheName.equals(FINDER_CLASS_NAME_LIST_WITH_PAGINATION)) {
-					<#if osgiModule>
-						_serviceRegistrations.add(_bundleContext.registerService(FinderPath.class, finderPath, MapUtil.singletonDictionary("cache.name", cacheName)));
-					<#else>
-						Registry registry = RegistryUtil.getRegistry();
+			if (!cacheName.equals(FINDER_CLASS_NAME_LIST_WITH_PAGINATION)) {
+				<#if osgiModule>
+					_serviceRegistrations.add(_bundleContext.registerService(FinderPath.class, finderPath, MapUtil.singletonDictionary("cache.name", cacheName)));
+				<#else>
+					Registry registry = RegistryUtil.getRegistry();
 
-						_serviceRegistrations.add(
-							registry.registerService(
-								FinderPath.class, finderPath,
-								HashMapBuilder.<String, Object>put(
-									"cache.name", cacheName
-								).build()));
-					</#if>
-				}
-
-				return finderPath;
+					_serviceRegistrations.add(
+						registry.registerService(
+							FinderPath.class, finderPath,
+							HashMapBuilder.<String, Object>put(
+								"cache.name", cacheName
+							).build()));
+				</#if>
 			}
 
-			private Set<ServiceRegistration<FinderPath>> _serviceRegistrations = new HashSet<>();
-		</#if>
+			return finderPath;
+		}
+
+		private Set<ServiceRegistration<FinderPath>> _serviceRegistrations = new HashSet<>();
 
 		private ServiceRegistration<ArgumentsResolver> _argumentsResolverServiceRegistration;
 
-		private static class ${entity.name}ModelArgumentsResolver implements ArgumentsResolver {
+		<#include "model_arguments_resolver.ftl">
+	</#if>
 
-			@Override
-			public Object[] getArguments(
-				FinderPath finderPath, BaseModel<?> baseModel,
-				boolean checkColumn, boolean original) {
-
-				String[] columnNames = finderPath.getColumnNames();
-
-				if ((columnNames == null) || (columnNames.length == 0)) {
-					if (baseModel.isNew()) {
-						return FINDER_ARGS_EMPTY;
-					}
-
-					return null;
-				}
-
-				${entity.name}ModelImpl ${entity.variableName}ModelImpl = (${entity.name}ModelImpl)baseModel;
-
-				<#if columnBitmaskEnabled>
-					long columnBitmask = ${entity.variableName}ModelImpl.getColumnBitmask();
-
-					if (!checkColumn || (columnBitmask == 0)) {
-						return _getValue(${entity.variableName}ModelImpl, columnNames, original);
-					}
-
-					Long finderPathColumnBitmask = _finderPathColumnBitmasksCache.get(finderPath);
-
-					if (finderPathColumnBitmask == null) {
-						finderPathColumnBitmask = 0L;
-
-						for (String columnName : columnNames) {
-							finderPathColumnBitmask |= ${entity.variableName}ModelImpl.getColumnBitmask(columnName);
-						}
-
-						<#if entity.entityOrder??>
-							if (finderPath.isBaseModelResult() && (FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION == finderPath.getCacheName())) {
-								finderPathColumnBitmask |= _ORDER_BY_COLUMNS_BITMASK;
-							}
-						</#if>
-
-						_finderPathColumnBitmasksCache.put(finderPath, finderPathColumnBitmask);
-					}
-
-					if ((columnBitmask & finderPathColumnBitmask) != 0) {
-						return _getValue(${entity.variableName}ModelImpl, columnNames, original);
-					}
-				<#else>
-					if (!checkColumn || _hasModifiedColumns(${entity.variableName}ModelImpl, columnNames)
-						<#if entity.entityOrder??>
-							|| _hasModifiedColumns(${entity.variableName}ModelImpl, _ORDER_BY_COLUMNS)
-						</#if>
-					) {
-						return _getValue(${entity.variableName}ModelImpl, columnNames, original);
-					}
-				</#if>
-
-				return null;
-			}
-
-			<#if serviceBuilder.isVersionGTE_7_4_0()>
-				@Override
-				public String getClassName() {
-					return ${entity.name}Impl.class.getName();
-				}
-
-				@Override
-				public String getTableName() {
-					return ${entity.name}Table.INSTANCE.getTableName();
-				}
-			</#if>
-
-			private static Object[] _getValue(${entity.name}ModelImpl ${entity.variableName}ModelImpl, String[] columnNames, boolean original) {
-				Object[] arguments = new Object[columnNames.length];
-
-				for (int i = 0; i < arguments.length; i ++) {
-					String columnName = columnNames[i];
-
-					if (original) {
-						arguments[i] = ${entity.variableName}ModelImpl.getColumnOriginalValue(columnName);
-					}
-					else {
-						arguments[i] = ${entity.variableName}ModelImpl.getColumnValue(columnName);
-					}
-				}
-
-				return arguments;
-			}
-
-			<#if columnBitmaskEnabled>
-				private static final Map<FinderPath, Long> _finderPathColumnBitmasksCache = new ConcurrentHashMap<>();
-			<#else>
-				private static boolean _hasModifiedColumns(${entity.name}ModelImpl ${entity.variableName}ModelImpl, String[] columnNames) {
-					if (columnNames.length == 0) {
-						return false;
-					}
-
-					for (String columnName : columnNames) {
-						if (!Objects.equals(${entity.variableName}ModelImpl.getColumnOriginalValue(columnName), ${entity.variableName}ModelImpl.getColumnValue(columnName))) {
-							return true;
-						}
-					}
-
-					return false;
-				}
-			</#if>
-
-			<#if entity.entityOrder??>
-				<#if columnBitmaskEnabled>
-					private static final long _ORDER_BY_COLUMNS_BITMASK;
-
-					static {
-						long orderByColumnsBitmask = 0;
-
-						<#list entity.entityOrder.entityColumns as entityColumn>
-							<#if !entity.PKEntityColumns?seq_contains(entityColumn)>
-								orderByColumnsBitmask |= ${entity.name}ModelImpl.getColumnBitmask("${entityColumn.DBName}");
-							</#if>
-						</#list>
-
-						_ORDER_BY_COLUMNS_BITMASK = orderByColumnsBitmask;
-					}
-
-				<#else>
-					private static final String[] _ORDER_BY_COLUMNS;
-
-					static {
-						List<String> orderByColumns = new ArrayList<String>();
-
-						<#if entity.entityOrder??>
-							<#list entity.entityOrder.entityColumns as entityColumn>
-								<#if !entity.PKEntityColumns?seq_contains(entityColumn)>
-									orderByColumns.add("${entityColumn.DBName}");
-								</#if>
-							</#list>
-						</#if>
-
-						_ORDER_BY_COLUMNS = orderByColumns.toArray(new String[0]);
-					}
-				</#if>
-			</#if>
-		}
+	<#if serviceBuilder.isVersionGTE_7_4_0() && dependencyInjectorDS>
+		@Reference
+		private ${entity.name}ModelArgumentsResolver _${entity.variableName}ModelArgumentsResolver;
 	</#if>
 }
 

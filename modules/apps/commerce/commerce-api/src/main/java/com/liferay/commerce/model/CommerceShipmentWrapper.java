@@ -165,6 +165,11 @@ public class CommerceShipmentWrapper
 	}
 
 	@Override
+	public CommerceShipment cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
+	@Override
 	public CommerceAddress fetchCommerceAddress() {
 		return model.fetchCommerceAddress();
 	}

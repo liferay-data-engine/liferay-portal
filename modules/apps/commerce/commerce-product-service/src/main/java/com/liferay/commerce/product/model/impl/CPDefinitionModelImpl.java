@@ -37,6 +37,7 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
 import java.io.Serializable;
@@ -44,6 +45,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -2289,6 +2291,103 @@ public class CPDefinitionModelImpl
 	}
 
 	@Override
+	public CPDefinition cloneWithOriginalValues() {
+		CPDefinitionImpl cpDefinitionImpl = new CPDefinitionImpl();
+
+		cpDefinitionImpl.setUuid(this.<String>getColumnOriginalValue("uuid_"));
+		cpDefinitionImpl.setDefaultLanguageId(
+			this.<String>getColumnOriginalValue("defaultLanguageId"));
+		cpDefinitionImpl.setCPDefinitionId(
+			this.<Long>getColumnOriginalValue("CPDefinitionId"));
+		cpDefinitionImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		cpDefinitionImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		cpDefinitionImpl.setUserId(this.<Long>getColumnOriginalValue("userId"));
+		cpDefinitionImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		cpDefinitionImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		cpDefinitionImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		cpDefinitionImpl.setCProductId(
+			this.<Long>getColumnOriginalValue("CProductId"));
+		cpDefinitionImpl.setCPTaxCategoryId(
+			this.<Long>getColumnOriginalValue("CPTaxCategoryId"));
+		cpDefinitionImpl.setProductTypeName(
+			this.<String>getColumnOriginalValue("productTypeName"));
+		cpDefinitionImpl.setAvailableIndividually(
+			this.<Boolean>getColumnOriginalValue("availableIndividually"));
+		cpDefinitionImpl.setIgnoreSKUCombinations(
+			this.<Boolean>getColumnOriginalValue("ignoreSKUCombinations"));
+		cpDefinitionImpl.setShippable(
+			this.<Boolean>getColumnOriginalValue("shippable"));
+		cpDefinitionImpl.setFreeShipping(
+			this.<Boolean>getColumnOriginalValue("freeShipping"));
+		cpDefinitionImpl.setShipSeparately(
+			this.<Boolean>getColumnOriginalValue("shipSeparately"));
+		cpDefinitionImpl.setShippingExtraPrice(
+			this.<Double>getColumnOriginalValue("shippingExtraPrice"));
+		cpDefinitionImpl.setWidth(this.<Double>getColumnOriginalValue("width"));
+		cpDefinitionImpl.setHeight(
+			this.<Double>getColumnOriginalValue("height"));
+		cpDefinitionImpl.setDepth(this.<Double>getColumnOriginalValue("depth"));
+		cpDefinitionImpl.setWeight(
+			this.<Double>getColumnOriginalValue("weight"));
+		cpDefinitionImpl.setTaxExempt(
+			this.<Boolean>getColumnOriginalValue("taxExempt"));
+		cpDefinitionImpl.setTelcoOrElectronics(
+			this.<Boolean>getColumnOriginalValue("telcoOrElectronics"));
+		cpDefinitionImpl.setDDMStructureKey(
+			this.<String>getColumnOriginalValue("DDMStructureKey"));
+		cpDefinitionImpl.setPublished(
+			this.<Boolean>getColumnOriginalValue("published"));
+		cpDefinitionImpl.setDisplayDate(
+			this.<Date>getColumnOriginalValue("displayDate"));
+		cpDefinitionImpl.setExpirationDate(
+			this.<Date>getColumnOriginalValue("expirationDate"));
+		cpDefinitionImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+		cpDefinitionImpl.setSubscriptionEnabled(
+			this.<Boolean>getColumnOriginalValue("subscriptionEnabled"));
+		cpDefinitionImpl.setSubscriptionLength(
+			this.<Integer>getColumnOriginalValue("subscriptionLength"));
+		cpDefinitionImpl.setSubscriptionType(
+			this.<String>getColumnOriginalValue("subscriptionType"));
+		cpDefinitionImpl.setSubscriptionTypeSettings(
+			this.<String>getColumnOriginalValue("subscriptionTypeSettings"));
+		cpDefinitionImpl.setMaxSubscriptionCycles(
+			this.<Long>getColumnOriginalValue("maxSubscriptionCycles"));
+		cpDefinitionImpl.setDeliverySubscriptionEnabled(
+			this.<Boolean>getColumnOriginalValue(
+				"deliverySubscriptionEnabled"));
+		cpDefinitionImpl.setDeliverySubscriptionLength(
+			this.<Integer>getColumnOriginalValue("deliverySubscriptionLength"));
+		cpDefinitionImpl.setDeliverySubscriptionType(
+			this.<String>getColumnOriginalValue("deliverySubscriptionType"));
+		cpDefinitionImpl.setDeliverySubscriptionTypeSettings(
+			this.<String>getColumnOriginalValue("deliverySubTypeSettings"));
+		cpDefinitionImpl.setDeliveryMaxSubscriptionCycles(
+			this.<Long>getColumnOriginalValue("deliveryMaxSubscriptionCycles"));
+		cpDefinitionImpl.setAccountGroupFilterEnabled(
+			this.<Boolean>getColumnOriginalValue("accountGroupFilterEnabled"));
+		cpDefinitionImpl.setChannelFilterEnabled(
+			this.<Boolean>getColumnOriginalValue("channelFilterEnabled"));
+		cpDefinitionImpl.setVersion(
+			this.<Integer>getColumnOriginalValue("version"));
+		cpDefinitionImpl.setStatus(
+			this.<Integer>getColumnOriginalValue("status"));
+		cpDefinitionImpl.setStatusByUserId(
+			this.<Long>getColumnOriginalValue("statusByUserId"));
+		cpDefinitionImpl.setStatusByUserName(
+			this.<String>getColumnOriginalValue("statusByUserName"));
+		cpDefinitionImpl.setStatusDate(
+			this.<Date>getColumnOriginalValue("statusDate"));
+
+		return cpDefinitionImpl;
+	}
+
+	@Override
 	public int compareTo(CPDefinition cpDefinition) {
 		int value = 0;
 
@@ -2594,7 +2693,7 @@ public class CPDefinitionModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -2605,9 +2704,26 @@ public class CPDefinitionModelImpl
 			Function<CPDefinition, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((CPDefinition)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((CPDefinition)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

@@ -27,6 +27,7 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.segments.model.SegmentsEntryRole;
 import com.liferay.segments.model.SegmentsEntryRoleModel;
 
@@ -35,6 +36,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
@@ -591,6 +593,35 @@ public class SegmentsEntryRoleModelImpl
 	}
 
 	@Override
+	public SegmentsEntryRole cloneWithOriginalValues() {
+		SegmentsEntryRoleImpl segmentsEntryRoleImpl =
+			new SegmentsEntryRoleImpl();
+
+		segmentsEntryRoleImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		segmentsEntryRoleImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		segmentsEntryRoleImpl.setSegmentsEntryRoleId(
+			this.<Long>getColumnOriginalValue("segmentsEntryRoleId"));
+		segmentsEntryRoleImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		segmentsEntryRoleImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		segmentsEntryRoleImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		segmentsEntryRoleImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		segmentsEntryRoleImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		segmentsEntryRoleImpl.setSegmentsEntryId(
+			this.<Long>getColumnOriginalValue("segmentsEntryId"));
+		segmentsEntryRoleImpl.setRoleId(
+			this.<Long>getColumnOriginalValue("roleId"));
+
+		return segmentsEntryRoleImpl;
+	}
+
+	@Override
 	public int compareTo(SegmentsEntryRole segmentsEntryRole) {
 		long primaryKey = segmentsEntryRole.getPrimaryKey();
 
@@ -714,7 +745,7 @@ public class SegmentsEntryRoleModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -725,9 +756,27 @@ public class SegmentsEntryRoleModelImpl
 			Function<SegmentsEntryRole, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((SegmentsEntryRole)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(SegmentsEntryRole)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

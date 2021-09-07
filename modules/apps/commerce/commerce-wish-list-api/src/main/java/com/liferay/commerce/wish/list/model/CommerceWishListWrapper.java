@@ -120,6 +120,11 @@ public class CommerceWishListWrapper
 		}
 	}
 
+	@Override
+	public CommerceWishList cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the commerce wish list ID of this commerce wish list.
 	 *

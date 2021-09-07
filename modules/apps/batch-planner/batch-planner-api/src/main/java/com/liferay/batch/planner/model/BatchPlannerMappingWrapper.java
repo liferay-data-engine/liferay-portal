@@ -141,6 +141,11 @@ public class BatchPlannerMappingWrapper
 		}
 	}
 
+	@Override
+	public BatchPlannerMapping cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the batch planner mapping ID of this batch planner mapping.
 	 *

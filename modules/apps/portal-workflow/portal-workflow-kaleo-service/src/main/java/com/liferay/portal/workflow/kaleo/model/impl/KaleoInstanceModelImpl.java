@@ -27,6 +27,7 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.workflow.kaleo.model.KaleoInstance;
 import com.liferay.portal.workflow.kaleo.model.KaleoInstanceModel;
 
@@ -35,6 +36,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
@@ -913,6 +915,50 @@ public class KaleoInstanceModelImpl
 	}
 
 	@Override
+	public KaleoInstance cloneWithOriginalValues() {
+		KaleoInstanceImpl kaleoInstanceImpl = new KaleoInstanceImpl();
+
+		kaleoInstanceImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		kaleoInstanceImpl.setKaleoInstanceId(
+			this.<Long>getColumnOriginalValue("kaleoInstanceId"));
+		kaleoInstanceImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		kaleoInstanceImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		kaleoInstanceImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		kaleoInstanceImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		kaleoInstanceImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		kaleoInstanceImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		kaleoInstanceImpl.setKaleoDefinitionId(
+			this.<Long>getColumnOriginalValue("kaleoDefinitionId"));
+		kaleoInstanceImpl.setKaleoDefinitionVersionId(
+			this.<Long>getColumnOriginalValue("kaleoDefinitionVersionId"));
+		kaleoInstanceImpl.setKaleoDefinitionName(
+			this.<String>getColumnOriginalValue("kaleoDefinitionName"));
+		kaleoInstanceImpl.setKaleoDefinitionVersion(
+			this.<Integer>getColumnOriginalValue("kaleoDefinitionVersion"));
+		kaleoInstanceImpl.setRootKaleoInstanceTokenId(
+			this.<Long>getColumnOriginalValue("rootKaleoInstanceTokenId"));
+		kaleoInstanceImpl.setClassName(
+			this.<String>getColumnOriginalValue("className"));
+		kaleoInstanceImpl.setClassPK(
+			this.<Long>getColumnOriginalValue("classPK"));
+		kaleoInstanceImpl.setCompleted(
+			this.<Boolean>getColumnOriginalValue("completed"));
+		kaleoInstanceImpl.setCompletionDate(
+			this.<Date>getColumnOriginalValue("completionDate"));
+		kaleoInstanceImpl.setWorkflowContext(
+			this.<String>getColumnOriginalValue("workflowContext"));
+
+		return kaleoInstanceImpl;
+	}
+
+	@Override
 	public int compareTo(KaleoInstance kaleoInstance) {
 		int value = 0;
 
@@ -1088,7 +1134,7 @@ public class KaleoInstanceModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1099,9 +1145,26 @@ public class KaleoInstanceModelImpl
 			Function<KaleoInstance, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((KaleoInstance)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((KaleoInstance)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

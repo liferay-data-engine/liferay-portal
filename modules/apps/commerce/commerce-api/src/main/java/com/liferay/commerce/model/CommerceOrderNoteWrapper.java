@@ -127,6 +127,11 @@ public class CommerceOrderNoteWrapper
 		}
 	}
 
+	@Override
+	public CommerceOrderNote cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the commerce order ID of this commerce order note.
 	 *

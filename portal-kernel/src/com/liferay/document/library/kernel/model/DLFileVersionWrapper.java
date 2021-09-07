@@ -284,6 +284,11 @@ public class DLFileVersionWrapper
 		return model.buildTreePath();
 	}
 
+	@Override
+	public DLFileVersion cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the change log of this document library file version.
 	 *

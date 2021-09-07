@@ -188,6 +188,11 @@ public class CPDefinitionOptionRelWrapper
 	}
 
 	@Override
+	public CPDefinitionOptionRel cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
+	@Override
 	public CPDefinitionOptionValueRel
 		fetchPreselectedCPDefinitionOptionValueRel() {
 

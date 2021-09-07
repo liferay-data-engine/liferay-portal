@@ -30,6 +30,7 @@ import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.trash.model.TrashEntry;
 import com.liferay.trash.model.TrashEntryModel;
@@ -40,6 +41,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -763,6 +765,36 @@ public class TrashEntryModelImpl
 	}
 
 	@Override
+	public TrashEntry cloneWithOriginalValues() {
+		TrashEntryImpl trashEntryImpl = new TrashEntryImpl();
+
+		trashEntryImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		trashEntryImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		trashEntryImpl.setEntryId(this.<Long>getColumnOriginalValue("entryId"));
+		trashEntryImpl.setGroupId(this.<Long>getColumnOriginalValue("groupId"));
+		trashEntryImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		trashEntryImpl.setUserId(this.<Long>getColumnOriginalValue("userId"));
+		trashEntryImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		trashEntryImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		trashEntryImpl.setClassNameId(
+			this.<Long>getColumnOriginalValue("classNameId"));
+		trashEntryImpl.setClassPK(this.<Long>getColumnOriginalValue("classPK"));
+		trashEntryImpl.setSystemEventSetKey(
+			this.<Long>getColumnOriginalValue("systemEventSetKey"));
+		trashEntryImpl.setTypeSettings(
+			this.<String>getColumnOriginalValue("typeSettings"));
+		trashEntryImpl.setStatus(
+			this.<Integer>getColumnOriginalValue("status"));
+
+		return trashEntryImpl;
+	}
+
+	@Override
 	public int compareTo(TrashEntry trashEntry) {
 		int value = 0;
 
@@ -887,7 +919,7 @@ public class TrashEntryModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -898,9 +930,26 @@ public class TrashEntryModelImpl
 			Function<TrashEntry, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((TrashEntry)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((TrashEntry)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

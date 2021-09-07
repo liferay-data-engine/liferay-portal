@@ -36,6 +36,7 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
@@ -44,6 +45,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1243,6 +1245,54 @@ public class DLFileShortcutModelImpl
 	}
 
 	@Override
+	public DLFileShortcut cloneWithOriginalValues() {
+		DLFileShortcutImpl dlFileShortcutImpl = new DLFileShortcutImpl();
+
+		dlFileShortcutImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		dlFileShortcutImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		dlFileShortcutImpl.setUuid(
+			this.<String>getColumnOriginalValue("uuid_"));
+		dlFileShortcutImpl.setFileShortcutId(
+			this.<Long>getColumnOriginalValue("fileShortcutId"));
+		dlFileShortcutImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		dlFileShortcutImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		dlFileShortcutImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		dlFileShortcutImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		dlFileShortcutImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		dlFileShortcutImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		dlFileShortcutImpl.setRepositoryId(
+			this.<Long>getColumnOriginalValue("repositoryId"));
+		dlFileShortcutImpl.setFolderId(
+			this.<Long>getColumnOriginalValue("folderId"));
+		dlFileShortcutImpl.setToFileEntryId(
+			this.<Long>getColumnOriginalValue("toFileEntryId"));
+		dlFileShortcutImpl.setTreePath(
+			this.<String>getColumnOriginalValue("treePath"));
+		dlFileShortcutImpl.setActive(
+			this.<Boolean>getColumnOriginalValue("active_"));
+		dlFileShortcutImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+		dlFileShortcutImpl.setStatus(
+			this.<Integer>getColumnOriginalValue("status"));
+		dlFileShortcutImpl.setStatusByUserId(
+			this.<Long>getColumnOriginalValue("statusByUserId"));
+		dlFileShortcutImpl.setStatusByUserName(
+			this.<String>getColumnOriginalValue("statusByUserName"));
+		dlFileShortcutImpl.setStatusDate(
+			this.<Date>getColumnOriginalValue("statusDate"));
+
+		return dlFileShortcutImpl;
+	}
+
+	@Override
 	public int compareTo(DLFileShortcut dlFileShortcut) {
 		long primaryKey = dlFileShortcut.getPrimaryKey();
 
@@ -1418,7 +1468,7 @@ public class DLFileShortcutModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1429,9 +1479,26 @@ public class DLFileShortcutModelImpl
 			Function<DLFileShortcut, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((DLFileShortcut)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((DLFileShortcut)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

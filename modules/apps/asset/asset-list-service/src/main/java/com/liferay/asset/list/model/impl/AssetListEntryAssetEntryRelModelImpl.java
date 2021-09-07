@@ -31,12 +31,14 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
@@ -795,6 +797,45 @@ public class AssetListEntryAssetEntryRelModelImpl
 	}
 
 	@Override
+	public AssetListEntryAssetEntryRel cloneWithOriginalValues() {
+		AssetListEntryAssetEntryRelImpl assetListEntryAssetEntryRelImpl =
+			new AssetListEntryAssetEntryRelImpl();
+
+		assetListEntryAssetEntryRelImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		assetListEntryAssetEntryRelImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		assetListEntryAssetEntryRelImpl.setUuid(
+			this.<String>getColumnOriginalValue("uuid_"));
+		assetListEntryAssetEntryRelImpl.setAssetListEntryAssetEntryRelId(
+			this.<Long>getColumnOriginalValue("assetListEntryAssetEntryRelId"));
+		assetListEntryAssetEntryRelImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		assetListEntryAssetEntryRelImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		assetListEntryAssetEntryRelImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		assetListEntryAssetEntryRelImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		assetListEntryAssetEntryRelImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		assetListEntryAssetEntryRelImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		assetListEntryAssetEntryRelImpl.setAssetListEntryId(
+			this.<Long>getColumnOriginalValue("assetListEntryId"));
+		assetListEntryAssetEntryRelImpl.setAssetEntryId(
+			this.<Long>getColumnOriginalValue("assetEntryId"));
+		assetListEntryAssetEntryRelImpl.setSegmentsEntryId(
+			this.<Long>getColumnOriginalValue("segmentsEntryId"));
+		assetListEntryAssetEntryRelImpl.setPosition(
+			this.<Integer>getColumnOriginalValue("position"));
+		assetListEntryAssetEntryRelImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+
+		return assetListEntryAssetEntryRelImpl;
+	}
+
+	@Override
 	public int compareTo(
 		AssetListEntryAssetEntryRel assetListEntryAssetEntryRel) {
 
@@ -958,7 +999,7 @@ public class AssetListEntryAssetEntryRelModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -969,11 +1010,27 @@ public class AssetListEntryAssetEntryRelModelImpl
 			Function<AssetListEntryAssetEntryRel, Object>
 				attributeGetterFunction = entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply(
-					(AssetListEntryAssetEntryRel)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(AssetListEntryAssetEntryRel)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

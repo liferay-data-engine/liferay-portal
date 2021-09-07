@@ -152,6 +152,11 @@ public class BatchPlannerLogWrapper
 		}
 	}
 
+	@Override
+	public BatchPlannerLog cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the batch engine export task erc of this batch planner log.
 	 *

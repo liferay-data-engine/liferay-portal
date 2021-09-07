@@ -33,12 +33,14 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -792,6 +794,39 @@ public class CPDefinitionGroupedEntryModelImpl
 	}
 
 	@Override
+	public CPDefinitionGroupedEntry cloneWithOriginalValues() {
+		CPDefinitionGroupedEntryImpl cpDefinitionGroupedEntryImpl =
+			new CPDefinitionGroupedEntryImpl();
+
+		cpDefinitionGroupedEntryImpl.setUuid(
+			this.<String>getColumnOriginalValue("uuid_"));
+		cpDefinitionGroupedEntryImpl.setCPDefinitionGroupedEntryId(
+			this.<Long>getColumnOriginalValue("CPDefinitionGroupedEntryId"));
+		cpDefinitionGroupedEntryImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		cpDefinitionGroupedEntryImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		cpDefinitionGroupedEntryImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		cpDefinitionGroupedEntryImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		cpDefinitionGroupedEntryImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		cpDefinitionGroupedEntryImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		cpDefinitionGroupedEntryImpl.setCPDefinitionId(
+			this.<Long>getColumnOriginalValue("CPDefinitionId"));
+		cpDefinitionGroupedEntryImpl.setEntryCProductId(
+			this.<Long>getColumnOriginalValue("entryCProductId"));
+		cpDefinitionGroupedEntryImpl.setPriority(
+			this.<Double>getColumnOriginalValue("priority"));
+		cpDefinitionGroupedEntryImpl.setQuantity(
+			this.<Integer>getColumnOriginalValue("quantity"));
+
+		return cpDefinitionGroupedEntryImpl;
+	}
+
+	@Override
 	public int compareTo(CPDefinitionGroupedEntry cpDefinitionGroupedEntry) {
 		int value = 0;
 
@@ -935,7 +970,7 @@ public class CPDefinitionGroupedEntryModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -946,10 +981,27 @@ public class CPDefinitionGroupedEntryModelImpl
 			Function<CPDefinitionGroupedEntry, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply((CPDefinitionGroupedEntry)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(CPDefinitionGroupedEntry)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

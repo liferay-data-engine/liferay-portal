@@ -203,12 +203,13 @@ public class CustomElementsSourceUtil {
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching custom elements source
-	 * @throws NoSuchSourceException if a matching custom elements source could not be found
+	 * @throws NoSuchCustomElementsSourceException if a matching custom elements source could not be found
 	 */
 	public static CustomElementsSource findByUuid_First(
 			String uuid,
 			OrderByComparator<CustomElementsSource> orderByComparator)
-		throws com.liferay.custom.elements.exception.NoSuchSourceException {
+		throws com.liferay.custom.elements.exception.
+			NoSuchCustomElementsSourceException {
 
 		return getPersistence().findByUuid_First(uuid, orderByComparator);
 	}
@@ -233,12 +234,13 @@ public class CustomElementsSourceUtil {
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching custom elements source
-	 * @throws NoSuchSourceException if a matching custom elements source could not be found
+	 * @throws NoSuchCustomElementsSourceException if a matching custom elements source could not be found
 	 */
 	public static CustomElementsSource findByUuid_Last(
 			String uuid,
 			OrderByComparator<CustomElementsSource> orderByComparator)
-		throws com.liferay.custom.elements.exception.NoSuchSourceException {
+		throws com.liferay.custom.elements.exception.
+			NoSuchCustomElementsSourceException {
 
 		return getPersistence().findByUuid_Last(uuid, orderByComparator);
 	}
@@ -264,12 +266,13 @@ public class CustomElementsSourceUtil {
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next custom elements source
-	 * @throws NoSuchSourceException if a custom elements source with the primary key could not be found
+	 * @throws NoSuchCustomElementsSourceException if a custom elements source with the primary key could not be found
 	 */
 	public static CustomElementsSource[] findByUuid_PrevAndNext(
 			long customElementsSourceId, String uuid,
 			OrderByComparator<CustomElementsSource> orderByComparator)
-		throws com.liferay.custom.elements.exception.NoSuchSourceException {
+		throws com.liferay.custom.elements.exception.
+			NoSuchCustomElementsSourceException {
 
 		return getPersistence().findByUuid_PrevAndNext(
 			customElementsSourceId, uuid, orderByComparator);
@@ -379,12 +382,13 @@ public class CustomElementsSourceUtil {
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching custom elements source
-	 * @throws NoSuchSourceException if a matching custom elements source could not be found
+	 * @throws NoSuchCustomElementsSourceException if a matching custom elements source could not be found
 	 */
 	public static CustomElementsSource findByUuid_C_First(
 			String uuid, long companyId,
 			OrderByComparator<CustomElementsSource> orderByComparator)
-		throws com.liferay.custom.elements.exception.NoSuchSourceException {
+		throws com.liferay.custom.elements.exception.
+			NoSuchCustomElementsSourceException {
 
 		return getPersistence().findByUuid_C_First(
 			uuid, companyId, orderByComparator);
@@ -413,12 +417,13 @@ public class CustomElementsSourceUtil {
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching custom elements source
-	 * @throws NoSuchSourceException if a matching custom elements source could not be found
+	 * @throws NoSuchCustomElementsSourceException if a matching custom elements source could not be found
 	 */
 	public static CustomElementsSource findByUuid_C_Last(
 			String uuid, long companyId,
 			OrderByComparator<CustomElementsSource> orderByComparator)
-		throws com.liferay.custom.elements.exception.NoSuchSourceException {
+		throws com.liferay.custom.elements.exception.
+			NoSuchCustomElementsSourceException {
 
 		return getPersistence().findByUuid_C_Last(
 			uuid, companyId, orderByComparator);
@@ -448,12 +453,13 @@ public class CustomElementsSourceUtil {
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next custom elements source
-	 * @throws NoSuchSourceException if a custom elements source with the primary key could not be found
+	 * @throws NoSuchCustomElementsSourceException if a custom elements source with the primary key could not be found
 	 */
 	public static CustomElementsSource[] findByUuid_C_PrevAndNext(
 			long customElementsSourceId, String uuid, long companyId,
 			OrderByComparator<CustomElementsSource> orderByComparator)
-		throws com.liferay.custom.elements.exception.NoSuchSourceException {
+		throws com.liferay.custom.elements.exception.
+			NoSuchCustomElementsSourceException {
 
 		return getPersistence().findByUuid_C_PrevAndNext(
 			customElementsSourceId, uuid, companyId, orderByComparator);
@@ -558,12 +564,13 @@ public class CustomElementsSourceUtil {
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching custom elements source
-	 * @throws NoSuchSourceException if a matching custom elements source could not be found
+	 * @throws NoSuchCustomElementsSourceException if a matching custom elements source could not be found
 	 */
 	public static CustomElementsSource findByCompanyId_First(
 			long companyId,
 			OrderByComparator<CustomElementsSource> orderByComparator)
-		throws com.liferay.custom.elements.exception.NoSuchSourceException {
+		throws com.liferay.custom.elements.exception.
+			NoSuchCustomElementsSourceException {
 
 		return getPersistence().findByCompanyId_First(
 			companyId, orderByComparator);
@@ -590,12 +597,13 @@ public class CustomElementsSourceUtil {
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching custom elements source
-	 * @throws NoSuchSourceException if a matching custom elements source could not be found
+	 * @throws NoSuchCustomElementsSourceException if a matching custom elements source could not be found
 	 */
 	public static CustomElementsSource findByCompanyId_Last(
 			long companyId,
 			OrderByComparator<CustomElementsSource> orderByComparator)
-		throws com.liferay.custom.elements.exception.NoSuchSourceException {
+		throws com.liferay.custom.elements.exception.
+			NoSuchCustomElementsSourceException {
 
 		return getPersistence().findByCompanyId_Last(
 			companyId, orderByComparator);
@@ -623,12 +631,13 @@ public class CustomElementsSourceUtil {
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next custom elements source
-	 * @throws NoSuchSourceException if a custom elements source with the primary key could not be found
+	 * @throws NoSuchCustomElementsSourceException if a custom elements source with the primary key could not be found
 	 */
 	public static CustomElementsSource[] findByCompanyId_PrevAndNext(
 			long customElementsSourceId, long companyId,
 			OrderByComparator<CustomElementsSource> orderByComparator)
-		throws com.liferay.custom.elements.exception.NoSuchSourceException {
+		throws com.liferay.custom.elements.exception.
+			NoSuchCustomElementsSourceException {
 
 		return getPersistence().findByCompanyId_PrevAndNext(
 			customElementsSourceId, companyId, orderByComparator);
@@ -654,171 +663,73 @@ public class CustomElementsSourceUtil {
 	}
 
 	/**
-	 * Returns all the custom elements sources where name = &#63;.
+	 * Returns the custom elements source where companyId = &#63; and htmlElementName = &#63; or throws a <code>NoSuchCustomElementsSourceException</code> if it could not be found.
 	 *
-	 * @param name the name
-	 * @return the matching custom elements sources
+	 * @param companyId the company ID
+	 * @param htmlElementName the html element name
+	 * @return the matching custom elements source
+	 * @throws NoSuchCustomElementsSourceException if a matching custom elements source could not be found
 	 */
-	public static List<CustomElementsSource> findByName(String name) {
-		return getPersistence().findByName(name);
+	public static CustomElementsSource findByC_H(
+			long companyId, String htmlElementName)
+		throws com.liferay.custom.elements.exception.
+			NoSuchCustomElementsSourceException {
+
+		return getPersistence().findByC_H(companyId, htmlElementName);
 	}
 
 	/**
-	 * Returns a range of all the custom elements sources where name = &#63;.
+	 * Returns the custom elements source where companyId = &#63; and htmlElementName = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
 	 *
-	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>CustomElementsSourceModelImpl</code>.
-	 * </p>
-	 *
-	 * @param name the name
-	 * @param start the lower bound of the range of custom elements sources
-	 * @param end the upper bound of the range of custom elements sources (not inclusive)
-	 * @return the range of matching custom elements sources
+	 * @param companyId the company ID
+	 * @param htmlElementName the html element name
+	 * @return the matching custom elements source, or <code>null</code> if a matching custom elements source could not be found
 	 */
-	public static List<CustomElementsSource> findByName(
-		String name, int start, int end) {
+	public static CustomElementsSource fetchByC_H(
+		long companyId, String htmlElementName) {
 
-		return getPersistence().findByName(name, start, end);
+		return getPersistence().fetchByC_H(companyId, htmlElementName);
 	}
 
 	/**
-	 * Returns an ordered range of all the custom elements sources where name = &#63;.
+	 * Returns the custom elements source where companyId = &#63; and htmlElementName = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
 	 *
-	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>CustomElementsSourceModelImpl</code>.
-	 * </p>
-	 *
-	 * @param name the name
-	 * @param start the lower bound of the range of custom elements sources
-	 * @param end the upper bound of the range of custom elements sources (not inclusive)
-	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @return the ordered range of matching custom elements sources
-	 */
-	public static List<CustomElementsSource> findByName(
-		String name, int start, int end,
-		OrderByComparator<CustomElementsSource> orderByComparator) {
-
-		return getPersistence().findByName(name, start, end, orderByComparator);
-	}
-
-	/**
-	 * Returns an ordered range of all the custom elements sources where name = &#63;.
-	 *
-	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>CustomElementsSourceModelImpl</code>.
-	 * </p>
-	 *
-	 * @param name the name
-	 * @param start the lower bound of the range of custom elements sources
-	 * @param end the upper bound of the range of custom elements sources (not inclusive)
-	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param companyId the company ID
+	 * @param htmlElementName the html element name
 	 * @param useFinderCache whether to use the finder cache
-	 * @return the ordered range of matching custom elements sources
+	 * @return the matching custom elements source, or <code>null</code> if a matching custom elements source could not be found
 	 */
-	public static List<CustomElementsSource> findByName(
-		String name, int start, int end,
-		OrderByComparator<CustomElementsSource> orderByComparator,
-		boolean useFinderCache) {
+	public static CustomElementsSource fetchByC_H(
+		long companyId, String htmlElementName, boolean useFinderCache) {
 
-		return getPersistence().findByName(
-			name, start, end, orderByComparator, useFinderCache);
+		return getPersistence().fetchByC_H(
+			companyId, htmlElementName, useFinderCache);
 	}
 
 	/**
-	 * Returns the first custom elements source in the ordered set where name = &#63;.
+	 * Removes the custom elements source where companyId = &#63; and htmlElementName = &#63; from the database.
 	 *
-	 * @param name the name
-	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the first matching custom elements source
-	 * @throws NoSuchSourceException if a matching custom elements source could not be found
+	 * @param companyId the company ID
+	 * @param htmlElementName the html element name
+	 * @return the custom elements source that was removed
 	 */
-	public static CustomElementsSource findByName_First(
-			String name,
-			OrderByComparator<CustomElementsSource> orderByComparator)
-		throws com.liferay.custom.elements.exception.NoSuchSourceException {
+	public static CustomElementsSource removeByC_H(
+			long companyId, String htmlElementName)
+		throws com.liferay.custom.elements.exception.
+			NoSuchCustomElementsSourceException {
 
-		return getPersistence().findByName_First(name, orderByComparator);
+		return getPersistence().removeByC_H(companyId, htmlElementName);
 	}
 
 	/**
-	 * Returns the first custom elements source in the ordered set where name = &#63;.
+	 * Returns the number of custom elements sources where companyId = &#63; and htmlElementName = &#63;.
 	 *
-	 * @param name the name
-	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the first matching custom elements source, or <code>null</code> if a matching custom elements source could not be found
-	 */
-	public static CustomElementsSource fetchByName_First(
-		String name,
-		OrderByComparator<CustomElementsSource> orderByComparator) {
-
-		return getPersistence().fetchByName_First(name, orderByComparator);
-	}
-
-	/**
-	 * Returns the last custom elements source in the ordered set where name = &#63;.
-	 *
-	 * @param name the name
-	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the last matching custom elements source
-	 * @throws NoSuchSourceException if a matching custom elements source could not be found
-	 */
-	public static CustomElementsSource findByName_Last(
-			String name,
-			OrderByComparator<CustomElementsSource> orderByComparator)
-		throws com.liferay.custom.elements.exception.NoSuchSourceException {
-
-		return getPersistence().findByName_Last(name, orderByComparator);
-	}
-
-	/**
-	 * Returns the last custom elements source in the ordered set where name = &#63;.
-	 *
-	 * @param name the name
-	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the last matching custom elements source, or <code>null</code> if a matching custom elements source could not be found
-	 */
-	public static CustomElementsSource fetchByName_Last(
-		String name,
-		OrderByComparator<CustomElementsSource> orderByComparator) {
-
-		return getPersistence().fetchByName_Last(name, orderByComparator);
-	}
-
-	/**
-	 * Returns the custom elements sources before and after the current custom elements source in the ordered set where name = &#63;.
-	 *
-	 * @param customElementsSourceId the primary key of the current custom elements source
-	 * @param name the name
-	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the previous, current, and next custom elements source
-	 * @throws NoSuchSourceException if a custom elements source with the primary key could not be found
-	 */
-	public static CustomElementsSource[] findByName_PrevAndNext(
-			long customElementsSourceId, String name,
-			OrderByComparator<CustomElementsSource> orderByComparator)
-		throws com.liferay.custom.elements.exception.NoSuchSourceException {
-
-		return getPersistence().findByName_PrevAndNext(
-			customElementsSourceId, name, orderByComparator);
-	}
-
-	/**
-	 * Removes all the custom elements sources where name = &#63; from the database.
-	 *
-	 * @param name the name
-	 */
-	public static void removeByName(String name) {
-		getPersistence().removeByName(name);
-	}
-
-	/**
-	 * Returns the number of custom elements sources where name = &#63;.
-	 *
-	 * @param name the name
+	 * @param companyId the company ID
+	 * @param htmlElementName the html element name
 	 * @return the number of matching custom elements sources
 	 */
-	public static int countByName(String name) {
-		return getPersistence().countByName(name);
+	public static int countByC_H(long companyId, String htmlElementName) {
+		return getPersistence().countByC_H(companyId, htmlElementName);
 	}
 
 	/**
@@ -856,10 +767,11 @@ public class CustomElementsSourceUtil {
 	 *
 	 * @param customElementsSourceId the primary key of the custom elements source
 	 * @return the custom elements source that was removed
-	 * @throws NoSuchSourceException if a custom elements source with the primary key could not be found
+	 * @throws NoSuchCustomElementsSourceException if a custom elements source with the primary key could not be found
 	 */
 	public static CustomElementsSource remove(long customElementsSourceId)
-		throws com.liferay.custom.elements.exception.NoSuchSourceException {
+		throws com.liferay.custom.elements.exception.
+			NoSuchCustomElementsSourceException {
 
 		return getPersistence().remove(customElementsSourceId);
 	}
@@ -871,15 +783,16 @@ public class CustomElementsSourceUtil {
 	}
 
 	/**
-	 * Returns the custom elements source with the primary key or throws a <code>NoSuchSourceException</code> if it could not be found.
+	 * Returns the custom elements source with the primary key or throws a <code>NoSuchCustomElementsSourceException</code> if it could not be found.
 	 *
 	 * @param customElementsSourceId the primary key of the custom elements source
 	 * @return the custom elements source
-	 * @throws NoSuchSourceException if a custom elements source with the primary key could not be found
+	 * @throws NoSuchCustomElementsSourceException if a custom elements source with the primary key could not be found
 	 */
 	public static CustomElementsSource findByPrimaryKey(
 			long customElementsSourceId)
-		throws com.liferay.custom.elements.exception.NoSuchSourceException {
+		throws com.liferay.custom.elements.exception.
+			NoSuchCustomElementsSourceException {
 
 		return getPersistence().findByPrimaryKey(customElementsSourceId);
 	}

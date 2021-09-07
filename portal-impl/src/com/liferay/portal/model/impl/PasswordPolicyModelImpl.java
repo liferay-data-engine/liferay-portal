@@ -33,12 +33,14 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1361,6 +1363,83 @@ public class PasswordPolicyModelImpl
 	}
 
 	@Override
+	public PasswordPolicy cloneWithOriginalValues() {
+		PasswordPolicyImpl passwordPolicyImpl = new PasswordPolicyImpl();
+
+		passwordPolicyImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		passwordPolicyImpl.setUuid(
+			this.<String>getColumnOriginalValue("uuid_"));
+		passwordPolicyImpl.setPasswordPolicyId(
+			this.<Long>getColumnOriginalValue("passwordPolicyId"));
+		passwordPolicyImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		passwordPolicyImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		passwordPolicyImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		passwordPolicyImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		passwordPolicyImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		passwordPolicyImpl.setDefaultPolicy(
+			this.<Boolean>getColumnOriginalValue("defaultPolicy"));
+		passwordPolicyImpl.setName(this.<String>getColumnOriginalValue("name"));
+		passwordPolicyImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		passwordPolicyImpl.setChangeable(
+			this.<Boolean>getColumnOriginalValue("changeable"));
+		passwordPolicyImpl.setChangeRequired(
+			this.<Boolean>getColumnOriginalValue("changeRequired"));
+		passwordPolicyImpl.setMinAge(
+			this.<Long>getColumnOriginalValue("minAge"));
+		passwordPolicyImpl.setCheckSyntax(
+			this.<Boolean>getColumnOriginalValue("checkSyntax"));
+		passwordPolicyImpl.setAllowDictionaryWords(
+			this.<Boolean>getColumnOriginalValue("allowDictionaryWords"));
+		passwordPolicyImpl.setMinAlphanumeric(
+			this.<Integer>getColumnOriginalValue("minAlphanumeric"));
+		passwordPolicyImpl.setMinLength(
+			this.<Integer>getColumnOriginalValue("minLength"));
+		passwordPolicyImpl.setMinLowerCase(
+			this.<Integer>getColumnOriginalValue("minLowerCase"));
+		passwordPolicyImpl.setMinNumbers(
+			this.<Integer>getColumnOriginalValue("minNumbers"));
+		passwordPolicyImpl.setMinSymbols(
+			this.<Integer>getColumnOriginalValue("minSymbols"));
+		passwordPolicyImpl.setMinUpperCase(
+			this.<Integer>getColumnOriginalValue("minUpperCase"));
+		passwordPolicyImpl.setRegex(
+			this.<String>getColumnOriginalValue("regex"));
+		passwordPolicyImpl.setHistory(
+			this.<Boolean>getColumnOriginalValue("history"));
+		passwordPolicyImpl.setHistoryCount(
+			this.<Integer>getColumnOriginalValue("historyCount"));
+		passwordPolicyImpl.setExpireable(
+			this.<Boolean>getColumnOriginalValue("expireable"));
+		passwordPolicyImpl.setMaxAge(
+			this.<Long>getColumnOriginalValue("maxAge"));
+		passwordPolicyImpl.setWarningTime(
+			this.<Long>getColumnOriginalValue("warningTime"));
+		passwordPolicyImpl.setGraceLimit(
+			this.<Integer>getColumnOriginalValue("graceLimit"));
+		passwordPolicyImpl.setLockout(
+			this.<Boolean>getColumnOriginalValue("lockout"));
+		passwordPolicyImpl.setMaxFailure(
+			this.<Integer>getColumnOriginalValue("maxFailure"));
+		passwordPolicyImpl.setLockoutDuration(
+			this.<Long>getColumnOriginalValue("lockoutDuration"));
+		passwordPolicyImpl.setRequireUnlock(
+			this.<Boolean>getColumnOriginalValue("requireUnlock"));
+		passwordPolicyImpl.setResetFailureCount(
+			this.<Long>getColumnOriginalValue("resetFailureCount"));
+		passwordPolicyImpl.setResetTicketMaxAge(
+			this.<Long>getColumnOriginalValue("resetTicketMaxAge"));
+
+		return passwordPolicyImpl;
+	}
+
+	@Override
 	public int compareTo(PasswordPolicy passwordPolicy) {
 		long primaryKey = passwordPolicy.getPrimaryKey();
 
@@ -1558,7 +1637,7 @@ public class PasswordPolicyModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1569,9 +1648,26 @@ public class PasswordPolicyModelImpl
 			Function<PasswordPolicy, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((PasswordPolicy)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((PasswordPolicy)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

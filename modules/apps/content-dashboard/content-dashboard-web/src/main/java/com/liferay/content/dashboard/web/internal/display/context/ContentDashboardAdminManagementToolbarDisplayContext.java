@@ -59,7 +59,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.portlet.PortletURL;
-import javax.portlet.WindowStateException;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -108,6 +107,8 @@ public class ContentDashboardAdminManagementToolbarDisplayContext
 			"authorIds", (String)null
 		).setParameter(
 			"contentDashboardItemSubtypePayload", (String)null
+		).setParameter(
+			"fileExtension", (String)null
 		).setParameter(
 			"scopeId", (String)null
 		).setParameter(
@@ -178,7 +179,6 @@ public class ContentDashboardAdminManagementToolbarDisplayContext
 									);
 								}
 							).buildString()));
-
 					labelItem.setCloseable(true);
 					labelItem.setLabel(
 						StringBundler.concat(
@@ -208,7 +208,6 @@ public class ContentDashboardAdminManagementToolbarDisplayContext
 					).setParameter(
 						"scopeId", (String)null
 					).buildString());
-
 				labelItem.setCloseable(true);
 				labelItem.setLabel(
 					StringBundler.concat(
@@ -221,6 +220,40 @@ public class ContentDashboardAdminManagementToolbarDisplayContext
 			contentDashboardItemSubtypes =
 				_contentDashboardAdminDisplayContext.
 					getContentDashboardItemSubtypes();
+
+		List<String> fileExtensions =
+			_contentDashboardAdminDisplayContext.getFileExtensions();
+
+		for (String fileExtension : fileExtensions) {
+			labelItemListWrapper.add(
+				labelItem -> {
+					labelItem.putData(
+						"removeLabelURL",
+						String.valueOf(
+							PortletURLBuilder.create(
+								PortletURLUtil.clone(
+									currentURLObj, liferayPortletResponse)
+							).setParameter(
+								"fileExtension",
+								() -> {
+									Stream<String> stream =
+										fileExtensions.stream();
+
+									return stream.filter(
+										curFileExtension -> !Objects.equals(
+											curFileExtension, fileExtension)
+									).toArray(
+										String[]::new
+									);
+								}
+							).buildString()));
+					labelItem.setCloseable(true);
+					labelItem.setLabel(
+						StringBundler.concat(
+							LanguageUtil.get(httpServletRequest, "extension"),
+							": ", fileExtension));
+				});
+		}
 
 		for (ContentDashboardItemSubtype contentDashboardItemSubtype :
 				contentDashboardItemSubtypes) {
@@ -267,7 +300,6 @@ public class ContentDashboardAdminManagementToolbarDisplayContext
 									);
 								}
 							).buildString()));
-
 					labelItem.setCloseable(true);
 					labelItem.setLabel(
 						StringBundler.concat(
@@ -303,7 +335,6 @@ public class ContentDashboardAdminManagementToolbarDisplayContext
 									);
 								}
 							).buildString()));
-
 					labelItem.setCloseable(true);
 					labelItem.setLabel(
 						StringBundler.concat(
@@ -334,7 +365,6 @@ public class ContentDashboardAdminManagementToolbarDisplayContext
 					).setParameter(
 						"status", (String)null
 					).buildString());
-
 				labelItem.setCloseable(true);
 				labelItem.setLabel(
 					LanguageUtil.get(httpServletRequest, "status") + ": " +
@@ -366,7 +396,6 @@ public class ContentDashboardAdminManagementToolbarDisplayContext
 									);
 								}
 							).buildString()));
-
 					labelItem.setCloseable(true);
 					labelItem.setLabel(
 						StringBundler.concat(
@@ -487,9 +516,7 @@ public class ContentDashboardAdminManagementToolbarDisplayContext
 		return new String[] {"title", "modified-date"};
 	}
 
-	private PortletURL _getAssetCategorySelectorURL()
-		throws PortalException, WindowStateException {
-
+	private PortletURL _getAssetCategorySelectorURL() throws PortalException {
 		return PortletURLBuilder.create(
 			PortletProviderUtil.getPortletURL(
 				_liferayPortletRequest, AssetCategory.class.getName(),
@@ -540,9 +567,7 @@ public class ContentDashboardAdminManagementToolbarDisplayContext
 		).buildPortletURL();
 	}
 
-	private PortletURL _getAssetTagSelectorURL()
-		throws PortalException, WindowStateException {
-
+	private PortletURL _getAssetTagSelectorURL() throws PortalException {
 		return PortletURLBuilder.create(
 			PortletProviderUtil.getPortletURL(
 				_liferayPortletRequest, AssetTag.class.getName(),
@@ -593,14 +618,12 @@ public class ContentDashboardAdminManagementToolbarDisplayContext
 				DropdownItem dropdownItem = new DropdownItem();
 
 				dropdownItem.setActive(authorIds.isEmpty());
-
 				dropdownItem.setHref(
 					PortletURLBuilder.create(
 						getPortletURL()
 					).setParameter(
 						"authorIds", (String)null
 					).buildPortletURL());
-
 				dropdownItem.setLabel(
 					LanguageUtil.get(httpServletRequest, "all"));
 
@@ -627,6 +650,23 @@ public class ContentDashboardAdminManagementToolbarDisplayContext
 			() -> {
 				DropdownItem dropdownItem = new DropdownItem();
 
+				dropdownItem.putData("action", "selectAuthor");
+				dropdownItem.putData(
+					"dialogTitle",
+					LanguageUtil.get(httpServletRequest, "select-author"));
+				dropdownItem.putData(
+					"redirectURL",
+					PortletURLBuilder.create(
+						getPortletURL()
+					).setParameter(
+						"authorIds", (String)null
+					).buildString());
+				dropdownItem.putData(
+					"selectAuthorURL",
+					String.valueOf(
+						_contentDashboardAdminDisplayContext.
+							getAuthorItemSelectorURL()));
+
 				if (((authorIds.size() == 1) &&
 					 !authorIds.contains(
 						 _contentDashboardAdminDisplayContext.getUserId())) ||
@@ -635,24 +675,6 @@ public class ContentDashboardAdminManagementToolbarDisplayContext
 					dropdownItem.setActive(true);
 				}
 
-				dropdownItem.putData("action", "selectAuthor");
-				dropdownItem.putData(
-					"dialogTitle",
-					LanguageUtil.get(httpServletRequest, "select-author"));
-
-				dropdownItem.putData(
-					"redirectURL",
-					PortletURLBuilder.create(
-						getPortletURL()
-					).setParameter(
-						"authorIds", (String)null
-					).buildString());
-
-				dropdownItem.putData(
-					"selectAuthorURL",
-					String.valueOf(
-						_contentDashboardAdminDisplayContext.
-							getAuthorItemSelectorURL()));
 				dropdownItem.setLabel(
 					LanguageUtil.get(httpServletRequest, "author") +
 						StringPool.TRIPLE_PERIOD);
@@ -666,16 +688,10 @@ public class ContentDashboardAdminManagementToolbarDisplayContext
 			() -> {
 				DropdownItem dropdownItem = new DropdownItem();
 
-				dropdownItem.setActive(
-					!ListUtil.isEmpty(
-						_contentDashboardAdminDisplayContext.
-							getAssetCategoryIds()));
-
 				dropdownItem.putData("action", "selectAssetCategory");
 				dropdownItem.putData(
 					"dialogTitle",
 					LanguageUtil.get(httpServletRequest, "select-categories"));
-
 				dropdownItem.putData(
 					"redirectURL",
 					PortletURLBuilder.create(
@@ -683,10 +699,13 @@ public class ContentDashboardAdminManagementToolbarDisplayContext
 					).setParameter(
 						"assetCategoryId", (String)null
 					).buildString());
-
 				dropdownItem.putData(
 					"selectAssetCategoryURL",
 					String.valueOf(_getAssetCategorySelectorURL()));
+				dropdownItem.setActive(
+					!ListUtil.isEmpty(
+						_contentDashboardAdminDisplayContext.
+							getAssetCategoryIds()));
 				dropdownItem.setLabel(
 					LanguageUtil.get(httpServletRequest, "categories") +
 						StringPool.TRIPLE_PERIOD);
@@ -699,14 +718,11 @@ public class ContentDashboardAdminManagementToolbarDisplayContext
 
 				DropdownItem dropdownItem = new DropdownItem();
 
-				dropdownItem.setActive(scopeId > 0);
-
 				dropdownItem.putData("action", "selectScope");
 				dropdownItem.putData(
 					"dialogTitle",
 					LanguageUtil.get(
 						httpServletRequest, "select-site-or-asset-library"));
-
 				dropdownItem.putData(
 					"redirectURL",
 					PortletURLBuilder.create(
@@ -714,12 +730,12 @@ public class ContentDashboardAdminManagementToolbarDisplayContext
 					).setParameter(
 						"scopeId", (String)null
 					).buildString());
-
 				dropdownItem.putData(
 					"selectScopeURL",
 					String.valueOf(
 						_contentDashboardAdminDisplayContext.
 							getScopeIdItemSelectorURL()));
+				dropdownItem.setActive(scopeId > 0);
 
 				String label = LanguageUtil.get(
 					httpServletRequest, "site-or-asset-library");
@@ -736,15 +752,11 @@ public class ContentDashboardAdminManagementToolbarDisplayContext
 
 				DropdownItem dropdownItem = new DropdownItem();
 
-				dropdownItem.setActive(
-					!ListUtil.isEmpty(contentDashboardItemSubtypes));
-
 				dropdownItem.putData(
 					"action", "selectContentDashboardItemSubtype");
 				dropdownItem.putData(
 					"dialogTitle",
 					LanguageUtil.get(httpServletRequest, "filter-by-type"));
-
 				dropdownItem.putData(
 					"redirectURL",
 					PortletURLBuilder.create(
@@ -752,15 +764,45 @@ public class ContentDashboardAdminManagementToolbarDisplayContext
 					).setParameter(
 						"contentDashboardItemSubtypePayload", (String)null
 					).buildString());
-
 				dropdownItem.putData(
 					"selectContentDashboardItemSubtypeURL",
 					String.valueOf(
 						_contentDashboardAdminDisplayContext.
 							getContentDashboardItemSubtypeItemSelectorURL()));
-
+				dropdownItem.setActive(
+					!ListUtil.isEmpty(contentDashboardItemSubtypes));
 				dropdownItem.setLabel(
 					LanguageUtil.get(httpServletRequest, "type") +
+						StringPool.TRIPLE_PERIOD);
+
+				return dropdownItem;
+			},
+			() -> {
+				List<String> fileExtensions =
+					_contentDashboardAdminDisplayContext.getFileExtensions();
+
+				DropdownItem dropdownItem = new DropdownItem();
+
+				dropdownItem.putData("action", "selectFileExtension");
+				dropdownItem.putData(
+					"dialogTitle",
+					LanguageUtil.get(
+						httpServletRequest, "filter-by-extension"));
+				dropdownItem.putData(
+					"redirectURL",
+					PortletURLBuilder.create(
+						getPortletURL()
+					).setParameter(
+						"fileExtension", (String)null
+					).buildString());
+				dropdownItem.putData(
+					"selectFileExtensionURL",
+					String.valueOf(
+						_contentDashboardAdminDisplayContext.
+							getFileExtensionItemSelectorURL()));
+				dropdownItem.setActive(!ListUtil.isEmpty(fileExtensions));
+				dropdownItem.setLabel(
+					LanguageUtil.get(httpServletRequest, "extension") +
 						StringPool.TRIPLE_PERIOD);
 
 				return dropdownItem;
@@ -772,7 +814,6 @@ public class ContentDashboardAdminManagementToolbarDisplayContext
 				dropdownItem.putData(
 					"dialogTitle",
 					LanguageUtil.get(httpServletRequest, "select-tags"));
-
 				dropdownItem.putData(
 					"redirectURL",
 					PortletURLBuilder.create(
@@ -780,7 +821,6 @@ public class ContentDashboardAdminManagementToolbarDisplayContext
 					).setParameter(
 						"assetTagId", (String)null
 					).buildString());
-
 				dropdownItem.putData(
 					"selectTagURL", String.valueOf(_getAssetTagSelectorURL()));
 				dropdownItem.setActive(
@@ -808,7 +848,6 @@ public class ContentDashboardAdminManagementToolbarDisplayContext
 							dropdownItem.setHref(
 								getPortletURL(), "status",
 								String.valueOf(status));
-
 							dropdownItem.setLabel(_getStatusLabel(status));
 						});
 				}

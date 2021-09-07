@@ -33,6 +33,7 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
 import java.io.Serializable;
@@ -40,6 +41,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -953,6 +955,44 @@ public class ObjectEntryModelImpl
 	}
 
 	@Override
+	public ObjectEntry cloneWithOriginalValues() {
+		ObjectEntryImpl objectEntryImpl = new ObjectEntryImpl();
+
+		objectEntryImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		objectEntryImpl.setUuid(this.<String>getColumnOriginalValue("uuid_"));
+		objectEntryImpl.setObjectEntryId(
+			this.<Long>getColumnOriginalValue("objectEntryId"));
+		objectEntryImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		objectEntryImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		objectEntryImpl.setUserId(this.<Long>getColumnOriginalValue("userId"));
+		objectEntryImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		objectEntryImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		objectEntryImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		objectEntryImpl.setExternalReferenceCode(
+			this.<String>getColumnOriginalValue("externalReferenceCode"));
+		objectEntryImpl.setObjectDefinitionId(
+			this.<Long>getColumnOriginalValue("objectDefinitionId"));
+		objectEntryImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+		objectEntryImpl.setStatus(
+			this.<Integer>getColumnOriginalValue("status"));
+		objectEntryImpl.setStatusByUserId(
+			this.<Long>getColumnOriginalValue("statusByUserId"));
+		objectEntryImpl.setStatusByUserName(
+			this.<String>getColumnOriginalValue("statusByUserName"));
+		objectEntryImpl.setStatusDate(
+			this.<Date>getColumnOriginalValue("statusDate"));
+
+		return objectEntryImpl;
+	}
+
+	@Override
 	public int compareTo(ObjectEntry objectEntry) {
 		int value = 0;
 
@@ -1133,7 +1173,7 @@ public class ObjectEntryModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1144,9 +1184,26 @@ public class ObjectEntryModelImpl
 			Function<ObjectEntry, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((ObjectEntry)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((ObjectEntry)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

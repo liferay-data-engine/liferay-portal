@@ -2,21 +2,28 @@
 definition {
 
 	property analytics.cloud.enabled = "true";
-	property minimum.slave.ram = "32";
+	property minimum.slave.ram = "24";
 	property portal.release = "false";
 	property portal.upstream = "true";
+	property slave.label = "slave-1";
 	property testray.main.component.name = "Analytics Cloud";
 
 	setUp {
-		ACUtils.launchAC();
+		task ("Copy the token from AC") {
+			ACUtils.launchAC();
 
-		ACSettings.takeTokenFromAnalyticsCloud();
+			ACSettings.takeTokenFromAnalyticsCloud();
+		}
 
-		TestCase.setUpPortalInstance();
+		task ("Set up instance and sign in DXP") {
+			TestCase.setUpPortalInstance();
 
-		ACUtils.launchDXP();
+			ACUtils.launchDXP();
+		}
 
-		ACUtils.addSiteAndPage();
+		task ("Add a new site and page") {
+			ACUtils.addSiteAndPage();
+		}
 	}
 
 	tearDown {
@@ -32,6 +39,236 @@ definition {
 		}
 
 		ACUtils.tearDownAC();
+	}
+
+	@description = "Feature ID: Legacy | Automation ID: LRAC-8913 | Test Summary: Assert Individual Activities Chart popover follows format"
+	@priority = "3"
+	test AssertIndividualActivitiesChartPopover {
+		task ("Add DM to AC Page") {
+			ACUtils.createDMAndAddToPage();
+		}
+
+		task ("Get site assigned property name") {
+			var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
+		}
+
+		task ("Add a new user in DXP") {
+			JSONUser.addUser(
+				userEmailAddress = "ac@liferay.com",
+				userFirstName = "ac",
+				userLastName = "ac",
+				userScreenName = "ac");
+		}
+
+		task ("Sign in with the new user to visit the site pages") {
+			User.logoutAndLoginPG(
+				userLoginEmailAddress = "ac@liferay.com",
+				userLoginFullName = "ac ac");
+
+			Navigator.gotoSitePage(
+				pageName = "AC Page",
+				siteName = "Site Name");
+
+			DMNavigator.gotoDocumentCP(dmDocumentTitle = "DM AC Title");
+		}
+
+		task ("Switch to new property in AC") {
+			ACUtils.closeAllSessions();
+
+			Pause(locator1 = "30000");
+
+			ACUtils.launchAC();
+
+			ACProperties.switchProperty(propertyName = "${propertyName}");
+		}
+
+		task ("Navigate to the Individual Activity Overview") {
+			ACNavigation.goToIndividuals();
+
+			ACNavigation.switchTab(tabName = "Known Individuals");
+
+			ACIndividualsDashboard.goToKnownIndividualDetails(individualName = "ac ac");
+		}
+
+		task ("Choose Custom Range") {
+			var displayDateDay = DateUtil.getCurrentDate();
+			var displayDateMonth = DateUtil.getCurrentMonthName();
+			var displayDateYear = DateUtil.getCurrentYear();
+			var previousDay = DateUtil.getFormattedDate("-1", "d");
+
+			ACTimeFilter.setCustomRange(
+				endDay = "${displayDateDay}",
+				endMonth = "${displayDateMonth}",
+				endYear = "${displayDateYear}",
+				startDay = "${previousDay}",
+				startMonth = "${displayDateMonth}",
+				startYear = "${displayDateYear}");
+
+			ACIndividualsDashboard.viewRechartsBarOnIndividualsActivitiesChart();
+		}
+
+		task ("Assert chart popover date formatted") {
+			var formattedDate = ACIndividualsDashboard.getChartPopoverDate();
+
+			ACUtils.assertDatePattern(
+				date = "${formattedDate}",
+				format = "yyyy MMM dd");
+		}
+	}
+
+	@description = "Feature ID: Legacy | Automation ID: LRAC-8916 | Test Summary: Selected individual activity point can clear date selection"
+	@priority = "3"
+	test AssertIndividualActivitiesOverviewClearDate {
+		task ("Add DM to AC Page") {
+			ACUtils.createDMAndAddToPage();
+		}
+
+		task ("Get site assigned property name") {
+			var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
+		}
+
+		task ("Add a new user in DXP") {
+			JSONUser.addUser(
+				userEmailAddress = "ac@liferay.com",
+				userFirstName = "ac",
+				userLastName = "ac",
+				userScreenName = "ac");
+		}
+
+		task ("Sign in with the new user to visit the site pages") {
+			User.logoutAndLoginPG(
+				userLoginEmailAddress = "ac@liferay.com",
+				userLoginFullName = "ac ac");
+
+			Navigator.gotoSitePage(
+				pageName = "AC Page",
+				siteName = "Site Name");
+
+			DMNavigator.gotoDocumentCP(dmDocumentTitle = "DM AC Title");
+		}
+
+		task ("Switch to new property in AC") {
+			ACUtils.closeAllSessions();
+
+			Pause(locator1 = "30000");
+
+			ACUtils.launchAC();
+
+			ACProperties.switchProperty(propertyName = "${propertyName}");
+		}
+
+		task ("Navigate to the Individual Activity Overview") {
+			ACNavigation.goToIndividuals();
+
+			ACNavigation.switchTab(tabName = "Known Individuals");
+
+			ACIndividualsDashboard.goToKnownIndividualDetails(individualName = "ac ac");
+		}
+
+		task ("Set time filter use last 24 hours") {
+			ACTimeFilter.clickTimeFilterButton();
+
+			ACTimeFilter.setLast24Hours();
+		}
+
+		task ("Assert the Individual Activity Chart displays") {
+			ACIndividualsDashboard.viewRechartsBarOnIndividualsActivitiesChart();
+		}
+
+		task ("Click Individual Activity Chart") {
+			Click(
+				index = "1",
+				locator1 = "ACIndividualsDashboard#INDIVIDUALS_ACTIVITIES_CHART_RECHARTS_BAR");
+		}
+
+		task ("Get current Date") {
+			var displayDateDay = DateUtil.getCurrentDate();
+			var displayDateMonth = DateUtil.getCurrentMonthName();
+			var displayDateYear = DateUtil.getCurrentYear();
+			var displayDate = "${displayDateMonth} ${displayDateDay}, ${displayDateYear}";
+		}
+
+		task ("Assert ") {
+			ACIndividualsDashboard.assertIndividualsActivitiesTimeRange(timeRange = "${displayDate}");
+		}
+
+		task ("Assert the display time range") {
+			Click(locator1 = "ACIndividualsDashboard#CLEAR_DATE_SELECTION_BUTTON");
+		}
+
+		task ("Get the last 24 hours Date") {
+			var previousDay = DateUtil.getFormattedDate("-1", "d");
+			var previousDate = "${displayDateMonth} ${previousDay}, ${displayDateYear}";
+		}
+
+		task ("Assert the display time range") {
+			ACIndividualsDashboard.assertIndividualsActivitiesTimeRange(timeRange = "${previousDate} - ${displayDate}");
+		}
+	}
+
+	@description = "Feature ID: Legacy | Automation ID: LRAC-8914 | Test Summary: Assert Individual Activities time filter 180 Days"
+	@priority = "3"
+	test AssertIndividualActivitiesTimeFilter180Days {
+		property portal.upstream = "quarantine";
+
+		// AC Refactor: data doesn't appear on time and the test needs data from a past date
+		// AC Refactor ticket: LRAC-8970
+
+		task ("Add DM to AC Page") {
+			ACUtils.createDMAndAddToPage();
+		}
+
+		task ("Get site assigned property name") {
+			var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
+		}
+
+		task ("Add a new user in DXP") {
+			JSONUser.addUser(
+				userEmailAddress = "ac@liferay.com",
+				userFirstName = "ac",
+				userLastName = "ac",
+				userScreenName = "ac");
+		}
+
+		task ("Sign in with the new user to visit the site pages") {
+			User.logoutAndLoginPG(
+				userLoginEmailAddress = "ac@liferay.com",
+				userLoginFullName = "ac ac");
+
+			Navigator.gotoSitePage(
+				pageName = "AC Page",
+				siteName = "Site Name");
+
+			DMNavigator.gotoDocumentCP(dmDocumentTitle = "DM AC Title");
+		}
+
+		task ("Switch to new property in AC") {
+			ACUtils.closeAllSessions();
+
+			Pause(locator1 = "30000");
+
+			ACUtils.launchAC();
+
+			ACProperties.switchProperty(propertyName = "${propertyName}");
+		}
+
+		task ("Navigate to the Individual Activity Overview") {
+			ACNavigation.goToIndividuals();
+
+			ACNavigation.switchTab(tabName = "Known Individuals");
+
+			ACIndividualsDashboard.goToKnownIndividualDetails(individualName = "ac ac");
+		}
+
+		task ("Set time filter use 180Days") {
+			ACTimeFilter.clickTimeFilterButton();
+
+			ACTimeFilter.setLast180Days();
+		}
+
+		task ("Assert the Individual Activity Chart displays") {
+			ACIndividualsDashboard.viewRechartsBarOnIndividualsActivitiesChart();
+		}
 	}
 
 	@description = "Assert an Individual's Segments"
@@ -95,9 +332,7 @@ definition {
 			DMNavigator.gotoDocumentCP(dmDocumentTitle = "DM AC Title");
 		}
 
-		ACUtils.closeAllSessions();
-
-		Pause(locator1 = "30000");
+		ACUtils.closeAllSessionsAndWait();
 
 		ACUtils.launchAC();
 
@@ -139,9 +374,7 @@ definition {
 			DMNavigator.gotoDocumentCP(dmDocumentTitle = "DM AC Title");
 		}
 
-		ACUtils.closeAllSessions();
-
-		Pause(locator1 = "30000");
+		ACUtils.closeAllSessionsAndWait();
 
 		ACUtils.launchAC();
 
@@ -189,9 +422,7 @@ definition {
 			DMNavigator.gotoDocumentCP(dmDocumentTitle = "DM AC Title");
 		}
 
-		ACUtils.closeAllSessions();
-
-		Pause(locator1 = "30000");
+		ACUtils.closeAllSessionsAndWait();
 
 		ACUtils.launchAC();
 

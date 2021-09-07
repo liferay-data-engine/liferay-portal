@@ -6,14 +6,15 @@
 	"gutters": true,
 	"invalidProperty": "invalidProperty",
 	"landscapeMobile": {
-		"styles": {
-		}
 	},
 	"modulesPerRow": 6,
 	"numberOfColumns": 6,
 	"portraitMobile": {
 		"modulesPerRow": 3,
 		"reverseOrder": true,
+		"styles": {
+			"display": "none"
+		},
 		"verticalAlignment": "bottom"
 	},
 	"reverseOrder": false,
@@ -25,5 +26,6 @@
 		"styles": {
 		},
 		"verticalAlignment": "middle"
-	}
+	},
+	"verticalAlignment": "top"
 }

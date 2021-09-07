@@ -135,6 +135,11 @@ public class FVSActiveEntryWrapper
 		}
 	}
 
+	@Override
+	public FVSActiveEntry cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the clay data set display ID of this fvs active entry.
 	 *

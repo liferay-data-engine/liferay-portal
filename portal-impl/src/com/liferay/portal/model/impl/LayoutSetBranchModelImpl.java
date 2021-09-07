@@ -31,12 +31,14 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -953,6 +955,52 @@ public class LayoutSetBranchModelImpl
 	}
 
 	@Override
+	public LayoutSetBranch cloneWithOriginalValues() {
+		LayoutSetBranchImpl layoutSetBranchImpl = new LayoutSetBranchImpl();
+
+		layoutSetBranchImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		layoutSetBranchImpl.setLayoutSetBranchId(
+			this.<Long>getColumnOriginalValue("layoutSetBranchId"));
+		layoutSetBranchImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		layoutSetBranchImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		layoutSetBranchImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		layoutSetBranchImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		layoutSetBranchImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		layoutSetBranchImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		layoutSetBranchImpl.setPrivateLayout(
+			this.<Boolean>getColumnOriginalValue("privateLayout"));
+		layoutSetBranchImpl.setName(
+			this.<String>getColumnOriginalValue("name"));
+		layoutSetBranchImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		layoutSetBranchImpl.setMaster(
+			this.<Boolean>getColumnOriginalValue("master"));
+		layoutSetBranchImpl.setLogoId(
+			this.<Long>getColumnOriginalValue("logoId"));
+		layoutSetBranchImpl.setThemeId(
+			this.<String>getColumnOriginalValue("themeId"));
+		layoutSetBranchImpl.setColorSchemeId(
+			this.<String>getColumnOriginalValue("colorSchemeId"));
+		layoutSetBranchImpl.setCss(this.<String>getColumnOriginalValue("css"));
+		layoutSetBranchImpl.setSettings(
+			this.<String>getColumnOriginalValue("settings_"));
+		layoutSetBranchImpl.setLayoutSetPrototypeUuid(
+			this.<String>getColumnOriginalValue("layoutSetPrototypeUuid"));
+		layoutSetBranchImpl.setLayoutSetPrototypeLinkEnabled(
+			this.<Boolean>getColumnOriginalValue(
+				"layoutSetPrototypeLinkEnabled"));
+
+		return layoutSetBranchImpl;
+	}
+
+	@Override
 	public int compareTo(LayoutSetBranch layoutSetBranch) {
 		int value = 0;
 
@@ -1138,7 +1186,7 @@ public class LayoutSetBranchModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1149,9 +1197,26 @@ public class LayoutSetBranchModelImpl
 			Function<LayoutSetBranch, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((LayoutSetBranch)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((LayoutSetBranch)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

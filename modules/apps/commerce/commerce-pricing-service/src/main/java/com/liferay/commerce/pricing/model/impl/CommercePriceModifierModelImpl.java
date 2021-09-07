@@ -34,6 +34,7 @@ import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
 import java.io.Serializable;
@@ -43,6 +44,7 @@ import java.lang.reflect.InvocationHandler;
 
 import java.math.BigDecimal;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1262,6 +1264,61 @@ public class CommercePriceModifierModelImpl
 	}
 
 	@Override
+	public CommercePriceModifier cloneWithOriginalValues() {
+		CommercePriceModifierImpl commercePriceModifierImpl =
+			new CommercePriceModifierImpl();
+
+		commercePriceModifierImpl.setUuid(
+			this.<String>getColumnOriginalValue("uuid_"));
+		commercePriceModifierImpl.setExternalReferenceCode(
+			this.<String>getColumnOriginalValue("externalReferenceCode"));
+		commercePriceModifierImpl.setCommercePriceModifierId(
+			this.<Long>getColumnOriginalValue("commercePriceModifierId"));
+		commercePriceModifierImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		commercePriceModifierImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		commercePriceModifierImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		commercePriceModifierImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		commercePriceModifierImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		commercePriceModifierImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		commercePriceModifierImpl.setCommercePriceListId(
+			this.<Long>getColumnOriginalValue("commercePriceListId"));
+		commercePriceModifierImpl.setTitle(
+			this.<String>getColumnOriginalValue("title"));
+		commercePriceModifierImpl.setTarget(
+			this.<String>getColumnOriginalValue("target"));
+		commercePriceModifierImpl.setModifierAmount(
+			this.<BigDecimal>getColumnOriginalValue("modifierAmount"));
+		commercePriceModifierImpl.setModifierType(
+			this.<String>getColumnOriginalValue("modifierType"));
+		commercePriceModifierImpl.setPriority(
+			this.<Double>getColumnOriginalValue("priority"));
+		commercePriceModifierImpl.setActive(
+			this.<Boolean>getColumnOriginalValue("active_"));
+		commercePriceModifierImpl.setDisplayDate(
+			this.<Date>getColumnOriginalValue("displayDate"));
+		commercePriceModifierImpl.setExpirationDate(
+			this.<Date>getColumnOriginalValue("expirationDate"));
+		commercePriceModifierImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+		commercePriceModifierImpl.setStatus(
+			this.<Integer>getColumnOriginalValue("status"));
+		commercePriceModifierImpl.setStatusByUserId(
+			this.<Long>getColumnOriginalValue("statusByUserId"));
+		commercePriceModifierImpl.setStatusByUserName(
+			this.<String>getColumnOriginalValue("statusByUserName"));
+		commercePriceModifierImpl.setStatusDate(
+			this.<Date>getColumnOriginalValue("statusDate"));
+
+		return commercePriceModifierImpl;
+	}
+
+	@Override
 	public int compareTo(CommercePriceModifier commercePriceModifier) {
 		int value = 0;
 
@@ -1512,7 +1569,7 @@ public class CommercePriceModifierModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1523,10 +1580,27 @@ public class CommercePriceModifierModelImpl
 			Function<CommercePriceModifier, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply((CommercePriceModifier)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(CommercePriceModifier)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

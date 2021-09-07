@@ -34,6 +34,7 @@ import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
@@ -41,6 +42,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -831,6 +833,37 @@ public class WebsiteModelImpl
 	}
 
 	@Override
+	public Website cloneWithOriginalValues() {
+		WebsiteImpl websiteImpl = new WebsiteImpl();
+
+		websiteImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		websiteImpl.setUuid(this.<String>getColumnOriginalValue("uuid_"));
+		websiteImpl.setWebsiteId(
+			this.<Long>getColumnOriginalValue("websiteId"));
+		websiteImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		websiteImpl.setUserId(this.<Long>getColumnOriginalValue("userId"));
+		websiteImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		websiteImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		websiteImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		websiteImpl.setClassNameId(
+			this.<Long>getColumnOriginalValue("classNameId"));
+		websiteImpl.setClassPK(this.<Long>getColumnOriginalValue("classPK"));
+		websiteImpl.setUrl(this.<String>getColumnOriginalValue("url"));
+		websiteImpl.setTypeId(this.<Long>getColumnOriginalValue("typeId"));
+		websiteImpl.setPrimary(
+			this.<Boolean>getColumnOriginalValue("primary_"));
+		websiteImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+
+		return websiteImpl;
+	}
+
+	@Override
 	public int compareTo(Website website) {
 		int value = 0;
 
@@ -977,7 +1010,7 @@ public class WebsiteModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -988,9 +1021,26 @@ public class WebsiteModelImpl
 			Function<Website, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((Website)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((Website)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

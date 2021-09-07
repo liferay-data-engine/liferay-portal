@@ -29,12 +29,14 @@ import com.liferay.portal.kernel.model.impl.BaseModelImpl;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -613,6 +615,29 @@ public class CommerceAccountUserRelModelImpl
 	}
 
 	@Override
+	public CommerceAccountUserRel cloneWithOriginalValues() {
+		CommerceAccountUserRelImpl commerceAccountUserRelImpl =
+			new CommerceAccountUserRelImpl();
+
+		commerceAccountUserRelImpl.setCommerceAccountId(
+			this.<Long>getColumnOriginalValue("commerceAccountId"));
+		commerceAccountUserRelImpl.setCommerceAccountUserId(
+			this.<Long>getColumnOriginalValue("commerceAccountUserId"));
+		commerceAccountUserRelImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		commerceAccountUserRelImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		commerceAccountUserRelImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		commerceAccountUserRelImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		commerceAccountUserRelImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+
+		return commerceAccountUserRelImpl;
+	}
+
+	@Override
 	public int compareTo(CommerceAccountUserRel commerceAccountUserRel) {
 		int value = 0;
 
@@ -743,7 +768,7 @@ public class CommerceAccountUserRelModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -754,10 +779,27 @@ public class CommerceAccountUserRelModelImpl
 			Function<CommerceAccountUserRel, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply((CommerceAccountUserRel)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(CommerceAccountUserRel)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

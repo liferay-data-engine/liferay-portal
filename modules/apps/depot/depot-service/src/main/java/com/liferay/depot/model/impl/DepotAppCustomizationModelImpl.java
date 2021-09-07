@@ -26,15 +26,18 @@ import com.liferay.portal.kernel.model.impl.BaseModelImpl;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -508,6 +511,27 @@ public class DepotAppCustomizationModelImpl
 	}
 
 	@Override
+	public DepotAppCustomization cloneWithOriginalValues() {
+		DepotAppCustomizationImpl depotAppCustomizationImpl =
+			new DepotAppCustomizationImpl();
+
+		depotAppCustomizationImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		depotAppCustomizationImpl.setDepotAppCustomizationId(
+			this.<Long>getColumnOriginalValue("depotAppCustomizationId"));
+		depotAppCustomizationImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		depotAppCustomizationImpl.setDepotEntryId(
+			this.<Long>getColumnOriginalValue("depotEntryId"));
+		depotAppCustomizationImpl.setEnabled(
+			this.<Boolean>getColumnOriginalValue("enabled"));
+		depotAppCustomizationImpl.setPortletId(
+			this.<String>getColumnOriginalValue("portletId"));
+
+		return depotAppCustomizationImpl;
+	}
+
+	@Override
 	public int compareTo(DepotAppCustomization depotAppCustomization) {
 		long primaryKey = depotAppCustomization.getPrimaryKey();
 
@@ -608,7 +632,7 @@ public class DepotAppCustomizationModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -619,10 +643,27 @@ public class DepotAppCustomizationModelImpl
 			Function<DepotAppCustomization, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply((DepotAppCustomization)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(DepotAppCustomization)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

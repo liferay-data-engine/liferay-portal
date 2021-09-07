@@ -18,6 +18,7 @@ import com.liferay.account.model.AccountEntry;
 import com.liferay.account.model.AccountEntryOrganizationRel;
 import com.liferay.account.service.AccountEntryLocalService;
 import com.liferay.account.service.AccountEntryOrganizationRelLocalService;
+import com.liferay.account.service.AccountEntryUserRelLocalService;
 import com.liferay.headless.admin.user.dto.v1_0.Account;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -84,6 +85,11 @@ public class AccountResourceDTOConverter
 				externalReferenceCode = accountEntry.getExternalReferenceCode();
 				id = accountEntry.getAccountEntryId();
 				name = accountEntry.getName();
+				numberOfUsers =
+					(int)
+						_accountEntryUserRelLocalService.
+							getAccountEntryUserRelsCountByAccountEntryId(
+								accountEntry.getAccountEntryId());
 				organizationIds = TransformUtil.transformToArray(
 					_accountEntryOrganizationRelLocalService.
 						getAccountEntryOrganizationRels(
@@ -91,6 +97,7 @@ public class AccountResourceDTOConverter
 					AccountEntryOrganizationRel::getOrganizationId, Long.class);
 				parentAccountId = accountEntry.getParentAccountEntryId();
 				status = accountEntry.getStatus();
+				type = Account.Type.create(accountEntry.getType());
 			}
 		};
 	}
@@ -101,5 +108,8 @@ public class AccountResourceDTOConverter
 	@Reference
 	private AccountEntryOrganizationRelLocalService
 		_accountEntryOrganizationRelLocalService;
+
+	@Reference
+	private AccountEntryUserRelLocalService _accountEntryUserRelLocalService;
 
 }

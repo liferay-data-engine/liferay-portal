@@ -31,12 +31,14 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
@@ -619,6 +621,33 @@ public class FVSCustomEntryModelImpl
 	}
 
 	@Override
+	public FVSCustomEntry cloneWithOriginalValues() {
+		FVSCustomEntryImpl fvsCustomEntryImpl = new FVSCustomEntryImpl();
+
+		fvsCustomEntryImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		fvsCustomEntryImpl.setUuid(
+			this.<String>getColumnOriginalValue("uuid_"));
+		fvsCustomEntryImpl.setFvsCustomEntryId(
+			this.<Long>getColumnOriginalValue("fvsCustomEntryId"));
+		fvsCustomEntryImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		fvsCustomEntryImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		fvsCustomEntryImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		fvsCustomEntryImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		fvsCustomEntryImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		fvsCustomEntryImpl.setFvsEntryId(
+			this.<Long>getColumnOriginalValue("fvsEntryId"));
+		fvsCustomEntryImpl.setName(this.<String>getColumnOriginalValue("name"));
+
+		return fvsCustomEntryImpl;
+	}
+
+	@Override
 	public int compareTo(FVSCustomEntry fvsCustomEntry) {
 		long primaryKey = fvsCustomEntry.getPrimaryKey();
 
@@ -753,7 +782,7 @@ public class FVSCustomEntryModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -764,9 +793,26 @@ public class FVSCustomEntryModelImpl
 			Function<FVSCustomEntry, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((FVSCustomEntry)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((FVSCustomEntry)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

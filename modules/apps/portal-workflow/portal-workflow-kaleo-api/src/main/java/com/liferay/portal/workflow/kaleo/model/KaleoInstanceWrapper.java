@@ -184,6 +184,11 @@ public class KaleoInstanceWrapper
 		}
 	}
 
+	@Override
+	public KaleoInstance cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the class name of this kaleo instance.
 	 *

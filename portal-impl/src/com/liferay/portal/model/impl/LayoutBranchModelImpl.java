@@ -31,16 +31,19 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -710,6 +713,33 @@ public class LayoutBranchModelImpl
 	}
 
 	@Override
+	public LayoutBranch cloneWithOriginalValues() {
+		LayoutBranchImpl layoutBranchImpl = new LayoutBranchImpl();
+
+		layoutBranchImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		layoutBranchImpl.setLayoutBranchId(
+			this.<Long>getColumnOriginalValue("layoutBranchId"));
+		layoutBranchImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		layoutBranchImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		layoutBranchImpl.setUserId(this.<Long>getColumnOriginalValue("userId"));
+		layoutBranchImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		layoutBranchImpl.setLayoutSetBranchId(
+			this.<Long>getColumnOriginalValue("layoutSetBranchId"));
+		layoutBranchImpl.setPlid(this.<Long>getColumnOriginalValue("plid"));
+		layoutBranchImpl.setName(this.<String>getColumnOriginalValue("name"));
+		layoutBranchImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		layoutBranchImpl.setMaster(
+			this.<Boolean>getColumnOriginalValue("master"));
+
+		return layoutBranchImpl;
+	}
+
+	@Override
 	public int compareTo(LayoutBranch layoutBranch) {
 		long primaryKey = layoutBranch.getPrimaryKey();
 
@@ -830,7 +860,7 @@ public class LayoutBranchModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -841,9 +871,26 @@ public class LayoutBranchModelImpl
 			Function<LayoutBranch, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((LayoutBranch)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((LayoutBranch)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

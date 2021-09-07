@@ -193,6 +193,11 @@ public class CommerceShippingFixedOptionRelWrapper
 	}
 
 	@Override
+	public CommerceShippingFixedOptionRel cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
+	@Override
 	public com.liferay.commerce.inventory.model.CommerceInventoryWarehouse
 			getCommerceInventoryWarehouse()
 		throws com.liferay.portal.kernel.exception.PortalException {

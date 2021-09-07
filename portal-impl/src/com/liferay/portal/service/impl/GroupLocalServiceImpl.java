@@ -53,7 +53,6 @@ import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.messaging.DestinationNames;
-import com.liferay.portal.kernel.model.Account;
 import com.liferay.portal.kernel.model.ClassName;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
@@ -122,8 +121,6 @@ import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.comparator.GroupIdComparator;
 import com.liferay.portal.kernel.util.comparator.GroupNameComparator;
-import com.liferay.portal.kernel.workflow.WorkflowHandler;
-import com.liferay.portal.kernel.workflow.WorkflowHandlerRegistryUtil;
 import com.liferay.portal.model.impl.LayoutImpl;
 import com.liferay.portal.security.permission.PermissionCacheUtil;
 import com.liferay.portal.service.base.GroupLocalServiceBaseImpl;
@@ -1008,29 +1005,12 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 
 			// Workflow
 
-			List<WorkflowHandler<?>> scopeableWorkflowHandlers =
-				WorkflowHandlerRegistryUtil.getScopeableWorkflowHandlers();
+			List<WorkflowDefinitionLink> workflowDefinitionLinks =
+				workflowDefinitionLinkLocalService.getWorkflowDefinitionLinks(
+					group.getCompanyId(), group.getGroupId(), 0);
 
-			for (WorkflowHandler<?> scopeableWorkflowHandler :
-					scopeableWorkflowHandlers) {
-
-				if (!scopeableWorkflowHandler.isVisible()) {
-					continue;
-				}
-
-				WorkflowDefinitionLink workflowDefinitionLink =
-					workflowDefinitionLinkLocalService.
-						fetchWorkflowDefinitionLink(
-							group.getCompanyId(), group.getGroupId(),
-							scopeableWorkflowHandler.getClassName(), 0, 0,
-							true);
-
-				if ((workflowDefinitionLink == null) ||
-					(workflowDefinitionLink.getGroupId() ==
-						group.getLiveGroupId())) {
-
-					continue;
-				}
+			for (WorkflowDefinitionLink workflowDefinitionLink :
+					workflowDefinitionLinks) {
 
 				workflowDefinitionLinkLocalService.deleteWorkflowDefinitionLink(
 					workflowDefinitionLink);
@@ -1596,15 +1576,10 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 		throws PortalException {
 
 		if (Validator.isNull(friendlyURL)) {
-			StringBundler sb = new StringBundler(5);
-
-			sb.append("{companyId=");
-			sb.append(companyId);
-			sb.append(", friendlyURL=");
-			sb.append(friendlyURL);
-			sb.append("}");
-
-			throw new NoSuchGroupException(sb.toString());
+			throw new NoSuchGroupException(
+				StringBundler.concat(
+					"{companyId=", companyId, ", friendlyURL=", friendlyURL,
+					"}"));
 		}
 
 		friendlyURL = getFriendlyURL(friendlyURL);
@@ -4452,17 +4427,8 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 			return CustomSQLUtil.keywords(name);
 		}
 
-		Account account = accountPersistence.fetchByPrimaryKey(
-			company.getAccountId());
-
-		if (account == null) {
-			return CustomSQLUtil.keywords(name);
-		}
-
-		String companyName = account.getName();
-
 		if (StringUtil.wildcardMatches(
-				companyName, name, CharPool.UNDERLINE, CharPool.PERCENT,
+				company.getName(), name, CharPool.UNDERLINE, CharPool.PERCENT,
 				CharPool.BACK_SLASH, false)) {
 
 			String[] searchNames = CustomSQLUtil.keywords(name);

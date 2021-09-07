@@ -28,6 +28,7 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.social.kernel.model.SocialActivityLimit;
 import com.liferay.social.kernel.model.SocialActivityLimitModel;
@@ -37,9 +38,11 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -709,6 +712,37 @@ public class SocialActivityLimitModelImpl
 	}
 
 	@Override
+	public SocialActivityLimit cloneWithOriginalValues() {
+		SocialActivityLimitImpl socialActivityLimitImpl =
+			new SocialActivityLimitImpl();
+
+		socialActivityLimitImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		socialActivityLimitImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		socialActivityLimitImpl.setActivityLimitId(
+			this.<Long>getColumnOriginalValue("activityLimitId"));
+		socialActivityLimitImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		socialActivityLimitImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		socialActivityLimitImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		socialActivityLimitImpl.setClassNameId(
+			this.<Long>getColumnOriginalValue("classNameId"));
+		socialActivityLimitImpl.setClassPK(
+			this.<Long>getColumnOriginalValue("classPK"));
+		socialActivityLimitImpl.setActivityType(
+			this.<Integer>getColumnOriginalValue("activityType"));
+		socialActivityLimitImpl.setActivityCounterName(
+			this.<String>getColumnOriginalValue("activityCounterName"));
+		socialActivityLimitImpl.setValue(
+			this.<String>getColumnOriginalValue("value"));
+
+		return socialActivityLimitImpl;
+	}
+
+	@Override
 	public int compareTo(SocialActivityLimit socialActivityLimit) {
 		long primaryKey = socialActivityLimit.getPrimaryKey();
 
@@ -827,7 +861,7 @@ public class SocialActivityLimitModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -838,9 +872,27 @@ public class SocialActivityLimitModelImpl
 			Function<SocialActivityLimit, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((SocialActivityLimit)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(SocialActivityLimit)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

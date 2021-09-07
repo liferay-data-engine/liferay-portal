@@ -227,6 +227,11 @@ public class CommerceAddressWrapper
 	}
 
 	@Override
+	public CommerceAddress cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
+	@Override
 	public com.liferay.portal.kernel.model.Country fetchCountry() {
 		return model.fetchCountry();
 	}

@@ -33,6 +33,7 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
@@ -40,6 +41,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -879,6 +881,42 @@ public class RepositoryModelImpl
 	}
 
 	@Override
+	public Repository cloneWithOriginalValues() {
+		RepositoryImpl repositoryImpl = new RepositoryImpl();
+
+		repositoryImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		repositoryImpl.setUuid(this.<String>getColumnOriginalValue("uuid_"));
+		repositoryImpl.setRepositoryId(
+			this.<Long>getColumnOriginalValue("repositoryId"));
+		repositoryImpl.setGroupId(this.<Long>getColumnOriginalValue("groupId"));
+		repositoryImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		repositoryImpl.setUserId(this.<Long>getColumnOriginalValue("userId"));
+		repositoryImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		repositoryImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		repositoryImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		repositoryImpl.setClassNameId(
+			this.<Long>getColumnOriginalValue("classNameId"));
+		repositoryImpl.setName(this.<String>getColumnOriginalValue("name"));
+		repositoryImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		repositoryImpl.setPortletId(
+			this.<String>getColumnOriginalValue("portletId"));
+		repositoryImpl.setTypeSettings(
+			this.<String>getColumnOriginalValue("typeSettings"));
+		repositoryImpl.setDlFolderId(
+			this.<Long>getColumnOriginalValue("dlFolderId"));
+		repositoryImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+
+		return repositoryImpl;
+	}
+
+	@Override
 	public int compareTo(Repository repository) {
 		long primaryKey = repository.getPrimaryKey();
 
@@ -1049,7 +1087,7 @@ public class RepositoryModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1060,9 +1098,26 @@ public class RepositoryModelImpl
 			Function<Repository, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((Repository)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((Repository)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

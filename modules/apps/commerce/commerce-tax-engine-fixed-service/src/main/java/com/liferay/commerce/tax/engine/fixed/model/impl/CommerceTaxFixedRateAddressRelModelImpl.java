@@ -32,12 +32,14 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -793,6 +795,41 @@ public class CommerceTaxFixedRateAddressRelModelImpl
 	}
 
 	@Override
+	public CommerceTaxFixedRateAddressRel cloneWithOriginalValues() {
+		CommerceTaxFixedRateAddressRelImpl commerceTaxFixedRateAddressRelImpl =
+			new CommerceTaxFixedRateAddressRelImpl();
+
+		commerceTaxFixedRateAddressRelImpl.setCommerceTaxFixedRateAddressRelId(
+			this.<Long>getColumnOriginalValue("CTaxFixedRateAddressRelId"));
+		commerceTaxFixedRateAddressRelImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		commerceTaxFixedRateAddressRelImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		commerceTaxFixedRateAddressRelImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		commerceTaxFixedRateAddressRelImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		commerceTaxFixedRateAddressRelImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		commerceTaxFixedRateAddressRelImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		commerceTaxFixedRateAddressRelImpl.setCommerceTaxMethodId(
+			this.<Long>getColumnOriginalValue("commerceTaxMethodId"));
+		commerceTaxFixedRateAddressRelImpl.setCPTaxCategoryId(
+			this.<Long>getColumnOriginalValue("CPTaxCategoryId"));
+		commerceTaxFixedRateAddressRelImpl.setCountryId(
+			this.<Long>getColumnOriginalValue("countryId"));
+		commerceTaxFixedRateAddressRelImpl.setRegionId(
+			this.<Long>getColumnOriginalValue("regionId"));
+		commerceTaxFixedRateAddressRelImpl.setZip(
+			this.<String>getColumnOriginalValue("zip"));
+		commerceTaxFixedRateAddressRelImpl.setRate(
+			this.<Double>getColumnOriginalValue("rate"));
+
+		return commerceTaxFixedRateAddressRelImpl;
+	}
+
+	@Override
 	public int compareTo(
 		CommerceTaxFixedRateAddressRel commerceTaxFixedRateAddressRel) {
 
@@ -940,7 +977,7 @@ public class CommerceTaxFixedRateAddressRelModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -951,11 +988,27 @@ public class CommerceTaxFixedRateAddressRelModelImpl
 			Function<CommerceTaxFixedRateAddressRel, Object>
 				attributeGetterFunction = entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply(
-					(CommerceTaxFixedRateAddressRel)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(CommerceTaxFixedRateAddressRel)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

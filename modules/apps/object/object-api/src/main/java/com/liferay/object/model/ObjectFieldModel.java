@@ -209,6 +209,20 @@ public interface ObjectFieldModel
 	public void setModifiedDate(Date modifiedDate);
 
 	/**
+	 * Returns the list type definition ID of this object field.
+	 *
+	 * @return the list type definition ID of this object field
+	 */
+	public long getListTypeDefinitionId();
+
+	/**
+	 * Sets the list type definition ID of this object field.
+	 *
+	 * @param listTypeDefinitionId the list type definition ID of this object field
+	 */
+	public void setListTypeDefinitionId(long listTypeDefinitionId);
+
+	/**
 	 * Returns the object definition ID of this object field.
 	 *
 	 * @return the object definition ID of this object field
@@ -572,5 +586,8 @@ public interface ObjectFieldModel
 	@Override
 	public void prepareLocalizedFieldsForImport(Locale defaultImportLocale)
 		throws LocaleException;
+
+	@Override
+	public ObjectField cloneWithOriginalValues();
 
 }

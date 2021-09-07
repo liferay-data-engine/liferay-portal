@@ -36,6 +36,7 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
@@ -44,6 +45,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1221,6 +1223,52 @@ public class BookmarksEntryModelImpl
 	}
 
 	@Override
+	public BookmarksEntry cloneWithOriginalValues() {
+		BookmarksEntryImpl bookmarksEntryImpl = new BookmarksEntryImpl();
+
+		bookmarksEntryImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		bookmarksEntryImpl.setUuid(
+			this.<String>getColumnOriginalValue("uuid_"));
+		bookmarksEntryImpl.setEntryId(
+			this.<Long>getColumnOriginalValue("entryId"));
+		bookmarksEntryImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		bookmarksEntryImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		bookmarksEntryImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		bookmarksEntryImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		bookmarksEntryImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		bookmarksEntryImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		bookmarksEntryImpl.setFolderId(
+			this.<Long>getColumnOriginalValue("folderId"));
+		bookmarksEntryImpl.setTreePath(
+			this.<String>getColumnOriginalValue("treePath"));
+		bookmarksEntryImpl.setName(this.<String>getColumnOriginalValue("name"));
+		bookmarksEntryImpl.setUrl(this.<String>getColumnOriginalValue("url"));
+		bookmarksEntryImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		bookmarksEntryImpl.setPriority(
+			this.<Integer>getColumnOriginalValue("priority"));
+		bookmarksEntryImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+		bookmarksEntryImpl.setStatus(
+			this.<Integer>getColumnOriginalValue("status"));
+		bookmarksEntryImpl.setStatusByUserId(
+			this.<Long>getColumnOriginalValue("statusByUserId"));
+		bookmarksEntryImpl.setStatusByUserName(
+			this.<String>getColumnOriginalValue("statusByUserName"));
+		bookmarksEntryImpl.setStatusDate(
+			this.<Date>getColumnOriginalValue("statusDate"));
+
+		return bookmarksEntryImpl;
+	}
+
+	@Override
 	public int compareTo(BookmarksEntry bookmarksEntry) {
 		int value = 0;
 
@@ -1426,7 +1474,7 @@ public class BookmarksEntryModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1437,9 +1485,26 @@ public class BookmarksEntryModelImpl
 			Function<BookmarksEntry, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((BookmarksEntry)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((BookmarksEntry)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

@@ -21,7 +21,6 @@ import com.liferay.commerce.notification.model.impl.CommerceNotificationQueueEnt
 import com.liferay.commerce.notification.model.impl.CommerceNotificationQueueEntryModelImpl;
 import com.liferay.commerce.notification.service.persistence.CommerceNotificationQueueEntryPersistence;
 import com.liferay.petra.string.StringBundler;
-import com.liferay.portal.kernel.dao.orm.ArgumentsResolver;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -31,12 +30,10 @@ import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.model.BaseModel;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
-import com.liferay.portal.kernel.util.HashMapDictionary;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.SetUtil;
@@ -53,12 +50,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.ServiceRegistration;
 
 /**
  * The persistence implementation for the commerce notification queue entry service.
@@ -1666,8 +1657,8 @@ public class CommerceNotificationQueueEntryPersistenceImpl
 	private static final String _FINDER_COLUMN_SENT_SENT_2 =
 		"commerceNotificationQueueEntry.sent = ?";
 
-	private FinderPath _finderPathWithPaginationFindByLtS;
-	private FinderPath _finderPathWithPaginationCountByLtS;
+	private FinderPath _finderPathWithPaginationFindByLtSentDate;
+	private FinderPath _finderPathWithPaginationCountByLtSentDate;
 
 	/**
 	 * Returns all the commerce notification queue entries where sentDate &lt; &#63;.
@@ -1676,8 +1667,11 @@ public class CommerceNotificationQueueEntryPersistenceImpl
 	 * @return the matching commerce notification queue entries
 	 */
 	@Override
-	public List<CommerceNotificationQueueEntry> findByLtS(Date sentDate) {
-		return findByLtS(sentDate, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
+	public List<CommerceNotificationQueueEntry> findByLtSentDate(
+		Date sentDate) {
+
+		return findByLtSentDate(
+			sentDate, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
 
 	/**
@@ -1693,10 +1687,10 @@ public class CommerceNotificationQueueEntryPersistenceImpl
 	 * @return the range of matching commerce notification queue entries
 	 */
 	@Override
-	public List<CommerceNotificationQueueEntry> findByLtS(
+	public List<CommerceNotificationQueueEntry> findByLtSentDate(
 		Date sentDate, int start, int end) {
 
-		return findByLtS(sentDate, start, end, null);
+		return findByLtSentDate(sentDate, start, end, null);
 	}
 
 	/**
@@ -1713,11 +1707,11 @@ public class CommerceNotificationQueueEntryPersistenceImpl
 	 * @return the ordered range of matching commerce notification queue entries
 	 */
 	@Override
-	public List<CommerceNotificationQueueEntry> findByLtS(
+	public List<CommerceNotificationQueueEntry> findByLtSentDate(
 		Date sentDate, int start, int end,
 		OrderByComparator<CommerceNotificationQueueEntry> orderByComparator) {
 
-		return findByLtS(sentDate, start, end, orderByComparator, true);
+		return findByLtSentDate(sentDate, start, end, orderByComparator, true);
 	}
 
 	/**
@@ -1735,7 +1729,7 @@ public class CommerceNotificationQueueEntryPersistenceImpl
 	 * @return the ordered range of matching commerce notification queue entries
 	 */
 	@Override
-	public List<CommerceNotificationQueueEntry> findByLtS(
+	public List<CommerceNotificationQueueEntry> findByLtSentDate(
 		Date sentDate, int start, int end,
 		OrderByComparator<CommerceNotificationQueueEntry> orderByComparator,
 		boolean useFinderCache) {
@@ -1743,7 +1737,7 @@ public class CommerceNotificationQueueEntryPersistenceImpl
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
 
-		finderPath = _finderPathWithPaginationFindByLtS;
+		finderPath = _finderPathWithPaginationFindByLtSentDate;
 		finderArgs = new Object[] {
 			_getTime(sentDate), start, end, orderByComparator
 		};
@@ -1786,12 +1780,12 @@ public class CommerceNotificationQueueEntryPersistenceImpl
 			boolean bindSentDate = false;
 
 			if (sentDate == null) {
-				sb.append(_FINDER_COLUMN_LTS_SENTDATE_1);
+				sb.append(_FINDER_COLUMN_LTSENTDATE_SENTDATE_1);
 			}
 			else {
 				bindSentDate = true;
 
-				sb.append(_FINDER_COLUMN_LTS_SENTDATE_2);
+				sb.append(_FINDER_COLUMN_LTSENTDATE_SENTDATE_2);
 			}
 
 			if (orderByComparator != null) {
@@ -1847,13 +1841,13 @@ public class CommerceNotificationQueueEntryPersistenceImpl
 	 * @throws NoSuchNotificationQueueEntryException if a matching commerce notification queue entry could not be found
 	 */
 	@Override
-	public CommerceNotificationQueueEntry findByLtS_First(
+	public CommerceNotificationQueueEntry findByLtSentDate_First(
 			Date sentDate,
 			OrderByComparator<CommerceNotificationQueueEntry> orderByComparator)
 		throws NoSuchNotificationQueueEntryException {
 
 		CommerceNotificationQueueEntry commerceNotificationQueueEntry =
-			fetchByLtS_First(sentDate, orderByComparator);
+			fetchByLtSentDate_First(sentDate, orderByComparator);
 
 		if (commerceNotificationQueueEntry != null) {
 			return commerceNotificationQueueEntry;
@@ -1879,11 +1873,11 @@ public class CommerceNotificationQueueEntryPersistenceImpl
 	 * @return the first matching commerce notification queue entry, or <code>null</code> if a matching commerce notification queue entry could not be found
 	 */
 	@Override
-	public CommerceNotificationQueueEntry fetchByLtS_First(
+	public CommerceNotificationQueueEntry fetchByLtSentDate_First(
 		Date sentDate,
 		OrderByComparator<CommerceNotificationQueueEntry> orderByComparator) {
 
-		List<CommerceNotificationQueueEntry> list = findByLtS(
+		List<CommerceNotificationQueueEntry> list = findByLtSentDate(
 			sentDate, 0, 1, orderByComparator);
 
 		if (!list.isEmpty()) {
@@ -1902,13 +1896,13 @@ public class CommerceNotificationQueueEntryPersistenceImpl
 	 * @throws NoSuchNotificationQueueEntryException if a matching commerce notification queue entry could not be found
 	 */
 	@Override
-	public CommerceNotificationQueueEntry findByLtS_Last(
+	public CommerceNotificationQueueEntry findByLtSentDate_Last(
 			Date sentDate,
 			OrderByComparator<CommerceNotificationQueueEntry> orderByComparator)
 		throws NoSuchNotificationQueueEntryException {
 
 		CommerceNotificationQueueEntry commerceNotificationQueueEntry =
-			fetchByLtS_Last(sentDate, orderByComparator);
+			fetchByLtSentDate_Last(sentDate, orderByComparator);
 
 		if (commerceNotificationQueueEntry != null) {
 			return commerceNotificationQueueEntry;
@@ -1934,17 +1928,17 @@ public class CommerceNotificationQueueEntryPersistenceImpl
 	 * @return the last matching commerce notification queue entry, or <code>null</code> if a matching commerce notification queue entry could not be found
 	 */
 	@Override
-	public CommerceNotificationQueueEntry fetchByLtS_Last(
+	public CommerceNotificationQueueEntry fetchByLtSentDate_Last(
 		Date sentDate,
 		OrderByComparator<CommerceNotificationQueueEntry> orderByComparator) {
 
-		int count = countByLtS(sentDate);
+		int count = countByLtSentDate(sentDate);
 
 		if (count == 0) {
 			return null;
 		}
 
-		List<CommerceNotificationQueueEntry> list = findByLtS(
+		List<CommerceNotificationQueueEntry> list = findByLtSentDate(
 			sentDate, count - 1, count, orderByComparator);
 
 		if (!list.isEmpty()) {
@@ -1964,7 +1958,7 @@ public class CommerceNotificationQueueEntryPersistenceImpl
 	 * @throws NoSuchNotificationQueueEntryException if a commerce notification queue entry with the primary key could not be found
 	 */
 	@Override
-	public CommerceNotificationQueueEntry[] findByLtS_PrevAndNext(
+	public CommerceNotificationQueueEntry[] findByLtSentDate_PrevAndNext(
 			long commerceNotificationQueueEntryId, Date sentDate,
 			OrderByComparator<CommerceNotificationQueueEntry> orderByComparator)
 		throws NoSuchNotificationQueueEntryException {
@@ -1980,13 +1974,13 @@ public class CommerceNotificationQueueEntryPersistenceImpl
 			CommerceNotificationQueueEntry[] array =
 				new CommerceNotificationQueueEntryImpl[3];
 
-			array[0] = getByLtS_PrevAndNext(
+			array[0] = getByLtSentDate_PrevAndNext(
 				session, commerceNotificationQueueEntry, sentDate,
 				orderByComparator, true);
 
 			array[1] = commerceNotificationQueueEntry;
 
-			array[2] = getByLtS_PrevAndNext(
+			array[2] = getByLtSentDate_PrevAndNext(
 				session, commerceNotificationQueueEntry, sentDate,
 				orderByComparator, false);
 
@@ -2000,7 +1994,7 @@ public class CommerceNotificationQueueEntryPersistenceImpl
 		}
 	}
 
-	protected CommerceNotificationQueueEntry getByLtS_PrevAndNext(
+	protected CommerceNotificationQueueEntry getByLtSentDate_PrevAndNext(
 		Session session,
 		CommerceNotificationQueueEntry commerceNotificationQueueEntry,
 		Date sentDate,
@@ -2023,12 +2017,12 @@ public class CommerceNotificationQueueEntryPersistenceImpl
 		boolean bindSentDate = false;
 
 		if (sentDate == null) {
-			sb.append(_FINDER_COLUMN_LTS_SENTDATE_1);
+			sb.append(_FINDER_COLUMN_LTSENTDATE_SENTDATE_1);
 		}
 		else {
 			bindSentDate = true;
 
-			sb.append(_FINDER_COLUMN_LTS_SENTDATE_2);
+			sb.append(_FINDER_COLUMN_LTSENTDATE_SENTDATE_2);
 		}
 
 		if (orderByComparator != null) {
@@ -2129,9 +2123,9 @@ public class CommerceNotificationQueueEntryPersistenceImpl
 	 * @param sentDate the sent date
 	 */
 	@Override
-	public void removeByLtS(Date sentDate) {
+	public void removeByLtSentDate(Date sentDate) {
 		for (CommerceNotificationQueueEntry commerceNotificationQueueEntry :
-				findByLtS(
+				findByLtSentDate(
 					sentDate, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 
 			remove(commerceNotificationQueueEntry);
@@ -2145,8 +2139,8 @@ public class CommerceNotificationQueueEntryPersistenceImpl
 	 * @return the number of matching commerce notification queue entries
 	 */
 	@Override
-	public int countByLtS(Date sentDate) {
-		FinderPath finderPath = _finderPathWithPaginationCountByLtS;
+	public int countByLtSentDate(Date sentDate) {
+		FinderPath finderPath = _finderPathWithPaginationCountByLtSentDate;
 
 		Object[] finderArgs = new Object[] {_getTime(sentDate)};
 
@@ -2160,12 +2154,12 @@ public class CommerceNotificationQueueEntryPersistenceImpl
 			boolean bindSentDate = false;
 
 			if (sentDate == null) {
-				sb.append(_FINDER_COLUMN_LTS_SENTDATE_1);
+				sb.append(_FINDER_COLUMN_LTSENTDATE_SENTDATE_1);
 			}
 			else {
 				bindSentDate = true;
 
-				sb.append(_FINDER_COLUMN_LTS_SENTDATE_2);
+				sb.append(_FINDER_COLUMN_LTSENTDATE_SENTDATE_2);
 			}
 
 			String sql = sb.toString();
@@ -2198,10 +2192,10 @@ public class CommerceNotificationQueueEntryPersistenceImpl
 		return count.intValue();
 	}
 
-	private static final String _FINDER_COLUMN_LTS_SENTDATE_1 =
+	private static final String _FINDER_COLUMN_LTSENTDATE_SENTDATE_1 =
 		"commerceNotificationQueueEntry.sentDate IS NULL";
 
-	private static final String _FINDER_COLUMN_LTS_SENTDATE_2 =
+	private static final String _FINDER_COLUMN_LTSENTDATE_SENTDATE_2 =
 		"commerceNotificationQueueEntry.sentDate < ?";
 
 	private FinderPath _finderPathWithPaginationFindByG_C_C_S;
@@ -3421,16 +3415,6 @@ public class CommerceNotificationQueueEntryPersistenceImpl
 	 * Initializes the commerce notification queue entry persistence.
 	 */
 	public void afterPropertiesSet() {
-		Bundle bundle = FrameworkUtil.getBundle(
-			CommerceNotificationQueueEntryPersistenceImpl.class);
-
-		_bundleContext = bundle.getBundleContext();
-
-		_argumentsResolverServiceRegistration = _bundleContext.registerService(
-			ArgumentsResolver.class,
-			new CommerceNotificationQueueEntryModelArgumentsResolver(),
-			new HashMapDictionary<>());
-
 		_finderPathWithPaginationFindAll = new FinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findAll", new String[0],
 			new String[0], true);
@@ -3502,16 +3486,16 @@ public class CommerceNotificationQueueEntryPersistenceImpl
 			new String[] {Boolean.class.getName()}, new String[] {"sent"},
 			false);
 
-		_finderPathWithPaginationFindByLtS = new FinderPath(
-			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByLtS",
+		_finderPathWithPaginationFindByLtSentDate = new FinderPath(
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByLtSentDate",
 			new String[] {
 				Date.class.getName(), Integer.class.getName(),
 				Integer.class.getName(), OrderByComparator.class.getName()
 			},
 			new String[] {"sentDate"}, true);
 
-		_finderPathWithPaginationCountByLtS = new FinderPath(
-			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "countByLtS",
+		_finderPathWithPaginationCountByLtSentDate = new FinderPath(
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "countByLtSentDate",
 			new String[] {Date.class.getName()}, new String[] {"sentDate"},
 			false);
 
@@ -3545,11 +3529,7 @@ public class CommerceNotificationQueueEntryPersistenceImpl
 	public void destroy() {
 		entityCache.removeCache(
 			CommerceNotificationQueueEntryImpl.class.getName());
-
-		_argumentsResolverServiceRegistration.unregister();
 	}
-
-	private BundleContext _bundleContext;
 
 	@ServiceReference(type = EntityCache.class)
 	protected EntityCache entityCache;
@@ -3597,124 +3577,6 @@ public class CommerceNotificationQueueEntryPersistenceImpl
 	@Override
 	protected FinderCache getFinderCache() {
 		return finderCache;
-	}
-
-	private ServiceRegistration<ArgumentsResolver>
-		_argumentsResolverServiceRegistration;
-
-	private static class CommerceNotificationQueueEntryModelArgumentsResolver
-		implements ArgumentsResolver {
-
-		@Override
-		public Object[] getArguments(
-			FinderPath finderPath, BaseModel<?> baseModel, boolean checkColumn,
-			boolean original) {
-
-			String[] columnNames = finderPath.getColumnNames();
-
-			if ((columnNames == null) || (columnNames.length == 0)) {
-				if (baseModel.isNew()) {
-					return FINDER_ARGS_EMPTY;
-				}
-
-				return null;
-			}
-
-			CommerceNotificationQueueEntryModelImpl
-				commerceNotificationQueueEntryModelImpl =
-					(CommerceNotificationQueueEntryModelImpl)baseModel;
-
-			long columnBitmask =
-				commerceNotificationQueueEntryModelImpl.getColumnBitmask();
-
-			if (!checkColumn || (columnBitmask == 0)) {
-				return _getValue(
-					commerceNotificationQueueEntryModelImpl, columnNames,
-					original);
-			}
-
-			Long finderPathColumnBitmask = _finderPathColumnBitmasksCache.get(
-				finderPath);
-
-			if (finderPathColumnBitmask == null) {
-				finderPathColumnBitmask = 0L;
-
-				for (String columnName : columnNames) {
-					finderPathColumnBitmask |=
-						commerceNotificationQueueEntryModelImpl.
-							getColumnBitmask(columnName);
-				}
-
-				if (finderPath.isBaseModelResult() &&
-					(FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION ==
-						finderPath.getCacheName())) {
-
-					finderPathColumnBitmask |= _ORDER_BY_COLUMNS_BITMASK;
-				}
-
-				_finderPathColumnBitmasksCache.put(
-					finderPath, finderPathColumnBitmask);
-			}
-
-			if ((columnBitmask & finderPathColumnBitmask) != 0) {
-				return _getValue(
-					commerceNotificationQueueEntryModelImpl, columnNames,
-					original);
-			}
-
-			return null;
-		}
-
-		@Override
-		public String getClassName() {
-			return CommerceNotificationQueueEntryImpl.class.getName();
-		}
-
-		@Override
-		public String getTableName() {
-			return CommerceNotificationQueueEntryTable.INSTANCE.getTableName();
-		}
-
-		private static Object[] _getValue(
-			CommerceNotificationQueueEntryModelImpl
-				commerceNotificationQueueEntryModelImpl,
-			String[] columnNames, boolean original) {
-
-			Object[] arguments = new Object[columnNames.length];
-
-			for (int i = 0; i < arguments.length; i++) {
-				String columnName = columnNames[i];
-
-				if (original) {
-					arguments[i] =
-						commerceNotificationQueueEntryModelImpl.
-							getColumnOriginalValue(columnName);
-				}
-				else {
-					arguments[i] =
-						commerceNotificationQueueEntryModelImpl.getColumnValue(
-							columnName);
-				}
-			}
-
-			return arguments;
-		}
-
-		private static final Map<FinderPath, Long>
-			_finderPathColumnBitmasksCache = new ConcurrentHashMap<>();
-
-		private static final long _ORDER_BY_COLUMNS_BITMASK;
-
-		static {
-			long orderByColumnsBitmask = 0;
-
-			orderByColumnsBitmask |=
-				CommerceNotificationQueueEntryModelImpl.getColumnBitmask(
-					"priority");
-
-			_ORDER_BY_COLUMNS_BITMASK = orderByColumnsBitmask;
-		}
-
 	}
 
 }

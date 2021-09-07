@@ -567,8 +567,8 @@ definition {
 
 	macro createNewAccountGroup {
 		ApplicationsMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
+			category = "Accounts",
+			panel = "Applications",
 			portlet = "Accounts");
 
 		Click(locator1 = "Button#PLUS");
@@ -579,8 +579,8 @@ definition {
 			user = "${user}");
 
 		ApplicationsMenu.gotoPortlet(
-			category = "Users",
-			panel = "Control Panel",
+			category = "Accounts",
+			panel = "Applications",
 			portlet = "Account Groups");
 
 		Click(locator1 = "Button#PLUS");
@@ -920,7 +920,9 @@ definition {
 
 		SelectFrameTop();
 
-		SelectFrame.selectFrameNoLoading(locator1 = "CommerceEntry#IFRAME_SIDE_PANEL");
+		if ("${productType}" != "Diagram") {
+			SelectFrame.selectFrameNoLoading(locator1 = "CommerceEntry#IFRAME_SIDE_PANEL");
+		}
 
 		CommerceItemSelector.uploadSingleFile(uploadFileName = "${uploadFileName}");
 	}
@@ -1139,7 +1141,7 @@ definition {
 	macro viewPaginationResults {
 		AssertTextEquals(
 			locator1 = "CommerceEntry#PAGINATION_RESULTS",
-			value1 = "Showing 11 to 20 of 54");
+			value1 = "${results}");
 	}
 
 	macro viewPriceListEntry {

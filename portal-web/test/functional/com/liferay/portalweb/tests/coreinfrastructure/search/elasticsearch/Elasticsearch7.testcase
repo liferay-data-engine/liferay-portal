@@ -253,6 +253,7 @@ definition {
 		property app.server.bundles.size = "1";
 		property cluster.enabled = "true";
 		property embedded.elasticsearch.only = "true";
+		property minimum.slave.ram = "24";
 		property test.assert.warning.exceptions = "true";
 		property test.name.skip.portal.instance = "Elasticsearch7#AssertSidecarDoesNotCluster";
 
@@ -354,6 +355,7 @@ definition {
 	@priority = "5"
 	test ElasticsearchClusteringSmokeTest {
 		property elasticsearch.cluster.size = "2";
+		property minimum.slave.ram = "24";
 		property portal.acceptance = "true";
 		property portal.upstream = "quarantine";
 		property remote.elasticsearch.enabled = "true";
@@ -592,11 +594,13 @@ definition {
 			locator1 = "build-test-elasticsearch7.xml",
 			value1 = "start-elasticsearch");
 
-		AssertConsoleTextPresent(value1 = "Stopping sidecar Elasticsearch");
+		WaitForConsoleTextPresent(value1 = "Stopping sidecar Elasticsearch");
 
-		Navigator.openSpecificURL(url = "http://localhost:9201");
+		// LRCI-2401
 
-		AssertTextNotPresent(value1 = "cluster_name");
+		//Navigator.openSpecificURL(url = "http://localhost:9201");
+
+		//AssertTextNotPresent(value1 = "cluster_name");
 
 		Navigator.openURL();
 
@@ -634,6 +638,10 @@ definition {
 		SearchResultPortlet.viewSearchResults(
 			searchAssetTitle = "WC WebContent Title",
 			searchAssetType = "Web Content Article");
+
+		AntCommand(
+			locator1 = "build-test-elasticsearch7.xml",
+			value1 = "stop-elasticsearch");
 	}
 
 	@description = "This is a use case for LPS-57894."
@@ -671,9 +679,11 @@ definition {
 
 		SystemSettings.saveConfiguration();
 
-		Pause(locator1 = "10000");
+		WaitForConsoleTextPresent(value1 = "Stopping sidecar Elasticsearch");
 
-		AssertConsoleTextPresent(value1 = "Stopping sidecar Elasticsearch");
+		// LRCI-2401
+
+		Pause(locator1 = "30000");
 
 		Navigator.openSpecificURL(url = "http://localhost:9201");
 

@@ -35,6 +35,7 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
@@ -44,6 +45,7 @@ import java.lang.reflect.InvocationHandler;
 
 import java.math.BigDecimal;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -2239,6 +2241,137 @@ public class CommerceOrderItemModelImpl
 	}
 
 	@Override
+	public CommerceOrderItem cloneWithOriginalValues() {
+		CommerceOrderItemImpl commerceOrderItemImpl =
+			new CommerceOrderItemImpl();
+
+		commerceOrderItemImpl.setExternalReferenceCode(
+			this.<String>getColumnOriginalValue("externalReferenceCode"));
+		commerceOrderItemImpl.setCommerceOrderItemId(
+			this.<Long>getColumnOriginalValue("commerceOrderItemId"));
+		commerceOrderItemImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		commerceOrderItemImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		commerceOrderItemImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		commerceOrderItemImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		commerceOrderItemImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		commerceOrderItemImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		commerceOrderItemImpl.setBookedQuantityId(
+			this.<Long>getColumnOriginalValue("bookedQuantityId"));
+		commerceOrderItemImpl.setCommerceOrderId(
+			this.<Long>getColumnOriginalValue("commerceOrderId"));
+		commerceOrderItemImpl.setCommercePriceListId(
+			this.<Long>getColumnOriginalValue("commercePriceListId"));
+		commerceOrderItemImpl.setCPInstanceId(
+			this.<Long>getColumnOriginalValue("CPInstanceId"));
+		commerceOrderItemImpl.setCProductId(
+			this.<Long>getColumnOriginalValue("CProductId"));
+		commerceOrderItemImpl.setParentCommerceOrderItemId(
+			this.<Long>getColumnOriginalValue("parentCommerceOrderItemId"));
+		commerceOrderItemImpl.setShippingAddressId(
+			this.<Long>getColumnOriginalValue("shippingAddressId"));
+		commerceOrderItemImpl.setDeliveryGroup(
+			this.<String>getColumnOriginalValue("deliveryGroup"));
+		commerceOrderItemImpl.setDeliveryMaxSubscriptionCycles(
+			this.<Long>getColumnOriginalValue("deliveryMaxSubscriptionCycles"));
+		commerceOrderItemImpl.setDeliverySubscriptionLength(
+			this.<Integer>getColumnOriginalValue("deliverySubscriptionLength"));
+		commerceOrderItemImpl.setDeliverySubscriptionType(
+			this.<String>getColumnOriginalValue("deliverySubscriptionType"));
+		commerceOrderItemImpl.setDeliverySubscriptionTypeSettings(
+			this.<String>getColumnOriginalValue("deliverySubTypeSettings"));
+		commerceOrderItemImpl.setDepth(
+			this.<Double>getColumnOriginalValue("depth"));
+		commerceOrderItemImpl.setDiscountAmount(
+			this.<BigDecimal>getColumnOriginalValue("discountAmount"));
+		commerceOrderItemImpl.setDiscountPercentageLevel1(
+			this.<BigDecimal>getColumnOriginalValue(
+				"discountPercentageLevel1"));
+		commerceOrderItemImpl.setDiscountPercentageLevel2(
+			this.<BigDecimal>getColumnOriginalValue(
+				"discountPercentageLevel2"));
+		commerceOrderItemImpl.setDiscountPercentageLevel3(
+			this.<BigDecimal>getColumnOriginalValue(
+				"discountPercentageLevel3"));
+		commerceOrderItemImpl.setDiscountPercentageLevel4(
+			this.<BigDecimal>getColumnOriginalValue(
+				"discountPercentageLevel4"));
+		commerceOrderItemImpl.setDiscountPercentageLevel1WithTaxAmount(
+			this.<BigDecimal>getColumnOriginalValue(
+				"discountPctLevel1WithTaxAmount"));
+		commerceOrderItemImpl.setDiscountPercentageLevel2WithTaxAmount(
+			this.<BigDecimal>getColumnOriginalValue(
+				"discountPctLevel2WithTaxAmount"));
+		commerceOrderItemImpl.setDiscountPercentageLevel3WithTaxAmount(
+			this.<BigDecimal>getColumnOriginalValue(
+				"discountPctLevel3WithTaxAmount"));
+		commerceOrderItemImpl.setDiscountPercentageLevel4WithTaxAmount(
+			this.<BigDecimal>getColumnOriginalValue(
+				"discountPctLevel4WithTaxAmount"));
+		commerceOrderItemImpl.setDiscountWithTaxAmount(
+			this.<BigDecimal>getColumnOriginalValue("discountWithTaxAmount"));
+		commerceOrderItemImpl.setFinalPrice(
+			this.<BigDecimal>getColumnOriginalValue("finalPrice"));
+		commerceOrderItemImpl.setFinalPriceWithTaxAmount(
+			this.<BigDecimal>getColumnOriginalValue("finalPriceWithTaxAmount"));
+		commerceOrderItemImpl.setFreeShipping(
+			this.<Boolean>getColumnOriginalValue("freeShipping"));
+		commerceOrderItemImpl.setHeight(
+			this.<Double>getColumnOriginalValue("height"));
+		commerceOrderItemImpl.setJson(
+			this.<String>getColumnOriginalValue("json"));
+		commerceOrderItemImpl.setManuallyAdjusted(
+			this.<Boolean>getColumnOriginalValue("manuallyAdjusted"));
+		commerceOrderItemImpl.setMaxSubscriptionCycles(
+			this.<Long>getColumnOriginalValue("maxSubscriptionCycles"));
+		commerceOrderItemImpl.setName(
+			this.<String>getColumnOriginalValue("name"));
+		commerceOrderItemImpl.setPrintedNote(
+			this.<String>getColumnOriginalValue("printedNote"));
+		commerceOrderItemImpl.setPromoPrice(
+			this.<BigDecimal>getColumnOriginalValue("promoPrice"));
+		commerceOrderItemImpl.setPromoPriceWithTaxAmount(
+			this.<BigDecimal>getColumnOriginalValue("promoPriceWithTaxAmount"));
+		commerceOrderItemImpl.setQuantity(
+			this.<Integer>getColumnOriginalValue("quantity"));
+		commerceOrderItemImpl.setRequestedDeliveryDate(
+			this.<Date>getColumnOriginalValue("requestedDeliveryDate"));
+		commerceOrderItemImpl.setShipSeparately(
+			this.<Boolean>getColumnOriginalValue("shipSeparately"));
+		commerceOrderItemImpl.setShippable(
+			this.<Boolean>getColumnOriginalValue("shippable"));
+		commerceOrderItemImpl.setShippedQuantity(
+			this.<Integer>getColumnOriginalValue("shippedQuantity"));
+		commerceOrderItemImpl.setShippingExtraPrice(
+			this.<Double>getColumnOriginalValue("shippingExtraPrice"));
+		commerceOrderItemImpl.setSku(
+			this.<String>getColumnOriginalValue("sku"));
+		commerceOrderItemImpl.setSubscription(
+			this.<Boolean>getColumnOriginalValue("subscription"));
+		commerceOrderItemImpl.setSubscriptionLength(
+			this.<Integer>getColumnOriginalValue("subscriptionLength"));
+		commerceOrderItemImpl.setSubscriptionType(
+			this.<String>getColumnOriginalValue("subscriptionType"));
+		commerceOrderItemImpl.setSubscriptionTypeSettings(
+			this.<String>getColumnOriginalValue("subscriptionTypeSettings"));
+		commerceOrderItemImpl.setUnitPrice(
+			this.<BigDecimal>getColumnOriginalValue("unitPrice"));
+		commerceOrderItemImpl.setUnitPriceWithTaxAmount(
+			this.<BigDecimal>getColumnOriginalValue("unitPriceWithTaxAmount"));
+		commerceOrderItemImpl.setWeight(
+			this.<Double>getColumnOriginalValue("weight"));
+		commerceOrderItemImpl.setWidth(
+			this.<Double>getColumnOriginalValue("width"));
+
+		return commerceOrderItemImpl;
+	}
+
+	@Override
 	public int compareTo(CommerceOrderItem commerceOrderItem) {
 		int value = 0;
 
@@ -2558,7 +2691,7 @@ public class CommerceOrderItemModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -2569,9 +2702,27 @@ public class CommerceOrderItemModelImpl
 			Function<CommerceOrderItem, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((CommerceOrderItem)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(CommerceOrderItem)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

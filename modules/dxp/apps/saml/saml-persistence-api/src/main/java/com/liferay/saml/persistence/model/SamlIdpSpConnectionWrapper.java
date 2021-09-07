@@ -187,6 +187,11 @@ public class SamlIdpSpConnectionWrapper
 		}
 	}
 
+	@Override
+	public SamlIdpSpConnection cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the assertion lifetime of this saml idp sp connection.
 	 *

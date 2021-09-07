@@ -34,6 +34,7 @@ import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
 import java.io.Serializable;
@@ -41,6 +42,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1427,6 +1429,67 @@ public class KBArticleModelImpl
 	}
 
 	@Override
+	public KBArticle cloneWithOriginalValues() {
+		KBArticleImpl kbArticleImpl = new KBArticleImpl();
+
+		kbArticleImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		kbArticleImpl.setUuid(this.<String>getColumnOriginalValue("uuid_"));
+		kbArticleImpl.setKbArticleId(
+			this.<Long>getColumnOriginalValue("kbArticleId"));
+		kbArticleImpl.setResourcePrimKey(
+			this.<Long>getColumnOriginalValue("resourcePrimKey"));
+		kbArticleImpl.setGroupId(this.<Long>getColumnOriginalValue("groupId"));
+		kbArticleImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		kbArticleImpl.setUserId(this.<Long>getColumnOriginalValue("userId"));
+		kbArticleImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		kbArticleImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		kbArticleImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		kbArticleImpl.setExternalReferenceCode(
+			this.<String>getColumnOriginalValue("externalReferenceCode"));
+		kbArticleImpl.setRootResourcePrimKey(
+			this.<Long>getColumnOriginalValue("rootResourcePrimKey"));
+		kbArticleImpl.setParentResourceClassNameId(
+			this.<Long>getColumnOriginalValue("parentResourceClassNameId"));
+		kbArticleImpl.setParentResourcePrimKey(
+			this.<Long>getColumnOriginalValue("parentResourcePrimKey"));
+		kbArticleImpl.setKbFolderId(
+			this.<Long>getColumnOriginalValue("kbFolderId"));
+		kbArticleImpl.setVersion(
+			this.<Integer>getColumnOriginalValue("version"));
+		kbArticleImpl.setTitle(this.<String>getColumnOriginalValue("title"));
+		kbArticleImpl.setUrlTitle(
+			this.<String>getColumnOriginalValue("urlTitle"));
+		kbArticleImpl.setContent(
+			this.<String>getColumnOriginalValue("content"));
+		kbArticleImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		kbArticleImpl.setPriority(
+			this.<Double>getColumnOriginalValue("priority"));
+		kbArticleImpl.setSections(
+			this.<String>getColumnOriginalValue("sections"));
+		kbArticleImpl.setLatest(this.<Boolean>getColumnOriginalValue("latest"));
+		kbArticleImpl.setMain(this.<Boolean>getColumnOriginalValue("main"));
+		kbArticleImpl.setSourceURL(
+			this.<String>getColumnOriginalValue("sourceURL"));
+		kbArticleImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+		kbArticleImpl.setStatus(this.<Integer>getColumnOriginalValue("status"));
+		kbArticleImpl.setStatusByUserId(
+			this.<Long>getColumnOriginalValue("statusByUserId"));
+		kbArticleImpl.setStatusByUserName(
+			this.<String>getColumnOriginalValue("statusByUserName"));
+		kbArticleImpl.setStatusDate(
+			this.<Date>getColumnOriginalValue("statusDate"));
+
+		return kbArticleImpl;
+	}
+
+	@Override
 	public int compareTo(KBArticle kbArticle) {
 		int value = 0;
 
@@ -1661,7 +1724,7 @@ public class KBArticleModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1672,9 +1735,26 @@ public class KBArticleModelImpl
 			Function<KBArticle, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((KBArticle)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((KBArticle)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

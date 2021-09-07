@@ -33,6 +33,7 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.wiki.model.WikiNode;
@@ -44,6 +45,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1165,6 +1167,44 @@ public class WikiNodeModelImpl
 	}
 
 	@Override
+	public WikiNode cloneWithOriginalValues() {
+		WikiNodeImpl wikiNodeImpl = new WikiNodeImpl();
+
+		wikiNodeImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		wikiNodeImpl.setUuid(this.<String>getColumnOriginalValue("uuid_"));
+		wikiNodeImpl.setExternalReferenceCode(
+			this.<String>getColumnOriginalValue("externalReferenceCode"));
+		wikiNodeImpl.setNodeId(this.<Long>getColumnOriginalValue("nodeId"));
+		wikiNodeImpl.setGroupId(this.<Long>getColumnOriginalValue("groupId"));
+		wikiNodeImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		wikiNodeImpl.setUserId(this.<Long>getColumnOriginalValue("userId"));
+		wikiNodeImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		wikiNodeImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		wikiNodeImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		wikiNodeImpl.setName(this.<String>getColumnOriginalValue("name"));
+		wikiNodeImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		wikiNodeImpl.setLastPostDate(
+			this.<Date>getColumnOriginalValue("lastPostDate"));
+		wikiNodeImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+		wikiNodeImpl.setStatus(this.<Integer>getColumnOriginalValue("status"));
+		wikiNodeImpl.setStatusByUserId(
+			this.<Long>getColumnOriginalValue("statusByUserId"));
+		wikiNodeImpl.setStatusByUserName(
+			this.<String>getColumnOriginalValue("statusByUserName"));
+		wikiNodeImpl.setStatusDate(
+			this.<Date>getColumnOriginalValue("statusDate"));
+
+		return wikiNodeImpl;
+	}
+
+	@Override
 	public int compareTo(WikiNode wikiNode) {
 		int value = 0;
 
@@ -1353,7 +1393,7 @@ public class WikiNodeModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1364,9 +1404,26 @@ public class WikiNodeModelImpl
 			Function<WikiNode, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((WikiNode)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((WikiNode)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

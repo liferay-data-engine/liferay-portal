@@ -138,6 +138,11 @@ public class CommerceNotificationAttachmentWrapper
 		}
 	}
 
+	@Override
+	public CommerceNotificationAttachment cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the commerce notification attachment ID of this commerce notification attachment.
 	 *

@@ -19,6 +19,7 @@ import com.liferay.info.field.InfoField;
 import com.liferay.info.field.InfoFieldValue;
 import com.liferay.info.field.type.BooleanInfoFieldType;
 import com.liferay.info.field.type.DateInfoFieldType;
+import com.liferay.info.field.type.ImageInfoFieldType;
 import com.liferay.info.field.type.InfoFieldType;
 import com.liferay.info.field.type.NumberInfoFieldType;
 import com.liferay.info.field.type.TextInfoFieldType;
@@ -27,13 +28,18 @@ import com.liferay.info.item.InfoItemReference;
 import com.liferay.info.item.field.reader.InfoItemFieldReaderFieldSetProvider;
 import com.liferay.info.item.provider.InfoItemFieldValuesProvider;
 import com.liferay.info.localized.InfoLocalizedValue;
+import com.liferay.info.type.WebImage;
 import com.liferay.object.model.ObjectEntry;
 import com.liferay.object.model.ObjectField;
 import com.liferay.object.service.ObjectFieldLocalService;
 import com.liferay.object.web.internal.info.item.ObjectEntryInfoItemFields;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.json.JSONFactory;
+import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
+import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.vulcan.util.TransformUtil;
 
@@ -88,6 +94,9 @@ public class ObjectEntryInfoItemFieldValuesProvider
 
 			return NumberInfoFieldType.INSTANCE;
 		}
+		else if (Objects.equals(objectField.getType(), "Blob")) {
+			return ImageInfoFieldType.INSTANCE;
+		}
 		else if (Objects.equals(objectField.getType(), "Date")) {
 			return DateInfoFieldType.INSTANCE;
 		}
@@ -121,6 +130,10 @@ public class ObjectEntryInfoItemFieldValuesProvider
 				new InfoFieldValue<>(
 					ObjectEntryInfoItemFields.userNameInfoField,
 					objectEntry.getUserName()));
+			objectEntryFieldValues.add(
+				new InfoFieldValue<>(
+					ObjectEntryInfoItemFields.userProfileImage,
+					_getWebImage(objectEntry.getUserId())));
 
 			ThemeDisplay themeDisplay = _getThemeDisplay();
 
@@ -147,7 +160,7 @@ public class ObjectEntryInfoItemFieldValuesProvider
 							InfoLocalizedValue.localize(
 								getClass(), objectField.getName())
 						).build(),
-						values.get(objectField.getName()))));
+						_getValue(objectField, values))));
 
 			return objectEntryFieldValues;
 		}
@@ -167,6 +180,46 @@ public class ObjectEntryInfoItemFieldValuesProvider
 		return null;
 	}
 
+	private Object _getValue(
+			ObjectField objectField, Map<String, Serializable> values)
+		throws PortalException {
+
+		if (Objects.equals(
+				_getInfoFieldType(objectField), ImageInfoFieldType.INSTANCE)) {
+
+			JSONObject jsonObject = _jsonFactory.createJSONObject(
+				new String((byte[])values.get(objectField.getName())));
+
+			WebImage webImage = new WebImage(jsonObject.getString("url"));
+
+			webImage.setAlt(jsonObject.getString("alt"));
+
+			return webImage;
+		}
+
+		return values.get(objectField.getName());
+	}
+
+	private WebImage _getWebImage(long userId) throws PortalException {
+		User user = _userLocalService.fetchUser(userId);
+
+		if (user == null) {
+			return null;
+		}
+
+		ThemeDisplay themeDisplay = _getThemeDisplay();
+
+		if (themeDisplay != null) {
+			WebImage webImage = new WebImage(user.getPortraitURL(themeDisplay));
+
+			webImage.setAlt(user.getFullName());
+
+			return webImage;
+		}
+
+		return null;
+	}
+
 	@Reference
 	private AssetDisplayPageFriendlyURLProvider
 		_assetDisplayPageFriendlyURLProvider;
@@ -176,6 +229,12 @@ public class ObjectEntryInfoItemFieldValuesProvider
 		_infoItemFieldReaderFieldSetProvider;
 
 	@Reference
+	private JSONFactory _jsonFactory;
+
+	@Reference
 	private ObjectFieldLocalService _objectFieldLocalService;
+
+	@Reference
+	private UserLocalService _userLocalService;
 
 }

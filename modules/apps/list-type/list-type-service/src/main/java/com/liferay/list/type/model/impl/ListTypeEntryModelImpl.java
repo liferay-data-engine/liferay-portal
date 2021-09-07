@@ -35,6 +35,7 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
@@ -42,6 +43,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
@@ -82,8 +84,8 @@ public class ListTypeEntryModelImpl
 		{"listTypeEntryId", Types.BIGINT}, {"companyId", Types.BIGINT},
 		{"userId", Types.BIGINT}, {"userName", Types.VARCHAR},
 		{"createDate", Types.TIMESTAMP}, {"modifiedDate", Types.TIMESTAMP},
-		{"listTypeDefinitionId", Types.BIGINT}, {"name", Types.VARCHAR},
-		{"type_", Types.VARCHAR}
+		{"listTypeDefinitionId", Types.BIGINT}, {"key_", Types.VARCHAR},
+		{"name", Types.VARCHAR}, {"type_", Types.VARCHAR}
 	};
 
 	public static final Map<String, Integer> TABLE_COLUMNS_MAP =
@@ -99,12 +101,13 @@ public class ListTypeEntryModelImpl
 		TABLE_COLUMNS_MAP.put("createDate", Types.TIMESTAMP);
 		TABLE_COLUMNS_MAP.put("modifiedDate", Types.TIMESTAMP);
 		TABLE_COLUMNS_MAP.put("listTypeDefinitionId", Types.BIGINT);
+		TABLE_COLUMNS_MAP.put("key_", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("name", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("type_", Types.VARCHAR);
 	}
 
 	public static final String TABLE_SQL_CREATE =
-		"create table ListTypeEntry (mvccVersion LONG default 0 not null,uuid_ VARCHAR(75) null,listTypeEntryId LONG not null primary key,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,listTypeDefinitionId LONG,name STRING null,type_ VARCHAR(75) null)";
+		"create table ListTypeEntry (mvccVersion LONG default 0 not null,uuid_ VARCHAR(75) null,listTypeEntryId LONG not null primary key,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,listTypeDefinitionId LONG,key_ VARCHAR(75) null,name STRING null,type_ VARCHAR(75) null)";
 
 	public static final String TABLE_SQL_DROP = "drop table ListTypeEntry";
 
@@ -130,20 +133,26 @@ public class ListTypeEntryModelImpl
 	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)}
 	 */
 	@Deprecated
-	public static final long LISTTYPEDEFINITIONID_COLUMN_BITMASK = 2L;
+	public static final long KEY_COLUMN_BITMASK = 2L;
 
 	/**
 	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)}
 	 */
 	@Deprecated
-	public static final long UUID_COLUMN_BITMASK = 4L;
+	public static final long LISTTYPEDEFINITIONID_COLUMN_BITMASK = 4L;
+
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)}
+	 */
+	@Deprecated
+	public static final long UUID_COLUMN_BITMASK = 8L;
 
 	/**
 	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
 	 *		#getColumnBitmask(String)}
 	 */
 	@Deprecated
-	public static final long LISTTYPEENTRYID_COLUMN_BITMASK = 8L;
+	public static final long LISTTYPEENTRYID_COLUMN_BITMASK = 16L;
 
 	/**
 	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
@@ -324,6 +333,9 @@ public class ListTypeEntryModelImpl
 			"listTypeDefinitionId",
 			(BiConsumer<ListTypeEntry, Long>)
 				ListTypeEntry::setListTypeDefinitionId);
+		attributeGetterFunctions.put("key", ListTypeEntry::getKey);
+		attributeSetterBiConsumers.put(
+			"key", (BiConsumer<ListTypeEntry, String>)ListTypeEntry::setKey);
 		attributeGetterFunctions.put("name", ListTypeEntry::getName);
 		attributeSetterBiConsumers.put(
 			"name", (BiConsumer<ListTypeEntry, String>)ListTypeEntry::setName);
@@ -522,6 +534,34 @@ public class ListTypeEntryModelImpl
 	public long getOriginalListTypeDefinitionId() {
 		return GetterUtil.getLong(
 			this.<Long>getColumnOriginalValue("listTypeDefinitionId"));
+	}
+
+	@Override
+	public String getKey() {
+		if (_key == null) {
+			return "";
+		}
+		else {
+			return _key;
+		}
+	}
+
+	@Override
+	public void setKey(String key) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		_key = key;
+	}
+
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
+	public String getOriginalKey() {
+		return getColumnOriginalValue("key_");
 	}
 
 	@Override
@@ -786,10 +826,39 @@ public class ListTypeEntryModelImpl
 		listTypeEntryImpl.setCreateDate(getCreateDate());
 		listTypeEntryImpl.setModifiedDate(getModifiedDate());
 		listTypeEntryImpl.setListTypeDefinitionId(getListTypeDefinitionId());
+		listTypeEntryImpl.setKey(getKey());
 		listTypeEntryImpl.setName(getName());
 		listTypeEntryImpl.setType(getType());
 
 		listTypeEntryImpl.resetOriginalValues();
+
+		return listTypeEntryImpl;
+	}
+
+	@Override
+	public ListTypeEntry cloneWithOriginalValues() {
+		ListTypeEntryImpl listTypeEntryImpl = new ListTypeEntryImpl();
+
+		listTypeEntryImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		listTypeEntryImpl.setUuid(this.<String>getColumnOriginalValue("uuid_"));
+		listTypeEntryImpl.setListTypeEntryId(
+			this.<Long>getColumnOriginalValue("listTypeEntryId"));
+		listTypeEntryImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		listTypeEntryImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		listTypeEntryImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		listTypeEntryImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		listTypeEntryImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		listTypeEntryImpl.setListTypeDefinitionId(
+			this.<Long>getColumnOriginalValue("listTypeDefinitionId"));
+		listTypeEntryImpl.setKey(this.<String>getColumnOriginalValue("key_"));
+		listTypeEntryImpl.setName(this.<String>getColumnOriginalValue("name"));
+		listTypeEntryImpl.setType(this.<String>getColumnOriginalValue("type_"));
 
 		return listTypeEntryImpl;
 	}
@@ -913,6 +982,14 @@ public class ListTypeEntryModelImpl
 		listTypeEntryCacheModel.listTypeDefinitionId =
 			getListTypeDefinitionId();
 
+		listTypeEntryCacheModel.key = getKey();
+
+		String key = listTypeEntryCacheModel.key;
+
+		if ((key != null) && (key.length() == 0)) {
+			listTypeEntryCacheModel.key = null;
+		}
+
 		listTypeEntryCacheModel.name = getName();
 
 		String name = listTypeEntryCacheModel.name;
@@ -938,7 +1015,7 @@ public class ListTypeEntryModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -949,9 +1026,26 @@ public class ListTypeEntryModelImpl
 			Function<ListTypeEntry, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((ListTypeEntry)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((ListTypeEntry)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 
@@ -1012,6 +1106,7 @@ public class ListTypeEntryModelImpl
 	private Date _modifiedDate;
 	private boolean _setModifiedDate;
 	private long _listTypeDefinitionId;
+	private String _key;
 	private String _name;
 	private String _nameCurrentLanguageId;
 	private String _type;
@@ -1055,6 +1150,7 @@ public class ListTypeEntryModelImpl
 		_columnOriginalValues.put("modifiedDate", _modifiedDate);
 		_columnOriginalValues.put(
 			"listTypeDefinitionId", _listTypeDefinitionId);
+		_columnOriginalValues.put("key_", _key);
 		_columnOriginalValues.put("name", _name);
 		_columnOriginalValues.put("type_", _type);
 	}
@@ -1065,6 +1161,7 @@ public class ListTypeEntryModelImpl
 		Map<String, String> attributeNames = new HashMap<>();
 
 		attributeNames.put("uuid_", "uuid");
+		attributeNames.put("key_", "key");
 		attributeNames.put("type_", "type");
 
 		_attributeNames = Collections.unmodifiableMap(attributeNames);
@@ -1099,9 +1196,11 @@ public class ListTypeEntryModelImpl
 
 		columnBitmasks.put("listTypeDefinitionId", 256L);
 
-		columnBitmasks.put("name", 512L);
+		columnBitmasks.put("key_", 512L);
 
-		columnBitmasks.put("type_", 1024L);
+		columnBitmasks.put("name", 1024L);
+
+		columnBitmasks.put("type_", 2048L);
 
 		_columnBitmasks = Collections.unmodifiableMap(columnBitmasks);
 	}

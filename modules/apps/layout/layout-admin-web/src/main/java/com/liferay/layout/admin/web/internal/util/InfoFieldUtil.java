@@ -14,8 +14,11 @@
 
 package com.liferay.layout.admin.web.internal.util;
 
+import com.liferay.fragment.constants.FragmentEntryLinkConstants;
 import com.liferay.fragment.entry.processor.util.EditableFragmentEntryProcessorUtil;
 import com.liferay.fragment.model.FragmentEntryLink;
+import com.liferay.fragment.renderer.DefaultFragmentRendererContext;
+import com.liferay.fragment.renderer.FragmentRendererController;
 import com.liferay.fragment.service.FragmentEntryLinkLocalServiceUtil;
 import com.liferay.info.field.InfoField;
 import com.liferay.info.field.type.TextInfoFieldType;
@@ -27,9 +30,19 @@ import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.segments.constants.SegmentsExperienceConstants;
 
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author Adolfo Pérez
@@ -37,6 +50,7 @@ import java.util.Map;
 public class InfoFieldUtil {
 
 	public static <E extends Throwable> void forEachInfoField(
+			FragmentRendererController fragmentRendererController,
 			Layout layout,
 			UnsafeTriConsumer
 				<String, InfoField<TextInfoFieldType>,
@@ -52,15 +66,21 @@ public class InfoFieldUtil {
 				layout.getGroupId(), layout.getPlid());
 
 		for (FragmentEntryLink fragmentEntryLink : fragmentEntryLinks) {
+			String defaultElementName =
+				"defaultElementName" + StringUtil.randomId();
+
 			Map<String, String> editableTypes =
 				EditableFragmentEntryProcessorUtil.getEditableTypes(
-					fragmentEntryLink.getHtml());
+					_getHtml(
+						fragmentEntryLink, fragmentRendererController,
+						defaultElementName));
 
 			for (Map.Entry<String, String> entry : editableTypes.entrySet()) {
+				String name = entry.getKey();
 				String type = entry.getValue();
 
-				if (_isTextFieldType(type)) {
-					String name = entry.getKey();
+				if (!name.equals(defaultElementName) &&
+					_isTextFieldType(type)) {
 
 					consumer.accept(
 						name,
@@ -72,6 +92,45 @@ public class InfoFieldUtil {
 				}
 			}
 		}
+	}
+
+	private static String _getHtml(
+		FragmentEntryLink fragmentEntryLink,
+		FragmentRendererController fragmentRendererController,
+		String defaultElementName) {
+
+		ServiceContext serviceContext =
+			ServiceContextThreadLocal.getServiceContext();
+
+		if (serviceContext == null) {
+			return _renderHtml(fragmentEntryLink, defaultElementName);
+		}
+
+		HttpServletRequest httpServletRequest = serviceContext.getRequest();
+
+		if (httpServletRequest == null) {
+			return _renderHtml(fragmentEntryLink, defaultElementName);
+		}
+
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
+
+		if (themeDisplay == null) {
+			return _renderHtml(fragmentEntryLink, defaultElementName);
+		}
+
+		DefaultFragmentRendererContext defaultFragmentRendererContext =
+			new DefaultFragmentRendererContext(fragmentEntryLink);
+
+		defaultFragmentRendererContext.setLocale(themeDisplay.getLocale());
+		defaultFragmentRendererContext.setMode(FragmentEntryLinkConstants.EDIT);
+		defaultFragmentRendererContext.setSegmentsExperienceIds(
+			new long[] {SegmentsExperienceConstants.ID_DEFAULT});
+
+		return fragmentRendererController.render(
+			defaultFragmentRendererContext, httpServletRequest,
+			serviceContext.getResponse());
 	}
 
 	private static InfoField<TextInfoFieldType> _getInfoField(
@@ -92,7 +151,7 @@ public class InfoFieldUtil {
 	}
 
 	private static boolean _isHtml(String type) {
-		if (type.equals("rich-text")) {
+		if (type.equals("html") || type.equals("rich-text")) {
 			return true;
 		}
 
@@ -100,11 +159,23 @@ public class InfoFieldUtil {
 	}
 
 	private static boolean _isTextFieldType(String type) {
-		if (type.equals("rich-text") || type.equals("text")) {
+		if (type.equals("html") || type.equals("link") ||
+			type.equals("rich-text") || type.equals("text")) {
+
 			return true;
 		}
 
 		return false;
 	}
+
+	private static String _renderHtml(
+		FragmentEntryLink fragmentEntryLink, String defaultElementName) {
+
+		Matcher matcher = _pattern.matcher(fragmentEntryLink.getHtml());
+
+		return matcher.replaceAll(defaultElementName);
+	}
+
+	private static final Pattern _pattern = Pattern.compile("\\$\\{[^}]*\\}");
 
 }

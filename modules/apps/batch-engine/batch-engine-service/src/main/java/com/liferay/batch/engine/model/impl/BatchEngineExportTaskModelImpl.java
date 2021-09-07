@@ -115,7 +115,7 @@ public class BatchEngineExportTaskModelImpl
 	}
 
 	public static final String TABLE_SQL_CREATE =
-		"create table BatchEngineExportTask (mvccVersion LONG default 0 not null,uuid_ VARCHAR(75) null,batchEngineExportTaskId LONG not null primary key,companyId LONG,userId LONG,createDate DATE null,modifiedDate DATE null,callbackURL VARCHAR(75) null,className VARCHAR(255) null,content BLOB,contentType VARCHAR(75) null,endTime DATE null,errorMessage VARCHAR(1000) null,fieldNames VARCHAR(75) null,executeStatus VARCHAR(75) null,parameters TEXT null,startTime DATE null,taskItemDelegateName VARCHAR(75) null)";
+		"create table BatchEngineExportTask (mvccVersion LONG default 0 not null,uuid_ VARCHAR(75) null,batchEngineExportTaskId LONG not null primary key,companyId LONG,userId LONG,createDate DATE null,modifiedDate DATE null,callbackURL VARCHAR(75) null,className VARCHAR(255) null,content BLOB,contentType VARCHAR(75) null,endTime DATE null,errorMessage VARCHAR(1000) null,fieldNames VARCHAR(1000) null,executeStatus VARCHAR(75) null,parameters TEXT null,startTime DATE null,taskItemDelegateName VARCHAR(75) null)";
 
 	public static final String TABLE_SQL_DROP =
 		"drop table BatchEngineExportTask";
@@ -953,6 +953,49 @@ public class BatchEngineExportTaskModelImpl
 	}
 
 	@Override
+	public BatchEngineExportTask cloneWithOriginalValues() {
+		BatchEngineExportTaskImpl batchEngineExportTaskImpl =
+			new BatchEngineExportTaskImpl();
+
+		batchEngineExportTaskImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		batchEngineExportTaskImpl.setUuid(
+			this.<String>getColumnOriginalValue("uuid_"));
+		batchEngineExportTaskImpl.setBatchEngineExportTaskId(
+			this.<Long>getColumnOriginalValue("batchEngineExportTaskId"));
+		batchEngineExportTaskImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		batchEngineExportTaskImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		batchEngineExportTaskImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		batchEngineExportTaskImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		batchEngineExportTaskImpl.setCallbackURL(
+			this.<String>getColumnOriginalValue("callbackURL"));
+		batchEngineExportTaskImpl.setClassName(
+			this.<String>getColumnOriginalValue("className"));
+		batchEngineExportTaskImpl.setContentType(
+			this.<String>getColumnOriginalValue("contentType"));
+		batchEngineExportTaskImpl.setEndTime(
+			this.<Date>getColumnOriginalValue("endTime"));
+		batchEngineExportTaskImpl.setErrorMessage(
+			this.<String>getColumnOriginalValue("errorMessage"));
+		batchEngineExportTaskImpl.setFieldNames(
+			this.<String>getColumnOriginalValue("fieldNames"));
+		batchEngineExportTaskImpl.setExecuteStatus(
+			this.<String>getColumnOriginalValue("executeStatus"));
+		batchEngineExportTaskImpl.setParameters(
+			this.<Map>getColumnOriginalValue("parameters"));
+		batchEngineExportTaskImpl.setStartTime(
+			this.<Date>getColumnOriginalValue("startTime"));
+		batchEngineExportTaskImpl.setTaskItemDelegateName(
+			this.<String>getColumnOriginalValue("taskItemDelegateName"));
+
+		return batchEngineExportTaskImpl;
+	}
+
+	@Override
 	public int compareTo(BatchEngineExportTask batchEngineExportTask) {
 		long primaryKey = batchEngineExportTask.getPrimaryKey();
 
@@ -1152,40 +1195,74 @@ public class BatchEngineExportTaskModelImpl
 	public String toString() {
 		StringBundler sb = new StringBundler(37);
 
-		sb.append("{mvccVersion=");
+		sb.append("{\"mvccVersion\": ");
+
 		sb.append(getMvccVersion());
-		sb.append(", uuid=");
-		sb.append(getUuid());
-		sb.append(", batchEngineExportTaskId=");
+
+		sb.append(", \"uuid\": ");
+
+		sb.append("\"" + getUuid() + "\"");
+
+		sb.append(", \"batchEngineExportTaskId\": ");
+
 		sb.append(getBatchEngineExportTaskId());
-		sb.append(", companyId=");
+
+		sb.append(", \"companyId\": ");
+
 		sb.append(getCompanyId());
-		sb.append(", userId=");
+
+		sb.append(", \"userId\": ");
+
 		sb.append(getUserId());
-		sb.append(", createDate=");
-		sb.append(getCreateDate());
-		sb.append(", modifiedDate=");
-		sb.append(getModifiedDate());
-		sb.append(", callbackURL=");
-		sb.append(getCallbackURL());
-		sb.append(", className=");
-		sb.append(getClassName());
-		sb.append(", contentType=");
-		sb.append(getContentType());
-		sb.append(", endTime=");
-		sb.append(getEndTime());
-		sb.append(", errorMessage=");
-		sb.append(getErrorMessage());
-		sb.append(", fieldNames=");
-		sb.append(getFieldNames());
-		sb.append(", executeStatus=");
-		sb.append(getExecuteStatus());
-		sb.append(", parameters=");
-		sb.append(getParameters());
-		sb.append(", startTime=");
-		sb.append(getStartTime());
-		sb.append(", taskItemDelegateName=");
-		sb.append(getTaskItemDelegateName());
+
+		sb.append(", \"createDate\": ");
+
+		sb.append("\"" + getCreateDate() + "\"");
+
+		sb.append(", \"modifiedDate\": ");
+
+		sb.append("\"" + getModifiedDate() + "\"");
+
+		sb.append(", \"callbackURL\": ");
+
+		sb.append("\"" + getCallbackURL() + "\"");
+
+		sb.append(", \"className\": ");
+
+		sb.append("\"" + getClassName() + "\"");
+
+		sb.append(", \"contentType\": ");
+
+		sb.append("\"" + getContentType() + "\"");
+
+		sb.append(", \"endTime\": ");
+
+		sb.append("\"" + getEndTime() + "\"");
+
+		sb.append(", \"errorMessage\": ");
+
+		sb.append("\"" + getErrorMessage() + "\"");
+
+		sb.append(", \"fieldNames\": ");
+
+		sb.append("\"" + getFieldNames() + "\"");
+
+		sb.append(", \"executeStatus\": ");
+
+		sb.append("\"" + getExecuteStatus() + "\"");
+
+		sb.append(", \"parameters\": ");
+
+		sb.append("\"" + getParameters() + "\"");
+
+		sb.append(", \"startTime\": ");
+
+		sb.append("\"" + getStartTime() + "\"");
+
+		sb.append(", \"taskItemDelegateName\": ");
+
+		sb.append("\"" + getTaskItemDelegateName() + "\"");
+
 		sb.append("}");
 
 		return sb.toString();
@@ -1201,71 +1278,105 @@ public class BatchEngineExportTaskModelImpl
 
 		sb.append(
 			"<column><column-name>mvccVersion</column-name><column-value><![CDATA[");
+
 		sb.append(getMvccVersion());
+
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>uuid</column-name><column-value><![CDATA[");
+
 		sb.append(getUuid());
+
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>batchEngineExportTaskId</column-name><column-value><![CDATA[");
+
 		sb.append(getBatchEngineExportTaskId());
+
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>companyId</column-name><column-value><![CDATA[");
+
 		sb.append(getCompanyId());
+
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>userId</column-name><column-value><![CDATA[");
+
 		sb.append(getUserId());
+
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>createDate</column-name><column-value><![CDATA[");
+
 		sb.append(getCreateDate());
+
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>modifiedDate</column-name><column-value><![CDATA[");
+
 		sb.append(getModifiedDate());
+
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>callbackURL</column-name><column-value><![CDATA[");
+
 		sb.append(getCallbackURL());
+
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>className</column-name><column-value><![CDATA[");
+
 		sb.append(getClassName());
+
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>contentType</column-name><column-value><![CDATA[");
+
 		sb.append(getContentType());
+
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>endTime</column-name><column-value><![CDATA[");
+
 		sb.append(getEndTime());
+
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>errorMessage</column-name><column-value><![CDATA[");
+
 		sb.append(getErrorMessage());
+
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>fieldNames</column-name><column-value><![CDATA[");
+
 		sb.append(getFieldNames());
+
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>executeStatus</column-name><column-value><![CDATA[");
+
 		sb.append(getExecuteStatus());
+
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>parameters</column-name><column-value><![CDATA[");
+
 		sb.append(getParameters());
+
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>startTime</column-name><column-value><![CDATA[");
+
 		sb.append(getStartTime());
+
 		sb.append("]]></column-value></column>");
 		sb.append(
 			"<column><column-name>taskItemDelegateName</column-name><column-value><![CDATA[");
+
 		sb.append(getTaskItemDelegateName());
+
 		sb.append("]]></column-value></column>");
 
 		sb.append("</model>");

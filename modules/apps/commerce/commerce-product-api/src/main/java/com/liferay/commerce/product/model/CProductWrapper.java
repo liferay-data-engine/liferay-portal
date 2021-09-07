@@ -129,6 +129,11 @@ public class CProductWrapper
 		}
 	}
 
+	@Override
+	public CProduct cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the company ID of this c product.
 	 *

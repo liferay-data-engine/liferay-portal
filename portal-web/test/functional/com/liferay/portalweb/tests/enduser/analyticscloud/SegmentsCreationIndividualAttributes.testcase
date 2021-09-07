@@ -2,19 +2,46 @@
 definition {
 
 	property analytics.cloud.enabled = "true";
-	property minimum.slave.ram = "32";
+	property custom.properties = "jsonws.web.service.paths.excludes=";
+	property minimum.slave.ram = "24";
 	property portal.release = "false";
 	property portal.upstream = "true";
+	property slave.label = "slave-1";
 	property testray.main.component.name = "Analytics Cloud";
 
 	setUp {
-		ACUtils.launchAC();
+		task ("Copy the token from AC") {
+			ACUtils.launchAC();
 
-		ACSettings.takeTokenFromAnalyticsCloud();
+			ACSettings.takeTokenFromAnalyticsCloud();
+		}
 
-		TestCase.setUpPortalInstance();
+		task ("Set up instance and sign in DXP") {
+			TestCase.setUpPortalInstance();
 
-		ACUtils.launchDXP();
+			ACUtils.launchDXP();
+		}
+
+		task ("Add a new site with a public widget page") {
+			ACUtils.addSiteAndPage();
+		}
+
+		task ("Connect the DXP to AC") {
+			ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
+		}
+
+		task ("Add a new user") {
+			JSONUser.addUser(
+				userEmailAddress = "ac@liferay.com",
+				userFirstName = "ac",
+				userLastName = "ac",
+				userScreenName = "ac");
+
+			JSONUser.setFirstPassword(
+				agreeToTermsAndAnswerReminderQuery = "true",
+				requireReset = "false",
+				userEmailAddress = "ac@liferay.com");
+		}
 	}
 
 	tearDown {
@@ -26,43 +53,223 @@ definition {
 			PortalInstances.tearDownCP();
 		}
 
+		else {
+			JSONGroup.deleteGroupByName(groupName = "Site Name");
+
+			CustomFields.tearDownCP();
+
+			JSONUser.tearDownNonAdminUsers();
+		}
+
 		ACUtils.tearDownAC();
 	}
 
-	@description = "Feature ID: Legacy | Automation ID: LRAC-8571 | Test Summary: Custom field does not appear in AC after it has been removed in DXP"
-	@ignore = "true"
-	@priority = "4"
-	test AssertCustomFieldsNotAppearInACFilterWhenRemovedFromDXP {
-
-		// TODO LRAC-8571 AssertCustomFieldsNotAppearInACFilterWhenRemovedFromDXP pending implementation
-
-	}
-
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8565 | Test Summary: Add segment using an individual property 'role'"
-	@ignore = "true"
 	@priority = "4"
 	test CanAddSegmentUsingIndividualPropertyRole {
+		task ("Get site assigned property name") {
+			var propertyName = ACDXPSettings.getAssignedPropertyName(siteName = "Site Name");
+		}
 
-		// TODO LRAC-8565 CanAddSegmentUsingIndividualPropertyRole pending implementation
+		task ("Add a new regular role and assign to the user") {
+			JSONRole.addRegularRole(
+				roleKey = "AC Seg Reg Role",
+				roleTitle = "AC Seg Reg Role");
 
+			JSONRole.assignRoleToUser(
+				roleTitle = "AC Seg Reg Role",
+				userEmailAddress = "ac@liferay.com");
+		}
+
+		task ("Sync the Contact Data") {
+			ACDXPSettings.syncNewContactData();
+		}
+
+		task ("View the page as the new added user") {
+			User.logoutAndLoginPG(
+				userLoginEmailAddress = "ac@liferay.com",
+				userLoginFullName = "ac ac");
+
+			Navigator.gotoSitePage(
+				pageName = "AC Page",
+				siteName = "Site Name");
+		}
+
+		task ("Close sessions") {
+			ACUtils.closeAllSessions();
+
+			Pause(locator1 = "30000");
+		}
+
+		task ("Switch to new property in AC") {
+			ACUtils.launchAC();
+
+			ACProperties.switchProperty(propertyName = "${propertyName}");
+		}
+
+		task ("Add a new dynamic segment using Individual Property Role") {
+			ACNavigation.goToSegments();
+
+			ACSegments.createDynamicSegment();
+
+			ACSegments.nameSegment(segmentName = "Dynamic Segment Using Individual Property Role");
+
+			ACSegments.goToSidebarAttributes(criterion = "Individual Attributes");
+
+			ACSegments.addSegmentField(segmentField = "Role");
+
+			ACSegments.selectOperator(operator = "is");
+
+			ACSegments.selectDocument(
+				documentTitle = "AC Seg Reg Role",
+				indexField = "1");
+		}
+
+		task ("View the user showns on the Preview mode") {
+			ACSegments.previewSegmentMembership();
+
+			ACAssets.viewAssets(assetName = "ac ac");
+		}
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8564 | Test Summary: Add segment using an individual property 'site'"
-	@ignore = "true"
 	@priority = "4"
 	test CanAddSegmentUsingIndividualPropertySite {
+		task ("Get site assigned property name") {
+			var propertyName = ACDXPSettings.getAssignedPropertyName(siteName = "Site Name");
+		}
 
-		// TODO LRAC-8564 CanAddSegmentUsingIndividualPropertySite pending implementation
+		task ("Assign the user to site") {
+			JSONGroup.assignUserToGroup(
+				groupName = "Site Name",
+				userEmailAddress = "ac@liferay.com");
+		}
 
+		task ("Sync the Contact Data") {
+			ACDXPSettings.syncNewContactData();
+		}
+
+		task ("View the page as the new added user") {
+			User.logoutAndLoginPG(
+				userLoginEmailAddress = "ac@liferay.com",
+				userLoginFullName = "ac ac");
+
+			Navigator.gotoSitePage(
+				pageName = "AC Page",
+				siteName = "Site Name");
+		}
+
+		task ("Close sessions") {
+			ACUtils.closeAllSessions();
+
+			Pause(locator1 = "30000");
+		}
+
+		task ("Switch to new property in AC") {
+			ACUtils.launchAC();
+
+			ACProperties.switchProperty(propertyName = "${propertyName}");
+		}
+
+		task ("Add a new dynamic segment using Individual Property Site") {
+			ACNavigation.goToSegments();
+
+			ACSegments.createDynamicSegment();
+
+			ACSegments.nameSegment(segmentName = "Dynamic Segment Using Individual Property Site");
+
+			ACSegments.goToSidebarAttributes(criterion = "Individual Attributes");
+
+			ACSegments.addSegmentField(segmentField = "Site Membership");
+
+			ACSegments.selectOperator(operator = "is");
+
+			ACSegments.selectDocument(
+				documentTitle = "Site Name",
+				indexField = "1");
+		}
+
+		task ("View the user showns on the Preview mode") {
+			ACSegments.previewSegmentMembership();
+
+			ACAssets.viewAssets(assetName = "ac ac");
+		}
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8566 | Test Summary: Add segment using an individual property 'team'"
-	@ignore = "true"
 	@priority = "4"
 	test CanAddSegmentUsingIndividualPropertyTeam {
+		task ("Get site assigned property name") {
+			var propertyName = ACDXPSettings.getAssignedPropertyName(siteName = "Site Name");
+		}
 
-		// TODO LRAC-8566 CanAddSegmentUsingIndividualPropertyTeam pending implementation
+		task ("Assign the site to user") {
+			JSONGroup.assignUserToGroup(
+				groupName = "Site Name",
+				userEmailAddress = "ac@liferay.com");
+		}
 
+		task ("Assign the user to Team") {
+			Site.openSiteTeamsAdmin(siteURLKey = "site-name");
+
+			Team.addCP(
+				teamDescription = "Site Team Description",
+				teamName = "Site Team Name");
+
+			Team.assignMembersCP(
+				teamName = "Site Team Name",
+				userScreenName = "ac");
+		}
+
+		task ("Sync the Contact Data") {
+			ACDXPSettings.syncNewContactData();
+		}
+
+		task ("View the page as the new added user") {
+			User.logoutAndLoginPG(
+				userLoginEmailAddress = "ac@liferay.com",
+				userLoginFullName = "ac ac");
+
+			Navigator.gotoSitePage(
+				pageName = "AC Page",
+				siteName = "Site Name");
+		}
+
+		task ("Close sessions") {
+			ACUtils.closeAllSessions();
+
+			Pause(locator1 = "30000");
+		}
+
+		task ("Switch to new property in AC") {
+			ACUtils.launchAC();
+
+			ACProperties.switchProperty(propertyName = "${propertyName}");
+		}
+
+		task ("Add a new dynamic segment using Individual Property Team") {
+			ACNavigation.goToSegments();
+
+			ACSegments.createDynamicSegment();
+
+			ACSegments.nameSegment(segmentName = "Dynamic Segment Using Individual Property Team");
+
+			ACSegments.goToSidebarAttributes(criterion = "Individual Attributes");
+
+			ACSegments.addSegmentField(segmentField = "Team");
+
+			ACSegments.selectOperator(operator = "is");
+
+			ACSegments.selectDocument(
+				documentTitle = "Site Team Name",
+				indexField = "1");
+		}
+
+		task ("View the user showns on the Preview mode") {
+			ACSegments.previewSegmentMembership();
+
+			ACAssets.viewAssets(assetName = "ac ac");
+		}
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8568 | Test Summary: Add segment using an individual property 'user'"
@@ -75,30 +282,229 @@ definition {
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8567 | Test Summary: Add segment using an individual property 'user group'"
-	@ignore = "true"
 	@priority = "4"
 	test CanAddSegmentUsingIndividualPropertyUserGroup {
+		task ("Get site assigned property name") {
+			var propertyName = ACDXPSettings.getAssignedPropertyName(siteName = "Site Name");
+		}
 
-		// TODO LRAC-8567 CanAddSegmentUsingIndividualPropertyUserGroup pending implementation
+		task ("Add a new user group and assign to the user") {
+			JSONUserGroup.addUserGroup(
+				userGroupDescription = "UG UserGroup Description",
+				userGroupName = "UG UserGroup Name");
 
+			JSONUser.addUserToUserGroup(
+				userEmailAddress = "ac@liferay.com",
+				userGroupName = "UG UserGroup Name");
+		}
+
+		task ("Sync the Contact Data") {
+			ACDXPSettings.syncNewContactData();
+		}
+
+		task ("View the page as the new added user") {
+			User.logoutAndLoginPG(
+				userLoginEmailAddress = "ac@liferay.com",
+				userLoginFullName = "ac ac");
+
+			Navigator.gotoSitePage(
+				pageName = "AC Page",
+				siteName = "Site Name");
+		}
+
+		task ("Close sessions") {
+			ACUtils.closeAllSessions();
+
+			Pause(locator1 = "30000");
+		}
+
+		task ("Switch to new property in AC") {
+			ACUtils.launchAC();
+
+			ACProperties.switchProperty(propertyName = "${propertyName}");
+		}
+
+		task ("Add a new dynamic segment using Individual Property User Group") {
+			ACNavigation.goToSegments();
+
+			ACSegments.createDynamicSegment();
+
+			ACSegments.nameSegment(segmentName = "Dynamic Segment Using Individual Property User Group");
+
+			ACSegments.goToSidebarAttributes(criterion = "Individual Attributes");
+
+			ACSegments.addSegmentField(segmentField = "User Group");
+
+			ACSegments.selectOperator(operator = "is");
+
+			ACSegments.selectDocument(
+				documentTitle = "UG UserGroup Name",
+				indexField = "1");
+		}
+
+		task ("View the user showns on the Preview mode") {
+			ACSegments.previewSegmentMembership();
+
+			ACAssets.viewAssets(assetName = "ac ac");
+		}
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8569 | Test Summary: Add segment with custom field for individuals"
-	@ignore = "true"
 	@priority = "4"
 	test CanAddSegmentWithCustomFieldsForIndividuals {
+		task ("Get site assigned property name") {
+			var propertyName = ACDXPSettings.getAssignedPropertyName(siteName = "Site Name");
+		}
 
-		// TODO LRAC-8569 CanAddSegmentWithCustomFieldsForIndividuals pending implementation
+		task ("Add a user custom field") {
+			ApplicationsMenu.gotoPortlet(
+				category = "Configuration",
+				panel = "Control Panel",
+				portlet = "Custom Fields");
 
+			CustomFields.addCP(
+				customFieldName = "User Custom Field",
+				customFieldType = "Input Field",
+				customInputDataType = "Text",
+				resourceName = "User");
+		}
+
+		task ("Define the value of custom field for new user") {
+			ApplicationsMenu.gotoPortlet(
+				category = "Users",
+				panel = "Control Panel",
+				portlet = "Users and Organizations");
+
+			User.gotoEditCP(userScreenName = "ac");
+
+			User.editUserInformation(
+				userCustomField = "VIP",
+				userCustomFieldLabel = "User Custom Field");
+		}
+
+		task ("Sync the Contact Data") {
+			ACDXPSettings.syncNewUserData(fieldNameList = "user custom field");
+		}
+
+		task ("View the page as the new added user") {
+			User.logoutAndLoginPG(
+				userLoginEmailAddress = "ac@liferay.com",
+				userLoginFullName = "ac ac");
+
+			Navigator.gotoSitePage(
+				pageName = "AC Page",
+				siteName = "Site Name");
+		}
+
+		task ("Close sessions") {
+			ACUtils.closeAllSessions();
+
+			Pause(locator1 = "30000");
+		}
+
+		task ("Switch to new property in AC") {
+			ACUtils.launchAC();
+
+			ACProperties.switchProperty(propertyName = "${propertyName}");
+		}
+
+		task ("Add a new dynamic segment using Individual Property Custom Fields") {
+			ACNavigation.goToSegments();
+
+			ACSegments.createDynamicSegment();
+
+			ACSegments.nameSegment(segmentName = "Dynamic Segment Using Individual Property Custom Fields");
+
+			ACSegments.goToSidebarAttributes(criterion = "Individual Attributes");
+
+			ACSegments.addSegmentField(segmentField = "user custom field");
+
+			ACSegments.selectOperator(operator = "contains");
+
+			ACSegments.editTextCriterion(textInput = "VIP");
+		}
+
+		task ("View the user showns on the Preview mode") {
+			ACSegments.previewSegmentMembership();
+
+			ACAssets.viewAssets(assetName = "ac ac");
+		}
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8570 | Test Summary: Add segment with custom fields for organizations"
-	@ignore = "true"
 	@priority = "4"
 	test CanAddSegmentWithCustomFieldsForOrganizations {
+		task ("Get site assigned property name") {
+			var propertyName = ACDXPSettings.getAssignedPropertyName(siteName = "Site Name");
+		}
 
-		// TODO LRAC-8570 CanAddSegmentWithCustomFieldsForOrganizations pending implementation
+		task ("Add a new organization and assign to the user") {
+			JSONOrganization.addOrganization(organizationName = "Organization Name");
 
+			JSONOrganization.assignUserToOrganization(
+				organizationName = "Organization Name",
+				userEmailAddress = "ac@liferay.com");
+		}
+
+		task ("Add Custom Fields for organization") {
+			ApplicationsMenu.gotoPortlet(
+				category = "Configuration",
+				panel = "Control Panel",
+				portlet = "Custom Fields");
+
+			CustomFields.addCP(
+				customFieldName = "Org Custom Field",
+				customFieldType = "Text Area",
+				resourceName = "Organization");
+		}
+
+		task ("Sync the Contact Data") {
+			ACDXPSettings.syncNewContactData();
+		}
+
+		task ("View the page as the new added user") {
+			User.logoutAndLoginPG(
+				userLoginEmailAddress = "ac@liferay.com",
+				userLoginFullName = "ac ac");
+
+			Navigator.gotoSitePage(
+				pageName = "AC Page",
+				siteName = "Site Name");
+		}
+
+		task ("Close sessions") {
+			ACUtils.closeAllSessions();
+
+			Pause(locator1 = "30000");
+		}
+
+		task ("Switch to new property in AC") {
+			ACUtils.launchAC();
+
+			ACProperties.switchProperty(propertyName = "${propertyName}");
+		}
+
+		task ("Add a new dynamic segment using Organization Custom Fields") {
+			ACNavigation.goToSegments();
+
+			ACSegments.createDynamicSegment();
+
+			ACSegments.nameSegment(segmentName = "Dynamic Segment Using Organization Custom Fields");
+
+			ACSegments.goToSidebarAttributes(criterion = "Organization Attributes");
+
+			ACSegments.addSegmentField(segmentField = "org custom field");
+
+			ACSegments.selectOperator(operator = "is not");
+
+			ACSegments.editTextCriterion(textInput = "defined");
+		}
+
+		task ("View the user showns on the Preview mode") {
+			ACSegments.previewSegmentMembership();
+
+			ACAssets.viewAssets(assetName = "ac ac");
+		}
 	}
 
 }

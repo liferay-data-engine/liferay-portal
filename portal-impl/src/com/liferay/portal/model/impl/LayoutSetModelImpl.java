@@ -28,12 +28,14 @@ import com.liferay.portal.kernel.model.impl.BaseModelImpl;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -839,6 +841,42 @@ public class LayoutSetModelImpl
 	}
 
 	@Override
+	public LayoutSet cloneWithOriginalValues() {
+		LayoutSetImpl layoutSetImpl = new LayoutSetImpl();
+
+		layoutSetImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		layoutSetImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		layoutSetImpl.setLayoutSetId(
+			this.<Long>getColumnOriginalValue("layoutSetId"));
+		layoutSetImpl.setGroupId(this.<Long>getColumnOriginalValue("groupId"));
+		layoutSetImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		layoutSetImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		layoutSetImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		layoutSetImpl.setPrivateLayout(
+			this.<Boolean>getColumnOriginalValue("privateLayout"));
+		layoutSetImpl.setLogoId(this.<Long>getColumnOriginalValue("logoId"));
+		layoutSetImpl.setThemeId(
+			this.<String>getColumnOriginalValue("themeId"));
+		layoutSetImpl.setColorSchemeId(
+			this.<String>getColumnOriginalValue("colorSchemeId"));
+		layoutSetImpl.setCss(this.<String>getColumnOriginalValue("css"));
+		layoutSetImpl.setSettings(
+			this.<String>getColumnOriginalValue("settings_"));
+		layoutSetImpl.setLayoutSetPrototypeUuid(
+			this.<String>getColumnOriginalValue("layoutSetPrototypeUuid"));
+		layoutSetImpl.setLayoutSetPrototypeLinkEnabled(
+			this.<Boolean>getColumnOriginalValue(
+				"layoutSetPrototypeLinkEnabled"));
+
+		return layoutSetImpl;
+	}
+
+	@Override
 	public int compareTo(LayoutSet layoutSet) {
 		long primaryKey = layoutSet.getPrimaryKey();
 
@@ -1008,7 +1046,7 @@ public class LayoutSetModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1019,9 +1057,26 @@ public class LayoutSetModelImpl
 			Function<LayoutSet, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((LayoutSet)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((LayoutSet)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

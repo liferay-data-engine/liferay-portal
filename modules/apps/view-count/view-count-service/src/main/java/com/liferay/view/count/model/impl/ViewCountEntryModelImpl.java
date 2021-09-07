@@ -21,6 +21,7 @@ import com.liferay.portal.kernel.model.ModelWrapper;
 import com.liferay.portal.kernel.model.impl.BaseModelImpl;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.view.count.model.ViewCountEntry;
 import com.liferay.view.count.model.ViewCountEntryModel;
@@ -31,9 +32,11 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -409,6 +412,22 @@ public class ViewCountEntryModelImpl
 	}
 
 	@Override
+	public ViewCountEntry cloneWithOriginalValues() {
+		ViewCountEntryImpl viewCountEntryImpl = new ViewCountEntryImpl();
+
+		viewCountEntryImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		viewCountEntryImpl.setClassNameId(
+			this.<Long>getColumnOriginalValue("classNameId"));
+		viewCountEntryImpl.setClassPK(
+			this.<Long>getColumnOriginalValue("classPK"));
+		viewCountEntryImpl.setViewCount(
+			this.<Long>getColumnOriginalValue("viewCount"));
+
+		return viewCountEntryImpl;
+	}
+
+	@Override
 	public int compareTo(ViewCountEntry viewCountEntry) {
 		ViewCountEntryPK primaryKey = viewCountEntry.getPrimaryKey();
 
@@ -491,7 +510,7 @@ public class ViewCountEntryModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -502,9 +521,26 @@ public class ViewCountEntryModelImpl
 			Function<ViewCountEntry, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((ViewCountEntry)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((ViewCountEntry)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

@@ -32,12 +32,14 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -731,6 +733,36 @@ public class CommerceCatalogModelImpl
 	}
 
 	@Override
+	public CommerceCatalog cloneWithOriginalValues() {
+		CommerceCatalogImpl commerceCatalogImpl = new CommerceCatalogImpl();
+
+		commerceCatalogImpl.setExternalReferenceCode(
+			this.<String>getColumnOriginalValue("externalReferenceCode"));
+		commerceCatalogImpl.setCommerceCatalogId(
+			this.<Long>getColumnOriginalValue("commerceCatalogId"));
+		commerceCatalogImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		commerceCatalogImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		commerceCatalogImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		commerceCatalogImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		commerceCatalogImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		commerceCatalogImpl.setName(
+			this.<String>getColumnOriginalValue("name"));
+		commerceCatalogImpl.setCommerceCurrencyCode(
+			this.<String>getColumnOriginalValue("commerceCurrencyCode"));
+		commerceCatalogImpl.setCatalogDefaultLanguageId(
+			this.<String>getColumnOriginalValue("catalogDefaultLanguageId"));
+		commerceCatalogImpl.setSystem(
+			this.<Boolean>getColumnOriginalValue("system_"));
+
+		return commerceCatalogImpl;
+	}
+
+	@Override
 	public int compareTo(CommerceCatalog commerceCatalog) {
 		int value = 0;
 
@@ -892,7 +924,7 @@ public class CommerceCatalogModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -903,9 +935,26 @@ public class CommerceCatalogModelImpl
 			Function<CommerceCatalog, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((CommerceCatalog)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((CommerceCatalog)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

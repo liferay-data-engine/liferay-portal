@@ -3,9 +3,7 @@
 		"styles": [
 			{
 				"dataType": "string",
-				"defaultValue": "",
-				"dependencies": [
-				],
+				"defaultValue": "block",
 				"label": "hide-fragment",
 				"name": "display",
 				"responsive": true,
@@ -25,9 +23,7 @@
 		"styles": [
 			{
 				"dataType": "string",
-				"defaultValue": "",
-				"dependencies": [
-				],
+				"defaultValue": "0",
 				"displaySize": "small",
 				"label": "margin-top",
 				"name": "marginTop",
@@ -36,10 +32,6 @@
 				"type": "select",
 				"validValues": [
 					{
-						"label": "default",
-						"value": ""
-					},
-					{
 						"label": "0",
 						"value": "0"
 					},
@@ -87,9 +79,7 @@
 			},
 			{
 				"dataType": "string",
-				"defaultValue": "",
-				"dependencies": [
-				],
+				"defaultValue": "0",
 				"displaySize": "small",
 				"label": "margin-bottom",
 				"name": "marginBottom",
@@ -98,10 +88,6 @@
 				"type": "select",
 				"validValues": [
 					{
-						"label": "default",
-						"value": ""
-					},
-					{
 						"label": "0",
 						"value": "0"
 					},
@@ -149,9 +135,7 @@
 			},
 			{
 				"dataType": "string",
-				"defaultValue": "",
-				"dependencies": [
-				],
+				"defaultValue": "0",
 				"displaySize": "small",
 				"label": "margin-left",
 				"name": "marginLeft",
@@ -160,10 +144,6 @@
 				"type": "select",
 				"validValues": [
 					{
-						"label": "default",
-						"value": ""
-					},
-					{
 						"label": "0",
 						"value": "0"
 					},
@@ -211,9 +191,7 @@
 			},
 			{
 				"dataType": "string",
-				"defaultValue": "",
-				"dependencies": [
-				],
+				"defaultValue": "0",
 				"displaySize": "small",
 				"label": "margin-right",
 				"name": "marginRight",
@@ -221,10 +199,6 @@
 				"responsiveTemplate": "mr{viewport}{value}",
 				"type": "select",
 				"validValues": [
-					{
-						"label": "default",
-						"value": ""
-					},
 					{
 						"label": "0",
 						"value": "0"
@@ -278,9 +252,7 @@
 		"styles": [
 			{
 				"dataType": "string",
-				"defaultValue": "",
-				"dependencies": [
-				],
+				"defaultValue": "0",
 				"displaySize": "small",
 				"label": "padding-top",
 				"name": "paddingTop",
@@ -289,10 +261,6 @@
 				"type": "select",
 				"validValues": [
 					{
-						"label": "default",
-						"value": ""
-					},
-					{
 						"label": "0",
 						"value": "0"
 					},
@@ -340,9 +308,7 @@
 			},
 			{
 				"dataType": "string",
-				"defaultValue": "",
-				"dependencies": [
-				],
+				"defaultValue": "0",
 				"displaySize": "small",
 				"label": "padding-bottom",
 				"name": "paddingBottom",
@@ -351,10 +317,6 @@
 				"type": "select",
 				"validValues": [
 					{
-						"label": "default",
-						"value": ""
-					},
-					{
 						"label": "0",
 						"value": "0"
 					},
@@ -402,9 +364,7 @@
 			},
 			{
 				"dataType": "string",
-				"defaultValue": "",
-				"dependencies": [
-				],
+				"defaultValue": "0",
 				"displaySize": "small",
 				"label": "padding-left",
 				"name": "paddingLeft",
@@ -413,10 +373,6 @@
 				"type": "select",
 				"validValues": [
 					{
-						"label": "default",
-						"value": ""
-					},
-					{
 						"label": "0",
 						"value": "0"
 					},
@@ -464,9 +420,7 @@
 			},
 			{
 				"dataType": "string",
-				"defaultValue": "",
-				"dependencies": [
-				],
+				"defaultValue": "0",
 				"displaySize": "small",
 				"label": "padding-right",
 				"name": "paddingRight",
@@ -474,10 +428,6 @@
 				"responsiveTemplate": "pr{viewport}{value}",
 				"type": "select",
 				"validValues": [
-					{
-						"label": "default",
-						"value": ""
-					},
 					{
 						"label": "0",
 						"value": "0"
@@ -532,8 +482,6 @@
 			{
 				"dataType": "string",
 				"defaultValue": "",
-				"dependencies": [
-				],
 				"displaySize": "small",
 				"label": "width",
 				"name": "width",
@@ -543,8 +491,6 @@
 			{
 				"dataType": "string",
 				"defaultValue": "",
-				"dependencies": [
-				],
 				"displaySize": "small",
 				"label": "height",
 				"name": "height",
@@ -554,8 +500,6 @@
 			{
 				"dataType": "string",
 				"defaultValue": "",
-				"dependencies": [
-				],
 				"displaySize": "small",
 				"label": "min-width",
 				"name": "minWidth",
@@ -565,8 +509,6 @@
 			{
 				"dataType": "string",
 				"defaultValue": "",
-				"dependencies": [
-				],
 				"displaySize": "small",
 				"label": "max-width",
 				"name": "maxWidth",
@@ -576,8 +518,6 @@
 			{
 				"dataType": "string",
 				"defaultValue": "",
-				"dependencies": [
-				],
 				"displaySize": "small",
 				"label": "min-height",
 				"name": "minHeight",
@@ -587,8 +527,6 @@
 			{
 				"dataType": "string",
 				"defaultValue": "",
-				"dependencies": [
-				],
 				"displaySize": "small",
 				"label": "max-height",
 				"name": "maxHeight",
@@ -598,8 +536,6 @@
 			{
 				"dataType": "string",
 				"defaultValue": "",
-				"dependencies": [
-				],
 				"label": "overflow",
 				"name": "overflow",
 				"responsive": false,
@@ -635,8 +571,6 @@
 			{
 				"dataType": "string",
 				"defaultValue": "",
-				"dependencies": [
-				],
 				"label": "font-family",
 				"name": "fontFamily",
 				"responsive": false,
@@ -666,8 +600,6 @@
 			{
 				"dataType": "string",
 				"defaultValue": "",
-				"dependencies": [
-				],
 				"label": "font-weight",
 				"name": "fontWeight",
 				"responsive": false,
@@ -707,8 +639,6 @@
 			{
 				"dataType": "string",
 				"defaultValue": "",
-				"dependencies": [
-				],
 				"label": "font-size",
 				"name": "fontSize",
 				"responsive": false,
@@ -737,8 +667,6 @@
 			},
 			{
 				"dataType": "string",
-				"dependencies": [
-				],
 				"label": "text-color",
 				"name": "textColor",
 				"responsive": false,
@@ -747,8 +675,6 @@
 			{
 				"dataType": "string",
 				"defaultValue": "",
-				"dependencies": [
-				],
 				"label": "text-align",
 				"name": "textAlign",
 				"responsive": false,
@@ -783,8 +709,6 @@
 		"styles": [
 			{
 				"dataType": "string",
-				"dependencies": [
-				],
 				"label": "background-color",
 				"name": "backgroundColor",
 				"responsive": false,
@@ -794,8 +718,6 @@
 				"dataType": "object",
 				"defaultValue": {
 				},
-				"dependencies": [
-				],
 				"label": "background-image",
 				"name": "backgroundImage",
 				"responsive": false,
@@ -809,8 +731,6 @@
 			{
 				"dataType": "number",
 				"defaultValue": 0,
-				"dependencies": [
-				],
 				"label": "border-width",
 				"name": "borderWidth",
 				"responsive": false,
@@ -824,8 +744,6 @@
 			{
 				"dataType": "string",
 				"defaultValue": "",
-				"dependencies": [
-				],
 				"label": "border-radius",
 				"name": "borderRadius",
 				"responsive": false,
@@ -859,8 +777,6 @@
 			},
 			{
 				"dataType": "string",
-				"dependencies": [
-				],
 				"label": "border-color",
 				"name": "borderColor",
 				"responsive": false,
@@ -874,8 +790,6 @@
 			{
 				"dataType": "number",
 				"defaultValue": "",
-				"dependencies": [
-				],
 				"label": "opacity",
 				"name": "opacity",
 				"responsive": false,
@@ -889,8 +803,6 @@
 			{
 				"dataType": "object",
 				"defaultValue": "",
-				"dependencies": [
-				],
 				"label": "shadow",
 				"name": "shadow",
 				"responsive": false,

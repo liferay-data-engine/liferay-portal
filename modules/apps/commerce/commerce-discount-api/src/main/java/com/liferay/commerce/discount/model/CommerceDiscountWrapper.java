@@ -280,6 +280,11 @@ public class CommerceDiscountWrapper
 		}
 	}
 
+	@Override
+	public CommerceDiscount cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the active of this commerce discount.
 	 *

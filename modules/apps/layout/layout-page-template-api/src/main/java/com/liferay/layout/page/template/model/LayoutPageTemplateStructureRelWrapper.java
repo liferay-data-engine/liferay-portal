@@ -154,6 +154,11 @@ public class LayoutPageTemplateStructureRelWrapper
 		}
 	}
 
+	@Override
+	public LayoutPageTemplateStructureRel cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the company ID of this layout page template structure rel.
 	 *

@@ -33,12 +33,14 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -856,6 +858,44 @@ public class LayoutPageTemplateCollectionModelImpl
 	}
 
 	@Override
+	public LayoutPageTemplateCollection cloneWithOriginalValues() {
+		LayoutPageTemplateCollectionImpl layoutPageTemplateCollectionImpl =
+			new LayoutPageTemplateCollectionImpl();
+
+		layoutPageTemplateCollectionImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		layoutPageTemplateCollectionImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		layoutPageTemplateCollectionImpl.setUuid(
+			this.<String>getColumnOriginalValue("uuid_"));
+		layoutPageTemplateCollectionImpl.setLayoutPageTemplateCollectionId(
+			this.<Long>getColumnOriginalValue(
+				"layoutPageTemplateCollectionId"));
+		layoutPageTemplateCollectionImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		layoutPageTemplateCollectionImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		layoutPageTemplateCollectionImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		layoutPageTemplateCollectionImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		layoutPageTemplateCollectionImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		layoutPageTemplateCollectionImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		layoutPageTemplateCollectionImpl.setLayoutPageTemplateCollectionKey(
+			this.<String>getColumnOriginalValue("lptCollectionKey"));
+		layoutPageTemplateCollectionImpl.setName(
+			this.<String>getColumnOriginalValue("name"));
+		layoutPageTemplateCollectionImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		layoutPageTemplateCollectionImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+
+		return layoutPageTemplateCollectionImpl;
+	}
+
+	@Override
 	public int compareTo(
 		LayoutPageTemplateCollection layoutPageTemplateCollection) {
 
@@ -1032,7 +1072,7 @@ public class LayoutPageTemplateCollectionModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1043,11 +1083,27 @@ public class LayoutPageTemplateCollectionModelImpl
 			Function<LayoutPageTemplateCollection, Object>
 				attributeGetterFunction = entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply(
-					(LayoutPageTemplateCollection)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(LayoutPageTemplateCollection)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

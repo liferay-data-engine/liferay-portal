@@ -35,6 +35,7 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
@@ -42,6 +43,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
@@ -835,6 +837,35 @@ public class DDMContentModelImpl
 	}
 
 	@Override
+	public DDMContent cloneWithOriginalValues() {
+		DDMContentImpl ddmContentImpl = new DDMContentImpl();
+
+		ddmContentImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		ddmContentImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		ddmContentImpl.setUuid(this.<String>getColumnOriginalValue("uuid_"));
+		ddmContentImpl.setContentId(
+			this.<Long>getColumnOriginalValue("contentId"));
+		ddmContentImpl.setGroupId(this.<Long>getColumnOriginalValue("groupId"));
+		ddmContentImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		ddmContentImpl.setUserId(this.<Long>getColumnOriginalValue("userId"));
+		ddmContentImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		ddmContentImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		ddmContentImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		ddmContentImpl.setName(this.<String>getColumnOriginalValue("name"));
+		ddmContentImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		ddmContentImpl.setData(this.<String>getColumnOriginalValue("data_"));
+
+		return ddmContentImpl;
+	}
+
+	@Override
 	public int compareTo(DDMContent ddmContent) {
 		long primaryKey = ddmContent.getPrimaryKey();
 
@@ -986,7 +1017,7 @@ public class DDMContentModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -997,9 +1028,26 @@ public class DDMContentModelImpl
 			Function<DDMContent, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((DDMContent)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((DDMContent)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

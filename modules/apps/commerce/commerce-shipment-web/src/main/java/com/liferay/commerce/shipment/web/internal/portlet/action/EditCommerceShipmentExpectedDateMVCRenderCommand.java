@@ -66,7 +66,7 @@ public class EditCommerceShipmentExpectedDateMVCRenderCommand
 		renderRequest.setAttribute(
 			WebKeys.PORTLET_DISPLAY_CONTEXT, commerceShipmentDisplayContext);
 
-		return "/shipment/edit_commerce_shipment_expected_date.jsp";
+		return "/commerce_shipment/edit_commerce_shipment_expected_date.jsp";
 	}
 
 	@Reference
@@ -94,7 +94,7 @@ public class EditCommerceShipmentExpectedDateMVCRenderCommand
 	private Portal _portal;
 
 	@Reference(
-		target = "(resource.name=" + CommerceConstants.RESOURCE_NAME_SHIPMENT + ")"
+		target = "(resource.name=" + CommerceConstants.RESOURCE_NAME_COMMERCE_SHIPMENT + ")"
 	)
 	private PortletResourcePermission _portletResourcePermission;
 

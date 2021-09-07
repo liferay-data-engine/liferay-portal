@@ -31,12 +31,14 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
@@ -724,6 +726,40 @@ public class RepositoryEntryModelImpl
 	}
 
 	@Override
+	public RepositoryEntry cloneWithOriginalValues() {
+		RepositoryEntryImpl repositoryEntryImpl = new RepositoryEntryImpl();
+
+		repositoryEntryImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		repositoryEntryImpl.setUuid(
+			this.<String>getColumnOriginalValue("uuid_"));
+		repositoryEntryImpl.setRepositoryEntryId(
+			this.<Long>getColumnOriginalValue("repositoryEntryId"));
+		repositoryEntryImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		repositoryEntryImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		repositoryEntryImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		repositoryEntryImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		repositoryEntryImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		repositoryEntryImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		repositoryEntryImpl.setRepositoryId(
+			this.<Long>getColumnOriginalValue("repositoryId"));
+		repositoryEntryImpl.setMappedId(
+			this.<String>getColumnOriginalValue("mappedId"));
+		repositoryEntryImpl.setManualCheckInRequired(
+			this.<Boolean>getColumnOriginalValue("manualCheckInRequired"));
+		repositoryEntryImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+
+		return repositoryEntryImpl;
+	}
+
+	@Override
 	public int compareTo(RepositoryEntry repositoryEntry) {
 		long primaryKey = repositoryEntry.getPrimaryKey();
 
@@ -873,7 +909,7 @@ public class RepositoryEntryModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -884,9 +920,26 @@ public class RepositoryEntryModelImpl
 			Function<RepositoryEntry, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((RepositoryEntry)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((RepositoryEntry)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

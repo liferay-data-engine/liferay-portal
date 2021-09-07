@@ -33,6 +33,7 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.wiki.model.WikiPage;
@@ -44,6 +45,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1502,6 +1504,54 @@ public class WikiPageModelImpl
 	}
 
 	@Override
+	public WikiPage cloneWithOriginalValues() {
+		WikiPageImpl wikiPageImpl = new WikiPageImpl();
+
+		wikiPageImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		wikiPageImpl.setUuid(this.<String>getColumnOriginalValue("uuid_"));
+		wikiPageImpl.setPageId(this.<Long>getColumnOriginalValue("pageId"));
+		wikiPageImpl.setResourcePrimKey(
+			this.<Long>getColumnOriginalValue("resourcePrimKey"));
+		wikiPageImpl.setGroupId(this.<Long>getColumnOriginalValue("groupId"));
+		wikiPageImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		wikiPageImpl.setUserId(this.<Long>getColumnOriginalValue("userId"));
+		wikiPageImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		wikiPageImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		wikiPageImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		wikiPageImpl.setExternalReferenceCode(
+			this.<String>getColumnOriginalValue("externalReferenceCode"));
+		wikiPageImpl.setNodeId(this.<Long>getColumnOriginalValue("nodeId"));
+		wikiPageImpl.setTitle(this.<String>getColumnOriginalValue("title"));
+		wikiPageImpl.setVersion(this.<Double>getColumnOriginalValue("version"));
+		wikiPageImpl.setMinorEdit(
+			this.<Boolean>getColumnOriginalValue("minorEdit"));
+		wikiPageImpl.setContent(this.<String>getColumnOriginalValue("content"));
+		wikiPageImpl.setSummary(this.<String>getColumnOriginalValue("summary"));
+		wikiPageImpl.setFormat(this.<String>getColumnOriginalValue("format"));
+		wikiPageImpl.setHead(this.<Boolean>getColumnOriginalValue("head"));
+		wikiPageImpl.setParentTitle(
+			this.<String>getColumnOriginalValue("parentTitle"));
+		wikiPageImpl.setRedirectTitle(
+			this.<String>getColumnOriginalValue("redirectTitle"));
+		wikiPageImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+		wikiPageImpl.setStatus(this.<Integer>getColumnOriginalValue("status"));
+		wikiPageImpl.setStatusByUserId(
+			this.<Long>getColumnOriginalValue("statusByUserId"));
+		wikiPageImpl.setStatusByUserName(
+			this.<String>getColumnOriginalValue("statusByUserName"));
+		wikiPageImpl.setStatusDate(
+			this.<Date>getColumnOriginalValue("statusDate"));
+
+		return wikiPageImpl;
+	}
+
+	@Override
 	public int compareTo(WikiPage wikiPage) {
 		int value = 0;
 
@@ -1753,7 +1803,7 @@ public class WikiPageModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1764,9 +1814,26 @@ public class WikiPageModelImpl
 			Function<WikiPage, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((WikiPage)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((WikiPage)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

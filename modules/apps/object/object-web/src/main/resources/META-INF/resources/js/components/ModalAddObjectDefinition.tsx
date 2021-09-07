@@ -12,11 +12,16 @@
  * details.
  */
 
+import ClayAlert from '@clayui/alert';
 import ClayButton from '@clayui/button';
 import ClayForm, {ClayInput} from '@clayui/form';
 import ClayModal, {ClayModalProvider, useModal} from '@clayui/modal';
 import React, {useEffect, useState} from 'react';
 
+import {
+	firstLetterUppercase,
+	removeAllSpecialCharacters,
+} from '../utils/string';
 import RequiredMask from './RequiredMask';
 
 declare global {
@@ -28,45 +33,86 @@ interface IProps extends React.HTMLAttributes<HTMLElement> {
 	spritemap: string;
 }
 
-interface ObjectDefinitionRequest {
+type TFormState = {
+	generateAutoName: boolean;
+	label: {
+		[key: string]: string;
+	};
 	name: string;
-	objectFields: {}[];
-}
+	pluralLabel: {
+		[key: string]: string;
+	};
+	required: boolean;
+	type: string;
+};
+
+type TFormatString = (str: string) => string;
+
+const formatString: TFormatString = (str) => {
+	const split = str.split(' ');
+	const capitalizeFirstLetters = split.map((str: string) =>
+		firstLetterUppercase(str)
+	);
+	const join = capitalizeFirstLetters.join('');
+
+	return removeAllSpecialCharacters(join);
+};
+
+const defaultLanguageId = Liferay.ThemeDisplay.getDefaultLanguageId();
 
 const ModalAddObjectDefinition: React.FC<IProps> = ({apiURL, spritemap}) => {
-	const [error, setError] = useState<string>('');
-	const [value, setValue] = useState<string>('');
 	const [visibleModal, setVisibleModal] = useState<boolean>(false);
+	const [formState, setFormState] = useState<TFormState>({
+		generateAutoName: true,
+		label: {
+			[defaultLanguageId]: '',
+		},
+		name: '',
+		pluralLabel: {
+			[defaultLanguageId]: '',
+		},
+		required: false,
+		type: '',
+	});
+	const [error, setError] = useState<string>('');
 
 	const {observer, onClose} = useModal({
 		onClose: () => setVisibleModal(false),
 	});
 
-	const handleSaveObjectDefinition = () => {
-		Liferay.Util.fetch(apiURL, {
+	const handleSaveObjectDefinition = async () => {
+		const {label, name, pluralLabel} = formState;
+
+		const response = await Liferay.Util.fetch(apiURL, {
 			body: JSON.stringify({
-				name: value,
+				label,
+				name,
 				objectFields: [],
-			} as ObjectDefinitionRequest),
+				pluralLabel,
+				scope: 'company',
+			}),
 			headers: new Headers({
 				Accept: 'application/json',
 				'Content-Type': 'application/json',
 			}),
 			method: 'POST',
-		})
-			.then((response: any) => {
-				if (response.ok) {
-					onClose();
+		});
 
-					window.location.reload();
-				}
-				else {
-					return response.json();
-				}
-			})
-			.then(({title}: {title: string}) => {
-				setError(title);
-			});
+		if (response.status === 401) {
+			window.location.reload();
+		}
+		else if (response.ok) {
+			onClose();
+
+			window.location.reload();
+		}
+		else {
+			const {
+				title = Liferay.Language.get('an-error-occurred'),
+			} = await response.json();
+
+			setError(title);
+		}
 	};
 
 	const handleOpenObjectDefinitionModal = () => setVisibleModal(true);
@@ -90,33 +136,93 @@ const ModalAddObjectDefinition: React.FC<IProps> = ({apiURL, spritemap}) => {
 						{Liferay.Language.get('new-custom-object')}
 					</ClayModal.Header>
 					<ClayModal.Body>
-						<ClayForm.Group className={error ? 'has-error' : ''}>
+						{error && (
+							<ClayAlert
+								displayType="danger"
+								spritemap={spritemap}
+							>
+								{error}
+							</ClayAlert>
+						)}
+
+						<ClayForm.Group>
+							<label htmlFor="objectDefinitionLabel">
+								{Liferay.Language.get('label')}
+
+								<RequiredMask />
+							</label>
+
+							<ClayInput
+								id="objectDefinitionLabel"
+								onChange={({target: {value}}) => {
+									setFormState({
+										...formState,
+										...(formState.generateAutoName && {
+
+											// Format name removing spaces, special characters and
+											// the first letter must be uppercase
+
+											name: firstLetterUppercase(
+												formatString(value)
+											),
+										}),
+										label: {
+											[defaultLanguageId]: value,
+										},
+									});
+
+									error && setError('');
+								}}
+								type="text"
+								value={formState.label[defaultLanguageId]}
+							/>
+						</ClayForm.Group>
+
+						<ClayForm.Group>
+							<label htmlFor="objectDefinitionPluralLabel">
+								{Liferay.Language.get('plural-label')}
+
+								<RequiredMask />
+							</label>
+
+							<ClayInput
+								id="objectDefinitionPluralLabel"
+								onChange={({target: {value}}) => {
+									setFormState({
+										...formState,
+										pluralLabel: {
+											[defaultLanguageId]: value,
+										},
+									});
+
+									error && setError('');
+								}}
+								type="text"
+								value={formState.pluralLabel[defaultLanguageId]}
+							/>
+						</ClayForm.Group>
+
+						<ClayForm.Group>
 							<label htmlFor="objectDefinitionName">
-								{Liferay.Language.get('name')}
+								{Liferay.Language.get('object-name')}
 
 								<RequiredMask />
 							</label>
 
 							<ClayInput
 								id="objectDefinitionName"
-								onChange={({target: {value}}) =>
-									setValue(value)
-								}
-								type="text"
-								value={value}
-							/>
+								onChange={({target: {value}}) => {
+									setFormState({
+										...formState,
+										generateAutoName: !value,
+										name: value,
+									});
 
-							{error && (
-								<ClayForm.FeedbackGroup>
-									<ClayForm.FeedbackItem>
-										<ClayForm.FeedbackIndicator
-											spritemap={spritemap}
-											symbol="exclamation-full"
-										/>
-										{error}
-									</ClayForm.FeedbackItem>
-								</ClayForm.FeedbackGroup>
-							)}
+									error && setError('');
+								}}
+								type="text"
+								value={formState.name}
+							/>
 						</ClayForm.Group>
 					</ClayModal.Body>
 					<ClayModal.Footer

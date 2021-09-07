@@ -1045,7 +1045,9 @@ definition {
 			productName = "Orange",
 			productType = "Simple");
 
-		Navigator.openSpecificURL(url = "http://localhost:8080/web/guest/p/orange");
+		var baseURL = PropsUtil.get("portal.url");
+
+		Navigator.openSpecificURL(url = "${baseURL}/web/guest/p/orange");
 
 		AssertTextEquals(
 			locator1 = "CommerceFrontStore#FS_PRODUCT_NAME",
@@ -1144,7 +1146,7 @@ definition {
 
 		Click(locator1 = "Pagination#NEXT_LINK");
 
-		CommerceEntry.viewPaginationResults();
+		CommerceEntry.viewPaginationResults(results = "Showing 11 to 20 of 54");
 
 		CommerceProducts.searchProduct(search = "MIN55861");
 

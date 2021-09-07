@@ -275,6 +275,11 @@ public class KBArticleWrapper
 	}
 
 	@Override
+	public KBArticle cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
+	@Override
 	public java.util.List<Long> getAncestorResourcePrimaryKeys()
 		throws com.liferay.portal.kernel.exception.PortalException {
 

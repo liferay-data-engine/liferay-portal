@@ -36,6 +36,7 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
@@ -43,6 +44,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1201,6 +1203,47 @@ public class CalendarModelImpl
 	}
 
 	@Override
+	public Calendar cloneWithOriginalValues() {
+		CalendarImpl calendarImpl = new CalendarImpl();
+
+		calendarImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		calendarImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		calendarImpl.setUuid(this.<String>getColumnOriginalValue("uuid_"));
+		calendarImpl.setCalendarId(
+			this.<Long>getColumnOriginalValue("calendarId"));
+		calendarImpl.setGroupId(this.<Long>getColumnOriginalValue("groupId"));
+		calendarImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		calendarImpl.setUserId(this.<Long>getColumnOriginalValue("userId"));
+		calendarImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		calendarImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		calendarImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		calendarImpl.setCalendarResourceId(
+			this.<Long>getColumnOriginalValue("calendarResourceId"));
+		calendarImpl.setName(this.<String>getColumnOriginalValue("name"));
+		calendarImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		calendarImpl.setTimeZoneId(
+			this.<String>getColumnOriginalValue("timeZoneId"));
+		calendarImpl.setColor(this.<Integer>getColumnOriginalValue("color"));
+		calendarImpl.setDefaultCalendar(
+			this.<Boolean>getColumnOriginalValue("defaultCalendar"));
+		calendarImpl.setEnableComments(
+			this.<Boolean>getColumnOriginalValue("enableComments"));
+		calendarImpl.setEnableRatings(
+			this.<Boolean>getColumnOriginalValue("enableRatings"));
+		calendarImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+
+		return calendarImpl;
+	}
+
+	@Override
 	public int compareTo(Calendar calendar) {
 		int value = 0;
 
@@ -1369,7 +1412,7 @@ public class CalendarModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1380,9 +1423,26 @@ public class CalendarModelImpl
 			Function<Calendar, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((Calendar)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((Calendar)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

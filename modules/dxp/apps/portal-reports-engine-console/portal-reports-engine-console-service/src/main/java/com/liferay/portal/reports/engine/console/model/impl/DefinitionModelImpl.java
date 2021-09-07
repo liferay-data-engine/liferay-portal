@@ -34,6 +34,7 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.reports.engine.console.model.Definition;
 import com.liferay.portal.reports.engine.console.model.DefinitionModel;
@@ -44,6 +45,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1048,6 +1050,38 @@ public class DefinitionModelImpl
 	}
 
 	@Override
+	public Definition cloneWithOriginalValues() {
+		DefinitionImpl definitionImpl = new DefinitionImpl();
+
+		definitionImpl.setUuid(this.<String>getColumnOriginalValue("uuid_"));
+		definitionImpl.setDefinitionId(
+			this.<Long>getColumnOriginalValue("definitionId"));
+		definitionImpl.setGroupId(this.<Long>getColumnOriginalValue("groupId"));
+		definitionImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		definitionImpl.setUserId(this.<Long>getColumnOriginalValue("userId"));
+		definitionImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		definitionImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		definitionImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		definitionImpl.setName(this.<String>getColumnOriginalValue("name"));
+		definitionImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		definitionImpl.setSourceId(
+			this.<Long>getColumnOriginalValue("sourceId"));
+		definitionImpl.setReportName(
+			this.<String>getColumnOriginalValue("reportName"));
+		definitionImpl.setReportParameters(
+			this.<String>getColumnOriginalValue("reportParameters"));
+		definitionImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+
+		return definitionImpl;
+	}
+
+	@Override
 	public int compareTo(Definition definition) {
 		int value = 0;
 
@@ -1213,7 +1247,7 @@ public class DefinitionModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1224,9 +1258,26 @@ public class DefinitionModelImpl
 			Function<Definition, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((Definition)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((Definition)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

@@ -205,6 +205,11 @@ public class SamlSpIdpConnectionWrapper
 		}
 	}
 
+	@Override
+	public SamlSpIdpConnection cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the assertion signature required of this saml sp idp connection.
 	 *

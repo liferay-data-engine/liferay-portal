@@ -26,6 +26,7 @@ import com.liferay.portal.kernel.model.impl.BaseModelImpl;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
@@ -33,10 +34,12 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -681,6 +684,32 @@ public class ExpandoValueModelImpl
 	}
 
 	@Override
+	public ExpandoValue cloneWithOriginalValues() {
+		ExpandoValueImpl expandoValueImpl = new ExpandoValueImpl();
+
+		expandoValueImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		expandoValueImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		expandoValueImpl.setValueId(
+			this.<Long>getColumnOriginalValue("valueId"));
+		expandoValueImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		expandoValueImpl.setTableId(
+			this.<Long>getColumnOriginalValue("tableId"));
+		expandoValueImpl.setColumnId(
+			this.<Long>getColumnOriginalValue("columnId"));
+		expandoValueImpl.setRowId(this.<Long>getColumnOriginalValue("rowId_"));
+		expandoValueImpl.setClassNameId(
+			this.<Long>getColumnOriginalValue("classNameId"));
+		expandoValueImpl.setClassPK(
+			this.<Long>getColumnOriginalValue("classPK"));
+		expandoValueImpl.setData(this.<String>getColumnOriginalValue("data_"));
+
+		return expandoValueImpl;
+	}
+
+	@Override
 	public int compareTo(ExpandoValue expandoValue) {
 		int value = 0;
 
@@ -821,7 +850,7 @@ public class ExpandoValueModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -832,9 +861,26 @@ public class ExpandoValueModelImpl
 			Function<ExpandoValue, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((ExpandoValue)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((ExpandoValue)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

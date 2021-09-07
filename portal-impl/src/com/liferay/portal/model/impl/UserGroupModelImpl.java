@@ -33,12 +33,14 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -872,6 +874,39 @@ public class UserGroupModelImpl
 	}
 
 	@Override
+	public UserGroup cloneWithOriginalValues() {
+		UserGroupImpl userGroupImpl = new UserGroupImpl();
+
+		userGroupImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		userGroupImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		userGroupImpl.setUuid(this.<String>getColumnOriginalValue("uuid_"));
+		userGroupImpl.setExternalReferenceCode(
+			this.<String>getColumnOriginalValue("externalReferenceCode"));
+		userGroupImpl.setUserGroupId(
+			this.<Long>getColumnOriginalValue("userGroupId"));
+		userGroupImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		userGroupImpl.setUserId(this.<Long>getColumnOriginalValue("userId"));
+		userGroupImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		userGroupImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		userGroupImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		userGroupImpl.setParentUserGroupId(
+			this.<Long>getColumnOriginalValue("parentUserGroupId"));
+		userGroupImpl.setName(this.<String>getColumnOriginalValue("name"));
+		userGroupImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		userGroupImpl.setAddedByLDAPImport(
+			this.<Boolean>getColumnOriginalValue("addedByLDAPImport"));
+
+		return userGroupImpl;
+	}
+
+	@Override
 	public int compareTo(UserGroup userGroup) {
 		int value = 0;
 
@@ -1026,7 +1061,7 @@ public class UserGroupModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1037,9 +1072,26 @@ public class UserGroupModelImpl
 			Function<UserGroup, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((UserGroup)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((UserGroup)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

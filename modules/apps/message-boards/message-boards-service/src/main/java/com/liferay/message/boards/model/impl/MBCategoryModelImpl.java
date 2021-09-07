@@ -36,6 +36,7 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
@@ -44,6 +45,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1208,6 +1210,48 @@ public class MBCategoryModelImpl
 	}
 
 	@Override
+	public MBCategory cloneWithOriginalValues() {
+		MBCategoryImpl mbCategoryImpl = new MBCategoryImpl();
+
+		mbCategoryImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		mbCategoryImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		mbCategoryImpl.setUuid(this.<String>getColumnOriginalValue("uuid_"));
+		mbCategoryImpl.setCategoryId(
+			this.<Long>getColumnOriginalValue("categoryId"));
+		mbCategoryImpl.setGroupId(this.<Long>getColumnOriginalValue("groupId"));
+		mbCategoryImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		mbCategoryImpl.setUserId(this.<Long>getColumnOriginalValue("userId"));
+		mbCategoryImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		mbCategoryImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		mbCategoryImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		mbCategoryImpl.setParentCategoryId(
+			this.<Long>getColumnOriginalValue("parentCategoryId"));
+		mbCategoryImpl.setName(this.<String>getColumnOriginalValue("name"));
+		mbCategoryImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		mbCategoryImpl.setDisplayStyle(
+			this.<String>getColumnOriginalValue("displayStyle"));
+		mbCategoryImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+		mbCategoryImpl.setStatus(
+			this.<Integer>getColumnOriginalValue("status"));
+		mbCategoryImpl.setStatusByUserId(
+			this.<Long>getColumnOriginalValue("statusByUserId"));
+		mbCategoryImpl.setStatusByUserName(
+			this.<String>getColumnOriginalValue("statusByUserName"));
+		mbCategoryImpl.setStatusDate(
+			this.<Date>getColumnOriginalValue("statusDate"));
+
+		return mbCategoryImpl;
+	}
+
+	@Override
 	public int compareTo(MBCategory mbCategory) {
 		int value = 0;
 
@@ -1403,7 +1447,7 @@ public class MBCategoryModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1414,9 +1458,26 @@ public class MBCategoryModelImpl
 			Function<MBCategory, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((MBCategory)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((MBCategory)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

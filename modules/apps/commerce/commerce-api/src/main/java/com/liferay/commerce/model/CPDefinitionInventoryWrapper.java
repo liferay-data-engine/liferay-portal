@@ -192,6 +192,11 @@ public class CPDefinitionInventoryWrapper
 		}
 	}
 
+	@Override
+	public CPDefinitionInventory cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the allowed order quantities of this cp definition inventory.
 	 *

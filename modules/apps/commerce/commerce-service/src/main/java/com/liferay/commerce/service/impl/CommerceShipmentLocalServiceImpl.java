@@ -29,6 +29,7 @@ import com.liferay.commerce.model.CommerceShipmentItem;
 import com.liferay.commerce.service.base.CommerceShipmentLocalServiceBaseImpl;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.messaging.Message;
 import com.liferay.portal.kernel.messaging.MessageBusUtil;
 import com.liferay.portal.kernel.model.SystemEventConstants;
@@ -270,7 +271,7 @@ public class CommerceShipmentLocalServiceImpl
 		long[] groupIds, int start, int end,
 		OrderByComparator<CommerceShipment> orderByComparator) {
 
-		return commerceShipmentPersistence.findByGroupIds(
+		return commerceShipmentPersistence.findByGroupId(
 			groupIds, start, end, orderByComparator);
 	}
 
@@ -308,7 +309,7 @@ public class CommerceShipmentLocalServiceImpl
 
 	@Override
 	public int getCommerceShipmentsCount(long[] groupIds) {
-		return commerceShipmentPersistence.countByGroupIds(groupIds);
+		return commerceShipmentPersistence.countByGroupId(groupIds);
 	}
 
 	@Override
@@ -703,7 +704,8 @@ public class CommerceShipmentLocalServiceImpl
 				public Void call() throws Exception {
 					Message message = new Message();
 
-					message.put("commerceShipmentId", commerceShipmentId);
+					message.setPayload(
+						JSONUtil.put("commerceShipmentId", commerceShipmentId));
 
 					MessageBusUtil.sendMessage(
 						CommerceDestinationNames.SHIPMENT_STATUS, message);

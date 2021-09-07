@@ -118,6 +118,11 @@ public class CommercePriceModifierRelWrapper
 		}
 	}
 
+	@Override
+	public CommercePriceModifierRel cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the fully qualified class name of this commerce price modifier rel.
 	 *

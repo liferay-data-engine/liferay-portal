@@ -127,6 +127,11 @@ public class CommerceAvailabilityEstimateWrapper
 	}
 
 	@Override
+	public CommerceAvailabilityEstimate cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
+	@Override
 	public String[] getAvailableLanguageIds() {
 		return model.getAvailableLanguageIds();
 	}

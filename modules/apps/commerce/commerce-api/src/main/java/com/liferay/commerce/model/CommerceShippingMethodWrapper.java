@@ -144,6 +144,11 @@ public class CommerceShippingMethodWrapper
 		}
 	}
 
+	@Override
+	public CommerceShippingMethod cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the active of this commerce shipping method.
 	 *

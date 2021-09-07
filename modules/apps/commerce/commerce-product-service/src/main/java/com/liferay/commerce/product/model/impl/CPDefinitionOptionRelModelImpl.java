@@ -36,6 +36,7 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
@@ -43,6 +44,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1326,6 +1328,53 @@ public class CPDefinitionOptionRelModelImpl
 	}
 
 	@Override
+	public CPDefinitionOptionRel cloneWithOriginalValues() {
+		CPDefinitionOptionRelImpl cpDefinitionOptionRelImpl =
+			new CPDefinitionOptionRelImpl();
+
+		cpDefinitionOptionRelImpl.setUuid(
+			this.<String>getColumnOriginalValue("uuid_"));
+		cpDefinitionOptionRelImpl.setCPDefinitionOptionRelId(
+			this.<Long>getColumnOriginalValue("CPDefinitionOptionRelId"));
+		cpDefinitionOptionRelImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		cpDefinitionOptionRelImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		cpDefinitionOptionRelImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		cpDefinitionOptionRelImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		cpDefinitionOptionRelImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		cpDefinitionOptionRelImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		cpDefinitionOptionRelImpl.setCPDefinitionId(
+			this.<Long>getColumnOriginalValue("CPDefinitionId"));
+		cpDefinitionOptionRelImpl.setCPOptionId(
+			this.<Long>getColumnOriginalValue("CPOptionId"));
+		cpDefinitionOptionRelImpl.setName(
+			this.<String>getColumnOriginalValue("name"));
+		cpDefinitionOptionRelImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		cpDefinitionOptionRelImpl.setDDMFormFieldTypeName(
+			this.<String>getColumnOriginalValue("DDMFormFieldTypeName"));
+		cpDefinitionOptionRelImpl.setPriority(
+			this.<Double>getColumnOriginalValue("priority"));
+		cpDefinitionOptionRelImpl.setFacetable(
+			this.<Boolean>getColumnOriginalValue("facetable"));
+		cpDefinitionOptionRelImpl.setRequired(
+			this.<Boolean>getColumnOriginalValue("required"));
+		cpDefinitionOptionRelImpl.setSkuContributor(
+			this.<Boolean>getColumnOriginalValue("skuContributor"));
+		cpDefinitionOptionRelImpl.setKey(
+			this.<String>getColumnOriginalValue("key_"));
+		cpDefinitionOptionRelImpl.setPriceType(
+			this.<String>getColumnOriginalValue("priceType"));
+
+		return cpDefinitionOptionRelImpl;
+	}
+
+	@Override
 	public int compareTo(CPDefinitionOptionRel cpDefinitionOptionRel) {
 		int value = 0;
 
@@ -1515,7 +1564,7 @@ public class CPDefinitionOptionRelModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1526,10 +1575,27 @@ public class CPDefinitionOptionRelModelImpl
 			Function<CPDefinitionOptionRel, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply((CPDefinitionOptionRel)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(CPDefinitionOptionRel)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

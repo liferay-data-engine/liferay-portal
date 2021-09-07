@@ -31,12 +31,14 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -967,6 +969,50 @@ public class AccountEntryModelImpl
 	}
 
 	@Override
+	public AccountEntry cloneWithOriginalValues() {
+		AccountEntryImpl accountEntryImpl = new AccountEntryImpl();
+
+		accountEntryImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		accountEntryImpl.setExternalReferenceCode(
+			this.<String>getColumnOriginalValue("externalReferenceCode"));
+		accountEntryImpl.setAccountEntryId(
+			this.<Long>getColumnOriginalValue("accountEntryId"));
+		accountEntryImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		accountEntryImpl.setUserId(this.<Long>getColumnOriginalValue("userId"));
+		accountEntryImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		accountEntryImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		accountEntryImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		accountEntryImpl.setDefaultBillingAddressId(
+			this.<Long>getColumnOriginalValue("defaultBillingAddressId"));
+		accountEntryImpl.setDefaultShippingAddressId(
+			this.<Long>getColumnOriginalValue("defaultShippingAddressId"));
+		accountEntryImpl.setParentAccountEntryId(
+			this.<Long>getColumnOriginalValue("parentAccountEntryId"));
+		accountEntryImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		accountEntryImpl.setDomains(
+			this.<String>getColumnOriginalValue("domains"));
+		accountEntryImpl.setEmailAddress(
+			this.<String>getColumnOriginalValue("emailAddress"));
+		accountEntryImpl.setLogoId(this.<Long>getColumnOriginalValue("logoId"));
+		accountEntryImpl.setName(this.<String>getColumnOriginalValue("name"));
+		accountEntryImpl.setTaxExemptionCode(
+			this.<String>getColumnOriginalValue("taxExemptionCode"));
+		accountEntryImpl.setTaxIdNumber(
+			this.<String>getColumnOriginalValue("taxIdNumber"));
+		accountEntryImpl.setType(this.<String>getColumnOriginalValue("type_"));
+		accountEntryImpl.setStatus(
+			this.<Integer>getColumnOriginalValue("status"));
+
+		return accountEntryImpl;
+	}
+
+	@Override
 	public int compareTo(AccountEntry accountEntry) {
 		int value = 0;
 
@@ -1161,7 +1207,7 @@ public class AccountEntryModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1172,9 +1218,26 @@ public class AccountEntryModelImpl
 			Function<AccountEntry, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((AccountEntry)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((AccountEntry)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

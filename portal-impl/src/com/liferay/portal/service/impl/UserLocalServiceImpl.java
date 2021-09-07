@@ -60,7 +60,6 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.messaging.DestinationNames;
 import com.liferay.portal.kernel.messaging.Message;
 import com.liferay.portal.kernel.messaging.MessageBusUtil;
-import com.liferay.portal.kernel.model.Account;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.CompanyConstants;
 import com.liferay.portal.kernel.model.Contact;
@@ -79,6 +78,8 @@ import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.UserGroup;
 import com.liferay.portal.kernel.model.UserGroupRole;
 import com.liferay.portal.kernel.model.role.RoleConstants;
+import com.liferay.portal.kernel.module.util.ServiceLatch;
+import com.liferay.portal.kernel.module.util.SystemBundleUtil;
 import com.liferay.portal.kernel.search.BaseModelSearchResult;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.Hits;
@@ -153,10 +154,6 @@ import com.liferay.portal.security.pwd.RegExpToolkit;
 import com.liferay.portal.service.base.UserLocalServiceBaseImpl;
 import com.liferay.portal.util.PrefsPropsUtil;
 import com.liferay.portal.util.PropsValues;
-import com.liferay.registry.Registry;
-import com.liferay.registry.RegistryUtil;
-import com.liferay.registry.dependency.ServiceDependencyListener;
-import com.liferay.registry.dependency.ServiceDependencyManager;
 import com.liferay.social.kernel.model.SocialRelation;
 import com.liferay.users.admin.kernel.file.uploads.UserFileUploadsSettings;
 import com.liferay.users.admin.kernel.util.UsersAdminUtil;
@@ -313,10 +310,8 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 			Company company = companyPersistence.findByPrimaryKey(
 				user.getCompanyId());
 
-			Account account = company.getAccount();
-
 			if (StringUtil.equalsIgnoreCase(
-					defaultGroupName, account.getName())) {
+					defaultGroupName, company.getName())) {
 
 				defaultGroupName = GroupConstants.GUEST;
 			}
@@ -1111,7 +1106,6 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 
 		// User
 
-		Company company = companyPersistence.findByPrimaryKey(companyId);
 		screenName = getLogin(screenName);
 
 		if (PrefsPropsUtil.getBoolean(
@@ -1261,8 +1255,6 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 			creatorUserName = creatorUser.getFullName();
 		}
 
-		Date birthday = getBirthday(birthdayMonth, birthdayDay, birthdayYear);
-
 		Contact contact = contactPersistence.create(user.getContactId());
 
 		contact.setCompanyId(user.getCompanyId());
@@ -1270,7 +1262,6 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		contact.setUserName(creatorUserName);
 		contact.setClassName(User.class.getName());
 		contact.setClassPK(user.getUserId());
-		contact.setAccountId(company.getAccountId());
 		contact.setParentContactId(ContactConstants.DEFAULT_PARENT_CONTACT_ID);
 		contact.setEmailAddress(user.getEmailAddress());
 		contact.setFirstName(firstName);
@@ -1279,7 +1270,8 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		contact.setPrefixId(prefixId);
 		contact.setSuffixId(suffixId);
 		contact.setMale(male);
-		contact.setBirthday(birthday);
+		contact.setBirthday(
+			getBirthday(birthdayMonth, birthdayDay, birthdayYear));
 		contact.setJobTitle(jobTitle);
 
 		contactPersistence.update(contact, serviceContext);
@@ -1489,13 +1481,17 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 	public void afterPropertiesSet() {
 		super.afterPropertiesSet();
 
-		ServiceDependencyManager serviceDependencyManager =
-			new ServiceDependencyManager();
+		ServiceLatch serviceLatch = SystemBundleUtil.newServiceLatch();
 
-		serviceDependencyManager.addServiceDependencyListener(
-			_serviceDependencyListener);
+		serviceLatch.waitFor(
+			EntityCache.class,
+			entityCache -> PortalCacheMapSynchronizeUtil.synchronize(
+				entityCache.getPortalCache(UserImpl.class), _defaultUsers,
+				_synchronizer));
 
-		serviceDependencyManager.registerDependencies(EntityCache.class);
+		serviceLatch.openOn(
+			() -> {
+			});
 	}
 
 	/**
@@ -1952,14 +1948,12 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		if (autoPassword) {
 			if (LDAPSettingsUtil.isPasswordPolicyEnabled(user.getCompanyId())) {
 				if (_log.isWarnEnabled()) {
-					StringBundler sb = new StringBundler(4);
-
-					sb.append("When LDAP password policy is enabled, it is ");
-					sb.append("possible that portal generated passwords will ");
-					sb.append("not match the LDAP policy. Using ");
-					sb.append("RegExpToolkit to generate new password.");
-
-					_log.warn(sb.toString());
+					_log.warn(
+						StringBundler.concat(
+							"When LDAP password policy is enabled, it is ",
+							"possible that portal generated passwords will ",
+							"not match the LDAP policy. Using RegExpToolkit ",
+							"to generate new password."));
 				}
 
 				RegExpToolkit regExpToolkit = new RegExpToolkit();
@@ -3979,16 +3973,10 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 			TicketConstants.TYPE_PASSWORD, null, expirationDate,
 			serviceContext);
 
-		StringBundler sb = new StringBundler(6);
-
-		sb.append(serviceContext.getPortalURL());
-		sb.append(serviceContext.getPathMain());
-		sb.append("/portal/update_password?p_l_id=");
-		sb.append(serviceContext.getPlid());
-		sb.append("&ticketKey=");
-		sb.append(ticket.getKey());
-
-		String passwordResetURL = sb.toString();
+		String passwordResetURL = StringBundler.concat(
+			serviceContext.getPortalURL(), serviceContext.getPathMain(),
+			"/portal/update_password?p_l_id=", serviceContext.getPlid(),
+			"&ticketKey=", ticket.getKey());
 
 		sendPasswordNotification(
 			user, companyId, null, passwordResetURL, fromName, fromAddress,
@@ -5551,8 +5539,6 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 
 		// Contact
 
-		Date birthday = getBirthday(birthdayMonth, birthdayDay, birthdayYear);
-
 		long contactId = user.getContactId();
 
 		Contact contact = contactPersistence.fetchByPrimaryKey(contactId);
@@ -5564,7 +5550,6 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 			contact.setUserName(StringPool.BLANK);
 			contact.setClassName(User.class.getName());
 			contact.setClassPK(user.getUserId());
-			contact.setAccountId(company.getAccountId());
 			contact.setParentContactId(
 				ContactConstants.DEFAULT_PARENT_CONTACT_ID);
 		}
@@ -5576,7 +5561,8 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		contact.setPrefixId(prefixId);
 		contact.setSuffixId(suffixId);
 		contact.setMale(male);
-		contact.setBirthday(birthday);
+		contact.setBirthday(
+			getBirthday(birthdayMonth, birthdayDay, birthdayYear));
 		contact.setSmsSn(smsSn);
 		contact.setFacebookSn(facebookSn);
 		contact.setJabberSn(jabberSn);
@@ -5584,7 +5570,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		contact.setTwitterSn(twitterSn);
 		contact.setJobTitle(jobTitle);
 
-		contactPersistence.update(contact, serviceContext);
+		user.setContact(contactPersistence.update(contact, serviceContext));
 
 		// Group
 
@@ -7450,30 +7436,6 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 			"_userFileUploadsSettings", false);
 
 	private final Map<Long, User> _defaultUsers = new ConcurrentHashMap<>();
-
-	private final ServiceDependencyListener _serviceDependencyListener =
-		new ServiceDependencyListener() {
-
-			@Override
-			public void dependenciesFulfilled() {
-				Registry registry = RegistryUtil.getRegistry();
-
-				registry.callService(
-					EntityCache.class,
-					entityCache -> {
-						PortalCacheMapSynchronizeUtil.synchronize(
-							entityCache.getPortalCache(UserImpl.class),
-							_defaultUsers, _synchronizer);
-
-						return null;
-					});
-			}
-
-			@Override
-			public void destroy() {
-			}
-
-		};
 
 	private final PortalCacheMapSynchronizeUtil.Synchronizer
 		<Serializable, Serializable> _synchronizer =

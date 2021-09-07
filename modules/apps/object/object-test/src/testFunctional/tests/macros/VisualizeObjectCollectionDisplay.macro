@@ -1,0 +1,56 @@
+definition {
+
+	macro addDisplayPageTemplate {
+		VisualizeObjectDisplayPageTemplate.openPageTemplate();
+
+		Click(locator1 = "VisualizeObjectCollectionDisplay#ADD_BLANK_PAGE");
+
+		Type(
+			locator1 = "VisualizeObjectCollectionDisplay#NAME_DISPLAY_PAGE",
+			value1 = "${displayPageName}");
+
+		Select(
+			locator1 = "VisualizeObjectCollectionDisplay#SELECT_CONTENT_TYPE",
+			value1 = "${contentType}");
+
+		Select(
+			locator1 = "VisualizeObjectCollectionDisplay#SELECT_SUBTYPE",
+			value1 = "${subtype}");
+
+		Click(locator1 = "VisualizeObjectCollectionDisplay#SAVE_BUTTON");
+	}
+
+	macro addFieldForCollectionDisplay {
+		DragAndDrop.javaScriptDragAndDropToUp(
+			key_fragment = "${fragmentName}",
+			locator1 = "VisualizeObjectCollectionDisplay#FRAGMENT_SIDEBAR",
+			locator2 = "VisualizeObjectCollectionDisplay#FRAGMENT_COLLECTION");
+	}
+
+	macro mapFragment {
+		Select(
+			locator1 = "VisualizeObjectCollectionDisplay#MAP_FRAGMENT",
+			value1 = "${fieldName}");
+	}
+
+	macro openHeading {
+		DoubleClick(locator1 = "VisualizeObjectCollectionDisplay#HEADING_COLLECTION_DISPLAY");
+	}
+
+	macro openObjectCollectionProvider {
+		Navigator.openSpecificURL(url = "/group/guest/~/control_panel/manage?p_p_id=com_liferay_asset_list_web_portlet_AssetListPortlet&_com_liferay_asset_list_web_portlet_AssetListPortlet_mvcPath=%2Fview_info_collection_providers.jsp");
+	}
+
+	macro viewMappedFragment {
+		AssertSelectedLabel(
+			locator1 = "VisualizeObjectCollectionDisplay#MAP_FRAGMENT",
+			value1 = "${fieldName}");
+	}
+
+	macro viewObjectCollectionProvider {
+		AssertElementPresent(
+			key_objectName = "${objectName}",
+			locator1 = "VisualizeObjectCollectionDisplay#VIEW_OBJECT_COLLECTION_DISPLAY");
+	}
+
+}

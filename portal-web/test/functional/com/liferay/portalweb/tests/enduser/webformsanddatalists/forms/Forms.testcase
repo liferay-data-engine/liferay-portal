@@ -46,11 +46,7 @@ definition {
 
 		PageTemplatesAdmin.openPageTemplatesAdmin(siteURLKey = "global");
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName();
 
@@ -68,7 +64,7 @@ definition {
 			fieldHelpText = "Help Text",
 			fieldName = "tip");
 
-		FormFields.enableSwitcher(fieldName = "Required");
+		FormFields.enableSwitch(fieldName = "Required");
 
 		Form.closeSidebar();
 
@@ -217,11 +213,7 @@ definition {
 
 		Navigator.openSiteURL(siteName = "Form Site");
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName();
 
@@ -251,13 +243,7 @@ definition {
 		property portal.upstream = "true";
 		property test.name.skip.portal.instance = "Forms#AutosaveDisplaysANotification";
 
-		Navigator.openURL();
-
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName();
 
@@ -303,13 +289,7 @@ definition {
 
 		SystemSettings.saveConfiguration();
 
-		Navigator.openURL();
-
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName();
 
@@ -349,11 +329,7 @@ definition {
 	test CanBeCreated {
 		property forms.functional = "true";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -396,11 +372,7 @@ definition {
 	test CanBeCreatedFromAutosavedDraft {
 		property forms.functional = "true";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Test");
 
@@ -442,11 +414,7 @@ definition {
 	test CanBeCreatedWithMultiplePages {
 		property forms.functional = "true";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -515,13 +483,7 @@ definition {
 		property portal.upstream = "true";
 		property test.name.skip.portal.instance = "Forms#CanBeCreatedWithoutTitle";
 
-		Navigator.openURL();
-
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.addTextField(fieldPositionNumber = "0");
 
@@ -545,11 +507,7 @@ definition {
 	test CanBeDeleted {
 		property forms.functional = "true";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -573,11 +531,7 @@ definition {
 	test CanBeDuplicated {
 		property forms.functional = "true";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -611,11 +565,7 @@ definition {
 	test CanBeEdited {
 		property forms.functional = "true";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -677,13 +627,7 @@ definition {
 		property portal.upstream = "true";
 		property test.name.skip.portal.instance = "Forms#CanBeEditedAfterChangingLanguage";
 
-		Navigator.openURL();
-
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName();
 
@@ -725,13 +669,7 @@ definition {
 		property portal.upstream = "true";
 		property test.name.skip.portal.instance = "Forms#CanBeEditedAfterChangingLocale";
 
-		Navigator.openURL();
-
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Site Locale Form Name");
 
@@ -765,11 +703,7 @@ definition {
 	@description = "LPS-61740 - Verify that a Form can be previewed"
 	@priority = "5"
 	test CanBePreviewed {
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -789,11 +723,7 @@ definition {
 	@description = "LPS-61740 - Verify that a Form can be published"
 	@priority = "5"
 	test CanBePublished {
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -835,11 +765,7 @@ definition {
 	test CanBeUnpublished {
 		property forms.functional = "true";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -888,13 +814,7 @@ definition {
 		property portal.upstream = "true";
 		property test.name.skip.portal.instance = "Forms#CanBeViewedAfterDeletingAField";
 
-		Navigator.openURL();
-
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName();
 
@@ -1000,13 +920,7 @@ definition {
 		property portal.upstream = "true";
 		property test.name.skip.portal.instance = "Forms#ConfirmationAppearsWhenLeavingFormWithoutSaving";
 
-		Navigator.openURL();
-
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.addTextField(fieldPositionNumber = "0");
 
@@ -1071,13 +985,7 @@ definition {
 
 		Button.clickSave();
 
-		Navigator.openURL();
-
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName();
 
@@ -1127,13 +1035,7 @@ definition {
 		property portal.upstream = "true";
 		property test.name.skip.portal.instance = "Forms#DeleteSelectFromListOptionAndViewEntries";
 
-		Navigator.openURL();
-
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Delete Select Option Test");
 
@@ -1229,13 +1131,7 @@ definition {
 		property portal.upstream = "true";
 		property test.name.skip.portal.instance = "Forms#EditAllFormFieldNames";
 
-		Navigator.openURL();
-
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName();
 
@@ -1598,47 +1494,31 @@ definition {
 	test MultipleFormsCanBeDeleted {
 		property forms.functional = "true";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
-		Form.gotoAddField(
-			fieldPositionNumber = "0",
-			fieldType = "Text");
+		Form.addTextField(fieldPositionNumber = "0");
 
-		Click(locator1 = "Button#SAVE");
+		Form.save();
 
-		Click(locator1 = "Icon#BACK");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 2");
 
-		Form.gotoAddField(
-			fieldPositionNumber = "0",
-			fieldType = "Text");
+		Form.addTextField(fieldPositionNumber = "0");
 
-		Click(locator1 = "Button#SAVE");
+		Form.save();
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
+		FormsAdminNavigator.gotoBack();
 
-		Check(
-			key_formName = "Form 1",
-			locator1 = "FormsAdmin#FORM_ENTRY_CHECKBOX");
+		while (IsElementPresent(locator1 = "Icon#BODY_VERTICAL_ELLIPSIS")) {
+			LexiconEntry.gotoEllipsisMenuItemNoError(menuItem = "Delete");
 
-		Check(
-			key_formName = "Form 2",
-			locator1 = "FormsAdmin#FORM_ENTRY_CHECKBOX");
+			AssertConfirm(value1 = "Are you sure you want to delete this? It will be deleted immediately.");
 
-		ClickNoError(locator1 = "Icon#DELETE");
-
-		AssertConfirm(value1 = "Are you sure you want to delete this? It will be deleted immediately.");
+			Alert.viewSuccessMessage();
+		}
 
 		AssertElementNotPresent(
 			key_formName = "Form 1",
@@ -1656,13 +1536,7 @@ definition {
 		property portal.upstream = "true";
 		property test.name.skip.portal.instance = "Forms#PagesCanBeDeleted";
 
-		Navigator.openURL();
-
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName();
 
@@ -1702,11 +1576,7 @@ definition {
 	test PagesCanBeReordered {
 		property forms.functional = "true";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -1766,11 +1636,7 @@ definition {
 	test PagesCanBeReset {
 		property forms.functional = "true";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 
@@ -1802,15 +1668,7 @@ definition {
 
 		var fieldValueList = "testEntry1,exampleText,sampleAnswer";
 
-		Navigator.openURL();
-
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
-
-		Refresh();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Test Form");
 
@@ -1902,11 +1760,7 @@ definition {
 	test ShouldHaveAtLeastOneField {
 		property forms.functional = "true";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Click(locator1 = "Button#SAVE");
 
@@ -1923,13 +1777,7 @@ definition {
 		property portal.upstream = "true";
 		property test.name.skip.portal.instance = "Forms#SubmitFormAfterEditingFields";
 
-		Navigator.openURL();
-
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName();
 
@@ -2298,17 +2146,11 @@ definition {
 
 	@priority = "4"
 	test SubmitFormWithMultipleFieldsAndViewEntriesViaDescriptiveDisplay {
-		property portal.acceptance = "true";
-		property portal.upstream = "true";
+		property portal.acceptance = "quarantine";
+		property portal.upstream = "quarantine";
 		property test.name.skip.portal.instance = "Forms#SubmitFormWithMultipleFieldsAndViewEntriesViaDescriptiveDisplay";
 
-		Navigator.openURL();
-
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName();
 
@@ -2487,13 +2329,7 @@ definition {
 		property portal.upstream = "true";
 		property test.name.skip.portal.instance = "Forms#SubmitFormWithRequiredRadioField";
 
-		Navigator.openURL();
-
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName();
 
@@ -2507,7 +2343,7 @@ definition {
 
 		Form.editFieldLabelMetal(fieldValue = "Radio Field");
 
-		FormFields.enableSwitcher(fieldName = "Required");
+		FormFields.enableSwitch(fieldName = "Required");
 
 		FormFields.editOptionsRow(
 			optionName = "Option1",
@@ -2575,18 +2411,12 @@ definition {
 
 	@description = "This is a use case for LPS-59351."
 	@priority = "4"
-	test SubmitFormWithSwitcherCheckboxField {
+	test SubmitFormWithSwitchCheckboxField {
 		property portal.acceptance = "true";
 		property portal.upstream = "true";
-		property test.name.skip.portal.instance = "Forms#SubmitFormWithSwitcherCheckboxField";
+		property test.name.skip.portal.instance = "Forms#SubmitFormWithSwitchCheckboxField";
 
-		Navigator.openURL();
-
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName();
 
@@ -2600,16 +2430,16 @@ definition {
 
 		Form.editFieldLabelMetal(fieldValue = "Checkbox Field");
 
-		FormFields.enableSwitcher(fieldName = "Show as a Switcher");
+		FormFields.enableSwitch(fieldName = "Show as a Switch");
 
 		FormFields.editOptionsRow(
-			optionName = "Switcher1",
-			optionValue = "Switcher 1",
+			optionName = "Switch1",
+			optionValue = "Switch 1",
 			rowNumber = "1");
 
 		FormFields.editOptionsRow(
-			optionName = "Switcher2",
-			optionValue = "Switcher 2",
+			optionName = "Switch2",
+			optionValue = "Switch 2",
 			rowNumber = "2");
 
 		Form.closeSidebar();
@@ -2638,13 +2468,13 @@ definition {
 
 		FormPortlet.waitFormRenderer(text = "Submit");
 
-		FormFields.viewSwitcherLabel(
+		FormFields.viewSwitchLabel(
 			fieldLabel = "Checkbox Field",
 			fieldName = "${fieldMultipleSelectionField}");
 
-		FormFields.selectSwitcherOption(
+		FormFields.selectSwitchOption(
 			fieldName = "${fieldMultipleSelectionField}",
-			switcherOption = "Switcher 1");
+			switchOption = "Switch 1");
 
 		FormPortlet.clickSubmit();
 
@@ -2660,13 +2490,13 @@ definition {
 
 		FormsAdmin.viewFormTableEntry(
 			fieldLabel = "Checkbox Field",
-			fieldValue = "Switcher 1");
+			fieldValue = "Switch 1");
 
 		FormsAdminNavigator.gotoView();
 
 		FormsAdmin.viewCheckboxEntry(
 			fieldName = "${fieldMultipleSelectionField}",
-			fieldValue = "Switcher 1");
+			fieldValue = "Switch 1");
 	}
 
 	@description = "This is a use case for LPS-64305."
@@ -2676,13 +2506,7 @@ definition {
 		property portal.upstream = "true";
 		property test.name.skip.portal.instance = "Forms#ViewDefaultFieldNamesWithPunctuationCharacters";
 
-		Navigator.openURL();
-
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName();
 
@@ -2738,13 +2562,7 @@ definition {
 	test ViewSelectFromListOptionValueWithCharacter {
 		property test.name.skip.portal.instance = "Forms#ViewSelectFromListOptionValueWithCharacter";
 
-		Navigator.openURL();
-
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName();
 
@@ -2765,7 +2583,7 @@ definition {
 
 		Form.gotoAdvancedTab();
 
-		FormFields.enableSwitcher(fieldName = "Multiple");
+		FormFields.enableSwitch(fieldName = "Multiple");
 
 		Form.publishForm();
 
@@ -2785,11 +2603,7 @@ definition {
 	test WillAutosaveAfterOneMinute {
 		property forms.functional = "true";
 
-		ProductMenu.gotoPortlet(
-			category = "Content &amp; Data",
-			portlet = "Forms");
-
-		FormsAdminNavigator.gotoAddForm();
+		FormsAdmin.addForm();
 
 		Form.editName(formName = "Form 1");
 

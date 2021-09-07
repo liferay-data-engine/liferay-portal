@@ -10,6 +10,7 @@
 		"modulesPerRow": 3,
 		"reverseOrder": true,
 		"styles": {
+			"display": "none"
 		},
 		"verticalAlignment": "bottom"
 	},
@@ -22,5 +23,6 @@
 		"styles": {
 		},
 		"verticalAlignment": "middle"
-	}
+	},
+	"verticalAlignment": "top"
 }

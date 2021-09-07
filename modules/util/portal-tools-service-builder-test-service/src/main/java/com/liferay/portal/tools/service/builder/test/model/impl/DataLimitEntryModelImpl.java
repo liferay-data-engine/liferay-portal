@@ -27,6 +27,7 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.tools.service.builder.test.model.DataLimitEntry;
 import com.liferay.portal.tools.service.builder.test.model.DataLimitEntryModel;
 
@@ -35,6 +36,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
@@ -471,6 +473,26 @@ public class DataLimitEntryModelImpl
 	}
 
 	@Override
+	public DataLimitEntry cloneWithOriginalValues() {
+		DataLimitEntryImpl dataLimitEntryImpl = new DataLimitEntryImpl();
+
+		dataLimitEntryImpl.setDataLimitEntryId(
+			this.<Long>getColumnOriginalValue("dataLimitEntryId"));
+		dataLimitEntryImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		dataLimitEntryImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		dataLimitEntryImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		dataLimitEntryImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		dataLimitEntryImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+
+		return dataLimitEntryImpl;
+	}
+
+	@Override
 	public int compareTo(DataLimitEntry dataLimitEntry) {
 		long primaryKey = dataLimitEntry.getPrimaryKey();
 
@@ -585,7 +607,7 @@ public class DataLimitEntryModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -596,9 +618,26 @@ public class DataLimitEntryModelImpl
 			Function<DataLimitEntry, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((DataLimitEntry)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((DataLimitEntry)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

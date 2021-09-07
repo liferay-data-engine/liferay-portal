@@ -54,6 +54,8 @@ public class ObjectDefinitionWrapper
 		attributes.put("dbTableName", getDBTableName());
 		attributes.put("label", getLabel());
 		attributes.put("name", getName());
+		attributes.put("panelAppOrder", getPanelAppOrder());
+		attributes.put("panelCategoryKey", getPanelCategoryKey());
 		attributes.put(
 			"pkObjectFieldDBColumnName", getPKObjectFieldDBColumnName());
 		attributes.put("pkObjectFieldName", getPKObjectFieldName());
@@ -134,6 +136,18 @@ public class ObjectDefinitionWrapper
 			setName(name);
 		}
 
+		String panelAppOrder = (String)attributes.get("panelAppOrder");
+
+		if (panelAppOrder != null) {
+			setPanelAppOrder(panelAppOrder);
+		}
+
+		String panelCategoryKey = (String)attributes.get("panelCategoryKey");
+
+		if (panelCategoryKey != null) {
+			setPanelCategoryKey(panelCategoryKey);
+		}
+
 		String pkObjectFieldDBColumnName = (String)attributes.get(
 			"pkObjectFieldDBColumnName");
 
@@ -179,6 +193,11 @@ public class ObjectDefinitionWrapper
 	}
 
 	@Override
+	public ObjectDefinition cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
+	@Override
 	public String[] getAvailableLanguageIds() {
 		return model.getAvailableLanguageIds();
 	}
@@ -221,6 +240,11 @@ public class ObjectDefinitionWrapper
 	@Override
 	public String getDefaultLanguageId() {
 		return model.getDefaultLanguageId();
+	}
+
+	@Override
+	public String getDestinationName() {
+		return model.getDestinationName();
 	}
 
 	@Override
@@ -342,6 +366,26 @@ public class ObjectDefinitionWrapper
 	@Override
 	public long getObjectDefinitionId() {
 		return model.getObjectDefinitionId();
+	}
+
+	/**
+	 * Returns the panel app order of this object definition.
+	 *
+	 * @return the panel app order of this object definition
+	 */
+	@Override
+	public String getPanelAppOrder() {
+		return model.getPanelAppOrder();
+	}
+
+	/**
+	 * Returns the panel category key of this object definition.
+	 *
+	 * @return the panel category key of this object definition
+	 */
+	@Override
+	public String getPanelCategoryKey() {
+		return model.getPanelCategoryKey();
 	}
 
 	/**
@@ -550,6 +594,11 @@ public class ObjectDefinitionWrapper
 		return model.getVersion();
 	}
 
+	@Override
+	public boolean isApproved() {
+		return model.isApproved();
+	}
+
 	/**
 	 * Returns <code>true</code> if this object definition is system.
 	 *
@@ -712,6 +761,26 @@ public class ObjectDefinitionWrapper
 	@Override
 	public void setObjectDefinitionId(long objectDefinitionId) {
 		model.setObjectDefinitionId(objectDefinitionId);
+	}
+
+	/**
+	 * Sets the panel app order of this object definition.
+	 *
+	 * @param panelAppOrder the panel app order of this object definition
+	 */
+	@Override
+	public void setPanelAppOrder(String panelAppOrder) {
+		model.setPanelAppOrder(panelAppOrder);
+	}
+
+	/**
+	 * Sets the panel category key of this object definition.
+	 *
+	 * @param panelCategoryKey the panel category key of this object definition
+	 */
+	@Override
+	public void setPanelCategoryKey(String panelCategoryKey) {
+		model.setPanelCategoryKey(panelCategoryKey);
 	}
 
 	/**

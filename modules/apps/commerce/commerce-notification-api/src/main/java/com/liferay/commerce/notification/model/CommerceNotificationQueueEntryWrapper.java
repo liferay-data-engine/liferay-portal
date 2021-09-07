@@ -206,6 +206,11 @@ public class CommerceNotificationQueueEntryWrapper
 		}
 	}
 
+	@Override
+	public CommerceNotificationQueueEntry cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the bcc of this commerce notification queue entry.
 	 *

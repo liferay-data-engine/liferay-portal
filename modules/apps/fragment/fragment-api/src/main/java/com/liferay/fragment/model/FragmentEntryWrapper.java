@@ -243,6 +243,11 @@ public class FragmentEntryWrapper
 	}
 
 	@Override
+	public FragmentEntry cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
+	@Override
 	public FragmentEntry fetchDraftFragmentEntry() {
 		return model.fetchDraftFragmentEntry();
 	}

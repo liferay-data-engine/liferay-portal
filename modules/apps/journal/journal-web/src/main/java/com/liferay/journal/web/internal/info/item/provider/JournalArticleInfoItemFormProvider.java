@@ -38,6 +38,7 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.template.info.item.provider.TemplateInfoItemFieldSetProvider;
 
 import java.util.HashMap;
 import java.util.Locale;
@@ -187,16 +188,16 @@ public class JournalArticleInfoItemFormProvider
 			).infoFieldSetEntry(
 				_getBasicInformationInfoFieldSet()
 			).<NoSuchStructureException>infoFieldSetEntry(
-				consumer -> {
+				unsafeConsumer -> {
 					if (ddmStructureId != 0) {
-						consumer.accept(
+						unsafeConsumer.accept(
 							_ddmStructureInfoItemFieldSetProvider.
 								getInfoItemFieldSet(
 									ddmStructureId,
 									_getStructureFieldSetNameInfoLocalizedValue(
 										ddmStructureId)));
 
-						consumer.accept(
+						unsafeConsumer.accept(
 							_ddmTemplateInfoItemFieldSetProvider.
 								getInfoItemFieldSet(ddmStructureId));
 					}
@@ -208,6 +209,9 @@ public class JournalArticleInfoItemFormProvider
 			).infoFieldSetEntry(
 				_expandoInfoItemFieldSetProvider.getInfoFieldSet(
 					JournalArticle.class.getName())
+			).infoFieldSetEntry(
+				_templateInfoItemFieldSetProvider.getInfoFieldSet(
+					JournalArticle.class.getName(), ddmStructureId)
 			).infoFieldSetEntry(
 				assetEntryInfoFieldSet
 			).infoFieldSetEntry(
@@ -294,5 +298,8 @@ public class JournalArticleInfoItemFormProvider
 	@Reference
 	private InfoItemFieldReaderFieldSetProvider
 		_infoItemFieldReaderFieldSetProvider;
+
+	@Reference
+	private TemplateInfoItemFieldSetProvider _templateInfoItemFieldSetProvider;
 
 }

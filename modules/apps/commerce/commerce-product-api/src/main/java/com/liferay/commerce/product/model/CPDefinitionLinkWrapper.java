@@ -134,6 +134,11 @@ public class CPDefinitionLinkWrapper
 		}
 	}
 
+	@Override
+	public CPDefinitionLink cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the company ID of this cp definition link.
 	 *

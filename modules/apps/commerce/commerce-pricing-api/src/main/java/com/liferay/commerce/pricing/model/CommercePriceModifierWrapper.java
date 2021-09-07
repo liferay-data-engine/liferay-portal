@@ -218,6 +218,11 @@ public class CommercePriceModifierWrapper
 		}
 	}
 
+	@Override
+	public CommercePriceModifier cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the active of this commerce price modifier.
 	 *

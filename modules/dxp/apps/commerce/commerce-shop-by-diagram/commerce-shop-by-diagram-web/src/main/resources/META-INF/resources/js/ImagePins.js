@@ -13,14 +13,11 @@ import {drag, event as d3event, select, zoom as d3zoom, zoomIdentity} from 'd3';
 import PropTypes from 'prop-types';
 import React, {useLayoutEffect, useRef} from 'react';
 
-import NavigationButtons from './NavigationButtons';
 import {moveController, zoomIn, zoomOut} from './NavigationsUtils';
-import ZoomController from './ZoomController';
 
 const PIN_ATTRIBUTES = [
 	'cx',
 	'cy',
-	'draggable',
 	'fill',
 	'id',
 	'label',
@@ -35,6 +32,7 @@ const ImagePins = ({
 	addPinHandler,
 	cPins,
 	changedScale,
+	children,
 	enablePanZoom,
 	execZoomIn,
 	handleAddPin,
@@ -43,19 +41,21 @@ const ImagePins = ({
 	isAdmin,
 	namespace,
 	navigationController,
+	newPinSettings,
+	pinClickAction,
 	removePinHandler,
 	resetZoom,
 	selectedOption,
 	setAddPinHandler,
 	setChangedScale,
 	setCpins,
+	setPinClickHandler,
 	setRemovePinHandler,
 	setResetZoom,
 	setSelectedOption,
 	setShowTooltip,
 	setZoomInHandler,
 	setZoomOutHandler,
-	zoomController,
 	zoomInHandler,
 	zoomOutHandler,
 }) => {
@@ -77,27 +77,28 @@ const ImagePins = ({
 
 		svg.call(zoom);
 
-		svg.on('dblclick.zoom', () => {
-			const x =
-				(d3event.offsetX - transform.current.x) / transform.current.k;
-			const y =
-				(d3event.offsetY - transform.current.y) / transform.current.k;
-
-			setCpins(
-				cPins.concat({
-					cx: x,
-					cy: y,
-					draggable: true,
-					fill: `#${addNewPinState.fill}`,
-					id: cPins.length,
-					label: `new${cPins.length}`,
-					linked_to_sku: 'sku',
-					quantity: 0,
-					r: addNewPinState.radius,
-					sku: addNewPinState.sku,
-				})
-			);
-		});
+		if (isAdmin) {
+			svg.on('dblclick.zoom', () => {
+				const x =
+					(d3event.offsetX - transform.current.x) /
+					transform.current.k;
+				const y =
+					(d3event.offsetY - transform.current.y) /
+					transform.current.k;
+				setCpins(
+					cPins.concat({
+						cx: x,
+						cy: y,
+						fill: `#${addNewPinState.fill}`,
+						label: '',
+						linked_to_sku: 'sku',
+						quantity: 1,
+						r: addNewPinState.radius,
+						sku: addNewPinState.sku,
+					})
+				);
+			});
+		}
 
 		if (resetZoom) {
 			setResetZoom(false);
@@ -145,7 +146,9 @@ const ImagePins = ({
 		}
 
 		function dragStarted() {
-			select(this).raise().classed('active', true);
+			const pinContainer = select(this);
+			pinContainer.raise().classed('active', true);
+			pinContainer.selectAll('circle').attr('stroke', `#ffa500`);
 		}
 
 		function dragged() {
@@ -181,11 +184,6 @@ const ImagePins = ({
 								10
 							);
 						}
-						else if (element === 'draggable') {
-							updatedPin[`${attr.name}`] = attr.value
-								? true
-								: false;
-						}
 						else {
 							updatedPin[`${attr.name}`] = attr.value;
 						}
@@ -196,10 +194,10 @@ const ImagePins = ({
 			const newState = cPins.map((element) => {
 				if (element.id === updatedPin.id) {
 					if (
-						Math.abs(element.cx - updatedPin.cx) < 15 &&
-						Math.abs(element.cy - updatedPin.cy) < 15
+						Math.abs(element.cx - updatedPin.cx) < 10 &&
+						Math.abs(element.cy - updatedPin.cy) < 10
 					) {
-						return;
+						pinClickAction(updatedPin);
 					}
 
 					return updatedPin;
@@ -224,12 +222,10 @@ const ImagePins = ({
 				cPins.concat({
 					cx: 50,
 					cy: 50,
-					draggable: true,
 					fill: '#' + addNewPinState.fill,
-					id: cPins.length,
-					label: 'new' + cPins.length,
+					label: '',
 					linked_to_sku: 'sku',
-					quantity: 0,
+					quantity: 1,
 					r: addNewPinState.radius,
 					sku: addNewPinState.sku,
 				})
@@ -243,7 +239,6 @@ const ImagePins = ({
 				return {
 					cx: pin.cx,
 					cy: pin.cy,
-					draggable: pin.draggable,
 					fill: pin.fill,
 					id: i,
 					label: pin.label,
@@ -278,39 +273,87 @@ const ImagePins = ({
 				return;
 			}
 
-			const cont = container
-				.selectAll('g')
-				.data(cPins)
-				.enter()
-				.append('g')
-				.attr('transform', (attr) => `translate(${attr.cx},${attr.cy})`)
-				.attr('cx', (attr) => attr.cx)
-				.attr('cy', (attr) => attr.cy)
-				.attr('id', (attr) => attr.id)
-				.attr('label', (attr) => attr.label)
-				.attr('fill', (attr) => attr.fill)
-				.attr('linked_to_sku', (attr) => attr.linked_to_sku)
-				.attr('quantity', (attr) => attr.quantity)
-				.attr('r', (attr) => attr.r)
-				.attr('sku', (attr) => attr.sku)
-				.attr('id', (attr) => attr.id)
-				.attr('class', 'circle_pin')
-				.attr('draggable', (attr) => (attr.draggable ? true : false))
-				.call(dragHandler);
+			if (isAdmin) {
+				const cont = container
+					.selectAll('g')
+					.data(cPins)
+					.enter()
+					.append('g')
+					.attr(
+						'transform',
+						(attr) => `translate(${attr.cx},${attr.cy})`
+					)
+					.attr('cx', (attr) => attr.cx)
+					.attr('cy', (attr) => attr.cy)
+					.attr('id', (attr) => attr.id)
+					.attr('label', (attr) => attr.label)
+					.attr('fill', () => `#${addNewPinState.fill}`)
+					.attr('font-size', 4)
+					.attr('linked_to_sku', (attr) => attr.linked_to_sku)
+					.attr('quantity', (attr) => attr.quantity)
+					.attr('r', () => addNewPinState.radius)
+					.attr('sku', (attr) => attr.sku)
+					.attr('id', (attr) => attr.id)
+					.attr('class', 'circle_pin')
+					.call(dragHandler)
+					.on('mouseover', function () {
+						const gPin = select(this);
+						gPin.selectAll('circle').attr('stroke', `#ffa500`);
+					})
+					.on('mouseout', function () {
+						const gPin = select(this);
+						gPin.selectAll('circle').attr(
+							'stroke',
+							`#${addNewPinState.fill}`
+						);
+					});
 
-			cont.append('circle')
-				.attr('r', (attr) => attr.r)
-				.attr('fill', () => '#ffffff')
-				.attr('r', (attr) => attr.r)
-				.attr('stroke', (attr) => attr.fill)
-				.attr('stroke-width', 2);
+				cont.append('circle')
+					.attr('fill', () => 'transparent')
+					.attr('r', () => addNewPinState.radius)
+					.attr('stroke', () => `#${addNewPinState.fill}`)
+					.attr('stroke-width', 0.5);
+			}
+			else {
+				const cont = container
+					.selectAll('g')
+					.data(cPins)
+					.enter()
+					.append('g')
+					.attr(
+						'transform',
+						(attr) => `translate(${attr.cx},${attr.cy})`
+					)
+					.attr('cx', (attr) => attr.cx)
+					.attr('cy', (attr) => attr.cy)
+					.attr('id', (attr) => attr.id)
+					.attr('label', (attr) => attr.label)
+					.attr('fill', () => `#${addNewPinState.fill}`)
+					.attr('font-size', 4)
+					.attr('linked_to_sku', (attr) => attr.linked_to_sku)
+					.attr('quantity', (attr) => attr.quantity)
+					.attr('r', () => addNewPinState.radius)
+					.attr('sku', (attr) => attr.sku)
+					.attr('id', (attr) => attr.id)
+					.attr('class', 'circle_pin')
+					.call(dragHandler);
 
-			cont.append('text')
-				.text((attr) => attr.label)
-				.attr('font-size', (attr) => attr.r)
-				.attr('text-anchor', 'middle')
-				.attr('fill', '#000000')
-				.attr('alignment-baseline', 'central');
+				cont.append('circle')
+					.attr('fill', () => '#ffffff')
+					.attr('r', () => addNewPinState.radius)
+					.attr('stroke', () => `#${addNewPinState.fill}`)
+					.attr('stroke-width', 0.5);
+
+				cont.append('text')
+					.text((attr) => attr.label)
+					.attr(
+						'font-size',
+						(attr) => (newPinSettings.defaultRadius || attr.r) - 2
+					)
+					.attr('text-anchor', 'middle')
+					.attr('fill', '#000000')
+					.attr('alignment-baseline', 'central');
+			}
 		}
 
 		if (isAdmin) {
@@ -327,12 +370,14 @@ const ImagePins = ({
 		enablePanZoom,
 		imageSettings,
 		navigationController,
+		newPinSettings,
 		removePinHandler,
 		handleAddPin,
 		resetZoom,
 		setAddPinHandler,
 		setChangedScale,
 		setCpins,
+		setPinClickHandler,
 		setResetZoom,
 		setRemovePinHandler,
 		setShowTooltip,
@@ -341,6 +386,7 @@ const ImagePins = ({
 		setZoomOutHandler,
 		zoomOutHandler,
 		zoomInHandler,
+		pinClickAction,
 	]);
 
 	return (
@@ -364,22 +410,7 @@ const ImagePins = ({
 				</g>
 			</svg>
 
-			{navigationController.enable && (
-				<NavigationButtons
-					moveController={(where) =>
-						handlers.current?.moveController(where)
-					}
-					position={navigationController.position}
-				/>
-			)}
-
-			{zoomController.enable && (
-				<ZoomController
-					position={zoomController.position}
-					zoomIn={() => handlers.current?.zoomIn()}
-					zoomOut={() => handlers.current?.zoomOut()}
-				/>
-			)}
+			{children}
 		</div>
 	);
 };
@@ -396,7 +427,6 @@ ImagePins.propTypes = {
 		PropTypes.shape({
 			cx: PropTypes.double,
 			cy: PropTypes.double,
-			draggable: PropTypes.bool,
 			fill: PropTypes.string,
 			id: PropTypes.number,
 			label: PropTypes.string,
@@ -443,7 +473,7 @@ ImagePins.propTypes = {
 			cy: PropTypes.double,
 			id: PropTypes.number,
 			label: PropTypes.string,
-			linked_to_sku: PropTypes.oneOf(['sku', 'diagram']),
+			linked_to_sku: PropTypes.oneOf(['sku', 'diagram', '']),
 			quantity: PropTypes.number,
 			sku: PropTypes.string,
 		}),

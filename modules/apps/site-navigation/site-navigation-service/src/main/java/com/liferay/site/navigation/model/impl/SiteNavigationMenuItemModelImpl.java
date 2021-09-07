@@ -30,6 +30,7 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.site.navigation.model.SiteNavigationMenuItem;
 import com.liferay.site.navigation.model.SiteNavigationMenuItemModel;
 import com.liferay.site.navigation.model.SiteNavigationMenuItemSoap;
@@ -39,6 +40,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -941,6 +943,50 @@ public class SiteNavigationMenuItemModelImpl
 	}
 
 	@Override
+	public SiteNavigationMenuItem cloneWithOriginalValues() {
+		SiteNavigationMenuItemImpl siteNavigationMenuItemImpl =
+			new SiteNavigationMenuItemImpl();
+
+		siteNavigationMenuItemImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		siteNavigationMenuItemImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		siteNavigationMenuItemImpl.setUuid(
+			this.<String>getColumnOriginalValue("uuid_"));
+		siteNavigationMenuItemImpl.setSiteNavigationMenuItemId(
+			this.<Long>getColumnOriginalValue("siteNavigationMenuItemId"));
+		siteNavigationMenuItemImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		siteNavigationMenuItemImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		siteNavigationMenuItemImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		siteNavigationMenuItemImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		siteNavigationMenuItemImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		siteNavigationMenuItemImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		siteNavigationMenuItemImpl.setSiteNavigationMenuId(
+			this.<Long>getColumnOriginalValue("siteNavigationMenuId"));
+		siteNavigationMenuItemImpl.setParentSiteNavigationMenuItemId(
+			this.<Long>getColumnOriginalValue(
+				"parentSiteNavigationMenuItemId"));
+		siteNavigationMenuItemImpl.setName(
+			this.<String>getColumnOriginalValue("name"));
+		siteNavigationMenuItemImpl.setType(
+			this.<String>getColumnOriginalValue("type_"));
+		siteNavigationMenuItemImpl.setTypeSettings(
+			this.<String>getColumnOriginalValue("typeSettings"));
+		siteNavigationMenuItemImpl.setOrder(
+			this.<Integer>getColumnOriginalValue("order_"));
+		siteNavigationMenuItemImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+
+		return siteNavigationMenuItemImpl;
+	}
+
+	@Override
 	public int compareTo(SiteNavigationMenuItem siteNavigationMenuItem) {
 		long primaryKey = siteNavigationMenuItem.getPrimaryKey();
 
@@ -1114,7 +1160,7 @@ public class SiteNavigationMenuItemModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1125,10 +1171,27 @@ public class SiteNavigationMenuItemModelImpl
 			Function<SiteNavigationMenuItem, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply((SiteNavigationMenuItem)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(SiteNavigationMenuItem)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

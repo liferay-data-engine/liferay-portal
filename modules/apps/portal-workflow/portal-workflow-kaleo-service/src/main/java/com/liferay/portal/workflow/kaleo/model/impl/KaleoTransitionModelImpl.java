@@ -27,6 +27,7 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.workflow.kaleo.model.KaleoTransition;
 import com.liferay.portal.workflow.kaleo.model.KaleoTransitionModel;
 
@@ -35,6 +36,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
@@ -838,6 +840,50 @@ public class KaleoTransitionModelImpl
 	}
 
 	@Override
+	public KaleoTransition cloneWithOriginalValues() {
+		KaleoTransitionImpl kaleoTransitionImpl = new KaleoTransitionImpl();
+
+		kaleoTransitionImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		kaleoTransitionImpl.setKaleoTransitionId(
+			this.<Long>getColumnOriginalValue("kaleoTransitionId"));
+		kaleoTransitionImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		kaleoTransitionImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		kaleoTransitionImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		kaleoTransitionImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		kaleoTransitionImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		kaleoTransitionImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		kaleoTransitionImpl.setKaleoDefinitionId(
+			this.<Long>getColumnOriginalValue("kaleoDefinitionId"));
+		kaleoTransitionImpl.setKaleoDefinitionVersionId(
+			this.<Long>getColumnOriginalValue("kaleoDefinitionVersionId"));
+		kaleoTransitionImpl.setKaleoNodeId(
+			this.<Long>getColumnOriginalValue("kaleoNodeId"));
+		kaleoTransitionImpl.setName(
+			this.<String>getColumnOriginalValue("name"));
+		kaleoTransitionImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		kaleoTransitionImpl.setSourceKaleoNodeId(
+			this.<Long>getColumnOriginalValue("sourceKaleoNodeId"));
+		kaleoTransitionImpl.setSourceKaleoNodeName(
+			this.<String>getColumnOriginalValue("sourceKaleoNodeName"));
+		kaleoTransitionImpl.setTargetKaleoNodeId(
+			this.<Long>getColumnOriginalValue("targetKaleoNodeId"));
+		kaleoTransitionImpl.setTargetKaleoNodeName(
+			this.<String>getColumnOriginalValue("targetKaleoNodeName"));
+		kaleoTransitionImpl.setDefaultTransition(
+			this.<Boolean>getColumnOriginalValue("defaultTransition"));
+
+		return kaleoTransitionImpl;
+	}
+
+	@Override
 	public int compareTo(KaleoTransition kaleoTransition) {
 		int value = 0;
 
@@ -1017,7 +1063,7 @@ public class KaleoTransitionModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1028,9 +1074,26 @@ public class KaleoTransitionModelImpl
 			Function<KaleoTransition, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((KaleoTransition)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((KaleoTransition)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

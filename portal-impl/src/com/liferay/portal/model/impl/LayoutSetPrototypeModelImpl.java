@@ -36,6 +36,7 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
@@ -43,6 +44,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1045,6 +1047,39 @@ public class LayoutSetPrototypeModelImpl
 	}
 
 	@Override
+	public LayoutSetPrototype cloneWithOriginalValues() {
+		LayoutSetPrototypeImpl layoutSetPrototypeImpl =
+			new LayoutSetPrototypeImpl();
+
+		layoutSetPrototypeImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		layoutSetPrototypeImpl.setUuid(
+			this.<String>getColumnOriginalValue("uuid_"));
+		layoutSetPrototypeImpl.setLayoutSetPrototypeId(
+			this.<Long>getColumnOriginalValue("layoutSetPrototypeId"));
+		layoutSetPrototypeImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		layoutSetPrototypeImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		layoutSetPrototypeImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		layoutSetPrototypeImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		layoutSetPrototypeImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		layoutSetPrototypeImpl.setName(
+			this.<String>getColumnOriginalValue("name"));
+		layoutSetPrototypeImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		layoutSetPrototypeImpl.setSettings(
+			this.<String>getColumnOriginalValue("settings_"));
+		layoutSetPrototypeImpl.setActive(
+			this.<Boolean>getColumnOriginalValue("active_"));
+
+		return layoutSetPrototypeImpl;
+	}
+
+	@Override
 	public int compareTo(LayoutSetPrototype layoutSetPrototype) {
 		long primaryKey = layoutSetPrototype.getPrimaryKey();
 
@@ -1196,7 +1231,7 @@ public class LayoutSetPrototypeModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1207,9 +1242,27 @@ public class LayoutSetPrototypeModelImpl
 			Function<LayoutSetPrototype, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((LayoutSetPrototype)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(LayoutSetPrototype)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

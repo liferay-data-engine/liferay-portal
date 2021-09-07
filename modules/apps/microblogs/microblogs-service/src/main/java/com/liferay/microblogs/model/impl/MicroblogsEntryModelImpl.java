@@ -32,12 +32,14 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -798,6 +800,38 @@ public class MicroblogsEntryModelImpl
 	}
 
 	@Override
+	public MicroblogsEntry cloneWithOriginalValues() {
+		MicroblogsEntryImpl microblogsEntryImpl = new MicroblogsEntryImpl();
+
+		microblogsEntryImpl.setMicroblogsEntryId(
+			this.<Long>getColumnOriginalValue("microblogsEntryId"));
+		microblogsEntryImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		microblogsEntryImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		microblogsEntryImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		microblogsEntryImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		microblogsEntryImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		microblogsEntryImpl.setCreatorClassNameId(
+			this.<Long>getColumnOriginalValue("creatorClassNameId"));
+		microblogsEntryImpl.setCreatorClassPK(
+			this.<Long>getColumnOriginalValue("creatorClassPK"));
+		microblogsEntryImpl.setContent(
+			this.<String>getColumnOriginalValue("content"));
+		microblogsEntryImpl.setType(
+			this.<Integer>getColumnOriginalValue("type_"));
+		microblogsEntryImpl.setParentMicroblogsEntryId(
+			this.<Long>getColumnOriginalValue("parentMicroblogsEntryId"));
+		microblogsEntryImpl.setSocialRelationType(
+			this.<Integer>getColumnOriginalValue("socialRelationType"));
+
+		return microblogsEntryImpl;
+	}
+
+	@Override
 	public int compareTo(MicroblogsEntry microblogsEntry) {
 		int value = 0;
 
@@ -932,7 +966,7 @@ public class MicroblogsEntryModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -943,9 +977,26 @@ public class MicroblogsEntryModelImpl
 			Function<MicroblogsEntry, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((MicroblogsEntry)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((MicroblogsEntry)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

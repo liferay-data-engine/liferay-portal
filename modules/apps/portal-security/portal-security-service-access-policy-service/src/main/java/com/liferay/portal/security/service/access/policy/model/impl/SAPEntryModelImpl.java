@@ -33,6 +33,7 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.security.service.access.policy.model.SAPEntry;
 import com.liferay.portal.security.service.access.policy.model.SAPEntryModel;
@@ -43,6 +44,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -910,6 +912,34 @@ public class SAPEntryModelImpl
 	}
 
 	@Override
+	public SAPEntry cloneWithOriginalValues() {
+		SAPEntryImpl sapEntryImpl = new SAPEntryImpl();
+
+		sapEntryImpl.setUuid(this.<String>getColumnOriginalValue("uuid_"));
+		sapEntryImpl.setSapEntryId(
+			this.<Long>getColumnOriginalValue("sapEntryId"));
+		sapEntryImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		sapEntryImpl.setUserId(this.<Long>getColumnOriginalValue("userId"));
+		sapEntryImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		sapEntryImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		sapEntryImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		sapEntryImpl.setAllowedServiceSignatures(
+			this.<String>getColumnOriginalValue("allowedServiceSignatures"));
+		sapEntryImpl.setDefaultSAPEntry(
+			this.<Boolean>getColumnOriginalValue("defaultSAPEntry"));
+		sapEntryImpl.setEnabled(
+			this.<Boolean>getColumnOriginalValue("enabled"));
+		sapEntryImpl.setName(this.<String>getColumnOriginalValue("name"));
+		sapEntryImpl.setTitle(this.<String>getColumnOriginalValue("title"));
+
+		return sapEntryImpl;
+	}
+
+	@Override
 	public int compareTo(SAPEntry sapEntry) {
 		long primaryKey = sapEntry.getPrimaryKey();
 
@@ -1063,7 +1093,7 @@ public class SAPEntryModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1074,9 +1104,26 @@ public class SAPEntryModelImpl
 			Function<SAPEntry, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((SAPEntry)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((SAPEntry)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

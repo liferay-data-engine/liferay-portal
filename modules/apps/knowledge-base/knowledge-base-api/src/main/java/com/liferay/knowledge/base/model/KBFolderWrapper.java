@@ -157,6 +157,11 @@ public class KBFolderWrapper
 	}
 
 	@Override
+	public KBFolder cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
+	@Override
 	public java.util.List<Long> getAncestorKBFolderIds()
 		throws com.liferay.portal.kernel.exception.PortalException {
 

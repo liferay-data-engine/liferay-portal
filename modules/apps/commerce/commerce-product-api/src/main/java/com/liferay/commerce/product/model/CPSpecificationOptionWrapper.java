@@ -145,6 +145,11 @@ public class CPSpecificationOptionWrapper
 	}
 
 	@Override
+	public CPSpecificationOption cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
+	@Override
 	public String[] getAvailableLanguageIds() {
 		return model.getAvailableLanguageIds();
 	}

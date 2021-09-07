@@ -17,16 +17,31 @@ definition {
 		if ("${testPortalInstance}" == "true") {
 			PortalInstances.tearDownCP();
 		}
+		else {
+			ObjectAdmin.deleteAllCustomObjectsViaAPI();
+		}
 	}
 
 	@description = "LPS-137104 - Verify if Objects and its data are displayed as a Content Type and Subtype for a Page Template"
-	@ignore = "Test Stub"
 	@priority = "5"
 	test ObjectDisplayedForPageTemplate {
 		property portal.acceptance = "true";
 
-		// TODO LPS-137102 ObjectDisplayedForPageTemplate pending implementation
+		ObjectAdmin.addObjectViaAPI(
+			labelName = "Custom Object",
+			objectName = "CustomObject",
+			pluralLabelName = "Custom Objects");
 
+		ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject");
+
+		VisualizeObjectDisplayPageTemplate.createObjectPageTemplate(
+			contentType = "Object",
+			pageTemplateName = "Object Display Page Template",
+			subtype = "C_CustomObject");
+
+		VisualizeObjectDisplayPageTemplate.validateObjectContentType(contentType = "Object");
+
+		VisualizeObjectDisplayPageTemplate.validateObjectSubtype(subtype = "C_CustomObject");
 	}
 
 	@description = "LPS-137105 - Verify if the Object entries are rendered when previewing it"
@@ -34,6 +49,7 @@ definition {
 	@priority = "5"
 	test ObjectEntriesAreRendered {
 		property portal.acceptance = "true";
+		property test.name.skip.portal.instance = "VisualizeObjectDisplayPageTemplate#ObjectEntriesAreRendered";
 
 		// TODO LPS-137101 ObjectEntriesAreRendered pending implementation
 
@@ -44,6 +60,7 @@ definition {
 	@priority = "5"
 	test ObjectMappedURL {
 		property portal.acceptance = "true";
+		property test.name.skip.portal.instance = "VisualizeObjectDisplayPageTemplate#ObjectMappedURL";
 
 		// TODO LPS-137103 ObjectMappedURL pending implementation
 

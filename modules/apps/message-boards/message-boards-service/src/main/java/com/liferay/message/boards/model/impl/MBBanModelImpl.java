@@ -33,12 +33,14 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -740,6 +742,31 @@ public class MBBanModelImpl extends BaseModelImpl<MBBan> implements MBBanModel {
 	}
 
 	@Override
+	public MBBan cloneWithOriginalValues() {
+		MBBanImpl mbBanImpl = new MBBanImpl();
+
+		mbBanImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		mbBanImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		mbBanImpl.setUuid(this.<String>getColumnOriginalValue("uuid_"));
+		mbBanImpl.setBanId(this.<Long>getColumnOriginalValue("banId"));
+		mbBanImpl.setGroupId(this.<Long>getColumnOriginalValue("groupId"));
+		mbBanImpl.setCompanyId(this.<Long>getColumnOriginalValue("companyId"));
+		mbBanImpl.setUserId(this.<Long>getColumnOriginalValue("userId"));
+		mbBanImpl.setUserName(this.<String>getColumnOriginalValue("userName"));
+		mbBanImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		mbBanImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		mbBanImpl.setBanUserId(this.<Long>getColumnOriginalValue("banUserId"));
+		mbBanImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+
+		return mbBanImpl;
+	}
+
+	@Override
 	public int compareTo(MBBan mbBan) {
 		long primaryKey = mbBan.getPrimaryKey();
 
@@ -878,7 +905,7 @@ public class MBBanModelImpl extends BaseModelImpl<MBBan> implements MBBanModel {
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -888,9 +915,26 @@ public class MBBanModelImpl extends BaseModelImpl<MBBan> implements MBBanModel {
 			String attributeName = entry.getKey();
 			Function<MBBan, Object> attributeGetterFunction = entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((MBBan)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((MBBan)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

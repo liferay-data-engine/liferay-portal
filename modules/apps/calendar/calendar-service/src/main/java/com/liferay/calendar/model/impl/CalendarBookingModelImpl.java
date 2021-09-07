@@ -39,6 +39,7 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
@@ -47,6 +48,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1855,6 +1857,76 @@ public class CalendarBookingModelImpl
 	}
 
 	@Override
+	public CalendarBooking cloneWithOriginalValues() {
+		CalendarBookingImpl calendarBookingImpl = new CalendarBookingImpl();
+
+		calendarBookingImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		calendarBookingImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		calendarBookingImpl.setUuid(
+			this.<String>getColumnOriginalValue("uuid_"));
+		calendarBookingImpl.setCalendarBookingId(
+			this.<Long>getColumnOriginalValue("calendarBookingId"));
+		calendarBookingImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		calendarBookingImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		calendarBookingImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		calendarBookingImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		calendarBookingImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		calendarBookingImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		calendarBookingImpl.setCalendarId(
+			this.<Long>getColumnOriginalValue("calendarId"));
+		calendarBookingImpl.setCalendarResourceId(
+			this.<Long>getColumnOriginalValue("calendarResourceId"));
+		calendarBookingImpl.setParentCalendarBookingId(
+			this.<Long>getColumnOriginalValue("parentCalendarBookingId"));
+		calendarBookingImpl.setRecurringCalendarBookingId(
+			this.<Long>getColumnOriginalValue("recurringCalendarBookingId"));
+		calendarBookingImpl.setVEventUid(
+			this.<String>getColumnOriginalValue("vEventUid"));
+		calendarBookingImpl.setTitle(
+			this.<String>getColumnOriginalValue("title"));
+		calendarBookingImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		calendarBookingImpl.setLocation(
+			this.<String>getColumnOriginalValue("location"));
+		calendarBookingImpl.setStartTime(
+			this.<Long>getColumnOriginalValue("startTime"));
+		calendarBookingImpl.setEndTime(
+			this.<Long>getColumnOriginalValue("endTime"));
+		calendarBookingImpl.setAllDay(
+			this.<Boolean>getColumnOriginalValue("allDay"));
+		calendarBookingImpl.setRecurrence(
+			this.<String>getColumnOriginalValue("recurrence"));
+		calendarBookingImpl.setFirstReminder(
+			this.<Long>getColumnOriginalValue("firstReminder"));
+		calendarBookingImpl.setFirstReminderType(
+			this.<String>getColumnOriginalValue("firstReminderType"));
+		calendarBookingImpl.setSecondReminder(
+			this.<Long>getColumnOriginalValue("secondReminder"));
+		calendarBookingImpl.setSecondReminderType(
+			this.<String>getColumnOriginalValue("secondReminderType"));
+		calendarBookingImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+		calendarBookingImpl.setStatus(
+			this.<Integer>getColumnOriginalValue("status"));
+		calendarBookingImpl.setStatusByUserId(
+			this.<Long>getColumnOriginalValue("statusByUserId"));
+		calendarBookingImpl.setStatusByUserName(
+			this.<String>getColumnOriginalValue("statusByUserName"));
+		calendarBookingImpl.setStatusDate(
+			this.<Date>getColumnOriginalValue("statusDate"));
+
+		return calendarBookingImpl;
+	}
+
+	@Override
 	public int compareTo(CalendarBooking calendarBooking) {
 		int value = 0;
 
@@ -2105,7 +2177,7 @@ public class CalendarBookingModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -2116,9 +2188,26 @@ public class CalendarBookingModelImpl
 			Function<CalendarBooking, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((CalendarBooking)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((CalendarBooking)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

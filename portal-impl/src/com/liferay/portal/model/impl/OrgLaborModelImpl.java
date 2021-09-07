@@ -28,16 +28,19 @@ import com.liferay.portal.kernel.model.impl.BaseModelImpl;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -785,6 +788,51 @@ public class OrgLaborModelImpl
 	}
 
 	@Override
+	public OrgLabor cloneWithOriginalValues() {
+		OrgLaborImpl orgLaborImpl = new OrgLaborImpl();
+
+		orgLaborImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		orgLaborImpl.setOrgLaborId(
+			this.<Long>getColumnOriginalValue("orgLaborId"));
+		orgLaborImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		orgLaborImpl.setOrganizationId(
+			this.<Long>getColumnOriginalValue("organizationId"));
+		orgLaborImpl.setTypeId(this.<Long>getColumnOriginalValue("typeId"));
+		orgLaborImpl.setSunOpen(
+			this.<Integer>getColumnOriginalValue("sunOpen"));
+		orgLaborImpl.setSunClose(
+			this.<Integer>getColumnOriginalValue("sunClose"));
+		orgLaborImpl.setMonOpen(
+			this.<Integer>getColumnOriginalValue("monOpen"));
+		orgLaborImpl.setMonClose(
+			this.<Integer>getColumnOriginalValue("monClose"));
+		orgLaborImpl.setTueOpen(
+			this.<Integer>getColumnOriginalValue("tueOpen"));
+		orgLaborImpl.setTueClose(
+			this.<Integer>getColumnOriginalValue("tueClose"));
+		orgLaborImpl.setWedOpen(
+			this.<Integer>getColumnOriginalValue("wedOpen"));
+		orgLaborImpl.setWedClose(
+			this.<Integer>getColumnOriginalValue("wedClose"));
+		orgLaborImpl.setThuOpen(
+			this.<Integer>getColumnOriginalValue("thuOpen"));
+		orgLaborImpl.setThuClose(
+			this.<Integer>getColumnOriginalValue("thuClose"));
+		orgLaborImpl.setFriOpen(
+			this.<Integer>getColumnOriginalValue("friOpen"));
+		orgLaborImpl.setFriClose(
+			this.<Integer>getColumnOriginalValue("friClose"));
+		orgLaborImpl.setSatOpen(
+			this.<Integer>getColumnOriginalValue("satOpen"));
+		orgLaborImpl.setSatClose(
+			this.<Integer>getColumnOriginalValue("satClose"));
+
+		return orgLaborImpl;
+	}
+
+	@Override
 	public int compareTo(OrgLabor orgLabor) {
 		int value = 0;
 
@@ -922,7 +970,7 @@ public class OrgLaborModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -933,9 +981,26 @@ public class OrgLaborModelImpl
 			Function<OrgLabor, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((OrgLabor)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((OrgLabor)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

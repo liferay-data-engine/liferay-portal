@@ -122,6 +122,11 @@ public class CommerceTaxFixedRateWrapper
 		}
 	}
 
+	@Override
+	public CommerceTaxFixedRate cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the commerce tax fixed rate ID of this commerce tax fixed rate.
 	 *

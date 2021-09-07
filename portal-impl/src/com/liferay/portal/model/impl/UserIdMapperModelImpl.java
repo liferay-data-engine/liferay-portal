@@ -29,15 +29,18 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -537,6 +540,26 @@ public class UserIdMapperModelImpl
 	}
 
 	@Override
+	public UserIdMapper cloneWithOriginalValues() {
+		UserIdMapperImpl userIdMapperImpl = new UserIdMapperImpl();
+
+		userIdMapperImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		userIdMapperImpl.setUserIdMapperId(
+			this.<Long>getColumnOriginalValue("userIdMapperId"));
+		userIdMapperImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		userIdMapperImpl.setUserId(this.<Long>getColumnOriginalValue("userId"));
+		userIdMapperImpl.setType(this.<String>getColumnOriginalValue("type_"));
+		userIdMapperImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		userIdMapperImpl.setExternalUserId(
+			this.<String>getColumnOriginalValue("externalUserId"));
+
+		return userIdMapperImpl;
+	}
+
+	@Override
 	public int compareTo(UserIdMapper userIdMapper) {
 		long primaryKey = userIdMapper.getPrimaryKey();
 
@@ -649,7 +672,7 @@ public class UserIdMapperModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -660,9 +683,26 @@ public class UserIdMapperModelImpl
 			Function<UserIdMapper, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((UserIdMapper)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((UserIdMapper)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

@@ -132,6 +132,11 @@ public class CommerceShipmentItemWrapper
 	}
 
 	@Override
+	public CommerceShipmentItem cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
+	@Override
 	public CommerceOrderItem fetchCommerceOrderItem() {
 		return model.fetchCommerceOrderItem();
 	}

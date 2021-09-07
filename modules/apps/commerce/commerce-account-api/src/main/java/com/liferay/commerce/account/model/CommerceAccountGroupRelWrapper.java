@@ -117,6 +117,11 @@ public class CommerceAccountGroupRelWrapper
 		}
 	}
 
+	@Override
+	public CommerceAccountGroupRel cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the fully qualified class name of this commerce account group rel.
 	 *

@@ -158,6 +158,11 @@ public class LayoutSetWrapper
 		}
 	}
 
+	@Override
+	public LayoutSet cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the layout set's color scheme.
 	 *

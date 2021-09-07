@@ -36,6 +36,7 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
@@ -44,6 +45,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1511,6 +1513,65 @@ public class CPAttachmentFileEntryModelImpl
 	}
 
 	@Override
+	public CPAttachmentFileEntry cloneWithOriginalValues() {
+		CPAttachmentFileEntryImpl cpAttachmentFileEntryImpl =
+			new CPAttachmentFileEntryImpl();
+
+		cpAttachmentFileEntryImpl.setUuid(
+			this.<String>getColumnOriginalValue("uuid_"));
+		cpAttachmentFileEntryImpl.setExternalReferenceCode(
+			this.<String>getColumnOriginalValue("externalReferenceCode"));
+		cpAttachmentFileEntryImpl.setCPAttachmentFileEntryId(
+			this.<Long>getColumnOriginalValue("CPAttachmentFileEntryId"));
+		cpAttachmentFileEntryImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		cpAttachmentFileEntryImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		cpAttachmentFileEntryImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		cpAttachmentFileEntryImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		cpAttachmentFileEntryImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		cpAttachmentFileEntryImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		cpAttachmentFileEntryImpl.setClassNameId(
+			this.<Long>getColumnOriginalValue("classNameId"));
+		cpAttachmentFileEntryImpl.setClassPK(
+			this.<Long>getColumnOriginalValue("classPK"));
+		cpAttachmentFileEntryImpl.setFileEntryId(
+			this.<Long>getColumnOriginalValue("fileEntryId"));
+		cpAttachmentFileEntryImpl.setCDNEnabled(
+			this.<Boolean>getColumnOriginalValue("cdnEnabled"));
+		cpAttachmentFileEntryImpl.setCDNURL(
+			this.<String>getColumnOriginalValue("cdnURL"));
+		cpAttachmentFileEntryImpl.setDisplayDate(
+			this.<Date>getColumnOriginalValue("displayDate"));
+		cpAttachmentFileEntryImpl.setExpirationDate(
+			this.<Date>getColumnOriginalValue("expirationDate"));
+		cpAttachmentFileEntryImpl.setTitle(
+			this.<String>getColumnOriginalValue("title"));
+		cpAttachmentFileEntryImpl.setJson(
+			this.<String>getColumnOriginalValue("json"));
+		cpAttachmentFileEntryImpl.setPriority(
+			this.<Double>getColumnOriginalValue("priority"));
+		cpAttachmentFileEntryImpl.setType(
+			this.<Integer>getColumnOriginalValue("type_"));
+		cpAttachmentFileEntryImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+		cpAttachmentFileEntryImpl.setStatus(
+			this.<Integer>getColumnOriginalValue("status"));
+		cpAttachmentFileEntryImpl.setStatusByUserId(
+			this.<Long>getColumnOriginalValue("statusByUserId"));
+		cpAttachmentFileEntryImpl.setStatusByUserName(
+			this.<String>getColumnOriginalValue("statusByUserName"));
+		cpAttachmentFileEntryImpl.setStatusDate(
+			this.<Date>getColumnOriginalValue("statusDate"));
+
+		return cpAttachmentFileEntryImpl;
+	}
+
+	@Override
 	public int compareTo(CPAttachmentFileEntry cpAttachmentFileEntry) {
 		int value = 0;
 
@@ -1744,7 +1805,7 @@ public class CPAttachmentFileEntryModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1755,10 +1816,27 @@ public class CPAttachmentFileEntryModelImpl
 			Function<CPAttachmentFileEntry, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply((CPAttachmentFileEntry)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(CPAttachmentFileEntry)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

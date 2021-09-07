@@ -33,12 +33,14 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -764,6 +766,35 @@ public class AssetTagModelImpl
 	}
 
 	@Override
+	public AssetTag cloneWithOriginalValues() {
+		AssetTagImpl assetTagImpl = new AssetTagImpl();
+
+		assetTagImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		assetTagImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		assetTagImpl.setUuid(this.<String>getColumnOriginalValue("uuid_"));
+		assetTagImpl.setTagId(this.<Long>getColumnOriginalValue("tagId"));
+		assetTagImpl.setGroupId(this.<Long>getColumnOriginalValue("groupId"));
+		assetTagImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		assetTagImpl.setUserId(this.<Long>getColumnOriginalValue("userId"));
+		assetTagImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		assetTagImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		assetTagImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		assetTagImpl.setName(this.<String>getColumnOriginalValue("name"));
+		assetTagImpl.setAssetCount(
+			this.<Integer>getColumnOriginalValue("assetCount"));
+		assetTagImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+
+		return assetTagImpl;
+	}
+
+	@Override
 	public int compareTo(AssetTag assetTag) {
 		int value = 0;
 
@@ -908,7 +939,7 @@ public class AssetTagModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -919,9 +950,26 @@ public class AssetTagModelImpl
 			Function<AssetTag, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((AssetTag)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((AssetTag)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

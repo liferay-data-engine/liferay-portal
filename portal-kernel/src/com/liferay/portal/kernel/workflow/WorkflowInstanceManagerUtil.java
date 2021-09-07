@@ -128,23 +128,6 @@ public class WorkflowInstanceManagerUtil {
 			completed, start, end, orderByComparator);
 	}
 
-	/**
-	 * @deprecated As of Mueller (7.2.x), replaced by {@link #search(long, Long,
-	 *             String, String, String, String, String, Boolean, int, int,
-	 *             OrderByComparator)}
-	 */
-	@Deprecated
-	public static List<WorkflowInstance> search(
-			long companyId, Long userId, String assetType, String nodeName,
-			String kaleoDefinitionName, Boolean completed, int start, int end,
-			OrderByComparator<WorkflowInstance> orderByComparator)
-		throws WorkflowException {
-
-		return _workflowInstanceManager.search(
-			companyId, userId, assetType, nodeName, kaleoDefinitionName,
-			completed, start, end, orderByComparator);
-	}
-
 	public static List<WorkflowInstance> search(
 			long companyId, Long userId, String assetClassName,
 			String assetTitle, String assetDescription, String nodeName,
@@ -156,21 +139,6 @@ public class WorkflowInstanceManagerUtil {
 			companyId, userId, assetClassName, assetTitle, assetDescription,
 			nodeName, kaleoDefinitionName, completed, start, end,
 			orderByComparator);
-	}
-
-	/**
-	 * @deprecated As of Mueller (7.2.x), replaced by {@link #searchCount(long,
-	 *             Long, String, String, String, String, String, Boolean)}
-	 */
-	@Deprecated
-	public static int searchCount(
-			long companyId, Long userId, String assetType, String nodeName,
-			String kaleoDefinitionName, Boolean completed)
-		throws WorkflowException {
-
-		return _workflowInstanceManager.searchCount(
-			companyId, userId, assetType, nodeName, kaleoDefinitionName,
-			completed);
 	}
 
 	public static int searchCount(
@@ -208,6 +176,17 @@ public class WorkflowInstanceManagerUtil {
 			workflowContext);
 	}
 
+	public static WorkflowInstance signalWorkflowInstance(
+			long companyId, long userId, long workflowInstanceId,
+			String transitionName, Map<String, Serializable> workflowContext,
+			boolean waitForCompletion)
+		throws WorkflowException {
+
+		return _workflowInstanceManager.signalWorkflowInstance(
+			companyId, userId, workflowInstanceId, transitionName,
+			workflowContext, waitForCompletion);
+	}
+
 	public static WorkflowInstance startWorkflowInstance(
 			long companyId, long groupId, long userId,
 			String workflowDefinitionName, Integer workflowDefinitionVersion,
@@ -217,6 +196,19 @@ public class WorkflowInstanceManagerUtil {
 		return _workflowInstanceManager.startWorkflowInstance(
 			companyId, groupId, userId, workflowDefinitionName,
 			workflowDefinitionVersion, transitionName, workflowContext);
+	}
+
+	public static WorkflowInstance startWorkflowInstance(
+			long companyId, long groupId, long userId,
+			String workflowDefinitionName, Integer workflowDefinitionVersion,
+			String transitionName, Map<String, Serializable> workflowContext,
+			boolean waitForCompletion)
+		throws WorkflowException {
+
+		return _workflowInstanceManager.startWorkflowInstance(
+			companyId, groupId, userId, workflowDefinitionName,
+			workflowDefinitionVersion, transitionName, workflowContext,
+			waitForCompletion);
 	}
 
 	public static WorkflowInstance updateWorkflowContext(

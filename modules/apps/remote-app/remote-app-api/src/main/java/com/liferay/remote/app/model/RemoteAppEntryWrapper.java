@@ -121,6 +121,11 @@ public class RemoteAppEntryWrapper
 	}
 
 	@Override
+	public RemoteAppEntry cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
+	@Override
 	public String[] getAvailableLanguageIds() {
 		return model.getAvailableLanguageIds();
 	}

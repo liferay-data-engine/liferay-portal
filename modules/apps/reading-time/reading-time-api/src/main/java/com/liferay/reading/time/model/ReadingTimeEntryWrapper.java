@@ -113,6 +113,11 @@ public class ReadingTimeEntryWrapper
 		}
 	}
 
+	@Override
+	public ReadingTimeEntry cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the fully qualified class name of this reading time entry.
 	 *

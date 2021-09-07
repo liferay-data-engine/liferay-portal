@@ -37,6 +37,7 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
@@ -44,6 +45,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -998,6 +1000,35 @@ public class MDRRuleGroupModelImpl
 	}
 
 	@Override
+	public MDRRuleGroup cloneWithOriginalValues() {
+		MDRRuleGroupImpl mdrRuleGroupImpl = new MDRRuleGroupImpl();
+
+		mdrRuleGroupImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		mdrRuleGroupImpl.setUuid(this.<String>getColumnOriginalValue("uuid_"));
+		mdrRuleGroupImpl.setRuleGroupId(
+			this.<Long>getColumnOriginalValue("ruleGroupId"));
+		mdrRuleGroupImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		mdrRuleGroupImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		mdrRuleGroupImpl.setUserId(this.<Long>getColumnOriginalValue("userId"));
+		mdrRuleGroupImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		mdrRuleGroupImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		mdrRuleGroupImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		mdrRuleGroupImpl.setName(this.<String>getColumnOriginalValue("name"));
+		mdrRuleGroupImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		mdrRuleGroupImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+
+		return mdrRuleGroupImpl;
+	}
+
+	@Override
 	public int compareTo(MDRRuleGroup mdrRuleGroup) {
 		int value = 0;
 
@@ -1148,7 +1179,7 @@ public class MDRRuleGroupModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1159,9 +1190,26 @@ public class MDRRuleGroupModelImpl
 			Function<MDRRuleGroup, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((MDRRuleGroup)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((MDRRuleGroup)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

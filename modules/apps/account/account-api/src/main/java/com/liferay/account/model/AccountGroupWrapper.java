@@ -135,6 +135,11 @@ public class AccountGroupWrapper
 		}
 	}
 
+	@Override
+	public AccountGroup cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the account group ID of this account group.
 	 *

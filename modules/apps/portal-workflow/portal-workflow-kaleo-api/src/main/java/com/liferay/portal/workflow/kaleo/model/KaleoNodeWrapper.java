@@ -163,6 +163,11 @@ public class KaleoNodeWrapper
 		}
 	}
 
+	@Override
+	public KaleoNode cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the company ID of this kaleo node.
 	 *

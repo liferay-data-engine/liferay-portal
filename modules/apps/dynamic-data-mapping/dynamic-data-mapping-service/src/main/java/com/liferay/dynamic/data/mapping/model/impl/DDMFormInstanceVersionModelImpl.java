@@ -34,6 +34,7 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
@@ -42,6 +43,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1276,6 +1278,51 @@ public class DDMFormInstanceVersionModelImpl
 	}
 
 	@Override
+	public DDMFormInstanceVersion cloneWithOriginalValues() {
+		DDMFormInstanceVersionImpl ddmFormInstanceVersionImpl =
+			new DDMFormInstanceVersionImpl();
+
+		ddmFormInstanceVersionImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		ddmFormInstanceVersionImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		ddmFormInstanceVersionImpl.setFormInstanceVersionId(
+			this.<Long>getColumnOriginalValue("formInstanceVersionId"));
+		ddmFormInstanceVersionImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		ddmFormInstanceVersionImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		ddmFormInstanceVersionImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		ddmFormInstanceVersionImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		ddmFormInstanceVersionImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		ddmFormInstanceVersionImpl.setFormInstanceId(
+			this.<Long>getColumnOriginalValue("formInstanceId"));
+		ddmFormInstanceVersionImpl.setStructureVersionId(
+			this.<Long>getColumnOriginalValue("structureVersionId"));
+		ddmFormInstanceVersionImpl.setName(
+			this.<String>getColumnOriginalValue("name"));
+		ddmFormInstanceVersionImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		ddmFormInstanceVersionImpl.setSettings(
+			this.<String>getColumnOriginalValue("settings_"));
+		ddmFormInstanceVersionImpl.setVersion(
+			this.<String>getColumnOriginalValue("version"));
+		ddmFormInstanceVersionImpl.setStatus(
+			this.<Integer>getColumnOriginalValue("status"));
+		ddmFormInstanceVersionImpl.setStatusByUserId(
+			this.<Long>getColumnOriginalValue("statusByUserId"));
+		ddmFormInstanceVersionImpl.setStatusByUserName(
+			this.<String>getColumnOriginalValue("statusByUserName"));
+		ddmFormInstanceVersionImpl.setStatusDate(
+			this.<Date>getColumnOriginalValue("statusDate"));
+
+		return ddmFormInstanceVersionImpl;
+	}
+
+	@Override
 	public int compareTo(DDMFormInstanceVersion ddmFormInstanceVersion) {
 		long primaryKey = ddmFormInstanceVersion.getPrimaryKey();
 
@@ -1447,7 +1494,7 @@ public class DDMFormInstanceVersionModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1458,10 +1505,27 @@ public class DDMFormInstanceVersionModelImpl
 			Function<DDMFormInstanceVersion, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply((DDMFormInstanceVersion)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(DDMFormInstanceVersion)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

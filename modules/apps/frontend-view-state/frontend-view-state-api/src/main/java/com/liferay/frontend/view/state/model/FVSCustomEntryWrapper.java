@@ -120,6 +120,11 @@ public class FVSCustomEntryWrapper
 		}
 	}
 
+	@Override
+	public FVSCustomEntry cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the company ID of this fvs custom entry.
 	 *

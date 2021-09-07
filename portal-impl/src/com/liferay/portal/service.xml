@@ -3,33 +3,6 @@
 
 <service-builder api-package-path="com.liferay.portal.kernel" auto-import-default-references="false" mvcc-enabled="true" package-path="com.liferay.portal">
 	<namespace>Portal</namespace>
-	<entity local-service="true" name="Account" remote-service="true">
-
-		<!-- PK fields -->
-
-		<column name="accountId" primary="true" type="long" />
-
-		<!-- Audit fields -->
-
-		<column name="companyId" type="long" />
-		<column name="userId" type="long" />
-		<column name="userName" type="String" />
-		<column name="createDate" type="Date" />
-		<column name="modifiedDate" type="Date" />
-
-		<!-- Other fields -->
-
-		<column name="parentAccountId" type="long" />
-		<column name="name" type="String" />
-		<column name="legalName" type="String" />
-		<column name="legalId" type="String" />
-		<column name="legalType" type="String" />
-		<column name="sicCode" type="String" />
-		<column name="tickerSymbol" type="String" />
-		<column name="industry" type="String" />
-		<column name="type" type="String" />
-		<column name="size" type="String" />
-	</entity>
 	<entity external-reference-code="true" local-service="true" name="Address" persistence-class="com.liferay.portal.service.persistence.impl.AddressPersistenceImpl2" remote-service="true" uuid="true">
 
 		<!-- PK fields -->
@@ -163,9 +136,15 @@
 
 		<column name="companyId" primary="true" type="long" />
 
+		<!-- Audit fields -->
+
+		<column name="userId" type="long" />
+		<column name="userName" type="String" />
+		<column name="createDate" type="Date" />
+		<column name="modifiedDate" type="Date" />
+
 		<!-- Other fields -->
 
-		<column name="accountId" type="long" />
 		<column name="webId" type="String" />
 		<column name="mx" type="String" />
 		<column name="homeURL" type="String" />
@@ -173,6 +152,15 @@
 		<column name="system" type="boolean" />
 		<column name="maxUsers" type="int" />
 		<column name="active" type="boolean" />
+		<column name="name" type="String" />
+		<column name="legalName" type="String" />
+		<column name="legalId" type="String" />
+		<column name="legalType" type="String" />
+		<column name="sicCode" type="String" />
+		<column name="tickerSymbol" type="String" />
+		<column name="industry" type="String" />
+		<column name="type" type="String" />
+		<column name="size" type="String" />
 
 		<!-- Finder methods -->
 
@@ -191,7 +179,6 @@
 
 		<!-- References -->
 
-		<reference entity="Account" package-path="com.liferay.portal" />
 		<reference entity="CompanyInfo" package-path="com.liferay.portal" />
 		<reference entity="Contact" package-path="com.liferay.portal" />
 		<reference entity="Group" package-path="com.liferay.portal" />
@@ -249,7 +236,6 @@
 
 		<column name="classNameId" type="long" />
 		<column name="classPK" type="long" />
-		<column name="accountId" type="long" />
 		<column name="parentContactId" type="long" />
 		<column name="emailAddress" type="String" />
 		<column name="firstName" type="String" />
@@ -280,9 +266,6 @@
 
 		<finder name="CompanyId" return-type="Collection">
 			<finder-column name="companyId" />
-		</finder>
-		<finder name="AccountId" return-type="Collection">
-			<finder-column name="accountId" />
 		</finder>
 		<finder name="C_C" return-type="Collection">
 			<finder-column name="classNameId" />
@@ -605,7 +588,6 @@
 
 		<!-- References -->
 
-		<reference entity="Account" package-path="com.liferay.portal" />
 		<reference entity="ClassName" package-path="com.liferay.portal" />
 		<reference entity="Company" package-path="com.liferay.portal" />
 		<reference entity="Layout" package-path="com.liferay.portal" />
@@ -3542,6 +3524,11 @@
 			<finder-column name="companyId" />
 			<finder-column name="classNameId" />
 		</finder>
+		<finder name="G_C_CPK" return-type="Collection">
+			<finder-column name="groupId" />
+			<finder-column name="companyId" />
+			<finder-column name="classPK" />
+		</finder>
 		<finder name="C_W_W" return-type="Collection">
 			<finder-column name="companyId" />
 			<finder-column name="workflowDefinitionName" />
@@ -3616,13 +3603,13 @@
 		<reference entity="User" package-path="com.liferay.portal" />
 	</entity>
 	<exceptions>
-		<exception>AccountName</exception>
 		<exception>AddressCity</exception>
 		<exception>AddressStreet</exception>
 		<exception>AddressZip</exception>
 		<exception>AvailableLocale</exception>
 		<exception>CompanyMaxUsers</exception>
 		<exception>CompanyMx</exception>
+		<exception>CompanyName</exception>
 		<exception>CompanyVirtualHost</exception>
 		<exception>CompanyWebId</exception>
 		<exception>ContactBirthday</exception>

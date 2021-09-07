@@ -33,6 +33,7 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
@@ -40,6 +41,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -894,6 +896,45 @@ public class AssetDisplayPageEntryModelImpl
 	}
 
 	@Override
+	public AssetDisplayPageEntry cloneWithOriginalValues() {
+		AssetDisplayPageEntryImpl assetDisplayPageEntryImpl =
+			new AssetDisplayPageEntryImpl();
+
+		assetDisplayPageEntryImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		assetDisplayPageEntryImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		assetDisplayPageEntryImpl.setUuid(
+			this.<String>getColumnOriginalValue("uuid_"));
+		assetDisplayPageEntryImpl.setAssetDisplayPageEntryId(
+			this.<Long>getColumnOriginalValue("assetDisplayPageEntryId"));
+		assetDisplayPageEntryImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		assetDisplayPageEntryImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		assetDisplayPageEntryImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		assetDisplayPageEntryImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		assetDisplayPageEntryImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		assetDisplayPageEntryImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		assetDisplayPageEntryImpl.setClassNameId(
+			this.<Long>getColumnOriginalValue("classNameId"));
+		assetDisplayPageEntryImpl.setClassPK(
+			this.<Long>getColumnOriginalValue("classPK"));
+		assetDisplayPageEntryImpl.setLayoutPageTemplateEntryId(
+			this.<Long>getColumnOriginalValue("layoutPageTemplateEntryId"));
+		assetDisplayPageEntryImpl.setType(
+			this.<Integer>getColumnOriginalValue("type_"));
+		assetDisplayPageEntryImpl.setPlid(
+			this.<Long>getColumnOriginalValue("plid"));
+
+		return assetDisplayPageEntryImpl;
+	}
+
+	@Override
 	public int compareTo(AssetDisplayPageEntry assetDisplayPageEntry) {
 		long primaryKey = assetDisplayPageEntry.getPrimaryKey();
 
@@ -1036,7 +1077,7 @@ public class AssetDisplayPageEntryModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1047,10 +1088,27 @@ public class AssetDisplayPageEntryModelImpl
 			Function<AssetDisplayPageEntry, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply((AssetDisplayPageEntry)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(AssetDisplayPageEntry)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

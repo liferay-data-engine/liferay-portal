@@ -58,6 +58,14 @@ definition {
 
 		Navigator.gotoNavTab(navTab = "Advanced");
 
+		if (isSet(textNumber)) {
+			var textNumber = selenium.getAttribute("//div[contains(@data-field-name,'fieldReference')]//label[normalize-space(text())='Field Reference']//following-sibling::input[@type='text']@value");
+
+			return "${textNumber}";
+
+			echo("## * textNumber: ${textNumber}");
+		}
+
 		Type(
 			key_fieldLabel = "Field Reference",
 			key_fieldName = "fieldReference",
@@ -673,7 +681,7 @@ definition {
 			locator1 = "DataEngineRenderer#WEB_CONTENT_DISABLED_FIELD");
 	}
 
-	macro assertSwitcherOptions {
+	macro assertSwitchOptions {
 		if (!(isSet(fieldIndex))) {
 			var fieldIndex = "1";
 		}
@@ -687,7 +695,7 @@ definition {
 				fieldIndex = "${fieldIndex}",
 				key_fieldLabel = "${fieldLabel}",
 				key_optionLabel = "${optionLabel}",
-				locator1 = "DataEngineBuilder#OPTIONS_SWITCHER_INDEXED",
+				locator1 = "DataEngineBuilder#OPTIONS_SWITCH_INDEXED",
 				optionIndex = "${optionIndex}");
 		}
 	}
@@ -1372,7 +1380,7 @@ definition {
 			locator1 = "WCEditWebContent#SELECTION_OPTION");
 	}
 
-	macro toggleShowAsSwitcher {
+	macro toggleShowAsSwitch {
 		if (!(isSet(index))) {
 			var index = "1";
 		}
@@ -1394,14 +1402,14 @@ definition {
 
 		Navigator.gotoNavTab(navTab = "Basic");
 
-		if (IsChecked(checkboxName = "Show as a Switcher", locator1 = "Checkbox#ANY_CHECKBOX")) {
+		if (IsChecked(checkboxName = "Show as a Switch", locator1 = "Checkbox#ANY_CHECKBOX")) {
 			Uncheck.uncheckToggleSwitch(
-				checkboxName = "Show as a Switcher",
+				checkboxName = "Show as a Switch",
 				locator1 = "Checkbox#ANY_CHECKBOX");
 		}
 		else {
 			Check.checkToggleSwitch(
-				checkboxName = "Show as a Switcher",
+				checkboxName = "Show as a Switch",
 				locator1 = "Checkbox#ANY_CHECKBOX");
 		}
 

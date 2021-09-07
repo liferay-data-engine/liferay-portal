@@ -29,12 +29,14 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
@@ -516,6 +518,27 @@ public class OAuth2ApplicationScopeAliasesModelImpl
 	}
 
 	@Override
+	public OAuth2ApplicationScopeAliases cloneWithOriginalValues() {
+		OAuth2ApplicationScopeAliasesImpl oAuth2ApplicationScopeAliasesImpl =
+			new OAuth2ApplicationScopeAliasesImpl();
+
+		oAuth2ApplicationScopeAliasesImpl.setOAuth2ApplicationScopeAliasesId(
+			this.<Long>getColumnOriginalValue("oA2AScopeAliasesId"));
+		oAuth2ApplicationScopeAliasesImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		oAuth2ApplicationScopeAliasesImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		oAuth2ApplicationScopeAliasesImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		oAuth2ApplicationScopeAliasesImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		oAuth2ApplicationScopeAliasesImpl.setOAuth2ApplicationId(
+			this.<Long>getColumnOriginalValue("oAuth2ApplicationId"));
+
+		return oAuth2ApplicationScopeAliasesImpl;
+	}
+
+	@Override
 	public int compareTo(
 		OAuth2ApplicationScopeAliases oAuth2ApplicationScopeAliases) {
 
@@ -629,7 +652,7 @@ public class OAuth2ApplicationScopeAliasesModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -640,11 +663,27 @@ public class OAuth2ApplicationScopeAliasesModelImpl
 			Function<OAuth2ApplicationScopeAliases, Object>
 				attributeGetterFunction = entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply(
-					(OAuth2ApplicationScopeAliases)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(OAuth2ApplicationScopeAliases)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

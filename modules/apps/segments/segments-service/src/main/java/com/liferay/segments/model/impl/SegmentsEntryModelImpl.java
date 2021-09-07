@@ -34,6 +34,7 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.segments.model.SegmentsEntry;
 import com.liferay.segments.model.SegmentsEntryModel;
@@ -44,6 +45,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1224,6 +1226,47 @@ public class SegmentsEntryModelImpl
 	}
 
 	@Override
+	public SegmentsEntry cloneWithOriginalValues() {
+		SegmentsEntryImpl segmentsEntryImpl = new SegmentsEntryImpl();
+
+		segmentsEntryImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		segmentsEntryImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		segmentsEntryImpl.setUuid(this.<String>getColumnOriginalValue("uuid_"));
+		segmentsEntryImpl.setSegmentsEntryId(
+			this.<Long>getColumnOriginalValue("segmentsEntryId"));
+		segmentsEntryImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		segmentsEntryImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		segmentsEntryImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		segmentsEntryImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		segmentsEntryImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		segmentsEntryImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		segmentsEntryImpl.setSegmentsEntryKey(
+			this.<String>getColumnOriginalValue("segmentsEntryKey"));
+		segmentsEntryImpl.setName(this.<String>getColumnOriginalValue("name"));
+		segmentsEntryImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		segmentsEntryImpl.setActive(
+			this.<Boolean>getColumnOriginalValue("active_"));
+		segmentsEntryImpl.setCriteria(
+			this.<String>getColumnOriginalValue("criteria"));
+		segmentsEntryImpl.setSource(
+			this.<String>getColumnOriginalValue("source"));
+		segmentsEntryImpl.setType(this.<String>getColumnOriginalValue("type_"));
+		segmentsEntryImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+
+		return segmentsEntryImpl;
+	}
+
+	@Override
 	public int compareTo(SegmentsEntry segmentsEntry) {
 		int value = 0;
 
@@ -1412,7 +1455,7 @@ public class SegmentsEntryModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1423,9 +1466,26 @@ public class SegmentsEntryModelImpl
 			Function<SegmentsEntry, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((SegmentsEntry)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((SegmentsEntry)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

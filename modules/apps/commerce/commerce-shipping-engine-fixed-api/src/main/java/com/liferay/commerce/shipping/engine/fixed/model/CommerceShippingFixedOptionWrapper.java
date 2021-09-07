@@ -143,6 +143,11 @@ public class CommerceShippingFixedOptionWrapper
 		}
 	}
 
+	@Override
+	public CommerceShippingFixedOption cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the amount of this commerce shipping fixed option.
 	 *

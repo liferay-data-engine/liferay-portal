@@ -108,6 +108,11 @@ public class OpenIdConnectSessionWrapper
 		}
 	}
 
+	@Override
+	public OpenIdConnectSession cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the access token of this open ID connect session.
 	 *

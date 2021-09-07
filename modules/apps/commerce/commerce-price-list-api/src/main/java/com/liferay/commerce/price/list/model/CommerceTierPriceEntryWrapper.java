@@ -232,6 +232,11 @@ public class CommerceTierPriceEntryWrapper
 	}
 
 	@Override
+	public CommerceTierPriceEntry cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
+	@Override
 	public CommercePriceEntry getCommercePriceEntry()
 		throws com.liferay.portal.kernel.exception.PortalException {
 

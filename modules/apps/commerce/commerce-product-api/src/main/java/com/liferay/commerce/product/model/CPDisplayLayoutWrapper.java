@@ -128,6 +128,11 @@ public class CPDisplayLayoutWrapper
 	}
 
 	@Override
+	public CPDisplayLayout cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
+	@Override
 	public com.liferay.asset.kernel.model.AssetCategory fetchAssetCategory() {
 		return model.fetchAssetCategory();
 	}

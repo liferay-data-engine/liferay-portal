@@ -32,12 +32,14 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -730,6 +732,37 @@ public class CommerceWishListItemModelImpl
 	}
 
 	@Override
+	public CommerceWishListItem cloneWithOriginalValues() {
+		CommerceWishListItemImpl commerceWishListItemImpl =
+			new CommerceWishListItemImpl();
+
+		commerceWishListItemImpl.setCommerceWishListItemId(
+			this.<Long>getColumnOriginalValue("commerceWishListItemId"));
+		commerceWishListItemImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		commerceWishListItemImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		commerceWishListItemImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		commerceWishListItemImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		commerceWishListItemImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		commerceWishListItemImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		commerceWishListItemImpl.setCommerceWishListId(
+			this.<Long>getColumnOriginalValue("commerceWishListId"));
+		commerceWishListItemImpl.setCPInstanceUuid(
+			this.<String>getColumnOriginalValue("CPInstanceUuid"));
+		commerceWishListItemImpl.setCProductId(
+			this.<Long>getColumnOriginalValue("CProductId"));
+		commerceWishListItemImpl.setJson(
+			this.<String>getColumnOriginalValue("json"));
+
+		return commerceWishListItemImpl;
+	}
+
+	@Override
 	public int compareTo(CommerceWishListItem commerceWishListItem) {
 		int value = 0;
 
@@ -871,7 +904,7 @@ public class CommerceWishListItemModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -882,10 +915,27 @@ public class CommerceWishListItemModelImpl
 			Function<CommerceWishListItem, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply((CommerceWishListItem)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(CommerceWishListItem)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

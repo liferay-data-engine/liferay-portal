@@ -33,12 +33,14 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1083,6 +1085,59 @@ public class JournalFeedModelImpl
 	}
 
 	@Override
+	public JournalFeed cloneWithOriginalValues() {
+		JournalFeedImpl journalFeedImpl = new JournalFeedImpl();
+
+		journalFeedImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		journalFeedImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		journalFeedImpl.setUuid(this.<String>getColumnOriginalValue("uuid_"));
+		journalFeedImpl.setId(this.<Long>getColumnOriginalValue("id_"));
+		journalFeedImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		journalFeedImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		journalFeedImpl.setUserId(this.<Long>getColumnOriginalValue("userId"));
+		journalFeedImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		journalFeedImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		journalFeedImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		journalFeedImpl.setFeedId(
+			this.<String>getColumnOriginalValue("feedId"));
+		journalFeedImpl.setName(this.<String>getColumnOriginalValue("name"));
+		journalFeedImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		journalFeedImpl.setDDMStructureKey(
+			this.<String>getColumnOriginalValue("DDMStructureKey"));
+		journalFeedImpl.setDDMTemplateKey(
+			this.<String>getColumnOriginalValue("DDMTemplateKey"));
+		journalFeedImpl.setDDMRendererTemplateKey(
+			this.<String>getColumnOriginalValue("DDMRendererTemplateKey"));
+		journalFeedImpl.setDelta(this.<Integer>getColumnOriginalValue("delta"));
+		journalFeedImpl.setOrderByCol(
+			this.<String>getColumnOriginalValue("orderByCol"));
+		journalFeedImpl.setOrderByType(
+			this.<String>getColumnOriginalValue("orderByType"));
+		journalFeedImpl.setTargetLayoutFriendlyUrl(
+			this.<String>getColumnOriginalValue("targetLayoutFriendlyUrl"));
+		journalFeedImpl.setTargetPortletId(
+			this.<String>getColumnOriginalValue("targetPortletId"));
+		journalFeedImpl.setContentField(
+			this.<String>getColumnOriginalValue("contentField"));
+		journalFeedImpl.setFeedFormat(
+			this.<String>getColumnOriginalValue("feedFormat"));
+		journalFeedImpl.setFeedVersion(
+			this.<Double>getColumnOriginalValue("feedVersion"));
+		journalFeedImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+
+		return journalFeedImpl;
+	}
+
+	@Override
 	public int compareTo(JournalFeed journalFeed) {
 		int value = 0;
 
@@ -1326,7 +1381,7 @@ public class JournalFeedModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1337,9 +1392,26 @@ public class JournalFeedModelImpl
 			Function<JournalFeed, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((JournalFeed)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((JournalFeed)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

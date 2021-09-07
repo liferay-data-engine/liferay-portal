@@ -32,12 +32,14 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -724,6 +726,37 @@ public class MembershipRequestModelImpl
 	}
 
 	@Override
+	public MembershipRequest cloneWithOriginalValues() {
+		MembershipRequestImpl membershipRequestImpl =
+			new MembershipRequestImpl();
+
+		membershipRequestImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		membershipRequestImpl.setMembershipRequestId(
+			this.<Long>getColumnOriginalValue("membershipRequestId"));
+		membershipRequestImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		membershipRequestImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		membershipRequestImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		membershipRequestImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		membershipRequestImpl.setComments(
+			this.<String>getColumnOriginalValue("comments"));
+		membershipRequestImpl.setReplyComments(
+			this.<String>getColumnOriginalValue("replyComments"));
+		membershipRequestImpl.setReplyDate(
+			this.<Date>getColumnOriginalValue("replyDate"));
+		membershipRequestImpl.setReplierUserId(
+			this.<Long>getColumnOriginalValue("replierUserId"));
+		membershipRequestImpl.setStatusId(
+			this.<Long>getColumnOriginalValue("statusId"));
+
+		return membershipRequestImpl;
+	}
+
+	@Override
 	public int compareTo(MembershipRequest membershipRequest) {
 		int value = 0;
 
@@ -854,7 +887,7 @@ public class MembershipRequestModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -865,9 +898,27 @@ public class MembershipRequestModelImpl
 			Function<MembershipRequest, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((MembershipRequest)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(MembershipRequest)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

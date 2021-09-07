@@ -1920,8 +1920,8 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		String fromName = blogsGroupServiceSettings.getEmailFromName();
 		String fromAddress = blogsGroupServiceSettings.getEmailFromAddress();
 
-		final LocalizedValuesMap subjectLocalizedValuesMap;
-		final LocalizedValuesMap bodyLocalizedValuesMap;
+		LocalizedValuesMap subjectLocalizedValuesMap;
+		LocalizedValuesMap bodyLocalizedValuesMap;
 
 		if (serviceContext.isCommandUpdate()) {
 			subjectLocalizedValuesMap =
@@ -2030,9 +2030,10 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 
 		_unsubscribeHelper.registerHooks(subscriptionSender);
 
+		subscriptionSender.addAssetEntryPersistedSubscribers(
+			BlogsEntry.class.getName(), entry.getEntryId());
 		subscriptionSender.addPersistedSubscribers(
 			BlogsEntry.class.getName(), entry.getGroupId());
-
 		subscriptionSender.addPersistedSubscribers(
 			BlogsEntry.class.getName(), entry.getEntryId());
 
@@ -2200,7 +2201,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 				entry.getUrlTitle())
 		).build();
 
-		final Set<String> trackbacksSet;
+		Set<String> trackbacksSet;
 
 		if (ArrayUtil.isNotEmpty(trackbacks)) {
 			trackbacksSet = SetUtil.fromArray(trackbacks);

@@ -114,6 +114,11 @@ public class CPTaxCategoryWrapper
 	}
 
 	@Override
+	public CPTaxCategory cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
+	@Override
 	public String[] getAvailableLanguageIds() {
 		return model.getAvailableLanguageIds();
 	}

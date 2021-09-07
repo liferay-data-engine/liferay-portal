@@ -25,6 +25,7 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.tools.service.builder.test.model.LVEntry;
 import com.liferay.portal.tools.service.builder.test.model.LVEntryLocalization;
 import com.liferay.portal.tools.service.builder.test.model.LVEntryModel;
@@ -36,9 +37,11 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -780,6 +783,27 @@ public class LVEntryModelImpl
 	}
 
 	@Override
+	public LVEntry cloneWithOriginalValues() {
+		LVEntryImpl lvEntryImpl = new LVEntryImpl();
+
+		lvEntryImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		lvEntryImpl.setUuid(this.<String>getColumnOriginalValue("uuid_"));
+		lvEntryImpl.setHeadId(this.<Long>getColumnOriginalValue("headId"));
+		lvEntryImpl.setDefaultLanguageId(
+			this.<String>getColumnOriginalValue("defaultLanguageId"));
+		lvEntryImpl.setLvEntryId(
+			this.<Long>getColumnOriginalValue("lvEntryId"));
+		lvEntryImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		lvEntryImpl.setGroupId(this.<Long>getColumnOriginalValue("groupId"));
+		lvEntryImpl.setUniqueGroupKey(
+			this.<String>getColumnOriginalValue("uniqueGroupKey"));
+
+		return lvEntryImpl;
+	}
+
+	@Override
 	public int compareTo(LVEntry lvEntry) {
 		long primaryKey = lvEntry.getPrimaryKey();
 
@@ -895,7 +919,7 @@ public class LVEntryModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -906,9 +930,26 @@ public class LVEntryModelImpl
 			Function<LVEntry, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((LVEntry)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((LVEntry)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

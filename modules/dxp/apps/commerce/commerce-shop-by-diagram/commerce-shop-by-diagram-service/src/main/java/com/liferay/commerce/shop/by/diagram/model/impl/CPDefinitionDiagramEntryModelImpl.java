@@ -31,12 +31,14 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -79,8 +81,8 @@ public class CPDefinitionDiagramEntryModelImpl
 		{"userName", Types.VARCHAR}, {"createDate", Types.TIMESTAMP},
 		{"modifiedDate", Types.TIMESTAMP}, {"CPDefinitionId", Types.BIGINT},
 		{"CPInstanceUuid", Types.VARCHAR}, {"CProductId", Types.BIGINT},
-		{"diagram", Types.BOOLEAN}, {"number_", Types.INTEGER},
-		{"quantity", Types.INTEGER}, {"sku", Types.VARCHAR}
+		{"diagram", Types.BOOLEAN}, {"quantity", Types.INTEGER},
+		{"sequence", Types.VARCHAR}, {"sku", Types.VARCHAR}
 	};
 
 	public static final Map<String, Integer> TABLE_COLUMNS_MAP =
@@ -97,22 +99,22 @@ public class CPDefinitionDiagramEntryModelImpl
 		TABLE_COLUMNS_MAP.put("CPInstanceUuid", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("CProductId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("diagram", Types.BOOLEAN);
-		TABLE_COLUMNS_MAP.put("number_", Types.INTEGER);
 		TABLE_COLUMNS_MAP.put("quantity", Types.INTEGER);
+		TABLE_COLUMNS_MAP.put("sequence", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("sku", Types.VARCHAR);
 	}
 
 	public static final String TABLE_SQL_CREATE =
-		"create table CPDefinitionDiagramEntry (CPDefinitionDiagramEntryId LONG not null primary key,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,CPDefinitionId LONG,CPInstanceUuid VARCHAR(75) null,CProductId LONG,diagram BOOLEAN,number_ INTEGER,quantity INTEGER,sku VARCHAR(75) null)";
+		"create table CPDefinitionDiagramEntry (CPDefinitionDiagramEntryId LONG not null primary key,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,CPDefinitionId LONG,CPInstanceUuid VARCHAR(75) null,CProductId LONG,diagram BOOLEAN,quantity INTEGER,sequence VARCHAR(75) null,sku VARCHAR(75) null)";
 
 	public static final String TABLE_SQL_DROP =
 		"drop table CPDefinitionDiagramEntry";
 
 	public static final String ORDER_BY_JPQL =
-		" ORDER BY cpDefinitionDiagramEntry.number ASC";
+		" ORDER BY cpDefinitionDiagramEntry.sequence ASC";
 
 	public static final String ORDER_BY_SQL =
-		" ORDER BY CPDefinitionDiagramEntry.number_ ASC";
+		" ORDER BY CPDefinitionDiagramEntry.sequence ASC";
 
 	public static final String DATA_SOURCE = "liferayDataSource";
 
@@ -130,7 +132,7 @@ public class CPDefinitionDiagramEntryModelImpl
 	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)}
 	 */
 	@Deprecated
-	public static final long NUMBER_COLUMN_BITMASK = 2L;
+	public static final long SEQUENCE_COLUMN_BITMASK = 2L;
 
 	/**
 	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
@@ -174,8 +176,8 @@ public class CPDefinitionDiagramEntryModelImpl
 		model.setCPInstanceUuid(soapModel.getCPInstanceUuid());
 		model.setCProductId(soapModel.getCProductId());
 		model.setDiagram(soapModel.isDiagram());
-		model.setNumber(soapModel.getNumber());
 		model.setQuantity(soapModel.getQuantity());
+		model.setSequence(soapModel.getSequence());
 		model.setSku(soapModel.getSku());
 
 		return model;
@@ -398,17 +400,17 @@ public class CPDefinitionDiagramEntryModelImpl
 			(BiConsumer<CPDefinitionDiagramEntry, Boolean>)
 				CPDefinitionDiagramEntry::setDiagram);
 		attributeGetterFunctions.put(
-			"number", CPDefinitionDiagramEntry::getNumber);
-		attributeSetterBiConsumers.put(
-			"number",
-			(BiConsumer<CPDefinitionDiagramEntry, Integer>)
-				CPDefinitionDiagramEntry::setNumber);
-		attributeGetterFunctions.put(
 			"quantity", CPDefinitionDiagramEntry::getQuantity);
 		attributeSetterBiConsumers.put(
 			"quantity",
 			(BiConsumer<CPDefinitionDiagramEntry, Integer>)
 				CPDefinitionDiagramEntry::setQuantity);
+		attributeGetterFunctions.put(
+			"sequence", CPDefinitionDiagramEntry::getSequence);
+		attributeSetterBiConsumers.put(
+			"sequence",
+			(BiConsumer<CPDefinitionDiagramEntry, String>)
+				CPDefinitionDiagramEntry::setSequence);
 		attributeGetterFunctions.put("sku", CPDefinitionDiagramEntry::getSku);
 		attributeSetterBiConsumers.put(
 			"sku",
@@ -621,31 +623,6 @@ public class CPDefinitionDiagramEntryModelImpl
 
 	@JSON
 	@Override
-	public int getNumber() {
-		return _number;
-	}
-
-	@Override
-	public void setNumber(int number) {
-		if (_columnOriginalValues == Collections.EMPTY_MAP) {
-			_setColumnOriginalValues();
-		}
-
-		_number = number;
-	}
-
-	/**
-	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
-	 *             #getColumnOriginalValue(String)}
-	 */
-	@Deprecated
-	public int getOriginalNumber() {
-		return GetterUtil.getInteger(
-			this.<Integer>getColumnOriginalValue("number_"));
-	}
-
-	@JSON
-	@Override
 	public int getQuantity() {
 		return _quantity;
 	}
@@ -657,6 +634,35 @@ public class CPDefinitionDiagramEntryModelImpl
 		}
 
 		_quantity = quantity;
+	}
+
+	@JSON
+	@Override
+	public String getSequence() {
+		if (_sequence == null) {
+			return "";
+		}
+		else {
+			return _sequence;
+		}
+	}
+
+	@Override
+	public void setSequence(String sequence) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		_sequence = sequence;
+	}
+
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
+	public String getOriginalSequence() {
+		return getColumnOriginalValue("sequence");
 	}
 
 	@JSON
@@ -748,8 +754,8 @@ public class CPDefinitionDiagramEntryModelImpl
 		cpDefinitionDiagramEntryImpl.setCPInstanceUuid(getCPInstanceUuid());
 		cpDefinitionDiagramEntryImpl.setCProductId(getCProductId());
 		cpDefinitionDiagramEntryImpl.setDiagram(isDiagram());
-		cpDefinitionDiagramEntryImpl.setNumber(getNumber());
 		cpDefinitionDiagramEntryImpl.setQuantity(getQuantity());
+		cpDefinitionDiagramEntryImpl.setSequence(getSequence());
 		cpDefinitionDiagramEntryImpl.setSku(getSku());
 
 		cpDefinitionDiagramEntryImpl.resetOriginalValues();
@@ -758,18 +764,45 @@ public class CPDefinitionDiagramEntryModelImpl
 	}
 
 	@Override
+	public CPDefinitionDiagramEntry cloneWithOriginalValues() {
+		CPDefinitionDiagramEntryImpl cpDefinitionDiagramEntryImpl =
+			new CPDefinitionDiagramEntryImpl();
+
+		cpDefinitionDiagramEntryImpl.setCPDefinitionDiagramEntryId(
+			this.<Long>getColumnOriginalValue("CPDefinitionDiagramEntryId"));
+		cpDefinitionDiagramEntryImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		cpDefinitionDiagramEntryImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		cpDefinitionDiagramEntryImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		cpDefinitionDiagramEntryImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		cpDefinitionDiagramEntryImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		cpDefinitionDiagramEntryImpl.setCPDefinitionId(
+			this.<Long>getColumnOriginalValue("CPDefinitionId"));
+		cpDefinitionDiagramEntryImpl.setCPInstanceUuid(
+			this.<String>getColumnOriginalValue("CPInstanceUuid"));
+		cpDefinitionDiagramEntryImpl.setCProductId(
+			this.<Long>getColumnOriginalValue("CProductId"));
+		cpDefinitionDiagramEntryImpl.setDiagram(
+			this.<Boolean>getColumnOriginalValue("diagram"));
+		cpDefinitionDiagramEntryImpl.setQuantity(
+			this.<Integer>getColumnOriginalValue("quantity"));
+		cpDefinitionDiagramEntryImpl.setSequence(
+			this.<String>getColumnOriginalValue("sequence"));
+		cpDefinitionDiagramEntryImpl.setSku(
+			this.<String>getColumnOriginalValue("sku"));
+
+		return cpDefinitionDiagramEntryImpl;
+	}
+
+	@Override
 	public int compareTo(CPDefinitionDiagramEntry cpDefinitionDiagramEntry) {
 		int value = 0;
 
-		if (getNumber() < cpDefinitionDiagramEntry.getNumber()) {
-			value = -1;
-		}
-		else if (getNumber() > cpDefinitionDiagramEntry.getNumber()) {
-			value = 1;
-		}
-		else {
-			value = 0;
-		}
+		value = getSequence().compareTo(cpDefinitionDiagramEntry.getSequence());
 
 		if (value != 0) {
 			return value;
@@ -888,9 +921,15 @@ public class CPDefinitionDiagramEntryModelImpl
 
 		cpDefinitionDiagramEntryCacheModel.diagram = isDiagram();
 
-		cpDefinitionDiagramEntryCacheModel.number = getNumber();
-
 		cpDefinitionDiagramEntryCacheModel.quantity = getQuantity();
+
+		cpDefinitionDiagramEntryCacheModel.sequence = getSequence();
+
+		String sequence = cpDefinitionDiagramEntryCacheModel.sequence;
+
+		if ((sequence != null) && (sequence.length() == 0)) {
+			cpDefinitionDiagramEntryCacheModel.sequence = null;
+		}
 
 		cpDefinitionDiagramEntryCacheModel.sku = getSku();
 
@@ -909,7 +948,7 @@ public class CPDefinitionDiagramEntryModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -920,10 +959,27 @@ public class CPDefinitionDiagramEntryModelImpl
 			Function<CPDefinitionDiagramEntry, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply((CPDefinitionDiagramEntry)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(CPDefinitionDiagramEntry)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 
@@ -988,13 +1044,11 @@ public class CPDefinitionDiagramEntryModelImpl
 	private String _CPInstanceUuid;
 	private long _CProductId;
 	private boolean _diagram;
-	private int _number;
 	private int _quantity;
+	private String _sequence;
 	private String _sku;
 
 	public <T> T getColumnValue(String columnName) {
-		columnName = _attributeNames.getOrDefault(columnName, columnName);
-
 		Function<CPDefinitionDiagramEntry, Object> function =
 			_attributeGetterFunctions.get(columnName);
 
@@ -1032,19 +1086,9 @@ public class CPDefinitionDiagramEntryModelImpl
 		_columnOriginalValues.put("CPInstanceUuid", _CPInstanceUuid);
 		_columnOriginalValues.put("CProductId", _CProductId);
 		_columnOriginalValues.put("diagram", _diagram);
-		_columnOriginalValues.put("number_", _number);
 		_columnOriginalValues.put("quantity", _quantity);
+		_columnOriginalValues.put("sequence", _sequence);
 		_columnOriginalValues.put("sku", _sku);
-	}
-
-	private static final Map<String, String> _attributeNames;
-
-	static {
-		Map<String, String> attributeNames = new HashMap<>();
-
-		attributeNames.put("number_", "number");
-
-		_attributeNames = Collections.unmodifiableMap(attributeNames);
 	}
 
 	private transient Map<String, Object> _columnOriginalValues;
@@ -1078,9 +1122,9 @@ public class CPDefinitionDiagramEntryModelImpl
 
 		columnBitmasks.put("diagram", 512L);
 
-		columnBitmasks.put("number_", 1024L);
+		columnBitmasks.put("quantity", 1024L);
 
-		columnBitmasks.put("quantity", 2048L);
+		columnBitmasks.put("sequence", 2048L);
 
 		columnBitmasks.put("sku", 4096L);
 

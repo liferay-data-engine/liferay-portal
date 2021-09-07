@@ -15,6 +15,7 @@
 package com.liferay.object.internal.deployer;
 
 import com.liferay.info.collection.provider.InfoCollectionProvider;
+import com.liferay.list.type.service.ListTypeEntryLocalService;
 import com.liferay.object.deployer.ObjectDefinitionDeployer;
 import com.liferay.object.internal.info.collection.provider.ObjectEntrySingleFormVariationInfoCollectionProvider;
 import com.liferay.object.internal.search.spi.model.index.contributor.ObjectEntryModelDocumentContributor;
@@ -25,9 +26,15 @@ import com.liferay.object.internal.security.permission.resource.ObjectEntryModel
 import com.liferay.object.internal.security.permission.resource.ObjectEntryPortletResourcePermissionLogic;
 import com.liferay.object.internal.workflow.ObjectEntryWorkflowHandler;
 import com.liferay.object.model.ObjectDefinition;
+import com.liferay.object.scope.ObjectScopeProviderRegistry;
 import com.liferay.object.service.ObjectEntryLocalService;
 import com.liferay.object.service.ObjectFieldLocalService;
 import com.liferay.petra.reflect.ReflectionUtil;
+import com.liferay.petra.string.StringBundler;
+import com.liferay.portal.kernel.messaging.Destination;
+import com.liferay.portal.kernel.messaging.DestinationConfiguration;
+import com.liferay.portal.kernel.messaging.DestinationFactory;
+import com.liferay.portal.kernel.messaging.MessageBus;
 import com.liferay.portal.kernel.security.permission.ResourceActions;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.security.permission.resource.PortletResourcePermission;
@@ -45,6 +52,7 @@ import com.liferay.portal.search.spi.model.query.contributor.ModelPreFilterContr
 import com.liferay.portal.search.spi.model.registrar.ModelSearchRegistrarHelper;
 
 import java.util.Arrays;
+import java.util.Dictionary;
 import java.util.List;
 
 import org.osgi.framework.BundleContext;
@@ -57,22 +65,29 @@ import org.osgi.framework.ServiceRegistration;
 public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 
 	public ObjectDefinitionDeployerImpl(
-		BundleContext bundleContext,
+		BundleContext bundleContext, DestinationFactory destinationFactory,
 		DynamicQueryBatchIndexingActionableFactory
 			dynamicQueryBatchIndexingActionableFactory,
+		ListTypeEntryLocalService listTypeEntryLocalService,
+		MessageBus messageBus,
 		ModelSearchRegistrarHelper modelSearchRegistrarHelper,
 		ObjectEntryLocalService objectEntryLocalService,
 		ObjectFieldLocalService objectFieldLocalService,
+		ObjectScopeProviderRegistry objectScopeProviderRegistry,
 		PersistedModelLocalServiceRegistry persistedModelLocalServiceRegistry,
 		ResourceActions resourceActions,
 		ModelPreFilterContributor workflowStatusModelPreFilterContributor) {
 
 		_bundleContext = bundleContext;
+		_destinationFactory = destinationFactory;
 		_dynamicQueryBatchIndexingActionableFactory =
 			dynamicQueryBatchIndexingActionableFactory;
+		_listTypeEntryLocalService = listTypeEntryLocalService;
+		_messageBus = messageBus;
 		_modelSearchRegistrarHelper = modelSearchRegistrarHelper;
 		_objectEntryLocalService = objectEntryLocalService;
 		_objectFieldLocalService = objectFieldLocalService;
+		_objectScopeProviderRegistry = objectScopeProviderRegistry;
 		_persistedModelLocalServiceRegistry =
 			persistedModelLocalServiceRegistry;
 		_resourceActions = resourceActions;
@@ -93,6 +108,10 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 			return ReflectionUtil.throwException(exception);
 		}
 
+		Destination destination = _destinationFactory.createDestination(
+			new DestinationConfiguration(
+				DestinationConfiguration.DESTINATION_TYPE_SERIAL,
+				objectDefinition.getDestinationName()));
 		ObjectEntryModelIndexerWriterContributor
 			objectEntryModelIndexerWriterContributor =
 				new ObjectEntryModelIndexerWriterContributor(
@@ -105,9 +124,15 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 
 		return Arrays.asList(
 			_bundleContext.registerService(
+				Destination.class, destination,
+				_toProperties(
+					objectDefinition.getCompanyId(), destination.getName())),
+			_bundleContext.registerService(
 				InfoCollectionProvider.class,
 				new ObjectEntrySingleFormVariationInfoCollectionProvider(
-					objectDefinition, _objectEntryLocalService),
+					_listTypeEntryLocalService, objectDefinition,
+					_objectEntryLocalService, _objectFieldLocalService,
+					_objectScopeProviderRegistry),
 				null),
 			_bundleContext.registerService(
 				KeywordQueryContributor.class,
@@ -170,6 +195,13 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 
 	@Override
 	public void undeploy(ObjectDefinition objectDefinition) {
+		Destination destination = _messageBus.getDestination(
+			objectDefinition.getDestinationName());
+
+		if (destination != null) {
+			destination.destroy();
+		}
+
 		_persistedModelLocalServiceRegistry.unregister(
 			objectDefinition.getClassName());
 	}
@@ -194,12 +226,49 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 					})));
 	}
 
+	private Dictionary<String, Object> _toProperties(
+		long companyId, String destinationName) {
+
+		Dictionary<String, Object> properties =
+			HashMapDictionaryBuilder.<String, Object>put(
+				"destination.name", destinationName
+			).put(
+				"destination.webhook.event.keys",
+				StringUtil.merge(_DESTINATION_WEBHOOK_EVENT_KEYS)
+			).put(
+				"destination.webhook.required.company.id", companyId
+			).build();
+
+		for (String key : _DESTINATION_WEBHOOK_EVENT_KEYS) {
+			properties.put(
+				"destination.webhook.event.description[" + key + "]",
+				StringBundler.concat(
+					"destination-webhook-event-description[",
+					"liferay-object-event][", key, "]"));
+			properties.put(
+				"destination.webhook.event.name[" + key + "]",
+				"destination-webhook-event-name[liferay-object-event][" + key +
+					"]");
+		}
+
+		return properties;
+	}
+
+	private static final String[] _DESTINATION_WEBHOOK_EVENT_KEYS = {
+		"onAfterCreate", "onAfterRemove", "onAfterUpdate", "onBeforeCreate",
+		"onBeforeRemove", "onBeforeUpdate"
+	};
+
 	private final BundleContext _bundleContext;
+	private final DestinationFactory _destinationFactory;
 	private final DynamicQueryBatchIndexingActionableFactory
 		_dynamicQueryBatchIndexingActionableFactory;
+	private final ListTypeEntryLocalService _listTypeEntryLocalService;
+	private final MessageBus _messageBus;
 	private final ModelSearchRegistrarHelper _modelSearchRegistrarHelper;
 	private final ObjectEntryLocalService _objectEntryLocalService;
 	private final ObjectFieldLocalService _objectFieldLocalService;
+	private final ObjectScopeProviderRegistry _objectScopeProviderRegistry;
 	private final PersistedModelLocalServiceRegistry
 		_persistedModelLocalServiceRegistry;
 	private final ResourceActions _resourceActions;

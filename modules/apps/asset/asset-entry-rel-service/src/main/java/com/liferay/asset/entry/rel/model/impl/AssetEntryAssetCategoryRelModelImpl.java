@@ -26,15 +26,18 @@ import com.liferay.portal.kernel.model.impl.BaseModelImpl;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -510,6 +513,29 @@ public class AssetEntryAssetCategoryRelModelImpl
 	}
 
 	@Override
+	public AssetEntryAssetCategoryRel cloneWithOriginalValues() {
+		AssetEntryAssetCategoryRelImpl assetEntryAssetCategoryRelImpl =
+			new AssetEntryAssetCategoryRelImpl();
+
+		assetEntryAssetCategoryRelImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		assetEntryAssetCategoryRelImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		assetEntryAssetCategoryRelImpl.setAssetEntryAssetCategoryRelId(
+			this.<Long>getColumnOriginalValue("assetEntryAssetCategoryRelId"));
+		assetEntryAssetCategoryRelImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		assetEntryAssetCategoryRelImpl.setAssetEntryId(
+			this.<Long>getColumnOriginalValue("assetEntryId"));
+		assetEntryAssetCategoryRelImpl.setAssetCategoryId(
+			this.<Long>getColumnOriginalValue("assetCategoryId"));
+		assetEntryAssetCategoryRelImpl.setPriority(
+			this.<Integer>getColumnOriginalValue("priority"));
+
+		return assetEntryAssetCategoryRelImpl;
+	}
+
+	@Override
 	public int compareTo(
 		AssetEntryAssetCategoryRel assetEntryAssetCategoryRel) {
 
@@ -611,7 +637,7 @@ public class AssetEntryAssetCategoryRelModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -622,11 +648,27 @@ public class AssetEntryAssetCategoryRelModelImpl
 			Function<AssetEntryAssetCategoryRel, Object>
 				attributeGetterFunction = entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply(
-					(AssetEntryAssetCategoryRel)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(AssetEntryAssetCategoryRel)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

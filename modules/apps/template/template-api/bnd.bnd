@@ -2,3 +2,7 @@ Bundle-Name: Liferay Template API
 Bundle-SymbolicName: com.liferay.template.api
 Bundle-Version: 1.0.0
 Export-Package: com.liferay.template.constants
+Export-Package:\
+	com.liferay.template.constants,\
+	com.liferay.template.info.item.capability,\
+	com.liferay.template.info.item.provider

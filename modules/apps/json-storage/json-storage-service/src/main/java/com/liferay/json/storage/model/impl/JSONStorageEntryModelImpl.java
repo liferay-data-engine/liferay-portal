@@ -27,6 +27,7 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
@@ -34,9 +35,11 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -719,6 +722,38 @@ public class JSONStorageEntryModelImpl
 	}
 
 	@Override
+	public JSONStorageEntry cloneWithOriginalValues() {
+		JSONStorageEntryImpl jsonStorageEntryImpl = new JSONStorageEntryImpl();
+
+		jsonStorageEntryImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		jsonStorageEntryImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		jsonStorageEntryImpl.setJsonStorageEntryId(
+			this.<Long>getColumnOriginalValue("jsonStorageEntryId"));
+		jsonStorageEntryImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		jsonStorageEntryImpl.setClassNameId(
+			this.<Long>getColumnOriginalValue("classNameId"));
+		jsonStorageEntryImpl.setClassPK(
+			this.<Long>getColumnOriginalValue("classPK"));
+		jsonStorageEntryImpl.setParentJSONStorageEntryId(
+			this.<Long>getColumnOriginalValue("parentJSONStorageEntryId"));
+		jsonStorageEntryImpl.setIndex(
+			this.<Integer>getColumnOriginalValue("index_"));
+		jsonStorageEntryImpl.setKey(
+			this.<String>getColumnOriginalValue("key_"));
+		jsonStorageEntryImpl.setType(
+			this.<Integer>getColumnOriginalValue("type_"));
+		jsonStorageEntryImpl.setValueLong(
+			this.<Long>getColumnOriginalValue("valueLong"));
+		jsonStorageEntryImpl.setValueString(
+			this.<String>getColumnOriginalValue("valueString"));
+
+		return jsonStorageEntryImpl;
+	}
+
+	@Override
 	public int compareTo(JSONStorageEntry jsonStorageEntry) {
 		int value = 0;
 
@@ -842,7 +877,7 @@ public class JSONStorageEntryModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -853,9 +888,27 @@ public class JSONStorageEntryModelImpl
 			Function<JSONStorageEntry, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((JSONStorageEntry)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(JSONStorageEntry)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

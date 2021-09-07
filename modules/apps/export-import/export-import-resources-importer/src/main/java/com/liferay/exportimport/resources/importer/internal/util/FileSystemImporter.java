@@ -1231,14 +1231,13 @@ public class FileSystemImporter extends BaseImporter {
 			JSONArray columnsJSONArray =
 				portletPreferencesJSONObject.getJSONArray("columns");
 
-			StringBundler sb = new StringBundler(4);
-
-			sb.append(StringPool.UNDERLINE);
-			sb.append(portletId);
-			sb.append(StringPool.DOUBLE_UNDERLINE);
-			sb.append(LayoutTypePortletConstants.COLUMN_PREFIX);
-
-			addLayoutColumns(layout, sb.toString(), columnsJSONArray);
+			addLayoutColumns(
+				layout,
+				StringBundler.concat(
+					StringPool.UNDERLINE, portletId,
+					StringPool.DOUBLE_UNDERLINE,
+					LayoutTypePortletConstants.COLUMN_PREFIX),
+				columnsJSONArray);
 		}
 	}
 
@@ -1483,10 +1482,9 @@ public class FileSystemImporter extends BaseImporter {
 	}
 
 	protected JSONObject getDefaultPortletJSONObject(String journalArticleId) {
-		JSONObject portletJSONObject = JSONUtil.put(
-			"portletId", _JOURNAL_CONTENT_PORTLET_ID);
-
-		portletJSONObject.put(
+		return JSONUtil.put(
+			"portletId", _JOURNAL_CONTENT_PORTLET_ID
+		).put(
 			"portletPreferences",
 			JSONUtil.put(
 				"articleId", journalArticleId
@@ -1494,9 +1492,8 @@ public class FileSystemImporter extends BaseImporter {
 				"groupId", groupId
 			).put(
 				"portletSetupPortletDecoratorId", "borderless"
-			));
-
-		return portletJSONObject;
+			)
+		);
 	}
 
 	protected InputStream getInputStream(File file) throws Exception {
@@ -1668,14 +1665,12 @@ public class FileSystemImporter extends BaseImporter {
 				}
 				catch (SearchException searchException) {
 					if (_log.isWarnEnabled()) {
-						StringBundler sb = new StringBundler(4);
-
-						sb.append("Cannot index entry: className=");
-						sb.append(JournalArticle.class.getName());
-						sb.append(", primaryKey=");
-						sb.append(journalArticle.getPrimaryKey());
-
-						_log.warn(sb.toString(), searchException);
+						_log.warn(
+							StringBundler.concat(
+								"Cannot index entry: className=",
+								JournalArticle.class.getName(), ", primaryKey=",
+								journalArticle.getPrimaryKey()),
+							searchException);
 					}
 				}
 			}

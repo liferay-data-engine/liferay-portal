@@ -23,6 +23,7 @@ import com.liferay.portal.kernel.model.ModelWrapper;
 import com.liferay.portal.kernel.model.impl.BaseModelImpl;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.saml.persistence.model.SamlSpMessage;
 import com.liferay.saml.persistence.model.SamlSpMessageModel;
 
@@ -31,6 +32,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
@@ -490,6 +492,26 @@ public class SamlSpMessageModelImpl
 	}
 
 	@Override
+	public SamlSpMessage cloneWithOriginalValues() {
+		SamlSpMessageImpl samlSpMessageImpl = new SamlSpMessageImpl();
+
+		samlSpMessageImpl.setSamlSpMessageId(
+			this.<Long>getColumnOriginalValue("samlSpMessageId"));
+		samlSpMessageImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		samlSpMessageImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		samlSpMessageImpl.setSamlIdpEntityId(
+			this.<String>getColumnOriginalValue("samlIdpEntityId"));
+		samlSpMessageImpl.setSamlIdpResponseKey(
+			this.<String>getColumnOriginalValue("samlIdpResponseKey"));
+		samlSpMessageImpl.setExpirationDate(
+			this.<Date>getColumnOriginalValue("expirationDate"));
+
+		return samlSpMessageImpl;
+	}
+
+	@Override
 	public int compareTo(SamlSpMessage samlSpMessage) {
 		long primaryKey = samlSpMessage.getPrimaryKey();
 
@@ -610,7 +632,7 @@ public class SamlSpMessageModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -621,9 +643,26 @@ public class SamlSpMessageModelImpl
 			Function<SamlSpMessage, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((SamlSpMessage)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((SamlSpMessage)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

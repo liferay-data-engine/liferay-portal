@@ -36,6 +36,7 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
@@ -43,6 +44,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -934,6 +936,39 @@ public class LayoutSEOSiteModelImpl
 	}
 
 	@Override
+	public LayoutSEOSite cloneWithOriginalValues() {
+		LayoutSEOSiteImpl layoutSEOSiteImpl = new LayoutSEOSiteImpl();
+
+		layoutSEOSiteImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		layoutSEOSiteImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		layoutSEOSiteImpl.setUuid(this.<String>getColumnOriginalValue("uuid_"));
+		layoutSEOSiteImpl.setLayoutSEOSiteId(
+			this.<Long>getColumnOriginalValue("layoutSEOSiteId"));
+		layoutSEOSiteImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		layoutSEOSiteImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		layoutSEOSiteImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		layoutSEOSiteImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		layoutSEOSiteImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		layoutSEOSiteImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		layoutSEOSiteImpl.setOpenGraphEnabled(
+			this.<Boolean>getColumnOriginalValue("openGraphEnabled"));
+		layoutSEOSiteImpl.setOpenGraphImageAlt(
+			this.<String>getColumnOriginalValue("openGraphImageAlt"));
+		layoutSEOSiteImpl.setOpenGraphImageFileEntryId(
+			this.<Long>getColumnOriginalValue("openGraphImageFileEntryId"));
+
+		return layoutSEOSiteImpl;
+	}
+
+	@Override
 	public int compareTo(LayoutSEOSite layoutSEOSite) {
 		long primaryKey = layoutSEOSite.getPrimaryKey();
 
@@ -1075,7 +1110,7 @@ public class LayoutSEOSiteModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1086,9 +1121,26 @@ public class LayoutSEOSiteModelImpl
 			Function<LayoutSEOSite, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((LayoutSEOSite)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((LayoutSEOSite)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

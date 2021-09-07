@@ -33,6 +33,7 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
@@ -41,6 +42,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1373,6 +1375,66 @@ public class LayoutPageTemplateEntryModelImpl
 	}
 
 	@Override
+	public LayoutPageTemplateEntry cloneWithOriginalValues() {
+		LayoutPageTemplateEntryImpl layoutPageTemplateEntryImpl =
+			new LayoutPageTemplateEntryImpl();
+
+		layoutPageTemplateEntryImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		layoutPageTemplateEntryImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		layoutPageTemplateEntryImpl.setUuid(
+			this.<String>getColumnOriginalValue("uuid_"));
+		layoutPageTemplateEntryImpl.setLayoutPageTemplateEntryId(
+			this.<Long>getColumnOriginalValue("layoutPageTemplateEntryId"));
+		layoutPageTemplateEntryImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		layoutPageTemplateEntryImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		layoutPageTemplateEntryImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		layoutPageTemplateEntryImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		layoutPageTemplateEntryImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		layoutPageTemplateEntryImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		layoutPageTemplateEntryImpl.setLayoutPageTemplateCollectionId(
+			this.<Long>getColumnOriginalValue(
+				"layoutPageTemplateCollectionId"));
+		layoutPageTemplateEntryImpl.setLayoutPageTemplateEntryKey(
+			this.<String>getColumnOriginalValue("layoutPageTemplateEntryKey"));
+		layoutPageTemplateEntryImpl.setClassNameId(
+			this.<Long>getColumnOriginalValue("classNameId"));
+		layoutPageTemplateEntryImpl.setClassTypeId(
+			this.<Long>getColumnOriginalValue("classTypeId"));
+		layoutPageTemplateEntryImpl.setName(
+			this.<String>getColumnOriginalValue("name"));
+		layoutPageTemplateEntryImpl.setType(
+			this.<Integer>getColumnOriginalValue("type_"));
+		layoutPageTemplateEntryImpl.setPreviewFileEntryId(
+			this.<Long>getColumnOriginalValue("previewFileEntryId"));
+		layoutPageTemplateEntryImpl.setDefaultTemplate(
+			this.<Boolean>getColumnOriginalValue("defaultTemplate"));
+		layoutPageTemplateEntryImpl.setLayoutPrototypeId(
+			this.<Long>getColumnOriginalValue("layoutPrototypeId"));
+		layoutPageTemplateEntryImpl.setPlid(
+			this.<Long>getColumnOriginalValue("plid"));
+		layoutPageTemplateEntryImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+		layoutPageTemplateEntryImpl.setStatus(
+			this.<Integer>getColumnOriginalValue("status"));
+		layoutPageTemplateEntryImpl.setStatusByUserId(
+			this.<Long>getColumnOriginalValue("statusByUserId"));
+		layoutPageTemplateEntryImpl.setStatusByUserName(
+			this.<String>getColumnOriginalValue("statusByUserName"));
+		layoutPageTemplateEntryImpl.setStatusDate(
+			this.<Date>getColumnOriginalValue("statusDate"));
+
+		return layoutPageTemplateEntryImpl;
+	}
+
+	@Override
 	public int compareTo(LayoutPageTemplateEntry layoutPageTemplateEntry) {
 		int value = 0;
 
@@ -1574,7 +1636,7 @@ public class LayoutPageTemplateEntryModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1585,10 +1647,27 @@ public class LayoutPageTemplateEntryModelImpl
 			Function<LayoutPageTemplateEntry, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply((LayoutPageTemplateEntry)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(LayoutPageTemplateEntry)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

@@ -2,9 +2,10 @@
 definition {
 
 	property analytics.cloud.enabled = "true";
-	property minimum.slave.ram = "32";
+	property minimum.slave.ram = "24";
 	property portal.release = "false";
 	property portal.upstream = "true";
+	property slave.label = "slave-1";
 	property testray.main.component.name = "Analytics Cloud";
 
 	setUp {
@@ -40,27 +41,229 @@ definition {
 	@ignore = "true"
 	@priority = "5"
 	test AssertAppearsOnListShowsPagesFormsExists {
+		task ("Submit the form") {
+			Navigator.gotoSitePage(
+				pageName = "AC Page",
+				siteName = "Site Name");
 
-		// TODO LRAC-8433 AssertAppearsOnListShowsPagesFormsExists
+			FormPortlet.waitFormRenderer(text = "Submit");
 
+			FormFields.viewTextLabel(
+				fieldLabel = "Text",
+				fieldName = "Text");
+
+			FormFields.editText(
+				fieldName = "Text",
+				fieldValue = "Test Assets");
+
+			FormPortlet.submitLocalizedSuccessfully(buttonName = "Submit");
+
+			Pause(locator1 = "5000");
+		}
+
+		task ("Close sessions") {
+			ACUtils.closeAllSessionsAndWait();
+		}
+
+		task ("Switch to new property in AC and go to forms tab") {
+			ACUtils.launchAC();
+
+			ACProperties.switchProperty(propertyName = "${propertyName}");
+
+			ACNavigation.goToAssets();
+
+			ACNavigation.switchTab(tabName = "Forms");
+		}
+
+		task ("Go to the form overview") {
+			ACTimeFilter.clickTimeFilterButton();
+
+			ACTimeFilter.setLast24Hours();
+
+			ACNavigation.openItem(itemName = "Created Form Name");
+		}
+
+		task ("Assert appears on metric") {
+			var portalURL = PropsUtil.get("portal.url");
+			var siteName = TestCase.getSiteName(siteName = "${siteName}");
+
+			ACAssets.viewAssetAppearsOnMetric(
+				canonicalURL = "${portalURL}/web/site-name",
+				cardTitle = "Asset Appears On",
+				pageNmae = "AC Page - Site Name - ${siteName}");
+		}
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8423 | Test Summary: Forms audience card shows expected amount of known and anonymous individuals"
-	@ignore = "true"
 	@priority = "5"
 	test AudienceCardShowsExpectedAmountKnowAndAnonymousIndividualsInForms {
+		task ("Create users and connect to AC") {
+			for (var n : list "ac,ac2") {
+				JSONUser.addUser(
+					userEmailAddress = "${n}@liferay.com",
+					userFirstName = "${n}",
+					userLastName = "${n}",
+					userScreenName = "${n}");
+			}
 
-		// TODO LRAC-8423 AudienceCardShowsExpectedAmountKnowAndAnonymousIndividualsInForms
+			var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
+		}
 
+		task ("Go to form and submit") {
+			for (var n : list "ac,ac2,unknown") {
+				if ("${n}" != "unknown") {
+					User.logoutAndLoginPG(
+						userLoginEmailAddress = "${n}@liferay.com",
+						userLoginFullName = "${n} ${n}");
+				}
+
+				if ("${n}" == "unknown") {
+					User.logoutPG();
+				}
+
+				Navigator.gotoSitePage(
+					pageName = "AC Page",
+					siteName = "Site Name");
+
+				FormFields.editText(
+					fieldName = "Text",
+					fieldValue = "Test Assets");
+
+				FormPortlet.submitLocalizedSuccessfully(buttonName = "Submit");
+
+				Pause(locator1 = "5000");
+			}
+		}
+
+		task ("Close all sessions and go to AC") {
+			ACUtils.closeAllSessionsAndWait();
+
+			ACUtils.launchAC();
+		}
+
+		task ("Change to the right property and go to assets form tab") {
+			ACProperties.switchProperty(propertyName = "${propertyName}");
+
+			ACNavigation.goToAssets();
+
+			ACNavigation.switchTab(tabName = "Forms");
+		}
+
+		task ("Change filter to 24 hours and go to the current form") {
+			ACTimeFilter.clickTimeFilterButton();
+
+			ACTimeFilter.setLast24Hours();
+
+			ACNavigation.openItem(itemName = "Created Form Name");
+		}
+
+		task ("Assert the correct persentage") {
+			ACUtils.assertAudienceCard(
+				index = "1",
+				percentageList = "66.67%,33.33%");
+		}
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8424 | Test Summary: Forms audience card shows expected amount of segmented and unsegmented individuals"
-	@ignore = "true"
 	@priority = "5"
 	test AudienceCardShowsExpectedAmountSegmentedAndUnsegmentedInForms {
+		task ("Create users and Sync") {
+			var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
 
-		// TODO LRAC-8424 AudienceCardShowsExpectedAmountSegmentedAndUnsegmentedInForms
+			for (var n : list "ac,ac2") {
+				JSONUser.addUser(
+					userEmailAddress = "${n}@liferay.com",
+					userFirstName = "${n}",
+					userLastName = "${n}",
+					userScreenName = "${n}");
+			}
 
+			ACDXPSettings.syncNewContactData();
+		}
+
+		task ("Go to form and submit to get data for unsegmented individuals") {
+			for (var n : list "ac,ac2,unknown") {
+				if ("${n}" != "unknown") {
+					User.logoutAndLoginPG(
+						userLoginEmailAddress = "${n}@liferay.com",
+						userLoginFullName = "${n} ${n}");
+				}
+
+				if ("${n}" == "unknown") {
+					User.logoutPG();
+				}
+
+				Navigator.gotoSitePage(
+					pageName = "AC Page",
+					siteName = "Site Name");
+
+				FormFields.editText(
+					fieldName = "Text",
+					fieldValue = "Test Assets");
+
+				FormPortlet.submitLocalizedSuccessfully(buttonName = "Submit");
+
+				Pause(locator1 = "5000");
+			}
+		}
+
+		task ("Go to AC and create segment for the user") {
+			ACUtils.launchAC();
+
+			ACProperties.switchProperty(propertyName = "${propertyName}");
+
+			ACNavigation.goToSegments();
+
+			ACSegments.createStaticSegment();
+
+			ACSegments.nameSegment(segmentName = "Static Segment Test");
+
+			ACSegments.addStaticMember(tableMember = "ac ac");
+
+			ACSegments.saveSegment();
+		}
+
+		task ("Go to form and submit to get data for segmented individuals") {
+			ACUtils.launchDXP();
+
+			ACUtils.launchDXP(userEmailAddress = "ac@liferay.com");
+
+			Navigator.gotoSitePage(
+				pageName = "AC Page",
+				siteName = "Site Name");
+
+			FormFields.editText(
+				fieldName = "Text",
+				fieldValue = "Test Assets");
+
+			FormPortlet.submitLocalizedSuccessfully(buttonName = "Submit");
+
+			Pause(locator1 = "5000");
+		}
+
+		task ("Close all sessions and go to AC") {
+			ACUtils.closeAllSessionsAndWait();
+
+			ACUtils.launchAC();
+		}
+
+		task ("Go to created form") {
+			ACNavigation.goToAssets();
+
+			ACNavigation.switchTab(tabName = "Forms");
+
+			ACTimeFilter.clickTimeFilterButton();
+
+			ACTimeFilter.setLast24Hours();
+
+			ACNavigation.openItem(itemName = "Created Form Name");
+		}
+
+		task ("Assert the correct percentage") {
+			ACUtils.assertAudienceCard(
+				index = "2",
+				percentageList = "66.67%,33.33%");
+		}
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8417 | Test Summary: Forms list is searchable"
@@ -84,9 +287,7 @@ definition {
 			Pause(locator1 = "5000");
 		}
 
-		ACUtils.closeAllSessions();
-
-		Pause(locator1 = "30000");
+		ACUtils.closeAllSessionsAndWait();
 
 		ACUtils.launchAC();
 
@@ -108,10 +309,7 @@ definition {
 
 		ACUtils.searchBar(searchItem = "Should not be here");
 
-		AssertTextEquals(
-			key_noResultMessage = "There are no Forms found.",
-			locator1 = "ACAssets#NO_RESULTS_CONTENT_MESSAGE",
-			value1 = "There are no Forms found.");
+		ACUtils.viewNoResultsMessage(noResultMessage = "There are no Forms found.");
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8121 | Test Summary: Assert clicking a form in the forms list navigates to the form overview page"
@@ -153,9 +351,7 @@ definition {
 			Pause(locator1 = "5000");
 		}
 
-		ACUtils.closeAllSessions();
-
-		Pause(locator1 = "30000");
+		ACUtils.closeAllSessionsAndWait();
 
 		ACUtils.launchAC();
 
@@ -187,48 +383,306 @@ definition {
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8421 | Test Summary: Assert Assets Forms Custom Range Time Filter in Behaviour Report	"
-	@ignore = "true"
 	@priority = "5"
 	test CanTimeFilterUseCustomRangeInFormsBehaviourReport {
+		property portal.upstream = "quarantine";
 
-		// TODO LRAC-8421 CanTimeFilterUseCustomRangeInFormsBehaviourReport
+		// AC Refactor: Timing issues may happen on this test case
+		// AC Refactor ticket: LRAC-8813
 
+		var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
+
+		task ("Form submit") {
+
+			// This test needs to add data from a past date to work propperly
+
+			Navigator.gotoSitePage(
+				pageName = "AC Page",
+				siteName = "Site Name");
+
+			FormPortlet.waitFormRenderer(text = "Submit");
+
+			FormFields.viewTextLabel(
+				fieldLabel = "Text",
+				fieldName = "Text");
+
+			FormFields.editText(
+				fieldName = "Text",
+				fieldValue = "Test Assets");
+
+			FormPortlet.submitLocalizedSuccessfully(buttonName = "Submit");
+		}
+
+		task ("Close sessions") {
+			ACUtils.closeAllSessions();
+
+			Pause(locator1 = "30000");
+		}
+
+		task ("Enter in forms asset page") {
+			ACUtils.launchAC();
+
+			ACProperties.switchProperty(propertyName = "${propertyName}");
+
+			ACNavigation.goToAssets();
+
+			ACNavigation.switchTab(tabName = "Forms");
+
+			ACTimeFilter.clickTimeFilterButton();
+
+			ACTimeFilter.setLast24Hours();
+
+			ACNavigation.openItem(itemName = "Created Form Name");
+		}
+
+		task ("Assert that overview card change behavior when I set a custom range date") {
+
+			// This test needs to assert data from a past date
+
+			ACTimeFilter.clickTimeFilterButton();
+
+			ACTimeFilter.setCustomRange(
+				endDay = "8",
+				endMonth = "August",
+				endYear = "2020",
+				startDay = "1",
+				startMonth = "August",
+				startYear = "2020");
+
+			ACTimeFilter.assertCurrentTimeFilterRange(timeFilterRange = "Aug 1, 2020 - Aug 8, 2020");
+
+			var curr_metricName = "";
+			var curr_metricValue = "";
+
+			for (var current : list "Abandonment-${expectedValue1},Submissions-${expectedValue2},Views-${expectedValue3},Completion Time-${expectedValue4}") {
+				curr_metricName = StringUtil.extractFirst("${current}","-");
+				curr_metricValue = StringUtil.extractLast("${current}","-");
+
+				ACCards.viewMetricValue(
+					cardTitle = "Visitors Behavior",
+					metricName = "${curr_metricName}",
+					metricValue = "${curr_metricValue}");
+			}
+		}
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8431 | Test Summary: Form abandonment card shows the expected amount of form abandonment based on how many times the form was started but not completed"
-	@ignore = "true"
 	@priority = "5"
 	test FormAbandonmentCardShowsExpectedAmountFormAbandonment {
+		Navigator.openURL();
 
-		// TODO LRAC-8431 FormAbandonmentCardShowsExpectedAmountFormAbandonment
+		var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
 
+		for (var name : list "1,2,3") {
+			Navigator.gotoSitePage(
+				pageName = "AC Page",
+				siteName = "Site Name");
+
+			Pause(locator1 = "10000");
+		}
+
+		FormPortlet.clickSubmit();
+
+		ACUtils.launchAC();
+
+		ACProperties.switchProperty(propertyName = "${propertyName}");
+
+		ACNavigation.goToAssets();
+
+		ACNavigation.switchTab(tabName = "Forms");
+
+		ACTimeFilter.clickTimeFilterButton();
+
+		ACTimeFilter.setLast24Hours();
+
+		ACNavigation.openItem(itemName = "Created Form Name");
+
+		ACIndividualsDashboard.goToOverviewTab();
+
+		ACNavigation.viewActiveSwitchTab(tabName = "Overview");
+
+		ACCards.viewMetricValue(
+			cardTitle = "Visitors Behavior",
+			metricName = "Abandonment",
+			metricValue = "66.7%");
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8426 | Test Summary: Forms submissions by location card shows expected views by location"
-	@ignore = "true"
 	@priority = "5"
 	test FormsLocationCardShowsViewsByExpectedLocation {
+		property portal.upstream = "quarantine";
 
-		// TODO LRAC-8426 FormsLocationCardShowsViewsByExpectedLocation
+		// AC Refactor: Location data issues happen in this ticket
+		// AC Refactor ticket: LRAC-8750
 
+		task ("Connect to AC") {
+			Navigator.openURL();
+
+			var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
+		}
+
+		task ("Submit forms with diferent locations data") {
+
+			// Use a macro to submit forms using diferent locations data
+			// Create a locations list that you can use later
+
+			Navigator.gotoSitePage(
+				pageName = "AC Page",
+				siteName = "Site Name");
+
+			FormFields.viewTextLabel(
+				fieldLabel = "Text",
+				fieldName = "Text");
+
+			FormFields.editText(
+				fieldName = "Text",
+				fieldValue = "Test Assets");
+
+			FormPortlet.submitLocalizedSuccessfully(buttonName = "Submit");
+
+			Pause(locator1 = "10000");
+		}
+
+		task ("Close all sessions") {
+			ACUtils.closeAllSessionsAndWait();
+		}
+
+		task ("Enter in form assets page in AC") {
+			ACUtils.launchAC();
+
+			ACProperties.switchProperty(propertyName = "${propertyName}");
+
+			ACNavigation.goToAssets();
+
+			ACNavigation.switchTab(tabName = "Forms");
+
+			ACTimeFilter.clickTimeFilterButton();
+
+			ACTimeFilter.setLast24Hours();
+
+			ACNavigation.openItem(itemName = "Created Form Name");
+		}
+
+		task ("Assert locations appear propperly in the card") {
+
+			// Assert the entries using the locations list declared before
+
+			ACSites.viewGeomapAnalyticsLocationNames(locationList = "${locationList}");
+		}
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8429 | Test Summary: Form submissions by technology card shows views by expected browser"
-	@ignore = "true"
 	@priority = "5"
 	test FormsTechnologyCardShowsViewsByExpectedBrowser {
+		var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
 
-		// TODO LRAC-8429 FormsTechnologyCardShowsViewsByExpectedBrowser
+		task ("Form submit") {
+			Navigator.gotoSitePage(
+				pageName = "AC Page",
+				siteName = "Site Name");
 
+			FormPortlet.waitFormRenderer(text = "Submit");
+
+			FormFields.viewTextLabel(
+				fieldLabel = "Text",
+				fieldName = "Text");
+
+			FormFields.editText(
+				fieldName = "Text",
+				fieldValue = "Test Assets");
+
+			FormPortlet.submitLocalizedSuccessfully(buttonName = "Submit");
+
+			Pause(locator1 = "5000");
+		}
+
+		task ("Close sessions") {
+			ACUtils.closeAllSessionsAndWait();
+		}
+
+		task ("Enter in forms asset page") {
+			ACUtils.launchAC();
+
+			ACProperties.switchProperty(propertyName = "${propertyName}");
+
+			ACNavigation.goToAssets();
+
+			ACNavigation.switchTab(tabName = "Forms");
+
+			ACTimeFilter.clickTimeFilterButton();
+
+			ACTimeFilter.setLast24Hours();
+
+			ACNavigation.openItem(itemName = "Created Form Name");
+		}
+
+		task ("Assert Browsers in Submissions by Technology") {
+			ACAssets.goToTechnologyTabInactive(
+				cardTitle = "Submissions by Technology",
+				tabName = "Browsers");
+
+			ACAssets.viewTechnologyBrowsersMetric(
+				browserMetricValue = "Chrome",
+				cardTitle = "Submissions by Technology",
+				cssValue = "rgb(75, 155, 255)",
+				percentageMetricValue = "100%");
+		}
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8428 | Test Summary: Form submissions by technology card shows views by expected device"
-	@ignore = "true"
 	@priority = "5"
 	test FormsTechnologyCardShowsViewsByExpectedDevice {
+		var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
 
-		// TODO LRAC-8428 FormsTechnologyCardShowsViewsByExpectedDevice
+		task ("Submit the form") {
+			Navigator.gotoSitePage(
+				pageName = "AC Page",
+				siteName = "Site Name");
 
+			FormPortlet.waitFormRenderer(text = "Submit");
+
+			FormFields.viewTextLabel(
+				fieldLabel = "Text",
+				fieldName = "Text");
+
+			FormFields.editText(
+				fieldName = "Text",
+				fieldValue = "Test Assets");
+
+			FormPortlet.submitLocalizedSuccessfully(buttonName = "Submit");
+
+			Pause(locator1 = "5000");
+		}
+
+		task ("Close sessions") {
+			ACUtils.closeAllSessionsAndWait();
+		}
+
+		task ("Switch to new property in AC and go to forms tab") {
+			ACUtils.launchAC();
+
+			ACProperties.switchProperty(propertyName = "${propertyName}");
+
+			ACNavigation.goToAssets();
+
+			ACNavigation.switchTab(tabName = "Forms");
+		}
+
+		task ("Go to the form overview") {
+			ACTimeFilter.clickTimeFilterButton();
+
+			ACTimeFilter.setLast24Hours();
+
+			ACNavigation.openItem(itemName = "Created Form Name");
+		}
+
+		task ("Assert Submissions by Devices metric") {
+			ACAssets.viewTechnologyDeviceViewsAndPercentage(
+				actionValue = "1 Submissions",
+				cardTitle = "Submissions by Technology",
+				deviceName = "Desktop",
+				percentageValue = "100%");
+		}
 	}
 
 	@description = "Form known individuals shows which individuals interact with the form"
@@ -272,9 +726,7 @@ definition {
 			Pause(locator1 = "10000");
 		}
 
-		ACUtils.closeAllSessions();
-
-		Pause(locator1 = "30000");
+		ACUtils.closeAllSessionsAndWait();
 
 		ACUtils.launchAC();
 
@@ -340,9 +792,7 @@ definition {
 			Pause(locator1 = "5000");
 		}
 
-		ACUtils.closeAllSessions();
-
-		Pause(locator1 = "30000");
+		ACUtils.closeAllSessionsAndWait();
 
 		ACUtils.launchAC();
 
@@ -376,9 +826,7 @@ definition {
 			Pause(locator1 = "100");
 		}
 
-		ACUtils.closeAllSessions();
-
-		Pause(locator1 = "30000");
+		ACUtils.closeAllSessionsAndWait();
 
 		ACUtils.launchAC();
 

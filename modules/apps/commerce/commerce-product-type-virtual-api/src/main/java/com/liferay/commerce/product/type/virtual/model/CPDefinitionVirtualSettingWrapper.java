@@ -221,6 +221,11 @@ public class CPDefinitionVirtualSettingWrapper
 		}
 	}
 
+	@Override
+	public CPDefinitionVirtualSetting cloneWithOriginalValues() {
+		return wrap(model.cloneWithOriginalValues());
+	}
+
 	/**
 	 * Returns the activation status of this cp definition virtual setting.
 	 *

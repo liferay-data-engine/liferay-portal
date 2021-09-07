@@ -40,8 +40,8 @@ import com.liferay.portal.kernel.model.PortletFilter;
 import com.liferay.portal.kernel.model.PortletURLListener;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.module.framework.ModuleServiceLifecycle;
-import com.liferay.portal.kernel.patcher.PatchInconsistencyException;
-import com.liferay.portal.kernel.patcher.PatcherUtil;
+import com.liferay.portal.kernel.module.util.ServiceLatch;
+import com.liferay.portal.kernel.module.util.SystemBundleUtil;
 import com.liferay.portal.kernel.plugin.PluginPackage;
 import com.liferay.portal.kernel.portlet.PortletConfigFactoryUtil;
 import com.liferay.portal.kernel.portlet.PortletInstanceFactoryUtil;
@@ -100,19 +100,15 @@ import com.liferay.portal.util.ShutdownUtil;
 import com.liferay.portlet.PortletBagFactory;
 import com.liferay.portlet.PortletFilterFactory;
 import com.liferay.portlet.PortletURLListenerFactory;
-import com.liferay.registry.Filter;
 import com.liferay.registry.Registry;
 import com.liferay.registry.RegistryUtil;
 import com.liferay.registry.ServiceRegistration;
-import com.liferay.registry.dependency.ServiceDependencyListener;
-import com.liferay.registry.dependency.ServiceDependencyManager;
 import com.liferay.social.kernel.util.SocialConfigurationUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -228,43 +224,17 @@ public class MainServlet extends HttpServlet {
 			servletContext, _init());
 
 		if (_log.isDebugEnabled()) {
-			_log.debug("Verify patch levels");
-		}
-
-		try {
-			PatcherUtil.verifyPatchLevels();
-		}
-		catch (PatchInconsistencyException patchInconsistencyException) {
-			if (!PropsValues.VERIFY_PATCH_LEVELS_DISABLED) {
-				_log.error(
-					"Stopping the server due to the inconsistent patch levels");
-
-				if (_log.isWarnEnabled()) {
-					_log.warn(
-						"Set the property \"verify.patch.levels.disabled\" " +
-							"to override stopping the server due to the " +
-								"inconsistent patch levels",
-						patchInconsistencyException);
-				}
-
-				System.exit(0);
-			}
-		}
-
-		if (_log.isDebugEnabled()) {
 			_log.debug("Verify JVM configuration");
 		}
 
 		if (_log.isWarnEnabled()) {
 			if (!StringPool.DEFAULT_CHARSET_NAME.startsWith("UTF-")) {
-				StringBundler sb = new StringBundler(4);
-
-				sb.append("The default JVM character set \"");
-				sb.append(StringPool.DEFAULT_CHARSET_NAME);
-				sb.append("\" is not UTF. Please review the JVM property ");
-				sb.append("\"file.encoding\".");
-
-				_log.warn(sb.toString());
+				_log.warn(
+					StringBundler.concat(
+						"The default JVM character set \"",
+						StringPool.DEFAULT_CHARSET_NAME,
+						"\" is not UTF. Please review the JVM property ",
+						"\"file.encoding\"."));
 			}
 
 			TimeZone timeZone = TimeZone.getDefault();
@@ -274,14 +244,11 @@ public class MainServlet extends HttpServlet {
 			if (!Objects.equals("UTC", timeZoneID) &&
 				!Objects.equals("GMT", timeZoneID)) {
 
-				StringBundler sb = new StringBundler(4);
-
-				sb.append("The default JVM time zone \"");
-				sb.append(timeZoneID);
-				sb.append("\" is not UTC or GMT. Please review the JVM ");
-				sb.append("property \"user.timezone\".");
-
-				_log.warn(sb.toString());
+				_log.warn(
+					StringBundler.concat(
+						"The default JVM time zone \"", timeZoneID,
+						"\" is not UTC or GMT. Please review the JVM property ",
+						"\"user.timezone\"."));
 			}
 		}
 
@@ -792,53 +759,7 @@ public class MainServlet extends HttpServlet {
 	}
 
 	private void _initLayoutTemplates(final PluginPackage pluginPackage) {
-		ServiceDependencyManager serviceDependencyManager =
-			new ServiceDependencyManager();
-
-		serviceDependencyManager.addServiceDependencyListener(
-			new ServiceDependencyListener() {
-
-				@Override
-				public void dependenciesFulfilled() {
-					try {
-						if (_log.isDebugEnabled()) {
-							_log.debug("Initialize layout templates");
-						}
-
-						ServletContext servletContext = getServletContext();
-
-						List<LayoutTemplate> layoutTemplates =
-							LayoutTemplateLocalServiceUtil.init(
-								servletContext,
-								new String[] {
-									StreamUtil.toString(
-										servletContext.getResourceAsStream(
-											"/WEB-INF/liferay-layout-" +
-												"templates.xml")),
-									StreamUtil.toString(
-										servletContext.getResourceAsStream(
-											"/WEB-INF/liferay-layout-" +
-												"templates-ext.xml"))
-								},
-								pluginPackage);
-
-						servletContext.setAttribute(
-							WebKeys.PLUGIN_LAYOUT_TEMPLATES, layoutTemplates);
-					}
-					catch (Exception exception) {
-						_log.error(exception, exception);
-					}
-				}
-
-				@Override
-				public void destroy() {
-				}
-
-			});
-
-		Registry registry = RegistryUtil.getRegistry();
-
-		Collection<Filter> filters = new ArrayList<>();
+		ServiceLatch serviceLatch = SystemBundleUtil.newServiceLatch();
 
 		for (String langType :
 				LayoutTemplateLocalServiceImpl.supportedLangTypes) {
@@ -851,11 +772,40 @@ public class MainServlet extends HttpServlet {
 			sb.append(TemplateManager.class.getName());
 			sb.append("))");
 
-			filters.add(registry.getFilter(sb.toString()));
+			serviceLatch.waitFor(sb.toString());
 		}
 
-		serviceDependencyManager.registerDependencies(
-			filters.toArray(new Filter[0]));
+		serviceLatch.openOn(
+			() -> {
+				try {
+					if (_log.isDebugEnabled()) {
+						_log.debug("Initialize layout templates");
+					}
+
+					ServletContext servletContext = getServletContext();
+
+					List<LayoutTemplate> layoutTemplates =
+						LayoutTemplateLocalServiceUtil.init(
+							servletContext,
+							new String[] {
+								StreamUtil.toString(
+									servletContext.getResourceAsStream(
+										"/WEB-INF/liferay-layout-" +
+											"templates.xml")),
+								StreamUtil.toString(
+									servletContext.getResourceAsStream(
+										"/WEB-INF/liferay-layout-templates-" +
+											"ext.xml"))
+							},
+							pluginPackage);
+
+					servletContext.setAttribute(
+						WebKeys.PLUGIN_LAYOUT_TEMPLATES, layoutTemplates);
+				}
+				catch (Exception exception) {
+					_log.error(exception, exception);
+				}
+			});
 	}
 
 	private ModuleConfig _initModuleConfig() throws Exception {

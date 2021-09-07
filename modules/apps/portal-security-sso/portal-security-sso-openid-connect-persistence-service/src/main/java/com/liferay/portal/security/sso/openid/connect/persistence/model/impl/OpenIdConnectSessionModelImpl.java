@@ -23,6 +23,7 @@ import com.liferay.portal.kernel.model.ModelWrapper;
 import com.liferay.portal.kernel.model.impl.BaseModelImpl;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.security.sso.openid.connect.persistence.model.OpenIdConnectSession;
 import com.liferay.portal.security.sso.openid.connect.persistence.model.OpenIdConnectSessionModel;
 
@@ -31,6 +32,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.Collections;
@@ -86,7 +88,7 @@ public class OpenIdConnectSessionModelImpl
 	}
 
 	public static final String TABLE_SQL_CREATE =
-		"create table OpenIdConnectSession (mvccVersion LONG default 0 not null,openIdConnectSessionId LONG not null primary key,companyId LONG,modifiedDate DATE null,accessToken VARCHAR(2048) null,idToken VARCHAR(2048) null,providerName VARCHAR(75) null,refreshToken VARCHAR(512) null)";
+		"create table OpenIdConnectSession (mvccVersion LONG default 0 not null,openIdConnectSessionId LONG not null primary key,companyId LONG,modifiedDate DATE null,accessToken VARCHAR(3000) null,idToken VARCHAR(3999) null,providerName VARCHAR(75) null,refreshToken VARCHAR(2000) null)";
 
 	public static final String TABLE_SQL_DROP =
 		"drop table OpenIdConnectSession";
@@ -520,6 +522,31 @@ public class OpenIdConnectSessionModelImpl
 	}
 
 	@Override
+	public OpenIdConnectSession cloneWithOriginalValues() {
+		OpenIdConnectSessionImpl openIdConnectSessionImpl =
+			new OpenIdConnectSessionImpl();
+
+		openIdConnectSessionImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		openIdConnectSessionImpl.setOpenIdConnectSessionId(
+			this.<Long>getColumnOriginalValue("openIdConnectSessionId"));
+		openIdConnectSessionImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		openIdConnectSessionImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		openIdConnectSessionImpl.setAccessToken(
+			this.<String>getColumnOriginalValue("accessToken"));
+		openIdConnectSessionImpl.setIdToken(
+			this.<String>getColumnOriginalValue("idToken"));
+		openIdConnectSessionImpl.setProviderName(
+			this.<String>getColumnOriginalValue("providerName"));
+		openIdConnectSessionImpl.setRefreshToken(
+			this.<String>getColumnOriginalValue("refreshToken"));
+
+		return openIdConnectSessionImpl;
+	}
+
+	@Override
 	public int compareTo(OpenIdConnectSession openIdConnectSession) {
 		long primaryKey = openIdConnectSession.getPrimaryKey();
 
@@ -652,7 +679,7 @@ public class OpenIdConnectSessionModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -663,10 +690,27 @@ public class OpenIdConnectSessionModelImpl
 			Function<OpenIdConnectSession, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply((OpenIdConnectSession)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(OpenIdConnectSession)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

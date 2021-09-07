@@ -90,7 +90,7 @@ export const Column = forwardRef(
 						data-field-name={firstField.fieldName}
 					>
 						{column.fields.map((field, index) => {
-							if (viewMode) {
+							if (viewMode && field.type !== 'numeric') {
 								field.predefinedValue = '';
 							}
 
@@ -158,7 +158,9 @@ export const Rows = ({children, rows}) => {
 	}
 
 	return rows.map((row, index) => (
-		<div key={index}>{children({index, row})}</div>
+		<div className="ddm-row" key={index}>
+			{children({index, row})}
+		</div>
 	));
 };
 

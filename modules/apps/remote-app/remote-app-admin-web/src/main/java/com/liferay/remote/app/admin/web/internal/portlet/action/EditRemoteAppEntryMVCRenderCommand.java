@@ -15,12 +15,10 @@
 package com.liferay.remote.app.admin.web.internal.portlet.action;
 
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCRenderCommand;
-import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.remote.app.admin.web.internal.constants.RemoteAppAdminPortletKeys;
 import com.liferay.remote.app.admin.web.internal.constants.RemoteAppAdminWebKeys;
 import com.liferay.remote.app.admin.web.internal.display.context.RemoteAppAdminDisplayContext;
-import com.liferay.remote.app.exception.NoSuchEntryException;
 import com.liferay.remote.app.service.RemoteAppEntryLocalService;
 
 import javax.portlet.PortletException;
@@ -48,12 +46,13 @@ public class EditRemoteAppEntryMVCRenderCommand implements MVCRenderCommand {
 			RenderRequest renderRequest, RenderResponse renderResponse)
 		throws PortletException {
 
-		renderRequest.setAttribute(
-			RemoteAppAdminWebKeys.REMOTE_APP_ADMIN_DISPLAY_CONTEXT,
-			new RemoteAppAdminDisplayContext(
-				renderRequest, renderResponse, _remoteAppEntryLocalService));
-
 		try {
+			renderRequest.setAttribute(
+				RemoteAppAdminWebKeys.REMOTE_APP_ADMIN_DISPLAY_CONTEXT,
+				new RemoteAppAdminDisplayContext(
+					renderRequest, renderResponse,
+					_remoteAppEntryLocalService));
+
 			long remoteAppEntryId = ParamUtil.getLong(
 				renderRequest, "remoteAppEntryId");
 
@@ -63,18 +62,12 @@ public class EditRemoteAppEntryMVCRenderCommand implements MVCRenderCommand {
 					_remoteAppEntryLocalService.getRemoteAppEntry(
 						remoteAppEntryId));
 			}
+
+			return "/admin/edit_remote_app_entry.jsp";
 		}
 		catch (Exception exception) {
-			if (exception instanceof NoSuchEntryException) {
-				SessionErrors.add(renderRequest, exception.getClass());
-
-				return "/admin/error.jsp";
-			}
-
 			throw new PortletException(exception);
 		}
-
-		return "/admin/edit_remote_app_entry.jsp";
 	}
 
 	@Reference

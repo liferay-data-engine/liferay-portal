@@ -37,6 +37,7 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
@@ -44,6 +45,7 @@ import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -1077,6 +1079,38 @@ public class MDRRuleModelImpl
 	}
 
 	@Override
+	public MDRRule cloneWithOriginalValues() {
+		MDRRuleImpl mdrRuleImpl = new MDRRuleImpl();
+
+		mdrRuleImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		mdrRuleImpl.setUuid(this.<String>getColumnOriginalValue("uuid_"));
+		mdrRuleImpl.setRuleId(this.<Long>getColumnOriginalValue("ruleId"));
+		mdrRuleImpl.setGroupId(this.<Long>getColumnOriginalValue("groupId"));
+		mdrRuleImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		mdrRuleImpl.setUserId(this.<Long>getColumnOriginalValue("userId"));
+		mdrRuleImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		mdrRuleImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		mdrRuleImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		mdrRuleImpl.setRuleGroupId(
+			this.<Long>getColumnOriginalValue("ruleGroupId"));
+		mdrRuleImpl.setName(this.<String>getColumnOriginalValue("name"));
+		mdrRuleImpl.setDescription(
+			this.<String>getColumnOriginalValue("description"));
+		mdrRuleImpl.setType(this.<String>getColumnOriginalValue("type_"));
+		mdrRuleImpl.setTypeSettings(
+			this.<String>getColumnOriginalValue("typeSettings"));
+		mdrRuleImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+
+		return mdrRuleImpl;
+	}
+
+	@Override
 	public int compareTo(MDRRule mdrRule) {
 		int value = 0;
 
@@ -1243,7 +1277,7 @@ public class MDRRuleModelImpl
 			getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1254,9 +1288,26 @@ public class MDRRuleModelImpl
 			Function<MDRRule, Object> attributeGetterFunction =
 				entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(attributeGetterFunction.apply((MDRRule)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply((MDRRule)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

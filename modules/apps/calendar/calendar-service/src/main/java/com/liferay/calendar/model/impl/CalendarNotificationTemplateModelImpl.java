@@ -33,12 +33,14 @@ import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.Serializable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 
+import java.sql.Blob;
 import java.sql.Types;
 
 import java.util.ArrayList;
@@ -965,6 +967,50 @@ public class CalendarNotificationTemplateModelImpl
 	}
 
 	@Override
+	public CalendarNotificationTemplate cloneWithOriginalValues() {
+		CalendarNotificationTemplateImpl calendarNotificationTemplateImpl =
+			new CalendarNotificationTemplateImpl();
+
+		calendarNotificationTemplateImpl.setMvccVersion(
+			this.<Long>getColumnOriginalValue("mvccVersion"));
+		calendarNotificationTemplateImpl.setCtCollectionId(
+			this.<Long>getColumnOriginalValue("ctCollectionId"));
+		calendarNotificationTemplateImpl.setUuid(
+			this.<String>getColumnOriginalValue("uuid_"));
+		calendarNotificationTemplateImpl.setCalendarNotificationTemplateId(
+			this.<Long>getColumnOriginalValue(
+				"calendarNotificationTemplateId"));
+		calendarNotificationTemplateImpl.setGroupId(
+			this.<Long>getColumnOriginalValue("groupId"));
+		calendarNotificationTemplateImpl.setCompanyId(
+			this.<Long>getColumnOriginalValue("companyId"));
+		calendarNotificationTemplateImpl.setUserId(
+			this.<Long>getColumnOriginalValue("userId"));
+		calendarNotificationTemplateImpl.setUserName(
+			this.<String>getColumnOriginalValue("userName"));
+		calendarNotificationTemplateImpl.setCreateDate(
+			this.<Date>getColumnOriginalValue("createDate"));
+		calendarNotificationTemplateImpl.setModifiedDate(
+			this.<Date>getColumnOriginalValue("modifiedDate"));
+		calendarNotificationTemplateImpl.setCalendarId(
+			this.<Long>getColumnOriginalValue("calendarId"));
+		calendarNotificationTemplateImpl.setNotificationType(
+			this.<String>getColumnOriginalValue("notificationType"));
+		calendarNotificationTemplateImpl.setNotificationTypeSettings(
+			this.<String>getColumnOriginalValue("notificationTypeSettings"));
+		calendarNotificationTemplateImpl.setNotificationTemplateType(
+			this.<String>getColumnOriginalValue("notificationTemplateType"));
+		calendarNotificationTemplateImpl.setSubject(
+			this.<String>getColumnOriginalValue("subject"));
+		calendarNotificationTemplateImpl.setBody(
+			this.<String>getColumnOriginalValue("body"));
+		calendarNotificationTemplateImpl.setLastPublishDate(
+			this.<Date>getColumnOriginalValue("lastPublishDate"));
+
+		return calendarNotificationTemplateImpl;
+	}
+
+	@Override
 	public int compareTo(
 		CalendarNotificationTemplate calendarNotificationTemplate) {
 
@@ -1167,7 +1213,7 @@ public class CalendarNotificationTemplateModelImpl
 			attributeGetterFunctions = getAttributeGetterFunctions();
 
 		StringBundler sb = new StringBundler(
-			(4 * attributeGetterFunctions.size()) + 2);
+			(5 * attributeGetterFunctions.size()) + 2);
 
 		sb.append("{");
 
@@ -1178,11 +1224,27 @@ public class CalendarNotificationTemplateModelImpl
 			Function<CalendarNotificationTemplate, Object>
 				attributeGetterFunction = entry.getValue();
 
+			sb.append("\"");
 			sb.append(attributeName);
-			sb.append("=");
-			sb.append(
-				attributeGetterFunction.apply(
-					(CalendarNotificationTemplate)this));
+			sb.append("\": ");
+
+			Object value = attributeGetterFunction.apply(
+				(CalendarNotificationTemplate)this);
+
+			if (value == null) {
+				sb.append("null");
+			}
+			else if (value instanceof Blob || value instanceof Date ||
+					 value instanceof Map || value instanceof String) {
+
+				sb.append(
+					"\"" + StringUtil.replace(value.toString(), "\"", "'") +
+						"\"");
+			}
+			else {
+				sb.append(value);
+			}
+
 			sb.append(", ");
 		}
 

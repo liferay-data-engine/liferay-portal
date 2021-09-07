@@ -16,13 +16,9 @@ package com.liferay.remote.app.admin.web.internal.portlet.action;
 
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCActionCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
-import com.liferay.portal.kernel.security.auth.PrincipalException;
-import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.remote.app.admin.web.internal.RemoteAppPortletRegistrar;
 import com.liferay.remote.app.admin.web.internal.constants.RemoteAppAdminPortletKeys;
-import com.liferay.remote.app.exception.NoSuchEntryException;
 import com.liferay.remote.app.service.RemoteAppEntryLocalService;
 
 import javax.portlet.ActionRequest;
@@ -49,38 +45,19 @@ public class DeleteRemoteAppEntryMVCActionCommand extends BaseMVCActionCommand {
 			ActionRequest actionRequest, ActionResponse actionResponse)
 		throws Exception {
 
-		String redirect = ParamUtil.getString(actionRequest, "redirect");
-
 		long remoteAppEntryId = ParamUtil.getLong(
 			actionRequest, "remoteAppEntryId");
 
-		try {
-			_remoteAppPortletRegistrar.unregisterPortlet(
-				_remoteAppEntryLocalService.getRemoteAppEntry(
-					remoteAppEntryId));
+		_remoteAppEntryLocalService.deleteRemoteAppEntry(remoteAppEntryId);
 
-			_remoteAppEntryLocalService.deleteRemoteAppEntry(remoteAppEntryId);
+		String redirect = ParamUtil.getString(actionRequest, "redirect");
 
-			if (Validator.isNotNull(redirect)) {
-				actionResponse.sendRedirect(redirect);
-			}
-		}
-		catch (Exception exception) {
-			if (exception instanceof NoSuchEntryException ||
-				exception instanceof PrincipalException) {
-
-				SessionErrors.add(actionRequest, exception.getClass());
-			}
-			else {
-				throw exception;
-			}
+		if (Validator.isNotNull(redirect)) {
+			actionResponse.sendRedirect(redirect);
 		}
 	}
 
 	@Reference
 	private RemoteAppEntryLocalService _remoteAppEntryLocalService;
-
-	@Reference
-	private RemoteAppPortletRegistrar _remoteAppPortletRegistrar;
 
 }
