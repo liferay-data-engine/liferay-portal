@@ -1092,26 +1092,37 @@ AUI.add(
 				setLabel(label) {
 					var instance = this;
 
-					var labelNode = instance.getLabelNode();
+					var fieldDefinition = instance.getFieldDefinition();
 
-					if (labelNode) {
-						var tipNode = labelNode.one('.taglib-icon-help');
+					if (fieldDefinition.type === 'fieldset') {
+						var containerNode = instance.get('container')._node;
 
-						if (
-							!A.UA.ie &&
-							Lang.isValue(label) &&
-							Lang.isNode(labelNode)
-						) {
-							labelNode.html(A.Escape.html(label));
+						var fieldSet = containerNode.getElementsByClassName(
+							'legend'
+						)[0];
+
+						fieldSet.textContent = label;
+					}
+					else {
+						var labelNode = instance.getLabelNode();
+
+						if (labelNode) {
+							var tipNode = labelNode.one('.taglib-icon-help');
+
+							if (
+								!A.UA.ie &&
+								Lang.isValue(label) &&
+								Lang.isNode(labelNode)
+							) {
+								labelNode.html(A.Escape.html(label));
+							}
+
+							if (!A.UA.ie && fieldDefinition.required) {
+								labelNode.append(TPL_REQUIRED_MARK);
+							}
+
+							instance._addTip(labelNode, tipNode);
 						}
-
-						var fieldDefinition = instance.getFieldDefinition();
-
-						if (!A.UA.ie && fieldDefinition.required) {
-							labelNode.append(TPL_REQUIRED_MARK);
-						}
-
-						instance._addTip(labelNode, tipNode);
 					}
 				},
 
