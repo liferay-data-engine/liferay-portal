@@ -55,6 +55,11 @@ const Geolocation = ({
 
 	return (
 		<div {...otherProps} className="ddm-geolocation field-labels-inline">
+
+			<div><ClayIcon symbol="geolocation"/>
+			<span id={`address_label_${instanceId}`}></span>
+			</div>
+
 			{!disabled || viewMode ? (
 				<dl>
 					<dt className="text-capitalize"></dt>
