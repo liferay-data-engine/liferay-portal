@@ -61,16 +61,53 @@ export function updateNestedFieldNames(parentFieldName, nestedFields) {
 			parentFieldName
 		);
 
-		return {
-			...nestedField,
-			name: newNestedFieldName,
-			nestedFields: updateNestedFieldNames(
-				newNestedFieldName,
-				nestedField.nestedFields
-			),
-			...parseNestedFieldName(newNestedFieldName),
-		};
+		if (nestedField.type === 'rich_text' && nestedField.editorConfig) {
+			return {
+				...nestedField,
+				editorConfig: updateEditorConfigFieldName(
+					nestedField.editorConfig,
+					newNestedFieldName
+				),
+				name: newNestedFieldName,
+				nestedFields: updateNestedFieldNames(
+					newNestedFieldName,
+					nestedField.nestedFields
+				),
+				...parseNestedFieldName(newNestedFieldName),
+			};
+		}
+		else {
+			return {
+				...nestedField,
+				name: newNestedFieldName,
+				nestedFields: updateNestedFieldNames(
+					newNestedFieldName,
+					nestedField.nestedFields
+				),
+				...parseNestedFieldName(newNestedFieldName),
+			};
+		}
 	});
+}
+
+function updateEditorConfigFieldName(editorConfig, name) {
+	const updatedEditorConfig = {...editorConfig};
+	for (const [key, value] of Object.entries(updatedEditorConfig)) {
+		if (typeof value === 'string') {
+			const parsedName = parseName(decodeURIComponent(value));
+
+			if (Object.keys(parsedName).length) {
+				const test = encodeURIComponent(generateName(null, parsedName));
+
+				updatedEditorConfig[key] = value.replace(
+					test,
+					encodeURIComponent(name) + 'selectItem'
+				);
+			}
+		}
+	}
+
+	return updatedEditorConfig;
 }
 
 export default function fieldReducer(state, action) {
@@ -222,14 +259,33 @@ export default function fieldReducer(state, action) {
 										}
 									);
 
-									return {
-										...currentField,
-										name,
-										nestedFields: updateNestedFieldNames(
+									if (
+										currentField.type === 'rich_text' &&
+										currentField.editorConfig
+									) {
+										return {
+											...currentField,
+											editorConfig: updateEditorConfigFieldName(
+												currentField.editorConfig,
+												name
+											),
 											name,
-											currentField.nestedFields
-										),
-									};
+											nestedFields: updateNestedFieldNames(
+												name,
+												currentField.nestedFields
+											),
+										};
+									}
+									else {
+										return {
+											...currentField,
+											name,
+											nestedFields: updateNestedFieldNames(
+												name,
+												currentField.nestedFields
+											),
+										};
+									}
 								}
 
 								return currentField;
